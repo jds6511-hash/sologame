@@ -1,0 +1,7 @@
+# Godot
+godot/.godot/
+*.import
+# Python
+__pycache__/
+# 임시
+*.tmp
