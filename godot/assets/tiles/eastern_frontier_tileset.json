@@ -1,0 +1,120 @@
+{
+  "tile_size": 16,
+  "columns": 4,
+  "rows": 4,
+  "source": "godot/assets/tools/generate_tileset_eastern_frontier.py",
+  "tiles": [
+    {
+      "index": 0,
+      "col": 0,
+      "row": 0,
+      "key": "grass_base",
+      "label": "풀밭 기본"
+    },
+    {
+      "index": 1,
+      "col": 1,
+      "row": 0,
+      "key": "grass_flower",
+      "label": "풀밭(들꽃, 재건 포인트색)"
+    },
+    {
+      "index": 2,
+      "col": 2,
+      "row": 0,
+      "key": "dirt_path",
+      "label": "흙길 기본"
+    },
+    {
+      "index": 3,
+      "col": 3,
+      "row": 0,
+      "key": "dirt_pebble",
+      "label": "흙길(자갈)"
+    },
+    {
+      "index": 4,
+      "col": 0,
+      "row": 1,
+      "key": "tilled_soil",
+      "label": "개척 농지(이랑+새싹)"
+    },
+    {
+      "index": 5,
+      "col": 1,
+      "row": 1,
+      "key": "river_water",
+      "label": "여울목 개울물"
+    },
+    {
+      "index": 6,
+      "col": 2,
+      "row": 1,
+      "key": "riverbank_sand",
+      "label": "강가 모래톱"
+    },
+    {
+      "index": 7,
+      "col": 3,
+      "row": 1,
+      "key": "rubble_stone",
+      "label": "폐허 잔해(석재)"
+    },
+    {
+      "index": 8,
+      "col": 0,
+      "row": 2,
+      "key": "cracked_ground",
+      "label": "균열 흉터 대지"
+    },
+    {
+      "index": 9,
+      "col": 1,
+      "row": 2,
+      "key": "stone_wall",
+      "label": "개척촌 방벽"
+    },
+    {
+      "index": 10,
+      "col": 2,
+      "row": 2,
+      "key": "stone_floor",
+      "label": "석재 바닥"
+    },
+    {
+      "index": 11,
+      "col": 3,
+      "row": 2,
+      "key": "wood_plank",
+      "label": "목조 바닥(노베라)"
+    },
+    {
+      "index": 12,
+      "col": 0,
+      "row": 3,
+      "key": "wood_fence",
+      "label": "목조 울타리"
+    },
+    {
+      "index": 13,
+      "col": 1,
+      "row": 3,
+      "key": "flag_banner",
+      "label": "개척 깃발"
+    },
+    {
+      "index": 14,
+      "col": 2,
+      "row": 3,
+      "key": "rock_small",
+      "label": "작은 바위(배경 오브젝트)"
+    },
+    {
+      "index": 15,
+      "col": 3,
+      "row": 3,
+      "key": "bush_small",
+      "label": "작은 덤불(배경 오브젝트)"
+    }
+  ]
+}
