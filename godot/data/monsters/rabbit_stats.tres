@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="MonsterStatsData" format=3]
+
+[ext_resource type="Script" path="res://scripts/ai/monster_stats_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+display_name = "뿔토끼"
+max_hp = 220.0
+attack_power = 15.0
+defense = 0.5
+shares_pack_aggro = false
+perception_range_tiles = 3.0
+leash_range_tiles = -1.0
+wander_speed_tiles = 1.5
+combat_move_speed_tiles = 4.0
+melee_range_tiles = 1.5
+melee_telegraph_sec = 0.4
+flee_duration_sec = 1.5

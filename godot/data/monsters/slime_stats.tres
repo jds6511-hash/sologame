@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="MonsterStatsData" format=3]
+
+[ext_resource type="Script" path="res://scripts/ai/monster_stats_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+display_name = "균열 점액"
+max_hp = 474.0
+attack_power = 37.0
+defense = 4.0
+shares_pack_aggro = false
+perception_range_tiles = 4.0
+leash_range_tiles = -1.0
+wander_speed_tiles = 0.6
+projectile_range_tiles = 5.0
+projectile_speed_tiles = 3.5
+projectile_telegraph_sec = 0.7
+projectile_cooldown_sec = 1.2
+self_destruct_telegraph_sec = 0.3
+self_destruct_radius_tiles = 1.5
+self_destruct_duration_sec = 2.0
+self_destruct_dps_ratio = 0.5

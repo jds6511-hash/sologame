@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="MonsterStatsData" format=3]
+
+[ext_resource type="Script" path="res://scripts/ai/monster_stats_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+display_name = "들개 마수"
+max_hp = 325.0
+attack_power = 24.0
+defense = 2.0
+shares_pack_aggro = true
+perception_range_tiles = 5.0
+leash_range_tiles = 8.0
+wander_speed_tiles = 1.8
+combat_move_speed_tiles = 4.2
+melee_range_tiles = 1.5
+melee_telegraph_sec = 0.5
