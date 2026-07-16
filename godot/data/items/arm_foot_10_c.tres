@@ -12,6 +12,6 @@ level_limit = 10
 equip_slot = 5
 main_stat_type = 2
 main_stat_value = 3.0
-move_speed_bonus = 0.0
+move_speed_bonus = 2.0
 price = 945
 acquisition = "상점 · 드랍"

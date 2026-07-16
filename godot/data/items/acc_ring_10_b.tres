@@ -11,6 +11,6 @@ grade = 1
 level_limit = 10
 equip_slot = 6
 main_stat_type = 3
-main_stat_value = 0.0
+main_stat_value = 0.28
 price = -1
 acquisition = "드랍 (실효 0.1%) · 퀘스트"

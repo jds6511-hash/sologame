@@ -53,7 +53,7 @@ enum MainStatType {
 @export var main_stat_type: MainStatType = MainStatType.NONE
 @export var main_stat_value: float = 0.0
 
-## 신발 전용 고정 옵션 (growth.md 3장 "이동 속도 +2~5") — 수치 공식 미확정, 0.0은 기획 필요 표시
+## 신발 전용 고정 옵션 — economy-foundation.md 3-4장 등급별 고정값 공식 (C+2/B+3/A+4/S+5, 레벨 무관)
 @export var move_speed_bonus: float = 0.0
 
 ## 골드 가격. 판매 미확정/비매품(표에 "—")인 경우 -1
