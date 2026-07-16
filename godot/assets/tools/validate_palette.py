@@ -29,6 +29,8 @@ DEFAULT_TARGETS = [
     str(ASSETS_DIR / "tiles" / "*.png"),
     str(ASSETS_DIR / "icons" / "skills" / "*.png"),
     str(ASSETS_DIR / "icons" / "items" / "*.png"),
+    str(ASSETS_DIR / "sprites" / "player" / "*.png"),
+    str(ASSETS_DIR / "sprites" / "monsters" / "*.png"),
 ]
 
 ICON_DIRS = {str(ASSETS_DIR / "icons" / "skills"), str(ASSETS_DIR / "icons" / "items")}
