@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/items/item_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+item_id = "ARM-LEG-10-C"
+item_name = "무두질 가죽 바지"
+item_type = 1
+grade = 0
+level_limit = 10
+equip_slot = 3
+main_stat_type = 2
+main_stat_value = 4.0
+price = 1575
+acquisition = "상점 · 드랍"

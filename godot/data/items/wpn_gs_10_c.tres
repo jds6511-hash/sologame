@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/items/item_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+item_id = "WPN-GS-10-C"
+item_name = "투박한 대검"
+item_type = 0
+grade = 0
+level_limit = 10
+equip_slot = 1
+main_stat_type = 1
+main_stat_value = 20.0
+price = 3780
+acquisition = "1차 전직 지급 (jobs.md 6장) · 상점"

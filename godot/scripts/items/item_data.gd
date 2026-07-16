@@ -1,0 +1,63 @@
+## 아이템 데이터 스키마 (Resource)
+##
+## economy-foundation.md 2장(등급 체계·ID 규칙)·growth.md 3장(장비 8슬롯)을 따르는
+## 데이터 주도 아이템 정의. 실제 수치는 코드에 넣지 않고 godot/data/items/*.tres로 분리한다.
+class_name ItemData
+extends Resource
+
+## 아이템 종류 — economy-foundation.md 2-3장 ID 규칙의 "종류" 코드에 대응
+enum ItemType {
+	WEAPON,  ## WPN
+	ARMOR,  ## ARM
+	ACCESSORY,  ## ACC
+	POTION,  ## POT
+	SPECIAL_WEAPON,  ## SPW
+	MATERIAL,  ## MAT
+}
+
+## 아이템 등급 — economy-foundation.md 2-1장 (성능 배율 C 0.85 / B 1.00 / A 1.15 / S 1.32)
+enum ItemGrade { C, B, A, S }
+
+## 장비 슬롯 — growth.md 3장 8슬롯 구조 (반지는 슬롯 1종이 2자리를 차지)
+enum EquipSlot {
+	NONE,
+	WEAPON,
+	ARMOR_BODY,  ## 갑옷
+	ARMOR_LEG,  ## 하의
+	ARMOR_HEAD,  ## 모자
+	ARMOR_FOOT,  ## 신발
+	RING,  ## 반지 (2슬롯 보유, 장착 로직은 인벤토리 시스템 담당)
+	NECKLACE,  ## 목걸이
+}
+
+## 주 옵션 스탯 종류 — growth.md 3장 슬롯별 주 옵션 대응
+enum MainStatType {
+	NONE,
+	ATTACK_POWER,  ## 공격력 (무기)
+	DEFENSE,  ## 방어력 (방어구)
+	CRIT_CHANCE,  ## 치명타 확률 (반지 등)
+	MAX_HP,  ## 최대 HP (목걸이 등)
+	MAX_MP,  ## 최대 MP
+	ATTACK_SPEED,  ## 공격 속도
+}
+
+## economy-foundation.md 2-3장 ID 규칙: {종류}-{계열/슬롯}-{티어Lv}-{등급}
+@export var item_id: String = ""
+@export var item_name: String = ""
+@export var item_type: ItemType = ItemType.WEAPON
+@export var grade: ItemGrade = ItemGrade.C
+@export var level_limit: int = 1
+@export var equip_slot: EquipSlot = EquipSlot.NONE
+
+## 주 옵션 (무기=공격력, 방어구=방어력 등) — economy-foundation.md 3장 공식으로 산출한 값
+@export var main_stat_type: MainStatType = MainStatType.NONE
+@export var main_stat_value: float = 0.0
+
+## 신발 전용 고정 옵션 (growth.md 3장 "이동 속도 +2~5") — 수치 공식 미확정, 0.0은 기획 필요 표시
+@export var move_speed_bonus: float = 0.0
+
+## 골드 가격. 판매 미확정/비매품(표에 "—")인 경우 -1
+@export var price: int = -1
+
+## 획득처 설명 (economy-foundation.md 3-1장 표 "획득처" 열 그대로)
+@export_multiline var acquisition: String = ""

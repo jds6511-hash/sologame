@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/items/item_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+item_id = "ARM-BODY-10-B"
+item_name = "병사의 사슬 갑옷"
+item_type = 1
+grade = 1
+level_limit = 10
+equip_slot = 2
+main_stat_type = 2
+main_stat_value = 8.0
+price = 252
+acquisition = "일반몹 드랍 (실효 0.225%) — 판매가 252골드"
