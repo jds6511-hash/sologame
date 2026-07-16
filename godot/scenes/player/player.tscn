@@ -1,8 +1,15 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://scripts/player/player_controller.gd" id="1"]
 [ext_resource type="Resource" path="res://data/player/player_movement.tres" id="2"]
 [ext_resource type="Resource" path="res://data/player/warrior_basic_combo.tres" id="3"]
+[ext_resource type="Resource" path="res://data/combat/player_hit_rules.tres" id="4"]
+[ext_resource type="Script" path="res://scripts/combat/player_attack_resolver.gd" id="5"]
+[ext_resource type="Resource" path="res://data/combat/warrior_lv1_combatant_stats.tres" id="6"]
+[ext_resource type="Resource" path="res://data/combat/damage_formula.tres" id="7"]
+[ext_resource type="Resource" path="res://data/combat/hitfeedback_weak.tres" id="8"]
+[ext_resource type="Resource" path="res://data/combat/hitfeedback_medium.tres" id="9"]
+[ext_resource type="Resource" path="res://data/combat/hitfeedback_strong.tres" id="10"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_1"]
 radius = 6.0
@@ -12,6 +19,15 @@ height = 20.0
 script = ExtResource("1")
 movement_data = ExtResource("2")
 combo_data = ExtResource("3")
+hit_rules = ExtResource("4")
+
+[node name="AttackResolver" type="Node" parent="."]
+script = ExtResource("5")
+attacker_stats = ExtResource("6")
+formula_data = ExtResource("7")
+preset_weak = ExtResource("8")
+preset_medium = ExtResource("9")
+preset_strong = ExtResource("10")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CapsuleShape2D_1")

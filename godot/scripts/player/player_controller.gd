@@ -10,16 +10,22 @@ signal dash_started
 signal dash_ended
 signal attack_step_started(step_index: int, hitstop_preset: String)
 signal attack_hit(step_index: int, target: Node)
+signal player_hit_taken(is_heavy: bool)  ## CB-4: 피격 성립(경직 시작) 알림
+signal player_invincibility_started
+signal player_invincibility_ended
 
 enum AttackState { NONE, STARTUP, ACTIVE, RECOVERY }
 
 @export var movement_data: PlayerMovementData
 @export var combo_data: WarriorComboData
+@export var hit_rules: PlayerHitRules  ## CB-4: combat.md 5-1장 피격 경직/무적 수치
 
 var attack_state: AttackState = AttackState.NONE
 var is_dashing: bool = false
 var is_dash_invincible: bool = false
 var dash_charges: int = 0
+var is_hit_stunned: bool = false  ## CB-4: 피격 경직 중
+var is_hit_invincible: bool = false  ## CB-4: 피격 후 무적 중
 
 var _move_input := Vector2.ZERO
 var _last_move_direction := Vector2.DOWN  ## 대시 기본 방향(이동 입력 없을 시 마지막 방향 유지)
@@ -30,6 +36,9 @@ var _queued_next_attack: bool = false
 var _dash_timer: float = 0.0
 var _dash_direction := Vector2.DOWN
 var _dash_recharge_timers: Array[float] = []
+var _hit_stun_timer: float = 0.0
+var _hit_invincibility_timer: float = 0.0
+var _knockback_velocity := Vector2.ZERO
 
 @onready var _facing: Node2D = $Facing
 @onready var _attack_hitbox: Area2D = $Facing/AttackHitbox
@@ -52,6 +61,13 @@ func _physics_process(delta: float) -> void:
 		_last_move_direction = _move_input.normalized()
 
 	_update_dash_recharge(delta)
+	_update_hit_reaction(delta)
+
+	if is_hit_stunned:
+		velocity = _knockback_velocity
+		move_and_slide()
+		return
+
 	_process_dodge_input()
 
 	if is_dashing:
@@ -167,6 +183,60 @@ func _on_attack_hitbox_body_entered(body: Node) -> void:
 	attack_hit.emit(_attack_step_index, body)
 
 
+# --- 피격 반응 (CB-4, combat.md 5-1장) ---
+
+
+## 몬스터 등 공격자가 판정 성립 시 호출하는 공개 API.
+## is_heavy: 강공격/보스 공격 여부(넉다운). knockback_direction: 밀려나는 방향(정규화 불필요).
+## 무적 중(회피 무적 포함)에는 무시한다 — 데미지 적용 여부는 호출자가 이 함수 호출 전에
+## is_invincible()로 먼저 확인해야 한다(경직/무적 갱신과 데미지 적용을 분리).
+func take_hit(is_heavy: bool, knockback_direction: Vector2 = Vector2.ZERO) -> void:
+	if is_invincible():
+		return
+	if is_dashing:
+		is_dashing = false
+		is_dash_invincible = false
+	if attack_state != AttackState.NONE:
+		_disable_attack_hitbox()
+		_end_combo()
+
+	is_hit_stunned = true
+	is_hit_invincible = true
+	_hit_stun_timer = hit_rules.heavy_knockdown_sec if is_heavy else hit_rules.light_stun_sec
+	_hit_invincibility_timer = (
+		hit_rules.heavy_invincibility_sec if is_heavy else hit_rules.light_invincibility_sec
+	)
+
+	## 넉백 소(0.5타일)는 "일반 피격"에만 명시되어 있다(combat.md 5-1장) — 넉다운(강공격)은
+	## 넉백 거리 수치가 없어 밀려나지 않는다(경직/무적 타이머만 적용).
+	if not is_heavy and knockback_direction != Vector2.ZERO:
+		var distance_px := hit_rules.light_knockback_tiles * movement_data.tile_size_px
+		_knockback_velocity = knockback_direction.normalized() * (distance_px / _hit_stun_timer)
+	else:
+		_knockback_velocity = Vector2.ZERO
+
+	player_hit_taken.emit(is_heavy)
+	player_invincibility_started.emit()
+
+
+## 회피 무적(대시)과 피격 후 무적을 합친 통합 판정 — 공격자 쪽이 데미지 적용 전 확인용.
+func is_invincible() -> bool:
+	return is_dash_invincible or is_hit_invincible
+
+
+func _update_hit_reaction(delta: float) -> void:
+	if is_hit_stunned:
+		_hit_stun_timer -= delta
+		if _hit_stun_timer <= 0.0:
+			is_hit_stunned = false
+			_knockback_velocity = Vector2.ZERO
+	if is_hit_invincible:
+		_hit_invincibility_timer -= delta
+		if _hit_invincibility_timer <= 0.0:
+			is_hit_invincible = false
+			player_invincibility_ended.emit()
+
+
 # --- 회피 대시 (combat.md 4장) ---
 
 
@@ -232,6 +302,8 @@ func _setup_placeholder_sprite() -> void:
 
 
 func get_debug_state_text() -> String:
+	if is_hit_stunned:
+		return "피격 경직%s" % (" (무적)" if is_hit_invincible else "")
 	if is_dashing:
 		return "회피 대시%s" % (" (무적)" if is_dash_invincible else "")
 	match attack_state:

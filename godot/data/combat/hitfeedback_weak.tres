@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="HitFeedbackPreset" format=3]
+
+[ext_resource type="Script" path="res://scripts/combat/hit_feedback_preset.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+tier_name = "약"
+hitstop_sec = 0.03
+screen_shake_intensity = 0

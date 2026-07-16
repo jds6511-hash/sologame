@@ -6,6 +6,10 @@ config_version=5
 config/name="sologame"
 config/features=PackedStringArray("4.7")
 
+[autoload]
+
+HitFeedback="*res://scripts/combat/hit_feedback_manager.gd"
+
 [display]
 
 window/size/viewport_width=1280

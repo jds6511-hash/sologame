@@ -1,0 +1,6 @@
+[gd_resource type="Resource" script_class="PlayerHitRules" format=3]
+
+[ext_resource type="Script" path="res://scripts/combat/player_hit_rules.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
