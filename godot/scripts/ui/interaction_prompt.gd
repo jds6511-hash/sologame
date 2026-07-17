@@ -13,7 +13,7 @@ var _is_active := false
 
 
 func _ready() -> void:
-	UiStyle.apply_body_font(self)
+	UiStyle.apply_label_font(self)
 	add_theme_color_override("font_color", UiStyle.COLOR_TEXT)
 	add_theme_color_override("font_outline_color", UiStyle.COLOR_OUTLINE)
 	add_theme_constant_override("outline_size", 2)

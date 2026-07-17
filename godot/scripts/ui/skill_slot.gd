@@ -1,8 +1,9 @@
 ## HUD F요소 — 스킬 슬롯 1칸 (아이콘 + 키 라벨 + 쿨다운 원형 오버레이).
 ##
-## `docs\art\ux\ux-foundation.md` 5장 F행: "각 칸: 스킬 아이콘 + 키 라벨(좌상, 13px) +
-## 쿨다운(어두운 원형 오버레이 + 남은 초, 20px). MP 부족 시 아이콘 청색 반투명 처리.
-## R(궁극기) 칸은 테두리 강조. 퀵슬롯(5,6)은 소비 아이템 아이콘+보유 수량."
+## `docs\art\ux\ux-foundation.md` 5장 F행: "각 칸: 스킬 아이콘 + 키 라벨(좌상, 보조 27px) +
+## 쿨다운(어두운 원형 오버레이 + 남은 초, 본문 33px). MP 부족 시 아이콘 청색 반투명 처리.
+## R(궁극기) 칸은 테두리 강조. 퀵슬롯(5,6)은 소비 아이템 아이콘+보유 수량." (2026-07-18
+## 1920x1080 재기준)
 class_name SkillSlot
 extends Panel
 
@@ -18,7 +19,7 @@ extends Panel
 func _ready() -> void:
 	add_theme_stylebox_override("panel", UiStyle.make_panel_stylebox())
 	UiStyle.apply_label_font(_key_label)
-	UiStyle.apply_label_font(_cooldown_label, 20)
+	UiStyle.apply_body_font(_cooldown_label)
 	UiStyle.apply_label_font(_quantity_label)
 	_key_label.add_theme_color_override("font_color", UiStyle.COLOR_TEXT)
 	_cooldown_label.add_theme_color_override("font_color", UiStyle.COLOR_TEXT)

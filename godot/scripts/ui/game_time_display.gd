@@ -18,7 +18,7 @@ const ICON_NIGHT := "★"
 
 func _ready() -> void:
 	add_theme_stylebox_override("panel", UiStyle.make_panel_stylebox())
-	UiStyle.apply_body_font(_icon_label)
+	UiStyle.apply_label_font(_icon_label)
 	UiStyle.apply_label_font(_time_label)
 	_icon_label.add_theme_color_override("font_color", UiStyle.COLOR_EXP)
 	_time_label.add_theme_color_override("font_color", UiStyle.COLOR_TEXT)

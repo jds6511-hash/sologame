@@ -11,7 +11,7 @@
 class_name MinimapDisplay
 extends Panel
 
-const RADIUS_PX := 80.0  ## 160x160 패널의 절반
+const RADIUS_PX := 120.0  ## 240x240 패널의 절반 (2026-07-18 1920x1080 재기준)
 const WORLD_TO_MINIMAP_SCALE := 0.08  ## 임의 축척(단순 구현) — 정식 축척은 M2 이후 확정
 const ENEMY_GROUP := "monsters"
 const NPC_GROUP := "npcs"

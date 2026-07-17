@@ -21,12 +21,12 @@ const COLOR_ENEMY_DOT := Color("#e43b44")
 const COLOR_NPC_DOT := Color("#fee761")
 const COLOR_QUEST_DOT := Color("#feae34")
 
-# --- 1-3장 한글 폰트 경로 ---
-const FONT_BODY_PATH := "res://assets/fonts/Galmuri11.ttf"  ## 본문 16px+
-const FONT_LABEL_PATH := "res://assets/fonts/Galmuri9.ttf"  ## 보조 라벨 13px+
+# --- 1-3장 한글 폰트 경로 (ux-foundation.md 5-0절, 2026-07-18 1920x1080 재기준) ---
+const FONT_BODY_PATH := "res://assets/fonts/Galmuri11.ttf"  ## 본문 33px+ (갈무리11 x3)
+const FONT_LABEL_PATH := "res://assets/fonts/Galmuri9.ttf"  ## 보조 라벨 27px+ (갈무리9 x3)
 
-const FONT_SIZE_BODY := 16
-const FONT_SIZE_LABEL := 13
+const FONT_SIZE_BODY := 33
+const FONT_SIZE_LABEL := 27
 
 const COOLDOWN_RADIAL_MASK_PATH := "res://assets/icons/ui/cooldown_radial_mask.png"
 
@@ -55,13 +55,13 @@ static func make_bar_fill_stylebox(fill_color: Color) -> StyleBoxFlat:
 	return box
 
 
-## 본문(16px+) 라벨에 갈무리 11 폰트를 적용한다.
+## 본문(33px+) 라벨에 갈무리 11 폰트를 적용한다.
 static func apply_body_font(control: Control, size: int = FONT_SIZE_BODY) -> void:
 	control.add_theme_font_override("font", load(FONT_BODY_PATH))
 	control.add_theme_font_size_override("font_size", size)
 
 
-## 보조 라벨(13px+)에 갈무리 9 폰트를 적용한다.
+## 보조 라벨(27px+)에 갈무리 9 폰트를 적용한다.
 static func apply_label_font(control: Control, size: int = FONT_SIZE_LABEL) -> void:
 	control.add_theme_font_override("font", load(FONT_LABEL_PATH))
 	control.add_theme_font_size_override("font_size", size)

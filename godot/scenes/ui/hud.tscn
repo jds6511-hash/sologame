@@ -22,19 +22,23 @@ script = ExtResource("1")
 visible = false
 
 [node name="ExpBar" type="Control" parent="."]
-offset_left = 16.0
-offset_top = 700.0
-offset_right = 1264.0
-offset_bottom = 706.0
+anchor_left = 0.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = -30.0
+offset_right = -24.0
+offset_bottom = -21.0
 mouse_filter = 2
 
 [node name="Background" type="ColorRect" parent="ExpBar"]
-offset_right = 1248.0
-offset_bottom = 6.0
+offset_right = 1872.0
+offset_bottom = 9.0
 mouse_filter = 2
 color = Color(0.09411765, 0.078431375, 0.14509805, 1)
 
 [node name="Fill" type="ColorRect" parent="ExpBar"]
-offset_bottom = 6.0
+offset_bottom = 9.0
 mouse_filter = 2
 color = Color(0.99607843, 0.68235296, 0.20392157, 1)
