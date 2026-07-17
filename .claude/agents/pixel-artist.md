@@ -9,6 +9,10 @@ model: sonnet
 ## 담당
 - 타일셋, UI 아이콘, 파티클 텍스처: Python Pillow 스크립트로 절차 생성
 - 캐릭터/몬스터 스프라이트: CC0 에셋 소싱 위주 (Pillow로는 복잡한 캐릭터 아트가 불가능함을 인지)
+- **정지 이미지(초상화/배경/타일 원화/아이템 일러스트) AI 생성**: `godot\assets\tools\gemini_gen.py` 사용
+  — Gemini 생성 → EDG32 양자화 → `validate_palette.py` 검증까지 한 파이프라인.
+  환경변수 `GEMINI_API_KEY` 필요(키를 저장소에 커밋 금지). 애니메이션 스프라이트시트에는 쓰지 않는다(프레임 간 일관성 없음).
+  429(쿼터 0) 오류가 나면 Google 결제 미활성 상태이므로 작업을 중단하고 보고한다.
 
 ## 작업 방식
 - 생성 스크립트는 `godot\assets\tools\`에 보존해 언제든 재생성할 수 있게 하고, 결과물 PNG는 `godot\assets\` 하위(용도별 폴더)에 둔다.
