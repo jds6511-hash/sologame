@@ -64,9 +64,13 @@ func _spawn_wolf_packs(player: Node2D) -> void:
 			var angle := (
 				base_angle
 				+ (TAU / pack_size) * i
-				+ deg_to_rad(_rng.randf_range(-WOLF_PACK_ANGLE_JITTER_DEG, WOLF_PACK_ANGLE_JITTER_DEG))
+				+ deg_to_rad(
+					_rng.randf_range(-WOLF_PACK_ANGLE_JITTER_DEG, WOLF_PACK_ANGLE_JITTER_DEG)
+				)
 			)
-			var offset := Vector2.RIGHT.rotated(angle) * WOLF_PACK_SCATTER_RADIUS_TILES * TILE_SIZE_PX
+			var offset := (
+				Vector2.RIGHT.rotated(angle) * WOLF_PACK_SCATTER_RADIUS_TILES * TILE_SIZE_PX
+			)
 			var wolf := WOLF_SCENE.instantiate() as WolfMonster
 			wolf.pack_id = pack_id
 			wolf.global_position = marker.global_position + offset

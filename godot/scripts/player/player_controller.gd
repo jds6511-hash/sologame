@@ -614,7 +614,11 @@ func _current_action_name() -> String:
 		return "death"
 	if is_hit_stunned:
 		return "hit"
-	if attack_state != AttackState.NONE or skill_state != AttackState.NONE or _is_charging_secondary:
+	if (
+		attack_state != AttackState.NONE
+		or skill_state != AttackState.NONE
+		or _is_charging_secondary
+	):
 		return "attack"
 	if _move_input.length_squared() > 0.0:
 		return "walk"
@@ -625,7 +629,11 @@ func _current_action_name() -> String:
 ## 조준한 각도로 고정돼 있으므로(공격 시작 시점 이후 갱신되지 않음, _physics_process
 ## 참고) 그 각도를 그대로 쓰고, 그 외에는 이동 입력(없으면 마지막 이동 방향)을 쓴다.
 func _current_facing_vector() -> Vector2:
-	if attack_state != AttackState.NONE or skill_state != AttackState.NONE or _is_charging_secondary:
+	if (
+		attack_state != AttackState.NONE
+		or skill_state != AttackState.NONE
+		or _is_charging_secondary
+	):
 		return Vector2.RIGHT.rotated(_facing.rotation)
 	if _move_input.length_squared() > 0.0:
 		return _move_input

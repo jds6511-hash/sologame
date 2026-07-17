@@ -11,6 +11,13 @@ const LOW_HP_RATIO := 0.3
 const GHOST_DRAIN_PER_SEC := 0.5  ## 잔상이 초당 실제 HP를 따라잡는 비율(0~1 스케일)
 const BLINK_PERIOD_SEC := 0.6
 
+## 초상 텍스처는 scenes/ui/player_status_panel.tscn에 player_warrior_idle.png의
+## AtlasTexture(정면 idle 1프레임)로 미리 배선돼 있다. 그 region은 구 스프라이트 규격
+## (32x32)의 좌표라 STYLE_GUIDE.md 1-2절 개정(16x32, G2-2)과 어긋난다 — scenes\ui\는
+## 이 태스크의 수정 범위 밖이라(다른 에이전트 작업 중) .tscn을 직접 고치는 대신, 여기서
+## 런타임에 region을 새 시트 좌표(정면 1프레임 = Rect2(0,0,16,32))로 보정한다.
+const PORTRAIT_CROP_REGION := Rect2(0, 0, 16, 32)
+
 var _hp_ratio := 1.0
 var _ghost_ratio := 1.0
 var _blink_timer := 0.0
@@ -64,14 +71,6 @@ func _process(delta: float) -> void:
 	else:
 		_blink_timer = 0.0
 		_hp_border.visible = false
-
-
-## 초상 텍스처는 scenes/ui/player_status_panel.tscn에 player_warrior_idle.png의
-## AtlasTexture(정면 idle 1프레임)로 미리 배선돼 있다. 그 region은 구 스프라이트 규격
-## (32x32)의 좌표라 STYLE_GUIDE.md 1-2절 개정(16x32, G2-2)과 어긋난다 — scenes\ui\는
-## 이 태스크의 수정 범위 밖이라(다른 에이전트 작업 중) .tscn을 직접 고치는 대신, 여기서
-## 런타임에 region을 새 시트 좌표(정면 1프레임 = Rect2(0,0,16,32))로 보정한다.
-const PORTRAIT_CROP_REGION := Rect2(0, 0, 16, 32)
 
 
 func _fix_portrait_crop() -> void:
