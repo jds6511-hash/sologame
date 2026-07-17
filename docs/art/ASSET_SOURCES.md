@@ -1,15 +1,16 @@
 # 아트 에셋 소싱 출처 (CC0/무료 라이선스)
 
-- **최종 수정일**: 2026-07-17
+- **최종 수정일**: 2026-07-18
 - **담당**: pixel-artist
 - **의존 문서**:
-  - `docs\art\STYLE_GUIDE.md` (2장 EDG32 팔레트, 3장 아웃라인/명암/프레임 규격, 7-3장 CC0 소싱 규칙)
+  - `docs\art\STYLE_GUIDE.md` (2장 EDG32 팔레트, 3장 아웃라인/명암/프레임 규격, 7-3장 CC0 소싱 규칙, 1-2장·8장 — 2026-07-18 개정: G2-2 스타듀밸리 비율 정합 신규격)
   - `docs\design\M2_PLAN.md` (2-5장 AR-1·AR-2 태스크)
   - `docs\design\systems\m2-monster-spec.md` (몬스터 3종 실루엣·기믹 힌트)
 - **변경 이력**:
   - 2026-07-17: 최초 작성 — AR-1(전사 플레이어) 플레이스홀더 제작 결정, AR-2(몬스터 3종: 들개 마수·뿔토끼·균열 점액) CC0/CC-BY 소싱 및 EDG32 재색상화 완료 기록
   - 2026-07-17: ui-dev가 UI-1/UI-2(HUD·통합 메뉴) 구현 중 STYLE_GUIDE.md 1-3장 한글 폰트(갈무리 11/9) 소싱 기록 추가(9장) — M2_PLAN.md 지시("라이선스 SIL OFL 기록") 이행
   - 2026-07-17: (audio-designer) 8장 추가(기존 8장 디렉터 결정 필요는 9장으로 이동) — SD-1 전투 SFX 자체 생성 기록, SD-2 시작 지역 BGM CC0 후보 소싱 시도 결과와 임시 numpy 플레이스홀더 채택 사유 기록
+  - 2026-07-18: 디렉터 지시(G2-2, STYLE_GUIDE 1-2장 개정)에 따라 전사 플레이어(32x32→16x32)·뿔토끼(32x32→16x16)·들개 마수(32x32→32x24) 3종 스프라이트를 신규격으로 재제작. 소싱 출처·라이선스는 변경 없음(2·3·4장에 축소 가공 내용만 추가 기록). 균열 점액은 재작업 대상 아님(캔버스 32x32 유지).
 
 > 본 문서는 `godot\assets\sprites\` 하위 캐릭터/몬스터 스프라이트 제작에 사용한 제3자 소싱 자료의 출처·라이선스를 기록한다. 절차 생성(Pillow) 산출물(타일셋·아이콘)의 출처는 해당 없음(자체 생성) — 이 문서는 **소싱 자료만** 다룬다.
 
@@ -34,6 +35,7 @@
 - 정적으로 바로 내려받을 수 있는 CC0 캐릭터인 **"32x32 RPG Character Sprites" / RPGSoldier32x32.png**(CC0, https://opengameart.org/content/32x32-rpg-character-sprites)를 검토했으나, SF 우주복 스타일(헬멧·바이저)이라 판타지 전사 톤에 맞지 않고, walk/standing/차징 포즈만 있어 attack/hit/death 애니메이션이 없어 M2 완료 기준(idle/walk/attack/hit/death 5종)을 못 채운다.
 - 위 사유로 이번 M2에서는 **Pillow 절차 생성 플레이스홀더**를 제작했다 (디렉터 지시 "M2는 손맛 검증 목적 — 플레이스홀더로 게이트 통과 가능"에 따름). 실루엣 크기·발밑 기준점·EDG32 팔레트·1px 아웃라인·프레임 예산(57/90)은 STYLE_GUIDE 규격을 그대로 준수한다.
 - **추후 교체 필요**: 정식 전사 원화(CC0 소싱 재시도 또는 커미션)로 교체 시 `godot\assets\tools\gen_player_warrior.py`의 출력만 대체하면 된다 (파일명·시트 규격 유지).
+- **2026-07-18 개정(G2-2, 스타듀밸리 비율 정합)**: STYLE_GUIDE 1-2장 개정으로 캔버스가 **32x32 → 16x32(1타일x2타일, 날씬한 인간형)**로 슬림화됐다. 세로(32px)는 기존과 동일하게 유지하고 가로(32→16)만 절반으로 좁혀 각 부위 X좌표를 재설계했다(실체 약 12x28, 머리 폭 8px). 파일명·행 구성(하/측/상)·프레임 수(idle4/walk6/attack4/hit1/death4)·애니메이션 순서는 변경 없음. 여전히 Pillow 절차 생성 플레이스홀더이며 교체 필요성은 그대로 유효하다.
 
 ---
 
@@ -44,6 +46,7 @@
 - **라이선스**: CC-BY 4.0 선택 사용 (원 페이지는 CC-BY 4.0/3.0, GPL 3.0/2.0, OGA-BY 3.0 중 택1 허용 — 모두 상업적 이용 가능. 본 프로젝트는 CC-BY 4.0 기준으로 표기)
 - **원본 캐시**: `godot\assets\tools\_raw_src\wolfsheet1_zerohero.png` (재다운로드 시 위 URL, 640x384, 저장소에는 커밋하지 않음 — 스크립트 재실행용 로컬 캐시)
 - **가공 내용**: 원본 시트 오른쪽 절반(4족 측면 늑대, 32x32 그리드 10열x12행)에서 걷기/하울(포효)/이빨 노출 돌진/누운 포즈 프레임을 추출, 휘도 기준 EDG32 재색상화(`sprite_source_common.recolor_by_luminance`) + 1px `#181425` 아웃라인 보강.
+- **2026-07-18 개정(G2-2, 출력 캔버스 재조정)**: STYLE_GUIDE 1-2장 개정으로 **출력 캔버스가 32x32 → 32x24(표준 체급)로 축소**됐다. 원본 소스 시트의 그리드 피치(32x32)는 그대로 두고(`gen_monster_wolf.py`의 `SRC_CELL`), 추출 후 실체 bbox가 목표(가로 26/세로 16)를 넘으면 종횡비 유지 NEAREST 축소(`TARGET_W`/`TARGET_H`)를 팔레트 재양자화 전에 적용해 32x24 신규격에 맞췄다. 소싱 원본·라이선스는 변경 없음.
 - **한계(방향 근사)**: 원본은 **측면(側面)만** 존재한다. 하(정면)/상(후면) 방향은 정식 원화가 없어, 측면 프레임의 좌우 폭을 압축한 **간이 근사**로 대체했다 (`gen_monster_wolf.py`의 `make_down_up_approx`). 완전한 정면/후면 원화가 아니므로 시각적으로 다소 뭉개져 보일 수 있음 — 추후 정식 4족 정면/후면 원화 확보 시 교체 권장.
 - **필요 표기(CC-BY)**: "LPC Wolf Animation by zerohero, Mumu, William.Thompsonj (OpenGameArt, CC-BY 4.0)" — 이후 크레딧 화면/README 제작 시(M2 범위 밖) 반영.
 
@@ -55,6 +58,7 @@
 - **원본 캐시**: `godot\assets\tools\_raw_src\bunnysheet5_ablu.png` (재다운로드 시 위 URL 하위 `bunnysheet5.png`)
 - **가공 내용**: 원본이 하/상/측 3방향 각각 "정지 포즈 2종 + 홉 이동 8프레임"을 담고 있어 idle/walk는 그대로 프레임 추출(알파 bbox 자동 검출) 후 EDG32 재색상화. 원본에 없는 공격(박치기)·사망 모션은 홉/도약 포즈를 Pillow로 전단(lean)·확대(lunge)·회전+페이드(death) 변형해 합성했다(`gen_monster_rabbit.py`).
 - **실루엣 식별 요소**: STYLE_GUIDE 6-3장 지침에 따라 정수리에 작은 뿔(EDG32 `tan #c28569`, 2~3px)을 절차적으로 추가해 "뿔토끼" 정체성을 표현했다 — 현재는 작은 점 형태라 다소 미미하므로 추후 다듬어도 좋음.
+- **2026-07-18 개정(G2-2, 출력 캔버스 재조정)**: STYLE_GUIDE 1-2장 개정으로 **출력 캔버스가 32x32 → 16x16(경량 체급)로 축소**됐다. 크롭+autotrim한 원본 bbox의 최대 변 길이가 14px를 넘으면 팔레트 재양자화 전에 NEAREST로 비율 축소(`gen_monster_rabbit.py`의 `TARGET_MAX_DIM`)해 16x16 신규격에 맞췄고, 뿔도 1~2px로 비례 축소했다. 소싱 원본·라이선스는 변경 없음.
 - **필요 표기(CC-BY)**: "Bunny Rabbit LPC style for PixelFarm by Ablu, pennomi, tebruno99, zerohero (OpenGameArt, CC-BY 3.0)"
 
 ## 5. 균열 점액 — Animated Slime

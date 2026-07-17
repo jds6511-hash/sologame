@@ -12,15 +12,22 @@ CC0/무료 라이선스 소싱을 우선 시도했으나(OpenGameArt 검색: LPC
 추후 CC0 원화를 확보하면 이 스크립트의 출력을 교체할 것 (godot\\assets\\CREDITS.md에도
 플레이스홀더임을 기록).
 
+**2026-07-18 개정 (G2-2, 스타듀밸리 비율 정합)**:
+STYLE_GUIDE.md 1-2장 개정으로 캔버스가 **32x32 -> 16x32(가로 1타일 x 세로 2타일)** 로
+슬림화됐다. 세로(32px)는 구 규격과 동일해 기존 Y좌표 레이아웃(머리/몸통/다리 배치)을
+그대로 유지하고, 가로(32->16)만 절반으로 좁혀 각 부위 X좌표를 재설계했다
+(실체 목표 약 12x28 - 팔 끝까지 폭 12px, 머리 폭 8px, 몸통 폭 8px). 파일명·행 구성(3방향:
+하/측/상)·프레임 수·애니메이션 순서는 변경 없음.
+
 STYLE_GUIDE.md 준수:
-- 1-2장: 캔버스 32x32, 실체 약 16x24, 발밑 기준점(하단 중앙)
+- 1-2장: 캔버스 16x32(1타일x2타일), 실체 약 12x28, 발밑 기준점(하단 중앙)
 - 2장: EDG32 32색만 사용 (직접 RGB 튜플만 그려 안티앨리어싱 원천 차단)
 - 3-1장: 1px 아웃라인 #181425
 - 3-2장: 재질당 3단 램프(기본+그림자+하이라이트), 광원 위쪽·약간 왼쪽
 - 3-3장: 플레이어 프레임 예산 - idle4/walk6/attack4/hit1/death4 x3방향 = 57프레임 (90 이내)
 
 출력: godot\\assets\\sprites\\player\\player_warrior_{idle,walk,attack,hit,death}.png
-      (각 3행[하/측/상] x N열, 32x32 셀)
+      (각 3행[하/측/상] x N열, 16x32 셀) + 각 파일의 4배 확대 프리뷰(_preview_ 접두사)
 """
 
 from __future__ import annotations
@@ -32,9 +39,10 @@ from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).parent))
 from edg32_palette import RGB
-from sprite_source_common import ASSETS_DIR, ensure_outline, fade, new_sheet
+from sprite_source_common import ASSETS_DIR, ensure_outline, fade, new_sheet, save_with_preview
 
-CELL = 32
+CELL_W = 16
+CELL_H = 32
 OUT_DIR = ASSETS_DIR / "sprites" / "player"
 
 OUTLINE = RGB["darkest"]
@@ -54,73 +62,77 @@ HILT = RGB["tan"]
 
 
 def blank() -> Image.Image:
-    return Image.new("RGBA", (CELL, CELL), (0, 0, 0, 0))
+    return Image.new("RGBA", (CELL_W, CELL_H), (0, 0, 0, 0))
 
 
 def rect(im: Image.Image, x0: int, y0: int, x1: int, y1: int, color: tuple[int, int, int]) -> None:
     px = im.load()
     for y in range(y0, y1):
         for x in range(x0, x1):
-            if 0 <= x < CELL and 0 <= y < CELL:
+            if 0 <= x < CELL_W and 0 <= y < CELL_H:
                 px[x, y] = (*color, 255)
 
 
 def draw_body(im: Image.Image, direction: str, leg_dy: tuple[int, int], arm_dx: int, bob: int) -> None:
-    """direction: 'down'(정면) / 'side'(측면, 우측 기준) / 'up'(후면). leg_dy=(왼다리,오른다리) 수직오프셋."""
-    cx = CELL // 2
+    """direction: 'down'(정면) / 'side'(측면, 우측 기준) / 'up'(후면). leg_dy=(왼다리,오른다리) 수직오프셋.
+
+    X좌표는 cx=8(캔버스 폭 16의 중앙) 기준 재설계: 머리/몸통 8px, 다리 6px, 팔 끝까지 12px
+    (실체 약 12x28, STYLE_GUIDE 1-2). Y좌표는 구 32x32 규격과 동일하게 유지(세로는 미변경).
+    """
+    cx = CELL_W // 2  # 8
     ly, ry = leg_dy
 
-    # 다리 (하단, 발밑 y=30 기준)
-    rect(im, cx - 4, 22 + ly, cx - 1, 30 + ly, PANTS_SHADOW)
-    rect(im, cx - 4, 22 + ly, cx - 2, 29 + ly, PANTS_BASE)
-    rect(im, cx + 1, 22 + ry, cx + 4, 30 + ry, PANTS_SHADOW)
-    rect(im, cx + 2, 22 + ry, cx + 4, 29 + ry, PANTS_BASE)
+    # 다리 (하단, 발밑 y=30 기준) - 다리 폭 2px씩
+    rect(im, cx - 3, 22 + ly, cx - 1, 30 + ly, PANTS_SHADOW)
+    rect(im, cx - 3, 22 + ly, cx - 2, 29 + ly, PANTS_BASE)
+    rect(im, cx + 1, 22 + ry, cx + 3, 30 + ry, PANTS_SHADOW)
+    rect(im, cx + 2, 22 + ry, cx + 3, 29 + ry, PANTS_BASE)
 
     top = 13 + bob
     bottom = 22 + bob
-    # 몸통(갑옷)
-    rect(im, cx - 5, top, cx + 5, bottom, ARMOR_SHADOW)
-    rect(im, cx - 5, top, cx + 1, bottom, ARMOR_BASE)
-    rect(im, cx - 5, top, cx - 3, bottom, ARMOR_HI)
+    # 몸통(갑옷) - 폭 8px(cx-4~cx+4)
+    rect(im, cx - 4, top, cx + 4, bottom, ARMOR_SHADOW)
+    rect(im, cx - 4, top, cx + 1, bottom, ARMOR_BASE)
+    rect(im, cx - 4, top, cx - 3, bottom, ARMOR_HI)
     rect(im, cx - 2, top, cx + 2, top + 2, SCARF)  # 목 스카프 포인트
 
-    # 팔
-    rect(im, cx - 8 + arm_dx, top + 1, cx - 5 + arm_dx, top + 8, ARMOR_SHADOW)
-    rect(im, cx + 5 - arm_dx, top + 1, cx + 8 - arm_dx, top + 8, ARMOR_BASE)
+    # 팔 - 몸통 바깥 cx+-6까지(폭 12px 전신 실루엣의 최대폭, 캔버스 여백 2px는 무기 돌출용)
+    rect(im, cx - 6 + arm_dx, top + 1, cx - 4 + arm_dx, top + 8, ARMOR_SHADOW)
+    rect(im, cx + 4 - arm_dx, top + 1, cx + 6 - arm_dx, top + 8, ARMOR_BASE)
 
-    # 머리
+    # 머리 - 폭 8px(cx-4~cx+4), STYLE_GUIDE "머리 ~8px" 그대로 충족
     hy0, hy1 = 4 + bob, 13 + bob
     rect(im, cx - 4, hy0, cx + 4, hy1, SKIN_SHADOW)
     rect(im, cx - 4, hy0, cx + 2, hy1, SKIN_BASE)
-    rect(im, cx - 4, hy0, cx - 1, hy1 - 3, SKIN_HI)
+    rect(im, cx - 4, hy0, cx - 3, hy1 - 3, SKIN_HI)
     rect(im, cx - 4, hy0, cx + 4, hy0 + 3, HAIR)  # 앞머리
     if direction == "up":
         rect(im, cx - 4, hy0, cx + 4, hy1 - 2, HAIR)  # 후면은 뒤통수 머리로 덮음
     elif direction == "down":
-        rect(im, cx - 2, hy0 + 4, cx - 1, hy0 + 5, OUTLINE)  # 눈
+        rect(im, cx - 1, hy0 + 4, cx, hy0 + 5, OUTLINE)  # 눈
         rect(im, cx + 1, hy0 + 4, cx + 2, hy0 + 5, OUTLINE)
 
 
 def draw_sword(im: Image.Image, direction: str, pose: str, arm_dx: int) -> None:
     if direction == "up":
         return  # 후면은 검이 등 뒤로 가려짐(단순화)
-    cx = CELL // 2
-    side_x = cx + 8 - arm_dx if direction != "side" else cx + 6
+    cx = CELL_W // 2
+    side_x = cx + 6 - arm_dx if direction != "side" else cx + 5
     if pose == "idle":
-        rect(im, side_x, 11, side_x + 2, 22, BLADE)
+        rect(im, side_x, 11, side_x + 1, 22, BLADE)
         rect(im, side_x, 11, side_x + 1, 18, BLADE_HI)
-        rect(im, side_x - 1, 21, side_x + 3, 23, HILT)
+        rect(im, side_x - 1, 21, side_x + 2, 23, HILT)
     elif pose == "windup":
-        rect(im, side_x - 2, 6, side_x + 3, 9, BLADE)
-        rect(im, side_x - 2, 6, side_x, 8, BLADE_HI)
-        rect(im, side_x - 3, 9, side_x + 1, 11, HILT)
+        rect(im, side_x - 1, 6, side_x + 2, 9, BLADE)
+        rect(im, side_x - 1, 6, side_x + 1, 8, BLADE_HI)
+        rect(im, side_x - 2, 9, side_x + 1, 11, HILT)
     elif pose == "hit":
-        rect(im, side_x, 13, side_x + 10, 15, BLADE)
-        rect(im, side_x, 13, side_x + 10, 14, BLADE_HI)
-        rect(im, side_x - 3, 14, side_x + 1, 16, HILT)
+        rect(im, side_x, 13, side_x + 5, 15, BLADE)
+        rect(im, side_x, 13, side_x + 5, 14, BLADE_HI)
+        rect(im, side_x - 2, 14, side_x + 1, 16, HILT)
     elif pose == "recover":
-        rect(im, side_x, 14, side_x + 2, 23, BLADE)
-        rect(im, side_x - 1, 21, side_x + 3, 23, HILT)
+        rect(im, side_x, 14, side_x + 1, 23, BLADE)
+        rect(im, side_x - 1, 21, side_x + 2, 23, HILT)
 
 
 def frame(direction: str, leg_dy=(0, 0), arm_dx=0, bob=0, sword="idle") -> Image.Image:
@@ -133,7 +145,7 @@ def frame(direction: str, leg_dy=(0, 0), arm_dx=0, bob=0, sword="idle") -> Image
 def collapsed(direction: str, stage: int) -> Image.Image:
     """사망 모션 - 세워진 자세 대신 완전히 새로 그려서 회전/보간 없이 팔레트를 보장."""
     im = blank()
-    cx = CELL // 2
+    cx = CELL_W // 2
     y = 24 + stage * 2
     w = 12 - stage
     rect(im, cx - w // 2, y, cx + w // 2, y + 4, ARMOR_SHADOW)
@@ -192,22 +204,22 @@ def build_death() -> dict[str, list[Image.Image]]:
 
 def make_sheet(by_direction: dict[str, list[Image.Image]]) -> Image.Image:
     cols = max(len(v) for v in by_direction.values())
-    sheet = new_sheet(cols, 3, CELL)
+    sheet = new_sheet(cols, 3, (CELL_W, CELL_H))
     for row, d in enumerate(DIRECTIONS):
         for col, fr in enumerate(by_direction[d]):
-            sheet.paste(fr, (col * CELL, row * CELL))
+            sheet.paste(fr, (col * CELL_W, row * CELL_H))
     return sheet
 
 
 def main() -> None:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    make_sheet(build_idle()).save(OUT_DIR / "player_warrior_idle.png")
-    make_sheet(build_walk()).save(OUT_DIR / "player_warrior_walk.png")
-    make_sheet(build_attack()).save(OUT_DIR / "player_warrior_attack.png")
-    make_sheet(build_hit()).save(OUT_DIR / "player_warrior_hit.png")
-    make_sheet(build_death()).save(OUT_DIR / "player_warrior_death.png")
+    save_with_preview(make_sheet(build_idle()), OUT_DIR / "player_warrior_idle.png")
+    save_with_preview(make_sheet(build_walk()), OUT_DIR / "player_warrior_walk.png")
+    save_with_preview(make_sheet(build_attack()), OUT_DIR / "player_warrior_attack.png")
+    save_with_preview(make_sheet(build_hit()), OUT_DIR / "player_warrior_hit.png")
+    save_with_preview(make_sheet(build_death()), OUT_DIR / "player_warrior_death.png")
     total = (4 + 6 + 4 + 1 + 4) * 3
-    print(f"전사 플레이어 플레이스홀더 생성 완료: {OUT_DIR} (총 {total}프레임)")
+    print(f"전사 플레이어 플레이스홀더 생성 완료(16x32 신규격): {OUT_DIR} (총 {total}프레임)")
 
 
 if __name__ == "__main__":

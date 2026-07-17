@@ -111,20 +111,41 @@ def resize_nearest(im: Image.Image, size: tuple[int, int]) -> Image.Image:
     return im.resize(size, Image.NEAREST)
 
 
-def new_sheet(cols: int, rows: int, cell: int) -> Image.Image:
-    return Image.new("RGBA", (cols * cell, rows * cell), (0, 0, 0, 0))
+def _cell_wh(cell: int | tuple[int, int]) -> tuple[int, int]:
+    """cell을 (폭,높이) 튜플로 정규화. 정수 하나만 주면 정사각 셀로 취급(기존 호출부 하위호환)."""
+    if isinstance(cell, tuple):
+        return cell
+    return (cell, cell)
 
 
-def paste_frame(sheet: Image.Image, frame: Image.Image, col: int, row: int, cell: int) -> None:
-    """프레임을 셀(col,row)의 하단 중앙에 정렬해서 붙인다 (발밑 원점)."""
-    x0 = col * cell
-    y0 = row * cell
-    x = x0 + (cell - frame.width) // 2
-    y = y0 + cell - frame.height
+def new_sheet(cols: int, rows: int, cell: int | tuple[int, int]) -> Image.Image:
+    cw, ch = _cell_wh(cell)
+    return Image.new("RGBA", (cols * cw, rows * ch), (0, 0, 0, 0))
+
+
+def paste_frame(sheet: Image.Image, frame: Image.Image, col: int, row: int, cell: int | tuple[int, int]) -> None:
+    """프레임을 셀(col,row)의 하단 중앙에 정렬해서 붙인다 (발밑 원점). cell은 정수(정사각) 또는 (폭,높이) 튜플."""
+    cw, ch = _cell_wh(cell)
+    x0 = col * cw
+    y0 = row * ch
+    x = x0 + (cw - frame.width) // 2
+    y = y0 + ch - frame.height
     # 마스크 없이 그대로 덮어쓰기: 대상 캔버스는 항상 투명 배경이므로 마스크 합성(블렌딩)이
     # 필요 없다. 마스크를 주면 반투명(페이드) 픽셀이 배경(투명=검정)과 블렌딩되어
     # 팔레트 밖 색이 생기는 버그가 있었다 (death 페이드 프레임에서 발견).
     sheet.paste(frame, (x, y))
+
+
+def save_with_preview(sheet: Image.Image, out_path: Path, scale: int = 4) -> None:
+    """제작 PNG를 저장하고, 같은 폴더에 4배 확대 프리뷰(`_preview_` 접두사)도 함께 저장한다.
+
+    `_preview_` 접두사 파일은 validate_palette.py의 검증/규격 검사 대상에서 자동 제외된다
+    (해당 스크립트가 파일명이 `_`로 시작하는 파일을 건너뜀).
+    """
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    sheet.save(out_path)
+    preview_path = out_path.with_name(f"_preview_{out_path.name}")
+    sheet.resize((sheet.width * scale, sheet.height * scale), Image.NEAREST).save(preview_path)
 
 
 def snap_to_colors(im: Image.Image, colors: list[tuple[int, int, int]], alpha_threshold: int = 64) -> Image.Image:

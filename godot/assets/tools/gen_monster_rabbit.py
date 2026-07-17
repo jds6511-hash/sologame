@@ -9,14 +9,19 @@
   합성했다 - m2-monster-spec.md 3-1장 "근접 스윙(박치기)" 행동에 대응.
 
 STYLE_GUIDE.md 준수:
-- 1-2장: 소형 몬스터 캔버스 32x32 (원본 실체는 그보다 작아 중앙 정렬)
+- 1-2장(2026-07-18 개정, G2-2): 경량 체급 캔버스 **32x32 -> 16x16**로 축소, 실체 약 14x12.
+  원본 크롭 bbox를 autotrim한 뒤 최대 변 길이가 14px를 넘지 않도록 축소 비율을 프레임마다
+  적응적으로 계산해(`TARGET_MAX_DIM`) NEAREST 리사이즈 - 팔레트 재양자화 전에 수행하므로
+  안티앨리어싱이 생기지 않는다.
 - 2장: EDG32만 사용 (recolor_by_luminance)
 - 3-1장: 아웃라인 1px #181425
 - 3-3장: 잡몹 예산 idle4/walk4/attack5/death4 x 3방향 = 51프레임 (hit은 idle 프레임 재사용,
   별도 에셋 불필요 - STYLE_GUIDE 3-3 예산 공식에도 hit 미포함)
-- 6-3장: 종 식별 실루엣 요소 - 정수리에 뿔(각) 추가 ("뿔토끼" 정체성, m2-monster-spec 실루엣 힌트)
+- 6-3장: 종 식별 실루엣 요소 - 정수리에 뿔(각) 추가 ("뿔토끼" 정체성, m2-monster-spec 실루엣 힌트).
+  16x16으로 축소되며 뿔 크기도 비례 축소(1~2px).
 
 출력: godot\\assets\\sprites\\monsters\\mob_rabbit_horned_{idle,walk,attack,death}.png
+      (16x16 셀) + 각 파일의 4배 확대 프리뷰(_preview_ 접두사)
 """
 
 from __future__ import annotations
@@ -37,6 +42,7 @@ from sprite_source_common import (
     new_sheet,
     paste_frame,
     recolor_by_luminance,
+    save_with_preview,
     snap_to_colors,
 )
 
@@ -64,11 +70,12 @@ SIDE_B_EXTRA = [(59, 255, 85, 284), (137, 255, 166, 284)]
 SIDE_B_MAIN = [(27, 288, 52, 316), (61, 288, 87, 316), (96, 288, 129, 316), (138, 288, 167, 316),
                (178, 288, 204, 316), (208, 288, 235, 316), (240, 288, 268, 316), (275, 288, 303, 316)]
 
-CELL = 32
+CELL = 16  # 경량 체급 신규격(STYLE_GUIDE 1-2, 2026-07-18 개정) - 구 32에서 축소
+TARGET_MAX_DIM = 14  # 실체 목표 최대 변 길이(가로/세로 중 큰 값) - 16 캔버스에 여백 확보
 
 
 def add_horn(frame: Image.Image) -> None:
-    """머리 위쪽에 작은 뿔(2x3px)을 그려 '뿔토끼' 실루엣을 만든다."""
+    """머리 위쪽에 작은 뿔(1~2px)을 그려 '뿔토끼' 실루엣을 만든다 (16x16 축소에 맞춰 비례 축소)."""
     w, h = frame.size
     cx = w // 2
     px = frame.load()
@@ -78,11 +85,11 @@ def add_horn(frame: Image.Image) -> None:
         if row_has:
             tip_y = y
             break
-    for i, dy in enumerate((-2, -1, 0)):
+    for dy in (-1, 0):
         y = tip_y + dy
         if y < 0:
             continue
-        half = 1 if i < 2 else 0
+        half = 0 if dy == -1 else 1
         for dx in range(-half, half + 1):
             x = cx + dx
             if 0 <= x < w and 0 <= y < h:
@@ -92,6 +99,11 @@ def add_horn(frame: Image.Image) -> None:
 def get_frame(im: Image.Image, box: tuple[int, int, int, int]) -> Image.Image:
     cell = im.crop(box)
     cell = autotrim(cell)
+    w, h = cell.size
+    factor = min(1.0, TARGET_MAX_DIM / max(w, h))
+    if factor < 1.0:
+        nw, nh = max(1, round(w * factor)), max(1, round(h * factor))
+        cell = cell.resize((nw, nh), Image.NEAREST)
     recolored = recolor_by_luminance(cell, OUTLINE, SHADOW, BASE, HIGHLIGHT, t_outline=0.20, t_shadow=0.55, t_highlight=0.85)
     recolored = ensure_outline(recolored, OUTLINE)
     add_horn(recolored)
@@ -180,24 +192,24 @@ def main() -> None:
     idle_down = build_idle(im, DOWN_EXTRA, DOWN_MAIN)
     idle_up = build_idle(im, UP_EXTRA, UP_MAIN)
     idle_side = build_idle(im, SIDE_A_EXTRA, SIDE_A_MAIN)
-    make_sheet([idle_down, idle_side, idle_up]).save(OUT_DIR / "mob_rabbit_horned_idle.png")
+    save_with_preview(make_sheet([idle_down, idle_side, idle_up]), OUT_DIR / "mob_rabbit_horned_idle.png")
 
     walk_down = build_walk(im, DOWN_MAIN)
     walk_up = build_walk(im, UP_MAIN)
     walk_side = build_walk(im, SIDE_A_MAIN)
-    make_sheet([walk_down, walk_side, walk_up]).save(OUT_DIR / "mob_rabbit_horned_walk.png")
+    save_with_preview(make_sheet([walk_down, walk_side, walk_up]), OUT_DIR / "mob_rabbit_horned_walk.png")
 
     atk_down = build_attack_down_up(im, DOWN_MAIN)
     atk_up = build_attack_down_up(im, UP_MAIN)
     atk_side = build_attack_side(im, SIDE_B_EXTRA, SIDE_A_MAIN, SIDE_B_MAIN)
-    make_sheet([atk_down, atk_side, atk_up]).save(OUT_DIR / "mob_rabbit_horned_attack.png")
+    save_with_preview(make_sheet([atk_down, atk_side, atk_up]), OUT_DIR / "mob_rabbit_horned_attack.png")
 
     death_down = build_death(im, DOWN_MAIN)
     death_up = build_death(im, UP_MAIN)
     death_side = build_death(im, SIDE_A_MAIN)
-    make_sheet([death_down, death_side, death_up]).save(OUT_DIR / "mob_rabbit_horned_death.png")
+    save_with_preview(make_sheet([death_down, death_side, death_up]), OUT_DIR / "mob_rabbit_horned_death.png")
 
-    print("뿔토끼 스프라이트 생성 완료:", OUT_DIR)
+    print("뿔토끼 스프라이트 생성 완료(16x16 신규격):", OUT_DIR)
 
 
 if __name__ == "__main__":

@@ -18,10 +18,15 @@
 - REST(회수): row2 col[0]        (평상 자세로 복귀)
 - LIE(사망) : row0 col[6,7]      (쓰러진 포즈)
 
-STYLE_GUIDE.md 준수: 캔버스 32x32, EDG32만 사용, 아웃라인 1px #181425,
+STYLE_GUIDE.md 준수(2026-07-18 개정, G2-2): **출력 캔버스 32x32 -> 32x24(가로 2타일x세로
+1.5타일, 표준 체급)**로 변경, 실체 약 26x16. 원본 소스 시트의 그리드 피치(32x32, `SRC_CELL`)는
+소스 자체 규격이므로 변경하지 않으며, 크롭 후 autotrim한 실체 bbox가 목표(가로26/세로16)를
+넘으면 종횡비를 유지한 채 NEAREST로 축소한다(`TARGET_W`/`TARGET_H`) - 팔레트 재양자화 전에
+수행하므로 안티앨리어싱이 생기지 않는다. EDG32만 사용, 아웃라인 1px #181425,
 잡몹 예산 idle4/walk4/attack5/death4 x3방향=51프레임(hit은 idle 재사용, 별도 예산 없음).
 
 출력: godot\\assets\\sprites\\monsters\\mob_wolf_feral_{idle,walk,attack,death}.png
+      (32x24 셀) + 각 파일의 4배 확대 프리뷰(_preview_ 접두사)
 """
 
 from __future__ import annotations
@@ -43,12 +48,16 @@ from sprite_source_common import (
     paste_frame,
     recolor_by_luminance,
     resize_nearest,
+    save_with_preview,
     snap_to_colors,
 )
 
 SRC_PATH = RAW_SRC_DIR / "wolfsheet1_zerohero.png"
 OUT_DIR = ASSETS_DIR / "sprites" / "monsters"
-CELL = 32
+SRC_CELL = 32  # 원본 소스 시트의 그리드 피치(고정) - 출력 캔버스 크기와 무관
+OUT_CELL = (32, 24)  # 표준 체급 신규격(STYLE_GUIDE 1-2, 2026-07-18 개정) - 세로만 32->24 축소
+TARGET_W = 26  # 실체 목표 폭
+TARGET_H = 16  # 실체 목표 높이
 RIGHT_OFFSET_X = 320  # 원본 시트의 4족 측면 늑대는 오른쪽 절반에 있음
 
 OUTLINE = RGB["darkest"]
@@ -59,14 +68,19 @@ SNAP_COLORS = [OUTLINE, SHADOW, BASE, HIGHLIGHT]
 
 
 def cell_box(row: int, col: int) -> tuple[int, int, int, int]:
-    x0 = RIGHT_OFFSET_X + col * CELL
-    y0 = row * CELL
-    return (x0, y0, x0 + CELL, y0 + CELL)
+    x0 = RIGHT_OFFSET_X + col * SRC_CELL
+    y0 = row * SRC_CELL
+    return (x0, y0, x0 + SRC_CELL, y0 + SRC_CELL)
 
 
 def get_frame(im: Image.Image, row: int, col: int) -> Image.Image:
     cell = im.crop(cell_box(row, col))
     cell = autotrim(cell)
+    w, h = cell.size
+    factor = min(1.0, TARGET_W / w, TARGET_H / h)
+    if factor < 1.0:
+        nw, nh = max(1, round(w * factor)), max(1, round(h * factor))
+        cell = cell.resize((nw, nh), Image.NEAREST)
     recolored = recolor_by_luminance(cell, OUTLINE, SHADOW, BASE, HIGHLIGHT, t_outline=0.22, t_shadow=0.5, t_highlight=0.8)
     recolored = ensure_outline(recolored, OUTLINE)
     return recolored
@@ -126,10 +140,10 @@ def build_death(im: Image.Image) -> tuple[list, list, list]:
 
 def make_sheet(down: list, side: list, up: list) -> Image.Image:
     cols = max(len(down), len(side), len(up))
-    sheet = new_sheet(cols, 3, CELL)
+    sheet = new_sheet(cols, 3, OUT_CELL)
     for row, frames in enumerate([down, side, up]):
         for col, frame in enumerate(frames):
-            paste_frame(sheet, frame, col, row, CELL)
+            paste_frame(sheet, frame, col, row, OUT_CELL)
     return sheet
 
 
@@ -142,11 +156,11 @@ def main() -> None:
     im = Image.open(SRC_PATH).convert("RGBA")
     OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    make_sheet(*build_idle(im)).save(OUT_DIR / "mob_wolf_feral_idle.png")
-    make_sheet(*build_walk(im)).save(OUT_DIR / "mob_wolf_feral_walk.png")
-    make_sheet(*build_attack(im)).save(OUT_DIR / "mob_wolf_feral_attack.png")
-    make_sheet(*build_death(im)).save(OUT_DIR / "mob_wolf_feral_death.png")
-    print("들개 마수 스프라이트 생성 완료:", OUT_DIR)
+    save_with_preview(make_sheet(*build_idle(im)), OUT_DIR / "mob_wolf_feral_idle.png")
+    save_with_preview(make_sheet(*build_walk(im)), OUT_DIR / "mob_wolf_feral_walk.png")
+    save_with_preview(make_sheet(*build_attack(im)), OUT_DIR / "mob_wolf_feral_attack.png")
+    save_with_preview(make_sheet(*build_death(im)), OUT_DIR / "mob_wolf_feral_death.png")
+    print("들개 마수 스프라이트 생성 완료(32x24 신규격):", OUT_DIR)
 
 
 if __name__ == "__main__":
