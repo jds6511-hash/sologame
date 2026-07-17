@@ -31,6 +31,7 @@ const SPAWN_DISTANCE_PX := 48.0
 @onready var _status_label: Label = get_node(status_label_path)
 @onready var _player_stats: PlayerStatsComponent = _player.get_node("PlayerStats")
 @onready var _attacker_stats: CombatantStats = _player.get_node("AttackResolver").attacker_stats
+@onready var _hud: Hud = $Hud
 
 var _player_spawn_position := Vector2.ZERO
 var _frame_count: int = 0
@@ -39,6 +40,7 @@ var _spawn_sequence: int = 0
 
 func _ready() -> void:
 	_player_spawn_position = _player.global_position
+	_hud.bind_player(_player, _player_stats)
 
 
 func _process(_delta: float) -> void:
@@ -141,16 +143,23 @@ func _update_status_label(last_action: String = "") -> void:
 	_status_label.text = (
 		"[CB-9 디버그 전투장] F1=뿔토끼 F2=들개 마수 F3=균열 점액 소환 · F4=몬스터 정리 · F5=리셋\n"
 		+ "F6/F7=공격력 +-%d · F8/F9=최대HP +-%d\n" % [ATTACK_POWER_STEP, MAX_HP_STEP]
-		+ "프레임: %d · FPS: %d · 몬스터 수: %d\n" % [
-			_frame_count, Engine.get_frames_per_second(), _monsters_root.get_child_count() / 2
-		]
-		+ "공격력 %.0f · 최대 HP %.0f · HP %.0f/%.0f · MP %.0f/%.0f\n" % [
-			_attacker_stats.attack_power,
-			_player_stats.stats.max_hp,
-			_player_stats.current_hp,
-			_player_stats.stats.max_hp,
-			_player_stats.current_mp,
-			_player_stats.stats.max_mp,
-		]
-		+ "상태: %s%s" % [_player.get_debug_state_text(), (" — " + last_action) if last_action else ""]
+		+ (
+			"프레임: %d · FPS: %d · 몬스터 수: %d\n"
+			% [_frame_count, Engine.get_frames_per_second(), _monsters_root.get_child_count() / 2]
+		)
+		+ (
+			"공격력 %.0f · 최대 HP %.0f · HP %.0f/%.0f · MP %.0f/%.0f\n"
+			% [
+				_attacker_stats.attack_power,
+				_player_stats.stats.max_hp,
+				_player_stats.current_hp,
+				_player_stats.stats.max_hp,
+				_player_stats.current_mp,
+				_player_stats.stats.max_mp,
+			]
+		)
+		+ (
+			"상태: %s%s"
+			% [_player.get_debug_state_text(), (" — " + last_action) if last_action else ""]
+		)
 	)
