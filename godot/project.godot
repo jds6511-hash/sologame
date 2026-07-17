@@ -175,6 +175,12 @@ confirm={
 ])
 }
 
+[layer_names]
+
+2d_physics/layer_1="지형"
+2d_physics/layer_2="플레이어"
+2d_physics/layer_3="몬스터"
+
 [rendering]
 
 renderer/rendering_method="gl_compatibility"

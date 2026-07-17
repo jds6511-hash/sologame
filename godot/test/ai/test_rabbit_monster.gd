@@ -78,3 +78,15 @@ func test_attack_hitbox_body_entered_emits_attack_landed() -> void:
 	watch_signals(_rabbit)
 	_rabbit._on_attack_hitbox_body_entered(_target)
 	assert_signal_emitted_with_parameters(_rabbit, "attack_landed", [_target])
+
+
+## 디렉터 플레이 게이트 차단 버그(공격 시 자기 자신에게 피해)의 몬스터 쪽 대칭 확인 —
+## 근접 스윙 히트박스는 몬스터 자신 위치에 겹쳐 생성되므로(monster_base.gd 주석),
+## 충돌 레이어가 정리되어 있지 않으면 자기 자신이 attack_landed의 target으로 잡힌다.
+func test_attack_hitbox_does_not_hit_itself_via_physics() -> void:
+	watch_signals(_rabbit)
+	_rabbit._enable_attack_hitbox()
+
+	await wait_physics_frames(2)
+
+	assert_signal_not_emitted(_rabbit, "attack_landed", "근접 판정이 몬스터 자기 자신을 target으로 잡으면 안 된다")

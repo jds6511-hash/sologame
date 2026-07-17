@@ -5,9 +5,16 @@
 class_name DummyPoolTarget
 extends CharacterBody2D
 
+const LAYER_PLAYER := 2  ## project.godot [layer_names] — 산성 웅덩이는 플레이어 레이어만 감지한다.
+
 var damage_taken: float = 0.0
 var invincible: bool = false
 var defense: float = 0.0
+
+
+func _init() -> void:
+	collision_layer = LAYER_PLAYER
+	collision_mask = 0
 
 
 func take_damage(amount: float, _hit_grade: String = "약", _attacker: Node2D = null) -> void:

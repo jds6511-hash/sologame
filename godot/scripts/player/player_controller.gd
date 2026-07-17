@@ -239,6 +239,8 @@ func _build_sector_polygon(
 
 
 func _on_attack_hitbox_body_entered(body: Node) -> void:
+	if body == self:
+		return  ## 충돌 레이어로 이미 차단되지만, 이중 안전장치로 자기 자신은 명시적으로 제외한다.
 	# 데미지 계산(CB-3)·히트스톱 연출(CB-7)은 이후 태스크 담당 — 여기서는 판정 성립만 알린다.
 	attack_hit.emit(_current_action_step, body)
 

@@ -194,6 +194,8 @@ func _disable_attack_hitbox() -> void:
 
 
 func _on_attack_hitbox_body_entered(body: Node) -> void:
+	if body == self:
+		return  ## 충돌 레이어로 이미 차단되지만, 이중 안전장치로 자기 자신은 명시적으로 제외한다.
 	attack_landed.emit(body)
 
 
