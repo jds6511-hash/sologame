@@ -21,8 +21,11 @@ func _ready() -> void:
 
 
 ## verb: "대화"/"채집" 등 동사. world_position: 대상의 월드 좌표(프롬프트가 그 위쪽에 뜬다).
-func show_prompt(verb: String, world_position: Vector2) -> void:
-	text = "[F] %s" % verb
+## key_label: 안내할 입력 키(기본 F). onboarding.md 3-2장 "[좌클릭] 공격"처럼 F가 아닌 입력을
+## 안내해야 하는 온보딩 힌트가 이 프롬프트를 재사용할 수 있도록 노출했다(기본값은 기존 동작
+## 그대로 유지 — 실제 상호작용 판정 시스템 도입 시에도 하위 호환).
+func show_prompt(verb: String, world_position: Vector2, key_label: String = "F") -> void:
+	text = "[%s] %s" % [key_label, verb]
 	_target_world_position = world_position
 	_is_active = true
 	visible = true

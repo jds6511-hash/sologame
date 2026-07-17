@@ -51,8 +51,11 @@ func set_game_time(day_number: int, hour: int, minute: int, is_day: bool) -> voi
 
 
 ## 상호작용 판정 시스템(M2 미구현) 연동 지점 — 근접 대상 판정이 생기면 이 함수를 호출.
-func show_interaction_prompt(verb: String, world_position: Vector2) -> void:
-	_interaction_prompt.show_prompt(verb, world_position)
+## key_label: 안내할 입력 키(기본 F) — interaction_prompt.gd 참고.
+func show_interaction_prompt(
+	verb: String, world_position: Vector2, key_label: String = "F"
+) -> void:
+	_interaction_prompt.show_prompt(verb, world_position, key_label)
 
 
 func hide_interaction_prompt() -> void:

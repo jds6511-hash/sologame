@@ -21,6 +21,8 @@ const SLIME_DROP_TABLE: DropTableData = preload("res://data/drops/rift_slime_dro
 @onready var _drop_system: DropSystem = $DropSystem
 @onready var _monster_spawner: MonsterSpawner = $MonsterSpawner
 @onready var _hud: Hud = $Hud
+@onready var _onboarding_hint_bar: OnboardingHintBar = $OnboardingHintBar
+@onready var _tutorial: TutorialController = $TutorialController
 
 
 func _ready() -> void:
@@ -28,6 +30,24 @@ func _ready() -> void:
 	print("[통합] HUD 바인딩 완료")
 	_drop_system.gold_dropped.connect(_inventory.add_gold)
 	_register_spawned_monsters()
+	_start_tutorial()
+
+
+## 온보딩 튜토리얼(UI-4) 배선 — MonsterSpawner가 이미 스폰해 둔 뿔토끼만 골라 넘긴다.
+func _start_tutorial() -> void:
+	var rabbits: Array[RabbitMonster] = []
+	for monster in _monster_spawner.get_children():
+		if monster is RabbitMonster:
+			rabbits.append(monster)
+	_tutorial.start(
+		_player,
+		_player.get_node("PlayerStats"),
+		_inventory,
+		_drop_system,
+		_hud,
+		_onboarding_hint_bar,
+		rabbits
+	)
 
 
 ## MonsterSpawner가 스폰해 둔 몬스터들을 종류별 드랍 테이블로 DropSystem에 등록한다.

@@ -13,6 +13,8 @@
 [ext_resource type="Script" path="res://scripts/items/drop_system.gd" id="11_drop_system_script"]
 [ext_resource type="Resource" path="res://data/items/drop_rate_config.tres" id="12_drop_rate_config"]
 [ext_resource type="PackedScene" path="res://scenes/items/world_item.tscn" id="13_world_item"]
+[ext_resource type="PackedScene" path="res://scenes/ui/onboarding_hint_bar.tscn" id="14_hint_bar"]
+[ext_resource type="Script" path="res://scripts/ui/tutorial_controller.gd" id="15_tutorial"]
 
 [node name="EasternFrontierStartingArea" type="Node2D" unique_id=101422872]
 script = ExtResource("6_root")
@@ -54,6 +56,11 @@ world_item_scene = ExtResource("13_world_item")
 [node name="Hud" parent="." instance=ExtResource("7_hud")]
 
 [node name="IntegratedMenu" parent="." instance=ExtResource("8_menu")]
+
+[node name="OnboardingHintBar" parent="." instance=ExtResource("14_hint_bar")]
+
+[node name="TutorialController" type="Node" parent="."]
+script = ExtResource("15_tutorial")
 
 [node name="Markers" type="Node2D" parent="." unique_id=728771482]
 
