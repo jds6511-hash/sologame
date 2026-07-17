@@ -10,5 +10,5 @@ item_type = 5
 grade = 0
 level_limit = 1
 equip_slot = 0
-price = -1
-acquisition = "들개 마수 드랍 30% (m2-monster-spec.md 4-2장) — 정식 가격 economy-designer 확정 대기(economy-foundation.md 12장 후속 작업)"
+price = 32
+acquisition = "들개 마수 드랍 30% (m2-monster-spec.md 4-2장) — 판매가 32골드 확정 (economy-foundation.md 2-9장)"

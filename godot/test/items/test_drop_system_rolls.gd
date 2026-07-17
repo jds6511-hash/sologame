@@ -121,10 +121,10 @@ func test_resolve_equipment_item_returns_null_when_no_candidate() -> void:
 	)
 
 
-func test_m2_real_item_data_has_no_lv1_tier_great_sword_yet() -> void:
-	## 기획/데이터 공백 기록용 테스트 — data/items/에 Lv1 티어 대검(GS)이 아직 없어 M2
-	## 3종 몬스터(Lv1/4/8)의 무기 드랍은 실제로는 아이템이 없어 발생하지 않는다. Lv1 티어
-	## 대검이 추가되면 이 테스트가 실패로 바뀌어야 하며, 그때 이 assert를 뒤집을 것.
+func test_m2_real_item_data_has_lv1_tier_great_sword() -> void:
+	## economy-foundation.md 3-1장 "Lv1 티어 드랍 세트" 확정(2026-07-17)으로 WPN-GS-01-C가
+	## data/items/에 추가됨 — M2 3종 몬스터(Lv1/4/8)는 이제 이 Lv1 티어 대검을 드랍할 수
+	## 있다. 과거 데이터 공백 기록 테스트(assert_null)를 실제 데이터에 맞게 뒤집었다.
 	var dir := DirAccess.open("res://data/items")
 	var items: Array[ItemData] = []
 	dir.list_dir_begin()
@@ -139,7 +139,8 @@ func test_m2_real_item_data_has_no_lv1_tier_great_sword_yet() -> void:
 	var picked := DropSystem.resolve_equipment_item(
 		items, 8, ItemData.ItemGrade.C, ItemData.EquipSlot.WEAPON, "WPN-GS-"
 	)
-	assert_null(picked, "기획 공백: Lv1 티어 대검(GS)이 추가되면 이 assert를 갱신할 것")
+	assert_not_null(picked, "Lv1 티어 대검(WPN-GS-01-C)이 존재하므로 드랍 후보가 있어야 함")
+	assert_eq(picked.item_id, "WPN-GS-01-C")
 
 
 # --- 몬스터 사망 → 드랍 시그널 (통합, MonsterBase.died 연동 확인) ---

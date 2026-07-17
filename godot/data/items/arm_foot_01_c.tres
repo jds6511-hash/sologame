@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/items/item_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+item_id = "ARM-FOOT-01-C"
+item_name = "낡은 헝겊 신발"
+item_type = 1
+grade = 0
+level_limit = 1
+equip_slot = 5
+main_stat_type = 2
+main_stat_value = 1.0
+move_speed_bonus = 2.0
+price = 30
+acquisition = "상점 · 드랍 (30골드 = 15마리분)"

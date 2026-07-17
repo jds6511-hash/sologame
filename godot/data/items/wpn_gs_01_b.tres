@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/items/item_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+item_id = "WPN-GS-01-B"
+item_name = "정련된 대검"
+item_type = 0
+grade = 1
+level_limit = 1
+equip_slot = 1
+main_stat_type = 1
+main_stat_value = 10.0
+price = 36
+acquisition = "일반몹 드랍 (실효 0.3%) — 판매가 36골드 (명장가 준용 360골드의 10%, 드랍 전용)"

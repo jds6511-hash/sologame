@@ -4,11 +4,13 @@
 
 [resource]
 script = ExtResource("1")
-item_id = "MAT-RABBIT-FOOT"
-item_name = "토끼 발"
-item_type = 5
+item_id = "ARM-HEAD-01-C"
+item_name = "투박한 두건"
+item_type = 1
 grade = 0
 level_limit = 1
-equip_slot = 0
-price = 4
-acquisition = "뿔토끼 드랍 30% (m2-monster-spec.md 4-1장) — 판매가 4골드 확정 (economy-foundation.md 2-9장)"
+equip_slot = 4
+main_stat_type = 2
+main_stat_value = 1.0
+price = 40
+acquisition = "상점 · 드랍 (40골드 = 20마리분)"

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/items/item_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+item_id = "ARM-BODY-01-B"
+item_name = "정련된 가죽 갑옷"
+item_type = 1
+grade = 1
+level_limit = 1
+equip_slot = 2
+main_stat_type = 2
+main_stat_value = 3.0
+price = 8
+acquisition = "일반몹 드랍 (실효 0.225%) — 판매가 8골드"
