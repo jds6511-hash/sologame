@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/items/item_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+item_id = "MAT-DOG-FANG"
+item_name = "들개 이빨"
+item_type = 5
+grade = 0
+level_limit = 1
+equip_slot = 0
+price = -1
+acquisition = "들개 마수 드랍 30% (m2-monster-spec.md 4-2장) — 정식 가격 economy-designer 확정 대기(economy-foundation.md 12장 후속 작업)"

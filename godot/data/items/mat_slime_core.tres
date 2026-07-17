@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/items/item_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+item_id = "MAT-SLIME-CORE"
+item_name = "점액질 핵"
+item_type = 5
+grade = 0
+level_limit = 1
+equip_slot = 0
+price = -1
+acquisition = "균열 점액 드랍 30%(일반 사망)/100%(핵 파괴, m2-monster-spec.md 3-3·4-3장) — 정식 가격 economy-designer 확정 대기(economy-foundation.md 12장 후속 작업)"

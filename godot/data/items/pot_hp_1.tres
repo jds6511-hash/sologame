@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/items/item_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+item_id = "POT-HP-1"
+item_name = "하급 회복 포션"
+item_type = 3
+grade = 0
+level_limit = 1
+equip_slot = 0
+price = 300
+acquisition = "상점 구매 300골드(economy-foundation.md 5-1장) · 뿔토끼/들개 마수/균열 점액 드랍 2%(m2-monster-spec.md 4장). 실제 회복량은 PlayerRecoveryRules(최대 HP 30%, CB-5)가 담당하며 이 아이템은 인벤토리 추적용"
