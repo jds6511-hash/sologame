@@ -24,7 +24,7 @@ func test_attack_hit_applies_damage_to_target_with_get_combat_defense() -> void:
 	target.defense = 0.5  ## m2-monster-spec.md 3-1장 뿔토끼 방어력
 	add_child_autofree(target)
 
-	_resolver._on_attack_hit(0, target)  ## 1타, 계수 1.0
+	_resolver._on_attack_hit(_player.combo_data.steps[0], target)  ## 1타, 계수 1.0
 
 	assert_eq(target.take_damage_call_count, 1)
 	assert_eq(target.last_attacker, _player)
@@ -43,7 +43,7 @@ func test_attack_hit_reads_defense_from_stats_property_when_no_getter() -> void:
 	target.stats = stats
 	add_child_autofree(target)
 
-	_resolver._on_attack_hit(0, target)
+	_resolver._on_attack_hit(_player.combo_data.steps[0], target)
 
 	assert_eq(target.take_damage_call_count, 1)
 	var base_reduced := 26.0 * (100.0 / 102.0)
@@ -58,7 +58,7 @@ func test_attack_hit_plays_hitfeedback_matching_step_preset() -> void:
 	add_child_autofree(target)
 	watch_signals(HitFeedback)
 
-	_resolver._on_attack_hit(0, target)  ## 1타 hitstop_preset = "약"
+	_resolver._on_attack_hit(_player.combo_data.steps[0], target)  ## 1타 hitstop_preset = "약"
 
 	if target.last_hit_grade == "강":
 		assert_signal_emitted_with_parameters(HitFeedback, "screen_shake_requested", [2])
@@ -70,7 +70,8 @@ func test_attack_hit_without_take_damage_method_does_not_error() -> void:
 	var plain_target := Node2D.new()
 	add_child_autofree(plain_target)
 
-	_resolver._on_attack_hit(0, plain_target)  ## take_damage 없음 — 조용히 무시되어야 함
+	## take_damage 없음 — 조용히 무시되어야 함
+	_resolver._on_attack_hit(_player.combo_data.steps[0], plain_target)
 
 	assert_true(true, "예외 없이 통과하면 성공")
 
@@ -80,6 +81,6 @@ func test_attack_hit_flash_targets_the_hit_node() -> void:
 	add_child_autofree(target)
 	watch_signals(HitFeedback)
 
-	_resolver._on_attack_hit(0, target)
+	_resolver._on_attack_hit(_player.combo_data.steps[0], target)
 
 	assert_signal_emitted_with_parameters(HitFeedback, "hit_flash_requested", [target])

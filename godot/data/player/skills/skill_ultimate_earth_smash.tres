@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="WarriorSkillData" format=3]
+
+[ext_resource type="Script" path="res://scripts/player/warrior_skill_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+skill_name = "대지 분쇄"
+skill_type = 4
+cooldown_sec = 75.0
+mp_cost_percent = 0.30
+damage_coefficient = 8.0
+hitbox_range_tiles = 3.0
+hitbox_angle_deg = 360.0
+startup_sec = 0.6
+active_sec = 0.2
+recovery_sec = 0.6
+hitstop_preset = "강"
+self_superarmor_during_cast = true

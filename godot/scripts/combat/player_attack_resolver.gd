@@ -1,8 +1,12 @@
 ## 전사 공격 판정 → 데미지 계산 → 타격 피드백 연결부 (CB-3·CB-7).
 ##
-## player_controller.gd(CB-1)가 노출하는 attack_hit 시그널에 연결해, 판정이 성립한
-## 순간 DamageCalculator(CB-3)로 데미지를 계산하고 HitFeedback(CB-7) 프리셋을 재생한다.
-## Player 씬의 자식 노드로 배치하며, 부모(PlayerController)를 그대로 참조한다.
+## player_controller.gd(CB-1/CB-2)가 노출하는 attack_hit(step, target) 시그널에 연결해,
+## 판정이 성립한 순간 DamageCalculator(CB-3)로 데미지를 계산하고 HitFeedback(CB-7) 프리셋을
+## 재생한다. Player 씬의 자식 노드로 배치하며, 부모(PlayerController)를 그대로 참조한다.
+##
+## step은 기본 콤보의 WarriorAttackStep일 수도, 스킬(CB-2)의 WarriorSkillData일 수도 있다
+## — PlayerController가 어느 쪽이든 damage_coefficient/hitstop_preset 필드를 노출하는
+## 리소스를 그대로 넘겨주므로(duck typing), 이 리졸버는 어느 쪽인지 구분할 필요가 없다.
 ##
 ## 피격 대상 인터페이스는 scripts/ai/monster_base.gd(CB-6, 이미 구현됨)의 실제 계약을
 ## 그대로 따른다 — 구체 클래스를 몰라도 되는 오리 타이핑이다:
@@ -34,8 +38,7 @@ func _ready() -> void:
 	_player.attack_hit.connect(_on_attack_hit)
 
 
-func _on_attack_hit(step_index: int, target: Node) -> void:
-	var step: WarriorAttackStep = _player.combo_data.steps[step_index]
+func _on_attack_hit(step, target: Node) -> void:
 	var target_defense := _resolve_target_defense(target)
 
 	var crit_chance := DamageCalculator.calculate_crit_chance(attacker_stats.agility, formula_data)
@@ -51,7 +54,7 @@ func _on_attack_hit(step_index: int, target: Node) -> void:
 
 	## 치명타는 등급과 무관하게 항상 "강"으로 승격한다
 	## (m2-warrior-skills.md 7장 "치명타(전 스킬 공통) = 강").
-	var hit_grade := "강" if is_critical else step.hitstop_preset
+	var hit_grade: String = "강" if is_critical else step.hitstop_preset
 	if target.has_method("take_damage"):
 		target.take_damage(damage, hit_grade, _player)
 

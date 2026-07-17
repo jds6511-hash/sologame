@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="WarriorSkillData" format=3]
+
+[ext_resource type="Script" path="res://scripts/player/warrior_skill_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+skill_name = "차지 강타"
+skill_type = 1
+cooldown_sec = 9.0
+mp_cost_percent = 0.12
+hitbox_range_tiles = 2.2
+hitbox_angle_deg = 150.0
+startup_sec = 0.0
+active_sec = 0.15
+recovery_sec = 0.5
+hitstop_preset = "강"
+self_superarmor_during_cast = true
+charge_min_hold_sec = 0.3
+charge_max_hold_sec = 1.2
+charge_min_coefficient = 1.6
+charge_max_coefficient = 3.0
+charge_min_recovery_sec = 0.5
+charge_max_recovery_sec = 0.7

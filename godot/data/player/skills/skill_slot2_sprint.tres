@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="WarriorSkillData" format=3]
+
+[ext_resource type="Script" path="res://scripts/player/warrior_skill_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+skill_name = "질주"
+skill_type = 2
+cooldown_sec = 8.0
+mp_cost_percent = 0.10
+damage_coefficient = 1.0
+hitbox_range_tiles = 0.0
+hitbox_angle_deg = 0.0
+startup_sec = 0.1
+active_sec = 0.25
+recovery_sec = 0.2
+hitstop_preset = "중"
+dash_distance_tiles = 2.0
+dash_duration_sec = 0.25

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="WarriorSkillData" format=3]
+
+[ext_resource type="Script" path="res://scripts/player/warrior_skill_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+skill_name = "결의의 외침"
+skill_type = 3
+cooldown_sec = 20.0
+mp_cost_percent = 0.20
+startup_sec = 0.4
+active_sec = 0.0
+recovery_sec = 0.3
+grants_superarmor_sec = 3.0
+defense_buff_percent = 0.20
+defense_buff_duration_sec = 5.0

@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=21 format=3]
 
 [ext_resource type="Script" path="res://scripts/player/player_controller.gd" id="1"]
 [ext_resource type="Resource" path="res://data/player/player_movement.tres" id="2"]
@@ -10,6 +10,16 @@
 [ext_resource type="Resource" path="res://data/combat/hitfeedback_weak.tres" id="8"]
 [ext_resource type="Resource" path="res://data/combat/hitfeedback_medium.tres" id="9"]
 [ext_resource type="Resource" path="res://data/combat/hitfeedback_strong.tres" id="10"]
+[ext_resource type="Script" path="res://scripts/player/player_stats_component.gd" id="11"]
+[ext_resource type="Resource" path="res://data/combat/player_recovery_rules.tres" id="12"]
+[ext_resource type="Resource" path="res://data/player/skills/skill_slot1_strike.tres" id="13"]
+[ext_resource type="Resource" path="res://data/player/skills/skill_slot2_sprint.tres" id="14"]
+[ext_resource type="Resource" path="res://data/player/skills/skill_slot3_first_aid.tres" id="15"]
+[ext_resource type="Resource" path="res://data/player/skills/skill_slot4_crushing_blow.tres" id="16"]
+[ext_resource type="Resource" path="res://data/player/skills/skill_slotq_charge_rush.tres" id="17"]
+[ext_resource type="Resource" path="res://data/player/skills/skill_slote_battle_shout.tres" id="18"]
+[ext_resource type="Resource" path="res://data/player/skills/skill_ultimate_earth_smash.tres" id="19"]
+[ext_resource type="Resource" path="res://data/player/skills/skill_secondary_charged_smash.tres" id="20"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_1"]
 radius = 6.0
@@ -20,6 +30,14 @@ script = ExtResource("1")
 movement_data = ExtResource("2")
 combo_data = ExtResource("3")
 hit_rules = ExtResource("4")
+skill_slot_1 = ExtResource("13")
+skill_slot_2 = ExtResource("14")
+skill_slot_3 = ExtResource("15")
+skill_slot_4 = ExtResource("16")
+skill_slot_q = ExtResource("17")
+skill_slot_e = ExtResource("18")
+skill_ultimate = ExtResource("19")
+skill_charge = ExtResource("20")
 
 [node name="AttackResolver" type="Node" parent="."]
 script = ExtResource("5")
@@ -28,6 +46,11 @@ formula_data = ExtResource("7")
 preset_weak = ExtResource("8")
 preset_medium = ExtResource("9")
 preset_strong = ExtResource("10")
+
+[node name="PlayerStats" type="Node" parent="."]
+script = ExtResource("11")
+stats = ExtResource("6")
+recovery_rules = ExtResource("12")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CapsuleShape2D_1")

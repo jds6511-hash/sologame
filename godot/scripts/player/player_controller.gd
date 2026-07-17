@@ -1,15 +1,26 @@
-## 전사 캐릭터 컨트롤러 (CB-1) — 이동, 기본 공격(대검 2타 콤보), 회피 대시.
+## 전사 캐릭터 컨트롤러 (CB-1/CB-2) — 이동, 기본 공격(대검 2타 콤보), 회피 대시, 스킬 슬롯.
 ##
-## 참조: docs/design/systems/combat.md 2~4장, docs/design/systems/m2-warrior-skills.md 2장.
-## 데미지 실적용(CB-3)·피격/경직(CB-4)·스킬 슬롯(CB-2)·HitFeedback 연출(CB-7)은 이 스크립트의
-## 범위 밖이며, 이후 태스크가 연동할 수 있도록 시그널과 공개 상태만 노출한다.
+## 참조: docs/design/systems/combat.md 2~5장, docs/design/systems/m2-warrior-skills.md.
+## 데미지 실적용(CB-3)·HP/MP 실체(PlayerStatsComponent)는 이 스크립트의 범위 밖이며,
+## 시그널과 공개 상태만 노출해 다른 컴포넌트가 연동한다.
+##
+## 스킬 슬롯(CB-2)은 기본 공격 콤보와 동일한 히트박스(Facing/AttackHitbox)를 재사용한다 —
+## 기본 공격과 스킬은 상호 배타적 행동(하나만 동시에 진행)이므로 히트박스를 공유해도
+## 안전하다. 판정이 성립하면 attack_hit(step, target) 시그널에 "현재 판정 주체"(콤보의
+## WarriorAttackStep 또는 스킬의 WarriorSkillData)를 그대로 실어 보낸다 — 두 리소스 모두
+## damage_coefficient/hitstop_preset 필드를 노출하므로(duck typing) PlayerAttackResolver는
+## 콤보인지 스킬인지 구분할 필요 없이 그대로 소비한다.
 class_name PlayerController
 extends CharacterBody2D
 
 signal dash_started
 signal dash_ended
 signal attack_step_started(step_index: int, hitstop_preset: String)
-signal attack_hit(step_index: int, target: Node)
+## step: WarriorAttackStep(기본 콤보) 또는 WarriorSkillData(스킬) — 둘 다 damage_coefficient/
+## hitstop_preset 필드를 노출하는 duck-typing 계약. 타입을 명시하지 않은 이유는 두 클래스
+## 모두 받아야 하기 때문이다(스크립트 상단 주석 참조).
+signal attack_hit(step, target: Node)
+signal skill_used(skill_name: String)
 signal player_hit_taken(is_heavy: bool)  ## CB-4: 피격 성립(경직 시작) 알림
 signal player_invincibility_started
 signal player_invincibility_ended
@@ -20,12 +31,25 @@ enum AttackState { NONE, STARTUP, ACTIVE, RECOVERY }
 @export var combo_data: WarriorComboData
 @export var hit_rules: PlayerHitRules  ## CB-4: combat.md 5-1장 피격 경직/무적 수치
 
+@export_group("스킬 (CB-2, m2-warrior-skills.md 1~5장)")
+@export var skill_slot_1: WarriorSkillData  ## 1키 — 강타
+@export var skill_slot_2: WarriorSkillData  ## 2키 — 질주
+@export var skill_slot_3: WarriorSkillData  ## 3키 — 응급 처치
+@export var skill_slot_4: WarriorSkillData  ## 4키 — 분쇄 베기
+@export var skill_slot_q: WarriorSkillData  ## Q키 — 돌격
+@export var skill_slot_e: WarriorSkillData  ## E키 — 결의의 외침
+@export var skill_ultimate: WarriorSkillData  ## R키 — 대지 분쇄(궁극기)
+@export var skill_charge: WarriorSkillData  ## 우클릭(홀드) — 차지 강타
+
 var attack_state: AttackState = AttackState.NONE
+var skill_state: AttackState = AttackState.NONE
 var is_dashing: bool = false
 var is_dash_invincible: bool = false
 var dash_charges: int = 0
 var is_hit_stunned: bool = false  ## CB-4: 피격 경직 중
 var is_hit_invincible: bool = false  ## CB-4: 피격 후 무적 중
+
+var active_skill: WarriorSkillData = null
 
 var _move_input := Vector2.ZERO
 var _last_move_direction := Vector2.DOWN  ## 대시 기본 방향(이동 입력 없을 시 마지막 방향 유지)
@@ -39,12 +63,29 @@ var _dash_recharge_timers: Array[float] = []
 var _hit_stun_timer: float = 0.0
 var _hit_invincibility_timer: float = 0.0
 var _knockback_velocity := Vector2.ZERO
+## 현재 히트박스 판정을 낸 주체(WarriorAttackStep 또는 WarriorSkillData) — attack_hit emit용.
+var _current_action_step = null
+
+var _skill_phase_timer: float = 0.0
+var _skill_dash_direction := Vector2.ZERO
+var _skill_cooldowns: Dictionary = {}  ## key: String(슬롯 이름) -> 남은 쿨다운(초)
+
+var _is_charging_secondary: bool = false
+var _charge_hold_timer: float = 0.0
+var _cooldown_secondary: float = 0.0
+
+## 슈퍼아머 — combat.md 5-1 "슈퍼아머 스킬 시전 중: 경직 무시, 무적은 아님(피해는 그대로)".
+## 두 출처를 합산한다: ① 시전 중 슈퍼아머(차지 강타·대지 분쇄, self_superarmor_during_cast)
+## ② 결의의 외침이 부여하는 시간제 버프(_buff_superarmor_timer).
+var _cast_superarmor_active: bool = false
+var _buff_superarmor_timer: float = 0.0
 
 @onready var _facing: Node2D = $Facing
 @onready var _attack_hitbox: Area2D = $Facing/AttackHitbox
 @onready var _attack_collision: CollisionPolygon2D = $Facing/AttackHitbox/CollisionPolygon2D
 @onready var _debug_hitbox_visual: Polygon2D = $Facing/DebugHitboxVisual
 @onready var _placeholder_sprite: Sprite2D = $PlaceholderSprite
+@onready var _stats: PlayerStatsComponent = get_node_or_null("PlayerStats")
 
 
 func _ready() -> void:
@@ -62,6 +103,8 @@ func _physics_process(delta: float) -> void:
 
 	_update_dash_recharge(delta)
 	_update_hit_reaction(delta)
+	_update_superarmor_state(delta)
+	_update_skill_cooldowns(delta)
 
 	if is_hit_stunned:
 		velocity = _knockback_velocity
@@ -72,7 +115,14 @@ func _physics_process(delta: float) -> void:
 
 	if is_dashing:
 		_process_dash(delta)
+	elif skill_state != AttackState.NONE:
+		_process_skill_state(delta)
+	elif _is_charging_secondary:
+		_process_charge_hold(delta)
 	else:
+		_process_secondary_charge_start_input()
+		_process_skill_slot_input()
+		_process_potion_input()
 		_process_attack_input()
 		_process_attack_state(delta)
 		if attack_state == AttackState.NONE:
@@ -150,9 +200,15 @@ func _end_combo() -> void:
 	_queued_next_attack = false
 
 
-func _enable_attack_hitbox(step: WarriorAttackStep) -> void:
-	var radius_px := step.hitbox_range_tiles * movement_data.tile_size_px
-	var polygon := _build_sector_polygon(radius_px, step.hitbox_angle_deg)
+## 기본 콤보·스킬 공용 히트박스 활성화. step은 WarriorAttackStep 또는 WarriorSkillData —
+## 둘 다 hitbox_range_tiles/hitbox_angle_deg 필드를 노출한다(duck typing).
+func _enable_attack_hitbox(step) -> void:
+	_current_action_step = step
+	## step은 untyped(WarriorAttackStep/WarriorSkillData duck typing)라 곱셈 결과의 정적
+	## 타입을 추론할 수 없다 — 명시적으로 float 타입을 지정한다.
+	var radius_px: float = step.hitbox_range_tiles * movement_data.tile_size_px
+	var angle_deg: float = step.hitbox_angle_deg
+	var polygon := _build_sector_polygon(radius_px, angle_deg)
 	_attack_collision.polygon = polygon
 	_debug_hitbox_visual.polygon = polygon
 	_attack_hitbox.monitoring = true
@@ -180,7 +236,222 @@ func _build_sector_polygon(
 
 func _on_attack_hitbox_body_entered(body: Node) -> void:
 	# 데미지 계산(CB-3)·히트스톱 연출(CB-7)은 이후 태스크 담당 — 여기서는 판정 성립만 알린다.
-	attack_hit.emit(_attack_step_index, body)
+	attack_hit.emit(_current_action_step, body)
+
+
+# --- 스킬 슬롯 (CB-2, m2-warrior-skills.md) ---
+
+
+func _process_skill_slot_input() -> void:
+	if Input.is_action_just_pressed("skill_slot_1"):
+		_try_use_skill("slot1", skill_slot_1)
+	elif Input.is_action_just_pressed("skill_slot_2"):
+		_try_use_skill("slot2", skill_slot_2)
+	elif Input.is_action_just_pressed("skill_slot_3"):
+		_try_use_skill("slot3", skill_slot_3)
+	elif Input.is_action_just_pressed("skill_slot_4"):
+		_try_use_skill("slot4", skill_slot_4)
+	elif Input.is_action_just_pressed("skill_slot_5"):  ## Q(돌격) — ux-foundation 슬롯5 매핑
+		_try_use_skill("slot_q", skill_slot_q)
+	elif Input.is_action_just_pressed("skill_slot_6"):  ## E(결의의 외침) — 슬롯6 매핑
+		_try_use_skill("slot_e", skill_slot_e)
+	elif Input.is_action_just_pressed("ultimate"):
+		_try_use_skill("ultimate", skill_ultimate)
+
+
+## 쿨다운·MP를 확인해 스킬 사용을 시도한다. 성공 시 true.
+func _try_use_skill(key: String, skill: WarriorSkillData) -> bool:
+	if skill == null:
+		return false
+	if float(_skill_cooldowns.get(key, 0.0)) > 0.0:
+		return false
+	var mp_cost := _skill_mp_cost(skill)
+	if _stats and not _stats.has_mp(mp_cost):
+		return false
+	if _stats:
+		_stats.spend_mp(mp_cost)
+	_skill_cooldowns[key] = skill.cooldown_sec
+	_start_skill(skill)
+	return true
+
+
+func _skill_mp_cost(skill: WarriorSkillData) -> float:
+	if _stats == null or _stats.stats == null:
+		return 0.0
+	return _stats.stats.max_mp * skill.mp_cost_percent
+
+
+func _start_skill(skill: WarriorSkillData) -> void:
+	active_skill = skill
+	skill_state = AttackState.STARTUP
+	_skill_phase_timer = 0.0
+	skill_used.emit(skill.skill_name)
+
+
+## 차지 강타처럼 홀드 단계가 이미 시전(startup)을 대신한 경우, ACTIVE부터 바로 시작한다.
+func _begin_skill_active(skill: WarriorSkillData) -> void:
+	active_skill = skill
+	skill_state = AttackState.ACTIVE
+	_skill_phase_timer = 0.0
+	skill_used.emit(skill.skill_name)
+	_activate_skill_effect(skill)
+
+
+func _process_skill_state(delta: float) -> void:
+	_skill_phase_timer += delta
+	match skill_state:
+		AttackState.STARTUP:
+			velocity = Vector2.ZERO
+			if _skill_phase_timer >= active_skill.startup_sec:
+				skill_state = AttackState.ACTIVE
+				_skill_phase_timer = 0.0
+				_activate_skill_effect(active_skill)
+		AttackState.ACTIVE:
+			if active_skill.skill_type == WarriorSkillData.SkillType.DASH:
+				## max()는 인자 타입에 따라 가변 반환 타입을 갖는 엔진 내장 함수라 :=로는
+				## 정적 타입을 추론할 수 없다 — 명시적으로 float 타입을 지정한다.
+				var safe_duration_sec: float = maxf(active_skill.dash_duration_sec, 0.0001)
+				var speed_px: float = (
+					movement_data.tile_size_px
+					* active_skill.dash_distance_tiles
+					/ safe_duration_sec
+				)
+				velocity = _skill_dash_direction * speed_px
+			else:
+				velocity = Vector2.ZERO
+			if _skill_phase_timer >= active_skill.get_active_duration_sec():
+				skill_state = AttackState.RECOVERY
+				_skill_phase_timer = 0.0
+				_deactivate_skill_effect(active_skill)
+		AttackState.RECOVERY:
+			velocity = Vector2.ZERO
+			if _skill_phase_timer >= active_skill.recovery_sec:
+				_end_skill()
+
+
+func _activate_skill_effect(skill: WarriorSkillData) -> void:
+	match skill.skill_type:
+		WarriorSkillData.SkillType.DASH:
+			_skill_dash_direction = _last_move_direction
+			if skill.hitbox_range_tiles > 0.0:
+				_enable_attack_hitbox(skill)
+		WarriorSkillData.SkillType.BUFF_HEAL:
+			_apply_self_buff(skill)
+		_:  ## INSTANT · CHARGE · ULTIMATE
+			if skill.hitbox_range_tiles > 0.0:
+				_enable_attack_hitbox(skill)
+
+
+func _deactivate_skill_effect(_skill: WarriorSkillData) -> void:
+	_disable_attack_hitbox()
+
+
+func _apply_self_buff(skill: WarriorSkillData) -> void:
+	if _stats == null:
+		return
+	if skill.self_heal_percent > 0.0:
+		_stats.heal(_stats.stats.max_hp * skill.self_heal_percent)
+	if skill.grants_superarmor_sec > 0.0:
+		_buff_superarmor_timer = skill.grants_superarmor_sec
+	if skill.defense_buff_percent > 0.0:
+		_stats.apply_defense_buff(skill.defense_buff_percent, skill.defense_buff_duration_sec)
+
+
+func _cancel_skill() -> void:
+	_disable_attack_hitbox()
+	skill_state = AttackState.NONE
+	active_skill = null
+
+
+func _end_skill() -> void:
+	skill_state = AttackState.NONE
+	active_skill = null
+
+
+func _update_skill_cooldowns(delta: float) -> void:
+	for key in _skill_cooldowns.keys():
+		if _skill_cooldowns[key] > 0.0:
+			_skill_cooldowns[key] = max(_skill_cooldowns[key] - delta, 0.0)
+	if _cooldown_secondary > 0.0:
+		_cooldown_secondary = max(_cooldown_secondary - delta, 0.0)
+
+
+func get_skill_cooldown_remaining(key: String) -> float:
+	return float(_skill_cooldowns.get(key, 0.0))
+
+
+# --- 차지 강타 (우클릭 홀드, m2-warrior-skills.md 3장) ---
+
+
+func _process_secondary_charge_start_input() -> void:
+	if not Input.is_action_just_pressed("skill_secondary"):
+		return
+	if skill_charge == null or _cooldown_secondary > 0.0:
+		return
+	if _stats and not _stats.has_mp(_skill_mp_cost(skill_charge)):
+		return
+	_is_charging_secondary = true
+	_charge_hold_timer = 0.0
+
+
+## 이동 시 취소(combat.md 3장 "캐스팅 스킬은 이동 시 취소") — 이동 자체는 막지 않는다.
+func _process_charge_hold(delta: float) -> void:
+	if _move_input.length_squared() > 0.0:
+		_cancel_charge()
+		velocity = _move_input * movement_data.get_walk_speed_px_per_sec()
+		_update_facing_to_mouse()
+		return
+
+	velocity = Vector2.ZERO
+	_charge_hold_timer = min(_charge_hold_timer + delta, skill_charge.charge_max_hold_sec)
+	if (
+		not Input.is_action_pressed("skill_secondary")
+		or _charge_hold_timer >= skill_charge.charge_max_hold_sec
+	):
+		_release_charge()
+
+
+func _cancel_charge() -> void:
+	_is_charging_secondary = false
+	_charge_hold_timer = 0.0
+
+
+func _release_charge() -> void:
+	_is_charging_secondary = false
+	if _charge_hold_timer < skill_charge.charge_min_hold_sec:
+		return  ## 최소 홀드 이전에 뗌 — 취소(비용 없음)
+
+	var ratio := clampf(
+		inverse_lerp(
+			skill_charge.charge_min_hold_sec, skill_charge.charge_max_hold_sec, _charge_hold_timer
+		),
+		0.0,
+		1.0
+	)
+	var mp_cost := _skill_mp_cost(skill_charge)
+	if _stats and not _stats.has_mp(mp_cost):
+		return
+	if _stats:
+		_stats.spend_mp(mp_cost)
+	_cooldown_secondary = skill_charge.cooldown_sec
+	## 차지 강타는 홀드 비율에 따라 계수·후딜이 달라진다(m2-warrior-skills.md 3장) — 공용
+	## 리소스 필드를 이번 사용 값으로 덮어써 재사용한다(항상 사용 직전에 다시 계산되므로
+	## 이전 값이 남는 부작용 없음).
+	skill_charge.damage_coefficient = lerp(
+		skill_charge.charge_min_coefficient, skill_charge.charge_max_coefficient, ratio
+	)
+	skill_charge.recovery_sec = lerp(
+		skill_charge.charge_min_recovery_sec, skill_charge.charge_max_recovery_sec, ratio
+	)
+	_begin_skill_active(skill_charge)
+
+
+# --- 포션 (CB-5, combat.md 5-4장) ---
+
+
+func _process_potion_input() -> void:
+	if Input.is_action_just_pressed("quickslot_1") and _stats:
+		_stats.use_potion()
 
 
 # --- 피격 반응 (CB-4, combat.md 5-1장) ---
@@ -188,10 +459,14 @@ func _on_attack_hitbox_body_entered(body: Node) -> void:
 
 ## 몬스터 등 공격자가 판정 성립 시 호출하는 공개 API.
 ## is_heavy: 강공격/보스 공격 여부(넉다운). knockback_direction: 밀려나는 방향(정규화 불필요).
-## 무적 중(회피 무적 포함)에는 무시한다 — 데미지 적용 여부는 호출자가 이 함수 호출 전에
-## is_invincible()로 먼저 확인해야 한다(경직/무적 갱신과 데미지 적용을 분리).
+## 무적 중(회피 무적 포함)이거나 슈퍼아머 중에는 무시한다 — 데미지 적용 여부는 호출자가
+## 이 함수 호출 전에 is_invincible()로 먼저 확인해야 한다(경직/무적 갱신과 데미지 적용을
+## 분리). 슈퍼아머는 "경직 무시, 피해는 그대로"이므로 데미지(take_damage)는 별도로 계속
+## 정상 적용된다 — 여기서 무시하는 것은 경직·넉백 반응뿐이다.
 func take_hit(is_heavy: bool, knockback_direction: Vector2 = Vector2.ZERO) -> void:
 	if is_invincible():
+		return
+	if is_superarmor():
 		return
 	if is_dashing:
 		is_dashing = false
@@ -199,6 +474,8 @@ func take_hit(is_heavy: bool, knockback_direction: Vector2 = Vector2.ZERO) -> vo
 	if attack_state != AttackState.NONE:
 		_disable_attack_hitbox()
 		_end_combo()
+	if skill_state != AttackState.NONE:
+		_cancel_skill()
 
 	is_hit_stunned = true
 	is_hit_invincible = true
@@ -219,9 +496,41 @@ func take_hit(is_heavy: bool, knockback_direction: Vector2 = Vector2.ZERO) -> vo
 	player_invincibility_started.emit()
 
 
+## 몬스터 등 공격자가 실제 HP 피해를 적용할 때 호출하는 공개 API(MonsterAttackResolver
+## 연동 지점) — HP 차감·사망(임시 리스폰) 자체는 PlayerStats 컴포넌트가 담당한다.
+func take_damage(amount: float, hit_grade: String = "약", attacker: Node2D = null) -> void:
+	if _stats:
+		_stats.take_damage(amount, hit_grade, attacker)
+
+
+## PlayerAttackResolver 등 공격자 쪽이 조회하는 방어력 duck-typing 계약.
+func get_combat_defense() -> float:
+	return _stats.get_combat_defense() if _stats else 0.0
+
+
+func is_dead() -> bool:
+	return _stats.is_dead() if _stats else false
+
+
 ## 회피 무적(대시)과 피격 후 무적을 합친 통합 판정 — 공격자 쪽이 데미지 적용 전 확인용.
 func is_invincible() -> bool:
 	return is_dash_invincible or is_hit_invincible
+
+
+## 슈퍼아머 — 경직은 무시하지만 무적은 아니다(피해는 그대로 받는다, combat.md 5-1장).
+func is_superarmor() -> bool:
+	return _cast_superarmor_active or _buff_superarmor_timer > 0.0
+
+
+func _update_superarmor_state(delta: float) -> void:
+	_cast_superarmor_active = (
+		skill_state != AttackState.NONE
+		and skill_state != AttackState.RECOVERY
+		and active_skill != null
+		and active_skill.self_superarmor_during_cast
+	)
+	if _buff_superarmor_timer > 0.0:
+		_buff_superarmor_timer = max(_buff_superarmor_timer - delta, 0.0)
 
 
 func _update_hit_reaction(delta: float) -> void:
@@ -252,6 +561,8 @@ func _start_dash() -> void:
 	if attack_state != AttackState.NONE:
 		_disable_attack_hitbox()
 		_end_combo()
+	if skill_state != AttackState.NONE:
+		_cancel_skill()
 	dash_charges -= 1
 	_dash_recharge_timers.append(movement_data.dash_recharge_sec)
 	_dash_direction = _last_move_direction
@@ -302,16 +613,22 @@ func _setup_placeholder_sprite() -> void:
 
 
 func get_debug_state_text() -> String:
-	if is_hit_stunned:
-		return "피격 경직%s" % (" (무적)" if is_hit_invincible else "")
-	if is_dashing:
-		return "회피 대시%s" % (" (무적)" if is_dash_invincible else "")
+	var text := "대기"
+	if _move_input.length_squared() > 0.0:
+		text = "이동"
 	match attack_state:
 		AttackState.STARTUP:
-			return "공격 %d타 - 선딜" % (_attack_step_index + 1)
+			text = "공격 %d타 - 선딜" % (_attack_step_index + 1)
 		AttackState.ACTIVE:
-			return "공격 %d타 - 판정" % (_attack_step_index + 1)
+			text = "공격 %d타 - 판정" % (_attack_step_index + 1)
 		AttackState.RECOVERY:
-			return "공격 %d타 - 후딜" % (_attack_step_index + 1)
-		_:
-			return "이동" if _move_input.length_squared() > 0.0 else "대기"
+			text = "공격 %d타 - 후딜" % (_attack_step_index + 1)
+	if skill_state != AttackState.NONE and active_skill:
+		text = "스킬: %s%s" % [active_skill.skill_name, " (슈퍼아머)" if is_superarmor() else ""]
+	if _is_charging_secondary:
+		text = "차지 강타 홀드 중 (%.2fs)" % _charge_hold_timer
+	if is_dashing:
+		text = "회피 대시%s" % (" (무적)" if is_dash_invincible else "")
+	if is_hit_stunned:
+		text = "피격 경직%s" % (" (무적)" if is_hit_invincible else "")
+	return text
