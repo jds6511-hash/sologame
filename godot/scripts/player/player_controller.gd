@@ -27,6 +27,10 @@ signal player_invincibility_ended
 
 enum AttackState { NONE, STARTUP, ACTIVE, RECOVERY }
 
+## 회피 대시 시작·플레이어 피격 SFX (SD-1).
+const DODGE_SFX := preload("res://assets/audio/sfx/sfx_combat_dodge.wav")
+const PLAYER_HIT_SFX := preload("res://assets/audio/sfx/sfx_combat_player_hit.wav")
+
 @export var movement_data: PlayerMovementData
 @export var combo_data: WarriorComboData
 @export var hit_rules: PlayerHitRules  ## CB-4: combat.md 5-1장 피격 경직/무적 수치
@@ -494,6 +498,7 @@ func take_hit(is_heavy: bool, knockback_direction: Vector2 = Vector2.ZERO) -> vo
 
 	player_hit_taken.emit(is_heavy)
 	player_invincibility_started.emit()
+	HitFeedback.play_sfx(PLAYER_HIT_SFX, global_position)
 
 
 ## 몬스터 등 공격자가 실제 HP 피해를 적용할 때 호출하는 공개 API(MonsterAttackResolver
@@ -570,6 +575,7 @@ func _start_dash() -> void:
 	is_dash_invincible = false
 	_dash_timer = 0.0
 	dash_started.emit()
+	HitFeedback.play_sfx(DODGE_SFX, global_position)
 
 
 func _process_dash(delta: float) -> void:

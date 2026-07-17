@@ -22,6 +22,9 @@ signal respawned
 signal potion_used(healed_amount: float)
 signal potion_use_failed  ## 쿨다운 중이거나 보스전 캡 초과 — UI 안내용
 
+## 포션 사용 SFX (SD-1).
+const POTION_USE_SFX := preload("res://assets/audio/sfx/sfx_combat_potion_use.wav")
+
 @export var stats: CombatantStats  ## growth.md 1~3장 Lv1 전사 스탯(HP/MP/공격력/방어력/민첩)
 @export var recovery_rules: PlayerRecoveryRules  ## combat.md 5-4장 회복 규칙
 
@@ -140,6 +143,7 @@ func use_potion() -> bool:
 	if is_boss_encounter:
 		_boss_potion_used_count += 1
 	potion_used.emit(heal_amount)
+	HitFeedback.play_sfx(POTION_USE_SFX, _player.global_position)
 	return true
 
 

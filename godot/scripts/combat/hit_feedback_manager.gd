@@ -47,18 +47,35 @@ func _spawn_vfx(preset: HitFeedbackPresetScript, at_position: Vector2) -> void:
 	var vfx: Node = preset.vfx_scene.instantiate()
 	if vfx is Node2D:
 		vfx.global_position = at_position
-	get_tree().current_scene.add_child(vfx)
+	_resolve_effect_parent().add_child(vfx)
 
 
 func _play_sfx(preset: HitFeedbackPresetScript, at_position: Vector2) -> void:
-	if preset.sfx_stream == null:
+	play_sfx(preset.sfx_stream, at_position)
+
+
+## 프리셋에 묶이지 않은 단발성 SFX 재생 — 스킬 명중/회피/피격/몬스터 사망/포션 사용 등
+## scripts/combat·scripts/player 각 트리거 지점에서 공용으로 호출한다(중복 구현 방지).
+func play_sfx(stream: AudioStream, at_position: Vector2) -> void:
+	if stream == null:
 		return
 	var player := AudioStreamPlayer2D.new()
-	player.stream = preset.sfx_stream
+	player.stream = stream
 	player.global_position = at_position
-	get_tree().current_scene.add_child(player)
+	player.bus = "SFX"
+	_resolve_effect_parent().add_child(player)
 	player.finished.connect(player.queue_free)
 	player.play()
+
+
+## 이펙트/사운드를 붙일 부모 노드를 정한다. 평상시엔 current_scene이지만, GUT 헤드리스
+## 테스트 환경은 메인 씬을 띄우지 않아 current_scene이 계속 null이다 — 이 경우 이 오토로드
+## 자신(항상 트리에 존재)에 부착하는 것으로 폴백해 add_child 호출이 죽지 않게 한다.
+func _resolve_effect_parent() -> Node:
+	var current_scene := get_tree().current_scene
+	if current_scene != null:
+		return current_scene
+	return self
 
 
 ## 히트스톱: Engine.time_scale을 잠깐 0으로 낮췄다가 실시간(time_scale 무관) 타이머로

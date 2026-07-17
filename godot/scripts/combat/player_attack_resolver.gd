@@ -25,6 +25,11 @@
 class_name PlayerAttackResolver
 extends Node
 
+## 스킬(WarriorSkillData) 명중 전용 SFX — 기본 콤보 히트음(프리셋 sfx_stream)과 별개로
+## 스킬 명중에만 덧씌운다. 몬스터 사망(died 시그널 소비) SFX도 함께 담당한다(SD-1).
+const SKILL_HIT_SFX := preload("res://assets/audio/sfx/sfx_combat_skill_hit.wav")
+const MONSTER_DEATH_SFX := preload("res://assets/audio/sfx/sfx_combat_monster_death.wav")
+
 @export var attacker_stats: CombatantStats
 @export var formula_data: DamageFormulaData
 @export var preset_weak: HitFeedbackPreset
@@ -55,14 +60,25 @@ func _on_attack_hit(step, target: Node) -> void:
 	## 치명타는 등급과 무관하게 항상 "강"으로 승격한다
 	## (m2-warrior-skills.md 7장 "치명타(전 스킬 공통) = 강").
 	var hit_grade: String = "강" if is_critical else step.hitstop_preset
-	if target.has_method("take_damage"):
-		target.take_damage(damage, hit_grade, _player)
-
-	var preset := _preset_for_grade(hit_grade)
 	var target_position: Vector2 = (
 		target.global_position if target is Node2D else _player.global_position
 	)
+	## 몬스터 died 시그널은 take_damage() 안에서 동기(synchronous)로 발신되므로(scripts/ai/
+	## monster_base.gd), take_damage 호출 전에 미리 연결해 둬야 사망 SFX를 놓치지 않는다.
+	if target.has_signal("died"):
+		target.died.connect(_on_target_died.bind(target_position), CONNECT_ONE_SHOT)
+	if target.has_method("take_damage"):
+		target.take_damage(damage, hit_grade, _player)
+
+	if step is WarriorSkillData:
+		HitFeedback.play_sfx(SKILL_HIT_SFX, target_position)
+
+	var preset := _preset_for_grade(hit_grade)
 	HitFeedback.play(preset, target_position, target)
+
+
+func _on_target_died(at_position: Vector2) -> void:
+	HitFeedback.play_sfx(MONSTER_DEATH_SFX, at_position)
 
 
 ## MonsterBase(scripts/ai/monster_base.gd)는 get_combat_defense() 메서드가 없고,
