@@ -8,6 +8,7 @@
   - `docs\design\systems\m2-monster-spec.md` (몬스터 3종 실루엣·기믹 힌트)
 - **변경 이력**:
   - 2026-07-17: 최초 작성 — AR-1(전사 플레이어) 플레이스홀더 제작 결정, AR-2(몬스터 3종: 들개 마수·뿔토끼·균열 점액) CC0/CC-BY 소싱 및 EDG32 재색상화 완료 기록
+  - 2026-07-17: (audio-designer) 8장 추가(기존 8장 디렉터 결정 필요는 9장으로 이동) — SD-1 전투 SFX 자체 생성 기록, SD-2 시작 지역 BGM CC0 후보 소싱 시도 결과와 임시 numpy 플레이스홀더 채택 사유 기록
 
 > 본 문서는 `godot\assets\sprites\` 하위 캐릭터/몬스터 스프라이트 제작에 사용한 제3자 소싱 자료의 출처·라이선스를 기록한다. 절차 생성(Pillow) 산출물(타일셋·아이콘)의 출처는 해당 없음(자체 생성) — 이 문서는 **소싱 자료만** 다룬다.
 
@@ -80,7 +81,29 @@
 2. `python godot\assets\tools\gen_monster_slime.py` / `gen_monster_wolf.py` / `gen_monster_rabbit.py` / `gen_player_warrior.py` 실행
 3. `python godot\assets\tools\validate_palette.py` 로 팔레트 위반 0건 확인
 
-## 8. 디렉터 결정 필요
+## 8. 오디오 소싱 (SD-1·SD-2, audio-designer)
+
+### 8-1. SD-1 전투 SFX — 자체 생성 (소싱 아님)
+
+전투 SFX 8종(기본 공격 히트 약/중/강, 스킬 히트, 회피 대시, 플레이어 피격, 몬스터 사망, 포션 사용)은 전부 numpy 파형 합성 자체 생성물이다. 제3자 소싱 자료가 아니므로 본 장의 라이선스 기록 대상이 아니다(`godot\assets\CREDITS.md`에 자체 생성 명시만 기록). 생성 스크립트: `godot\assets\tools\gen_combat_sfx.py`.
+
+### 8-2. SD-2 시작 지역 BGM — CC0 소싱 시도 및 임시 대체 사유
+
+`audio-direction.md` 1-2장 기준 시작 지역(동부 변경 남측) BGM 요구: "개척·새싹·모험의 첫걸음", 보통 템포(100~120), 밝은 장조 필드곡 — `STYLE_GUIDE.md` 8장 요약 "재건과 긴장"(재건=희망, 긴장=변경의 위험). OpenGameArt.org에서 CC0 라이선스 곡을 검색해 아래 후보를 확인했다:
+
+| 후보 곡 | 제작자 | 라이선스 | URL | 채택 여부 |
+|---|---|---|---|---|
+| Town Theme RPG | cynicmusic | CC0 | https://opengameart.org/content/town-theme-rpg | 보류 — 태그가 "calm/home/cabin"으로 마을 휴식곡에 가까워 "모험의 첫걸음" 필드곡보다는 평화(S2) 슬롯에 더 적합해 보임 |
+| Adventure Theme | CleytonKauffman | CC0 | https://opengameart.org/content/adventure-theme | 보류 — 태그가 "Rock/fast/drums/racecar"로 록 하이브리드에 가까워 칩튠 톤·필드 탐험 템포(100~120)와 어긋날 가능성 |
+| The Field Of Dreams | pauliuw | CC0 | https://opengameart.org/content/the-field-of-dreams | 보류 — 설명상 "밤(Night)" 멜로디의 리메이크로 차분한 야간/시네마틱 톤이라 밝은 장조 주간 필드곡과 결이 다름 |
+| Overworld Theme | remaxim | CC-BY | https://opengameart.org/content/overworld-theme | 참고용(CC-BY, 디렉터의 CC-BY 허용 결정 전이라 미채택) |
+
+세 CC0 후보 모두 페이지의 태그·설명만으로 확인한 것으로, **실제 청취 검증(템포·조성·악기 편성이 "개척+긴장"의 균형에 맞는지)을 거치지 않았다** — audio-designer가 오디오 파일을 직접 들어볼 수단이 없어(텍스트 기반 확인만 가능) 섣불리 확정하면 잘못된 곡이 기준 슬롯에 고정될 위험이 있다고 판단, 이번 M2에서는 **임시 numpy 합성 화음 패드**(`bgm_field_eastern_frontier_south_TEMP.ogg`, 생성 스크립트 `godot\assets\tools\gen_bgm_placeholder.py`)로 자리를 채웠다. 밝은 장조(C-G-Am-F) 진행에 3번째 마디(Am)만 은은한 텐션을 주어 "희망 속의 긴장"을 표현했다.
+
+**추후 조치**: 위 3개 CC0 후보를 director 또는 후속 오디오 패스에서 실제로 청취해 채택 여부를 판정하거나, 추가 후보를 탐색해 정식 곡으로 교체한다. 교체 시 `godot\assets\audio\bgm\` 하위 파일명을 `bgm_field_eastern_frontier_south.ogg`(TEMP 접미사 제거)로 정리하고 본 장·`CREDITS.md`를 갱신한다.
+
+## 9. 디렉터 결정 필요
 
 - 6장의 CC-BY vs STYLE_GUIDE 7-3 "CC0만 허용" 불일치 — 현재는 비배포 개인 프로젝트라 즉시 리스크는 낮으나, 정책을 명확히 할지 결정 필요.
 - 전사 플레이어(AR-1) 플레이스홀더를 정식 원화로 교체할 시점(다음 아트 패스 vs M2 이후 백로그) 결정 필요.
+- **SD-2 BGM**: 위 8-2절 CC0 후보 3곡의 실제 청취 판정, 또는 임시 numpy 패드를 M2 게이트 통과용으로 유지한 채 정식 소싱을 M3 이후로 미룰지 결정 필요.

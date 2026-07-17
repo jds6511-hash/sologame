@@ -6,6 +6,10 @@ config_version=5
 config/name="sologame"
 config/features=PackedStringArray("4.7")
 
+[audio]
+
+buses/default_bus_layout="res://default_bus_layout.tres"
+
 [autoload]
 
 HitFeedback="*res://scripts/combat/hit_feedback_manager.gd"
