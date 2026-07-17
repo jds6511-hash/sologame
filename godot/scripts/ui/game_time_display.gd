@@ -1,9 +1,9 @@
-## HUD C요소 — 게임 내 시간 표시 (자리 + 더미).
+## HUD C요소 — 게임 내 시간 표시.
 ##
 ## `docs\art\ux\ux-foundation.md` 5장 C행: "☀/☾ 아이콘 + N일차 HH:MM. 현실 30분=게임 하루
-## 기준 표시. 아이콘으로 낮/밤 구분(색맹 대응)." 게임 내 시간 시스템(systems-designer 담당,
-## M2 범위 밖)이 아직 없어 실제로 흐르지 않는 더미 값만 표시한다 — 시간 시스템이 구현되면
-## set_time()을 실시간 값으로 주기 호출하도록 교체하면 된다.
+## 기준 표시. 아이콘으로 낮/밤 구분(색맹 대응)." G2-4로 게임 내 시간 오토로드(GameClock,
+## scripts/world/game_clock.gd)가 생겨, 매 프레임 그 값을 읽어 표시한다(디버그 HUD의
+## 상태 라벨 갱신 방식과 동일하게 _process에서 텍스트를 다시 그린다).
 class_name GameTimeDisplay
 extends Panel
 
@@ -22,8 +22,15 @@ func _ready() -> void:
 	UiStyle.apply_label_font(_time_label)
 	_icon_label.add_theme_color_override("font_color", UiStyle.COLOR_EXP)
 	_time_label.add_theme_color_override("font_color", UiStyle.COLOR_TEXT)
-	## 더미 값 — 시간 시스템 미구현(M2 범위 밖, PROJECT_STATUS 8장 제외 목록)
-	set_time(1, 14, 30, true)
+	_refresh_from_game_clock()
+
+
+func _process(_delta: float) -> void:
+	_refresh_from_game_clock()
+
+
+func _refresh_from_game_clock() -> void:
+	set_time(GameClock.day_number, GameClock.get_hour(), GameClock.get_minute(), GameClock.is_day)
 
 
 ## day_number: N일차. hour/minute: 24시간제. is_day: true=낮(☀), false=밤(★).

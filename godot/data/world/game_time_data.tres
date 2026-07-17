@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="GameTimeData" format=3]
+
+[ext_resource type="Script" path="res://scripts/world/game_time_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+real_seconds_per_game_day = 1800.0
+real_seconds_day_phase = 1200.0
+night_monster_stat_multiplier = 1.2
+night_item_drop_rate_multiplier = 1.15
+night_exp_multiplier = 1.2

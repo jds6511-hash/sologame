@@ -16,6 +16,16 @@ const RABBIT_DROP_TABLE: DropTableData = preload("res://data/drops/rabbit_drop_t
 const WOLF_DROP_TABLE: DropTableData = preload("res://data/drops/wolf_drop_table.tres")
 const SLIME_DROP_TABLE: DropTableData = preload("res://data/drops/rift_slime_drop_table.tres")
 
+## 주야간 CanvasModulate 색조 — `docs\art\STYLE_GUIDE.md` 5-1장 확정값 그대로(EDG32 팔레트
+## 내 색상). CanvasModulate는 같은 캔버스의 Node2D 하위 트리에만 적용되고 Hud/IntegratedMenu/
+## OnboardingHintBar(전부 CanvasLayer)는 별도 레이어라 영향받지 않는다.
+const DAY_COLOR := Color("ffffff")
+const NIGHT_COLOR := Color("6d7ab5")
+## 전환 페이드 길이(현실 초). STYLE_GUIDE 5-1의 "게임 시간 1시간 분량 선형 보간"(황혼·새벽
+## 중간색 경유)은 M2 범위 밖 — 이번에는 낮/밤 대표색 사이를 수 초간 직선 보간하는 단순
+## 페이드만 구현한다(G2-4 요구 "전환 페이드(수 초)").
+const DAY_NIGHT_FADE_SEC := 3.0
+
 @onready var _player: PlayerController = $Player
 @onready var _inventory: InventoryComponent = $Player/Inventory
 @onready var _drop_system: DropSystem = $DropSystem
@@ -23,6 +33,7 @@ const SLIME_DROP_TABLE: DropTableData = preload("res://data/drops/rift_slime_dro
 @onready var _hud: Hud = $Hud
 @onready var _onboarding_hint_bar: OnboardingHintBar = $OnboardingHintBar
 @onready var _tutorial: TutorialController = $TutorialController
+@onready var _day_night_modulate: CanvasModulate = $DayNightModulate
 
 
 func _ready() -> void:
@@ -31,6 +42,31 @@ func _ready() -> void:
 	_drop_system.gold_dropped.connect(_inventory.add_gold)
 	_register_spawned_monsters()
 	_start_tutorial()
+	_init_day_night_modulate()
+
+
+# --- 주야간 시각 연출 (G2-4) ---
+
+
+func _init_day_night_modulate() -> void:
+	_day_night_modulate.color = DAY_COLOR if GameClock.is_day else NIGHT_COLOR
+	GameClock.night_started.connect(_on_night_started)
+	GameClock.day_started.connect(_on_day_started)
+
+
+func _on_night_started(_day_number: int) -> void:
+	print("[G2-4] 밤 시작 (%d일차) — 야간 몬스터 강화 x1.2·드랍률 x1.15 적용" % _day_number)
+	_fade_day_night_modulate(NIGHT_COLOR)
+
+
+func _on_day_started(_day_number: int) -> void:
+	print("[G2-4] 낮 시작 (%d일차) — 야간 배율 해제" % _day_number)
+	_fade_day_night_modulate(DAY_COLOR)
+
+
+func _fade_day_night_modulate(target_color: Color) -> void:
+	var tween := create_tween()
+	tween.tween_property(_day_night_modulate, "color", target_color, DAY_NIGHT_FADE_SEC)
 
 
 ## 온보딩 튜토리얼(UI-4) 배선 — MonsterSpawner가 이미 스폰해 둔 뿔토끼만 골라 넘긴다.

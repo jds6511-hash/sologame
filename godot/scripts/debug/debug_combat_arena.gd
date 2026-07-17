@@ -21,6 +21,7 @@ const DAMAGE_FORMULA: DamageFormulaData = preload("res://data/combat/damage_form
 const ATTACK_POWER_STEP := 10.0
 const MAX_HP_STEP := 50.0
 const SPAWN_DISTANCE_PX := 48.0
+const TIME_JUMP_HOURS := 1.0  ## G2-4 디버그 시간 점프 — 밤을 기다리지 않고 즉시 확인용
 
 @export var player_path: NodePath
 @export var monsters_root_path: NodePath
@@ -70,6 +71,8 @@ func _unhandled_key_input(event: InputEvent) -> void:
 			_adjust_max_hp(MAX_HP_STEP)
 		KEY_F9:
 			_adjust_max_hp(-MAX_HP_STEP)
+		KEY_F10:
+			_debug_jump_time()
 
 
 # --- 몬스터 소환 (F1~F3) ---
@@ -136,13 +139,36 @@ func _adjust_max_hp(delta: float) -> void:
 	_update_status_label("최대 HP %.0f" % _player_stats.stats.max_hp)
 
 
+# --- 시간 점프 (F10, G2-4) ---
+
+
+func _debug_jump_time() -> void:
+	GameClock.debug_jump_hours(TIME_JUMP_HOURS)
+	var phase := "낮" if GameClock.is_day else "밤"
+	_update_status_label(
+		(
+			"시간 %.0f시간 점프 → %d일차 %02d:%02d (%s)"
+			% [
+				TIME_JUMP_HOURS,
+				GameClock.day_number,
+				GameClock.get_hour(),
+				GameClock.get_minute(),
+				phase
+			]
+		)
+	)
+
+
 # --- 상태 표시 ---
 
 
 func _update_status_label(last_action: String = "") -> void:
 	_status_label.text = (
 		"[CB-9 디버그 전투장] F1=뿔토끼 F2=들개 마수 F3=균열 점액 소환 · F4=몬스터 정리 · F5=리셋\n"
-		+ "F6/F7=공격력 +-%d · F8/F9=최대HP +-%d\n" % [ATTACK_POWER_STEP, MAX_HP_STEP]
+		+ (
+			"F6/F7=공격력 +-%d · F8/F9=최대HP +-%d · F10=시간 %.0f시간 점프\n"
+			% [ATTACK_POWER_STEP, MAX_HP_STEP, TIME_JUMP_HOURS]
+		)
 		+ (
 			"프레임: %d · FPS: %d · 몬스터 수: %d\n"
 			% [_frame_count, Engine.get_frames_per_second(), _monsters_root.get_child_count() / 2]

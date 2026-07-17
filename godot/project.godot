@@ -13,6 +13,7 @@ buses/default_bus_layout="res://default_bus_layout.tres"
 [autoload]
 
 HitFeedback="*res://scripts/combat/hit_feedback_manager.gd"
+GameClock="*res://scripts/world/game_clock.gd"
 
 [display]
 

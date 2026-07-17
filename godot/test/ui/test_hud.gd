@@ -13,9 +13,14 @@ func _spawn_player() -> PlayerController:
 
 
 func before_each() -> void:
+	GameClock.reset()  ## G2-4: 오토로드는 테스트 전체에서 하나뿐이라 매 테스트 초기 상태로 되돌린다.
 	var scene: PackedScene = load("res://scenes/ui/hud.tscn")
 	_hud = scene.instantiate()
 	add_child_autofree(_hud)
+
+
+func after_each() -> void:
+	GameClock.reset()
 
 
 func test_hud_has_expected_child_elements() -> void:
@@ -27,9 +32,12 @@ func test_hud_has_expected_child_elements() -> void:
 	assert_not_null(_hud.get_node_or_null("ExpBar"), "J요소(경험치 바)")
 
 
-func test_game_time_shows_dummy_default() -> void:
+func test_game_time_shows_game_clock_value() -> void:
+	## G2-4: 더미값 표시를 GameClock 연동으로 교체 — 리셋 직후 1일차 00:00·낮이어야 한다.
 	var time_label: Label = _hud.get_node("GameTimeDisplay/HBox/TimeLabel")
-	assert_eq(time_label.text, "1일차 14:30")
+	var icon_label: Label = _hud.get_node("GameTimeDisplay/HBox/IconLabel")
+	assert_eq(time_label.text, "1일차 00:00")
+	assert_eq(icon_label.text, GameTimeDisplay.ICON_DAY)
 
 
 func test_set_exp_ratio_resizes_fill() -> void:

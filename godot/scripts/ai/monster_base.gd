@@ -22,6 +22,14 @@
 ## 포함하므로, MobStaggerComponent 헤더 주석이 권장하는 is_critical 단독보다 더 정확하다).
 ## 넉백 방향은 공격자 반대편 수평 이동(combat.md 5-2-1), 벽 충돌 시 move_and_slide()가
 ## 자연히 정지시킨다(플레이어 take_hit()과 동일한 방식).
+##
+## 야간 스탯 배율 (G2-4, combat.md 2-3장 — 보스 제외): stats(MonsterStatsData)는 여러
+## 몬스터 인스턴스가 공유하는 Resource이므로 max_hp/attack_power 필드 자체를 곱해 바꾸면
+## 안 된다(모든 인스턴스가 오염되고, .tres에 그대로 저장되어 영구화될 위험도 있다). 대신
+## 배율은 인스턴스별 변수(_night_multiplier)로만 들고, effective_max_hp()/
+## effective_attack_power()가 그 값을 곱해 파생시킨다. GameClock.night_started/
+## day_started를 구독해 전환 시 배율을 갱신하고, 그 시점의 hp는 "체력 비율 유지"로
+## 재계산한다(예: 밤에 50% 남았다면 낮이 되어 최대 HP가 줄어도 50% 그대로).
 class_name MonsterBase
 extends CharacterBody2D
 
@@ -44,6 +52,7 @@ var last_attacker: Node2D = null
 var _swing: MeleeSwingBlock = null
 var _facing_left: bool = false
 var _knockback_velocity := Vector2.ZERO
+var _night_multiplier: float = 1.0
 
 @onready var _sprite: AnimatedSprite2D = get_node_or_null("Sprite")
 @onready var _attack_hitbox: Area2D = get_node_or_null("AttackHitbox")
@@ -53,9 +62,41 @@ var _attack_hitbox_shape: CollisionShape2D = get_node_or_null("AttackHitbox/Coll
 
 
 func _ready() -> void:
-	hp = stats.max_hp
+	_night_multiplier = GameClock.get_monster_stat_multiplier(stats.is_boss)
+	hp = effective_max_hp()
 	home_position = global_position
 	_play_animation("idle")
+	if not stats.is_boss:
+		GameClock.night_started.connect(_on_night_started)
+		GameClock.day_started.connect(_on_day_started)
+
+
+## 야간 배율이 반영된 실제 최대 HP/공격력 (combat.md 2-3장 헤더 주석 참고).
+func effective_max_hp() -> float:
+	return stats.max_hp * _night_multiplier
+
+
+func effective_attack_power() -> float:
+	return stats.attack_power * _night_multiplier
+
+
+func _on_night_started(_day_number: int) -> void:
+	_apply_stat_multiplier(GameClock.get_monster_stat_multiplier(stats.is_boss))
+
+
+func _on_day_started(_day_number: int) -> void:
+	_apply_stat_multiplier(GameClock.get_monster_stat_multiplier(stats.is_boss))
+
+
+## 배율 전환 시 hp를 "체력 비율 유지"로 재계산한다(만렙 HP가 줄거나 늘어도 즉사·풀피
+## 회복이 발생하지 않게).
+func _apply_stat_multiplier(new_multiplier: float) -> void:
+	if is_dead():
+		return
+	var previous_max := effective_max_hp()
+	var ratio := hp / previous_max if previous_max > 0.0 else 1.0
+	_night_multiplier = new_multiplier
+	hp = effective_max_hp() * ratio
 
 
 # --- 피격/사망 (CB-3 연동 지점) ---

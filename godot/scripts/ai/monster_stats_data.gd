@@ -18,6 +18,9 @@ extends Resource
 @export var max_hp: float = 100.0
 @export var attack_power: float = 10.0
 @export var defense: float = 0.0  ## CB-3 데미지 공식이 참조하는 방어력 값(참고용 노출)
+## 보스 여부 — true면 MonsterBase가 야간 배율(combat.md 2-3 "보스 제외")을 적용하지
+## 않는다. M2 3종(뿔토끼·들개 마수·균열 점액)은 전부 잡몹이라 기본값 false 그대로 둔다.
+@export var is_boss: bool = false
 
 @export_group("무리·감지 (6장 총괄표)")
 @export var shares_pack_aggro: bool = false  ## 들개 마수만 true (combat.md 2-2 무리 어그로 공유)

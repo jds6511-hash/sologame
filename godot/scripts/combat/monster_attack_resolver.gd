@@ -50,9 +50,18 @@ func _apply_damage(target: Node) -> void:
 		return
 	var target_defense := _resolve_target_defense(target)
 	var damage := DamageCalculator.calculate_damage(
-		monster_stats.attack_power, 1.0, target_defense, formula_data, false, false
+		_resolve_attack_power(monster_stats), 1.0, target_defense, formula_data, false, false
 	)
 	target.take_damage(damage, "약", _monster)
+
+
+## G2-4 야간 배율(combat.md 2-3장) 연동 지점 — MonsterBase는 effective_attack_power()로
+## 야간 ×1.2가 적용된 값을 노출한다. 테스트용 더미(DummyAttackLandedSource)처럼 그
+## 메서드가 없는 대상은 기존처럼 stats.attack_power를 그대로 쓴다(duck-typing 하위 호환).
+func _resolve_attack_power(monster_stats: Variant) -> float:
+	if _monster.has_method("effective_attack_power"):
+		return _monster.effective_attack_power()
+	return monster_stats.attack_power
 
 
 ## PlayerController(또는 그 스탯 컴포넌트)의 duck-typing 계약 — get_combat_defense()가

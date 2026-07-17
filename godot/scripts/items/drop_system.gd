@@ -149,31 +149,39 @@ static func equip_chance(
 # --- 판정 성립 여부 (순수 함수 — roll_01/roll_weight는 외부 주입, 결정적 테스트 가능) ---
 
 
+## night_multiplier: G2-4 야간 아이템 드랍률 배율(combat.md 2-3장 ×1.15, 골드 제외·보스
+## 제외 — 호출자가 tier==BOSS면 항상 1.0을 넘겨야 한다). 기본값 1.0이라 기존 호출부(주간
+## 판정·순수 함수 테스트)는 수정 없이 그대로 동작한다.
 static func should_drop_material(
 	rate_config: DropRateConfig,
 	tier: DropTableData.MonsterTier,
 	core_break_guarantee: bool,
 	hit_grade: String,
-	roll_01: float
+	roll_01: float,
+	night_multiplier: float = 1.0
 ) -> bool:
 	if core_break_guarantee and hit_grade == "강":
 		return true
-	return roll_01 < material_chance(rate_config, tier)
+	return roll_01 < minf(material_chance(rate_config, tier) * night_multiplier, 1.0)
 
 
 static func should_drop_potion(
-	rate_config: DropRateConfig, tier: DropTableData.MonsterTier, roll_01: float
+	rate_config: DropRateConfig,
+	tier: DropTableData.MonsterTier,
+	roll_01: float,
+	night_multiplier: float = 1.0
 ) -> bool:
-	return roll_01 < potion_chance(rate_config, tier)
+	return roll_01 < minf(potion_chance(rate_config, tier) * night_multiplier, 1.0)
 
 
 static func should_drop_equipment_grade(
 	rate_config: DropRateConfig,
 	tier: DropTableData.MonsterTier,
 	grade: ItemData.ItemGrade,
-	roll_01: float
+	roll_01: float,
+	night_multiplier: float = 1.0
 ) -> bool:
-	return roll_01 < equip_chance(rate_config, tier, grade)
+	return roll_01 < minf(equip_chance(rate_config, tier, grade) * night_multiplier, 1.0)
 
 
 ## 보스 확정 드랍 1개의 등급을 B/A/S 중에서 배분한다 (2-5장: 70/25/5%). roll_01은 [0,1).
@@ -264,7 +272,12 @@ func _drop_material(drop_table: DropTableData, hit_grade: String, pos: Vector2) 
 	if drop_table.material_item_id == "":
 		return
 	var dropped := should_drop_material(
-		rate_config, drop_table.tier, drop_table.core_break_guarantees_material, hit_grade, randf()
+		rate_config,
+		drop_table.tier,
+		drop_table.core_break_guarantees_material,
+		hit_grade,
+		randf(),
+		_night_drop_multiplier(drop_table.tier)
 	)
 	if not dropped:
 		return
@@ -276,7 +289,9 @@ func _drop_material(drop_table: DropTableData, hit_grade: String, pos: Vector2) 
 func _drop_potion(drop_table: DropTableData, pos: Vector2) -> void:
 	if drop_table.potion_item_id == "":
 		return
-	if not should_drop_potion(rate_config, drop_table.tier, randf()):
+	if not should_drop_potion(
+		rate_config, drop_table.tier, randf(), _night_drop_multiplier(drop_table.tier)
+	):
 		return
 	var item := _find_item(drop_table.potion_item_id)
 	if item:
@@ -288,11 +303,21 @@ func _drop_equipment(drop_table: DropTableData, pos: Vector2) -> void:
 		var grade := roll_boss_equipment_grade(rate_config, randf())
 		_drop_equipment_of_grade(drop_table.monster_level, grade, pos)
 		return
+	var night_multiplier := _night_drop_multiplier(drop_table.tier)
 	for grade in [
 		ItemData.ItemGrade.C, ItemData.ItemGrade.B, ItemData.ItemGrade.A, ItemData.ItemGrade.S
 	]:
-		if should_drop_equipment_grade(rate_config, drop_table.tier, grade, randf()):
+		if should_drop_equipment_grade(
+			rate_config, drop_table.tier, grade, randf(), night_multiplier
+		):
 			_drop_equipment_of_grade(drop_table.monster_level, grade, pos)
+
+
+## G2-4 야간 드랍률 배율 조회 — 골드는 이 함수를 거치지 않으므로(_drop_gold) ×1.0이
+## 그대로 유지된다(combat.md 2-3장 "골드 드랍량 ×1.0"). 보스는 GameClock에 boss=true로
+## 물어봐 항상 1.0을 받는다(보스 제외).
+func _night_drop_multiplier(tier: DropTableData.MonsterTier) -> float:
+	return GameClock.get_item_drop_rate_multiplier(tier == DropTableData.MonsterTier.BOSS)
 
 
 func _drop_equipment_of_grade(monster_level: int, grade: ItemData.ItemGrade, pos: Vector2) -> void:
