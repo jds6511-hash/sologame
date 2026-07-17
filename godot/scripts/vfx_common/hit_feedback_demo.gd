@@ -10,9 +10,17 @@ extends Node2D
 ## 실제 전투 연동은 HitFeedback(CB-7, gameplay-dev 담당)에서 이 두 헬퍼를 호출하는 방식으로
 ## 이뤄질 예정이며, 이 데모는 그 호출 형태(HitFlash.play / CameraShake.shake)를 그대로 보여준다.
 ## 이 씬은 CB-7 코드와 직접 연결되어 있지 않다 — 통합은 후속 패스.
+##
+## CameraShake/HitFlash를 전역 클래스 이름으로 타입 힌트하면, 그 이름 해석이
+## res://.godot/global_script_class_cache.cfg(.gitignore 대상)에 의존하게 되어 새로 clone한
+## 저장소·CI처럼 캐시가 없는 상태에서 "Could not find type" 파싱 오류가 난다(M2 Phase3에서
+## HitFeedbackManager 오토로드와 함께 발견·수정, hit_feedback_manager.gd 헤더 주석 참조).
+## 경로 기반 preload로 바꿔 캐시 상태와 무관하게 항상 로드되도록 한다.
+const CameraShakeScript := preload("res://scripts/vfx_common/camera_shake.gd")
+const HitFlashScript := preload("res://scripts/vfx_common/hit_flash.gd")
 
 @onready var _sprite: Sprite2D = $TargetSprite
-@onready var _camera_shake: CameraShake = $Camera2D/CameraShake
+@onready var _camera_shake: CameraShakeScript = $Camera2D/CameraShake
 @onready var _status_label: Label = $UILayer/StatusLabel
 
 
@@ -26,17 +34,27 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		return
 	match event.keycode:
 		KEY_1:
-			_trigger(HitFlash.Preset.WEAK, CameraShake.Preset.WEAK, "약 (히트스톱 0.03s / 흔들림 없음)")
+			_trigger(
+				HitFlashScript.Preset.WEAK, CameraShakeScript.Preset.WEAK, "약 (히트스톱 0.03s / 흔들림 없음)"
+			)
 		KEY_2:
-			_trigger(HitFlash.Preset.MEDIUM, CameraShake.Preset.MEDIUM, "중 (히트스톱 0.06s / 흔들림 약)")
+			_trigger(
+				HitFlashScript.Preset.MEDIUM,
+				CameraShakeScript.Preset.MEDIUM,
+				"중 (히트스톱 0.06s / 흔들림 약)"
+			)
 		KEY_3:
-			_trigger(HitFlash.Preset.STRONG, CameraShake.Preset.STRONG, "강 (히트스톱 0.10s / 흔들림 중)")
+			_trigger(
+				HitFlashScript.Preset.STRONG,
+				CameraShakeScript.Preset.STRONG,
+				"강 (히트스톱 0.10s / 흔들림 중)"
+			)
 
 
 func _trigger(
-	flash_preset: HitFlash.Preset, shake_preset: CameraShake.Preset, label_text: String
+	flash_preset: HitFlashScript.Preset, shake_preset: CameraShakeScript.Preset, label_text: String
 ) -> void:
-	HitFlash.play(_sprite, flash_preset)
+	HitFlashScript.play(_sprite, flash_preset)
 	_camera_shake.shake(shake_preset)
 	_update_status_label("트리거: %s" % label_text)
 

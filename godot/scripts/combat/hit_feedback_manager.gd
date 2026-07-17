@@ -17,12 +17,20 @@ signal screen_shake_requested(intensity: int)
 ## CB-8이 구독: 피격 화이트 플래시를 적용할 대상 노드
 signal hit_flash_requested(target: Node)
 
+## 오토로드는 엔진 부팅 시점(SceneTree 구성 이전)에 바로 인스턴스화되는데, 이때는
+## 전역 클래스 이름 캐시(res://.godot/global_script_class_cache.cfg — .gitignore 대상이라
+## 새로 clone한 저장소·CI에는 존재하지 않음)가 아직 채워지지 않은 상태일 수 있다.
+## 타입 힌트를 "HitFeedbackPreset"처럼 전역 클래스 이름으로 쓰면 그 캐시에 의존하게 되어
+## "Could not find type" 파싱 오류가 나므로, 경로 기반 preload로 직접 참조해 캐시 상태와
+## 무관하게 항상 로드되도록 한다 (오토로드 스크립트 한정 — 조치 필요 이유).
+const HitFeedbackPresetScript := preload("res://scripts/combat/hit_feedback_preset.gd")
+
 var _hitstop_depth: int = 0
 var _hitstop_restore_scale: float = 1.0
 
 
 ## 프리셋 하나를 즉시 재생한다. target을 넘기면 피격 플래시 신호에 함께 전달된다.
-func play(preset: HitFeedbackPreset, at_position: Vector2, target: Node = null) -> void:
+func play(preset: HitFeedbackPresetScript, at_position: Vector2, target: Node = null) -> void:
 	if preset == null:
 		return
 	screen_shake_requested.emit(preset.screen_shake_intensity)
@@ -33,7 +41,7 @@ func play(preset: HitFeedbackPreset, at_position: Vector2, target: Node = null) 
 	_apply_hitstop(preset.hitstop_sec)  ## await 포함 — 호출자는 기다리지 않아도 됨(발사 후 잊기)
 
 
-func _spawn_vfx(preset: HitFeedbackPreset, at_position: Vector2) -> void:
+func _spawn_vfx(preset: HitFeedbackPresetScript, at_position: Vector2) -> void:
 	if preset.vfx_scene == null:
 		return
 	var vfx: Node = preset.vfx_scene.instantiate()
@@ -42,7 +50,7 @@ func _spawn_vfx(preset: HitFeedbackPreset, at_position: Vector2) -> void:
 	get_tree().current_scene.add_child(vfx)
 
 
-func _play_sfx(preset: HitFeedbackPreset, at_position: Vector2) -> void:
+func _play_sfx(preset: HitFeedbackPresetScript, at_position: Vector2) -> void:
 	if preset.sfx_stream == null:
 		return
 	var player := AudioStreamPlayer2D.new()
