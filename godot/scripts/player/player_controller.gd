@@ -88,12 +88,11 @@ var _buff_superarmor_timer: float = 0.0
 @onready var _attack_hitbox: Area2D = $Facing/AttackHitbox
 @onready var _attack_collision: CollisionPolygon2D = $Facing/AttackHitbox/CollisionPolygon2D
 @onready var _debug_hitbox_visual: Polygon2D = $Facing/DebugHitboxVisual
-@onready var _placeholder_sprite: Sprite2D = $PlaceholderSprite
+@onready var _sprite: AnimatedSprite2D = $Sprite
 @onready var _stats: PlayerStatsComponent = get_node_or_null("PlayerStats")
 
 
 func _ready() -> void:
-	_setup_placeholder_sprite()
 	dash_charges = movement_data.dash_charge_max
 	_attack_hitbox.monitoring = false
 	_debug_hitbox_visual.visible = false
@@ -113,6 +112,7 @@ func _physics_process(delta: float) -> void:
 	if is_hit_stunned:
 		velocity = _knockback_velocity
 		move_and_slide()
+		_update_visual()
 		return
 
 	_process_dodge_input()
@@ -136,6 +136,7 @@ func _physics_process(delta: float) -> void:
 			velocity = Vector2.ZERO
 
 	move_and_slide()
+	_update_visual()
 
 
 # --- 이동/조준 ---
@@ -145,8 +146,6 @@ func _update_facing_to_mouse() -> void:
 	var mouse_pos := get_global_mouse_position()
 	if mouse_pos.distance_squared_to(global_position) > 0.01:
 		_facing.look_at(mouse_pos)
-	if _placeholder_sprite:
-		_placeholder_sprite.flip_h = mouse_pos.x < global_position.x
 
 
 # --- 기본 공격 콤보 (m2-warrior-skills.md 2장 "대검 2타 콤보") ---
@@ -603,18 +602,55 @@ func _update_dash_recharge(delta: float) -> void:
 			dash_charges = mini(dash_charges + 1, movement_data.dash_charge_max)
 
 
-# --- 임시 플레이스홀더 비주얼 ---
-# TODO(pixel-artist AR-1 완료 시 교체): godot/assets/sprites/player/ 에 대검 전사
-# idle/walk/attack/hit/death(32x32, 3방향) 스프라이트가 준비되면 이 Sprite2D를
-# AnimatedSprite2D + SpriteFrames로 교체하고, 아래 절차적 placeholder 생성 로직은 제거한다.
-func _setup_placeholder_sprite() -> void:
-	if not _placeholder_sprite:
+# --- 비주얼(애니메이션) 갱신 — pixel-artist AR-1 신규 스프라이트(16x32, 3방향) 배선 ---
+# 시트는 idle/walk/attack/hit/death 각각 정면(front)/측면(side)/후면(back) 3방향으로
+# 구성되어 있다(STYLE_GUIDE.md 3-3장). 좌우는 별도 프레임 없이 측면 애니메이션의
+# flip_h로 근사한다(문서 "좌우는 미러 허용" 원칙).
+
+
+## 현재 재생해야 할 상태(동작) 이름 — 애니메이션 이름의 앞부분(예: "walk")이 된다.
+func _current_action_name() -> String:
+	if is_dead():
+		return "death"
+	if is_hit_stunned:
+		return "hit"
+	if attack_state != AttackState.NONE or skill_state != AttackState.NONE or _is_charging_secondary:
+		return "attack"
+	if _move_input.length_squared() > 0.0:
+		return "walk"
+	return "idle"
+
+
+## 애니메이션 방향 판정에 쓸 기준 벡터. 공격/스킬 중에는 Facing 노드가 이미 마우스를
+## 조준한 각도로 고정돼 있으므로(공격 시작 시점 이후 갱신되지 않음, _physics_process
+## 참고) 그 각도를 그대로 쓰고, 그 외에는 이동 입력(없으면 마지막 이동 방향)을 쓴다.
+func _current_facing_vector() -> Vector2:
+	if attack_state != AttackState.NONE or skill_state != AttackState.NONE or _is_charging_secondary:
+		return Vector2.RIGHT.rotated(_facing.rotation)
+	if _move_input.length_squared() > 0.0:
+		return _move_input
+	return _last_move_direction
+
+
+## 방향 벡터를 3방향 시트 행 이름으로 근사한다 — 상하 성분이 더 크면 정면/후면,
+## 아니면 측면(좌우는 flip_h로 구분).
+func _facing_suffix(direction: Vector2) -> String:
+	if direction == Vector2.ZERO:
+		return "front"
+	if absf(direction.y) >= absf(direction.x):
+		return "back" if direction.y < 0.0 else "front"
+	return "side"
+
+
+func _update_visual() -> void:
+	if not _sprite or not _sprite.sprite_frames:
 		return
-	if _placeholder_sprite.texture != null:
-		return
-	var image := Image.create(32, 32, false, Image.FORMAT_RGBA8)
-	image.fill(Color(0.2, 0.4, 0.75, 1.0))
-	_placeholder_sprite.texture = ImageTexture.create_from_image(image)
+	var direction := _current_facing_vector()
+	var suffix := _facing_suffix(direction)
+	_sprite.flip_h = suffix == "side" and direction.x < 0.0
+	var anim_name := "%s_%s" % [_current_action_name(), suffix]
+	if _sprite.sprite_frames.has_animation(anim_name) and _sprite.animation != anim_name:
+		_sprite.play(anim_name)
 
 
 # --- 디버그 HUD 연동용 상태 조회 ---

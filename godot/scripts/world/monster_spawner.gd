@@ -21,9 +21,14 @@ const SLIME_SCENE: PackedScene = preload("res://scenes/monsters/rift_slime.tscn"
 ## 들개 마수 무리 크기 범위 — m2-monster-spec.md 6장 총괄표 "무리 크기: 2~4(어그로 공유)".
 const WOLF_PACK_SIZE_MIN := 2
 const WOLF_PACK_SIZE_MAX := 4
-## 같은 무리 개체를 마커 주변에 겹치지 않게 흩뿌리는 반경(타일) — 레벨 배치용 시각적
-## 수치일 뿐, spec이 규정하는 전투 수치는 아니다.
-const WOLF_PACK_SCATTER_RADIUS_TILES := 1.0
+## 같은 무리 개체를 마커 주변에 흩뿌리는 반경(타일) — 레벨 배치용 시각적 수치일 뿐,
+## spec이 규정하는 전투 수치는 아니다. 무리원을 원 둘레에 균등 배치(각도 = 360°/무리
+## 크기)한 뒤 각도만 소폭 흔들어, 무작위 사각형 오프셋이던 이전 방식에서 발생하던
+## "개체 2마리가 완전히 겹쳐 보이는" 문제(디렉터 발견)를 제거한다 — 무리 크기 2~4 범위
+## 전체에서 개체 간 최소 간격이 항상 1타일 이상이 되도록 반경을 계산했다(최악值: 4마리·
+## 90도 간격일 때 현 위치가 최소이며 chord = 2*r*sin(45°) ≈ 1.41*r ≥ 1.4타일).
+const WOLF_PACK_SCATTER_RADIUS_TILES := 1.25
+const WOLF_PACK_ANGLE_JITTER_DEG := 20.0
 const TILE_SIZE_PX := 16.0  ## STYLE_GUIDE.md 1장 — 월드 타일 크기
 
 @export var player_path: NodePath
@@ -54,9 +59,14 @@ func _spawn_wolf_packs(player: Node2D) -> void:
 	for marker in _spawn_markers(wolf_pack_spawn_root_path):
 		var pack_id := "dogpack_%s" % marker.name
 		var pack_size := _rng.randi_range(WOLF_PACK_SIZE_MIN, WOLF_PACK_SIZE_MAX)
+		var base_angle := _rng.randf_range(0.0, TAU)
 		for i in range(pack_size):
-			var offset := Vector2(_rng.randf_range(-1.0, 1.0), _rng.randf_range(-1.0, 1.0))
-			offset *= WOLF_PACK_SCATTER_RADIUS_TILES * TILE_SIZE_PX
+			var angle := (
+				base_angle
+				+ (TAU / pack_size) * i
+				+ deg_to_rad(_rng.randf_range(-WOLF_PACK_ANGLE_JITTER_DEG, WOLF_PACK_ANGLE_JITTER_DEG))
+			)
+			var offset := Vector2.RIGHT.rotated(angle) * WOLF_PACK_SCATTER_RADIUS_TILES * TILE_SIZE_PX
 			var wolf := WOLF_SCENE.instantiate() as WolfMonster
 			wolf.pack_id = pack_id
 			wolf.global_position = marker.global_position + offset
