@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=3]
+[gd_scene load_steps=29 format=3]
 
 [ext_resource type="Script" path="res://scripts/ai/wolf_monster.gd" id="1"]
 [ext_resource type="Resource" path="res://data/monsters/wolf_stats.tres" id="2"]
@@ -6,6 +6,8 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/monsters/mob_wolf_feral_walk.png" id="4"]
 [ext_resource type="Texture2D" path="res://assets/sprites/monsters/mob_wolf_feral_attack.png" id="5"]
 [ext_resource type="Texture2D" path="res://assets/sprites/monsters/mob_wolf_feral_death.png" id="6"]
+[ext_resource type="Script" path="res://scripts/combat/mob_stagger_component.gd" id="7"]
+[ext_resource type="Resource" path="res://data/combat/mob_stagger_rules.tres" id="8"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_idle0"]
 atlas = ExtResource("3")
@@ -119,3 +121,7 @@ monitoring = false
 monitorable = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="AttackHitbox"]
+
+[node name="MobStagger" type="Node" parent="."]
+script = ExtResource("7")
+rules = ExtResource("8")

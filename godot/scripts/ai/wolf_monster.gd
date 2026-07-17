@@ -44,6 +44,10 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	if is_dead():
 		return
+	if is_staggered():
+		velocity = _knockback_velocity
+		move_and_slide()
+		return
 	match state:
 		State.WANDER:
 			_process_wander(delta)

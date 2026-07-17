@@ -8,8 +8,17 @@
 ##   [HP 0, 직전 피격이 "약/중" 등급] --> [자폭] : 산성 웅덩이 생성(예고 0.3초 후 판정)
 ##
 ## CB-3/CB-4 연동 지점: 코어 파괴(core_broken)·자폭(self_destructed) 시그널은
-## "어느 분기로 죽었는가"만 알린다. 재료 100% 드랍(economy IT-2), 산성 웅덩이의 실제
-## 지속 피해 판정(CB-4 피격 시스템)은 후속 태스크가 이 시그널을 받아 구현한다.
+## "어느 분기로 죽었는가"만 알린다. 재료 100% 드랍(economy IT-2, MAT-SLIME-CORE 지급)은
+## 아이템/드랍 시스템(scripts/items, 본 태스크 범위 밖) 몫이라 시그널만 제공한다.
+##
+## 산성 웅덩이 실제 지속 피해(M2 후반 통합, 2026-07-17): self_destructed 분기에서
+## RiftSlimeAcidPool(scripts/ai/rift_slime_acid_pool.gd) 씬을 사망 지점에 스폰한다.
+## DamageCalculator(CB-3)를 그대로 재사용해 매 틱 피해를 계산하고, MonsterAttackResolver와
+## 동일한 is_invincible() 확인 후 take_damage() 호출 계약을 따른다(자세한 내용은 해당
+## 스크립트 헤더 참조). core_broken 분기는 spec 3-3장 그대로 "자폭 없음" — 죽는 순간
+## _die()가 곧바로 호출되어 별도의 몬스터 측 경직 반응 없이 즉시 소멸한다(체급별 넉백
+## 저항 등 MobStaggerComponent 배선은 애초에 치명타(강)로 죽는 마지막 타격에는 적용되지
+## 않는다 — take_damage()가 hp<=0 판정 시 stagger 등록 전에 _die()로 분기하기 때문).
 ##
 ## 행동 블록 조합(2개): 배회 → 투사체(조준+발사, 자폭은 사망 시 1회성 파생 동작이라
 ## 블록 수에 포함하지 않음 — spec 3-3장 그대로).
@@ -24,6 +33,13 @@ enum State { WANDER, AIM, COOLDOWN }
 
 ## 투사체 씬 — 미할당(null)이면 판정 대신 projectile_fired 시그널만 발생(테스트/미배선 상황 대응)
 @export var projectile_scene: PackedScene
+
+## 자폭 산성 웅덩이 씬(RiftSlimeAcidPool) — 미할당(null)이면 self_destructed 시그널만
+## 발생하고 실제 판정은 생성하지 않는다(테스트/미배선 상황 대응, 위 투사체와 동일 패턴).
+@export var acid_pool_scene: PackedScene
+
+## 웅덩이 지속 피해 계산에 쓰는 데미지 공식(CB-3 공용 리소스, res://data/combat/damage_formula.tres).
+@export var formula_data: DamageFormulaData
 
 var state: State = State.WANDER
 
@@ -47,6 +63,10 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	if is_dead():
+		return
+	if is_staggered():
+		velocity = _knockback_velocity
+		move_and_slide()
 		return
 	match state:
 		State.WANDER:
@@ -117,4 +137,26 @@ func _die() -> void:
 		core_broken.emit()
 	else:
 		self_destructed.emit(global_position)
+		_spawn_acid_pool(global_position)
 	super._die()
+
+
+## self_destructed 분기 전용 — 실제 산성 웅덩이(RiftSlimeAcidPool)를 사망 지점에 스폰하고
+## 몬스터 파라미터(공격력·DPS 비율·예고/지속 시간·반경)를 그대로 넘긴다.
+func _spawn_acid_pool(spawn_position: Vector2) -> void:
+	if acid_pool_scene == null:
+		return
+	var pool := acid_pool_scene.instantiate() as Node2D
+	get_tree().root.add_child(pool)
+	pool.global_position = spawn_position
+	if pool.has_method("configure"):
+		pool.call(
+			"configure",
+			stats.attack_power,
+			stats.self_destruct_dps_ratio,
+			stats.self_destruct_telegraph_sec,
+			stats.self_destruct_duration_sec,
+			stats.self_destruct_radius_tiles,
+			stats.tile_size_px,
+			formula_data
+		)

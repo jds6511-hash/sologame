@@ -12,6 +12,16 @@
 ##
 ## attack_landed 시그널도 마찬가지로 CB-3 연동 지점이다 — 몬스터가 플레이어를 맞혔다는
 ## "판정 성립"만 알리고, 실제 플레이어 피해 적용은 gameplay-dev(CB-3/CB-4)가 담당한다.
+##
+## 몬스터(잡몹) 피격 경직·넉백 배선 (M2 후반 통합, mob_stagger_component.gd는 gameplay-dev가
+## 구현한 공용 컴포넌트를 그대로 부착만 한다 — scripts/combat 수정 없음):
+## 씬에 "MobStagger" 이름의 MobStaggerComponent 자식 노드를 두면(체급별 rules.tres는
+## 뿔토끼=light/들개 마수=표준/균열 점액=heavy, m2-monster-spec.md 6장), take_damage()가
+## 자동으로 register_hit()을 호출해 경직·넉백을 반영한다. is_heavy 판정은 hit_grade=="강"
+## (combat.md 5-2 "강타·치명타" — 치명타뿐 아니라 차지 강타 등 설계상 강 등급 공격도
+## 포함하므로, MobStaggerComponent 헤더 주석이 권장하는 is_critical 단독보다 더 정확하다).
+## 넉백 방향은 공격자 반대편 수평 이동(combat.md 5-2-1), 벽 충돌 시 move_and_slide()가
+## 자연히 정지시킨다(플레이어 take_hit()과 동일한 방식).
 class_name MonsterBase
 extends CharacterBody2D
 
@@ -33,11 +43,13 @@ var last_attacker: Node2D = null
 
 var _swing: MeleeSwingBlock = null
 var _facing_left: bool = false
+var _knockback_velocity := Vector2.ZERO
 
 @onready var _sprite: AnimatedSprite2D = get_node_or_null("Sprite")
 @onready var _attack_hitbox: Area2D = get_node_or_null("AttackHitbox")
 @onready
 var _attack_hitbox_shape: CollisionShape2D = get_node_or_null("AttackHitbox/CollisionShape2D")
+@onready var _stagger: MobStaggerComponent = get_node_or_null("MobStagger")
 
 
 func _ready() -> void:
@@ -59,10 +71,44 @@ func take_damage(amount: float, hit_grade: String = "약", attacker: Node2D = nu
 	took_damage.emit(amount, hp)
 	if hp <= 0.0:
 		_die()
+		return
+	_register_stagger_hit(hit_grade, attacker)
 
 
 func is_dead() -> bool:
 	return hp <= 0.0
+
+
+## 씬에 MobStagger 자식 노드가 있는 동안에만 true — 상태머신은 이 값이 true인 동안
+## 자신의 배회/추적/공격 로직을 건너뛰고 넉백 이동만 적용해야 한다(각 하위 클래스
+## _physics_process 최상단, is_dead() 다음 순서로 확인).
+func is_staggered() -> bool:
+	return _stagger != null and _stagger.is_staggered()
+
+
+## 피격 경직 등록 + 넉백 속도 산출(combat.md 5-2·5-2-1장). 슈퍼아머 중이면
+## MobStaggerComponent가 알아서 경직을 무시하므로 넉백도 발생하지 않는다.
+func _register_stagger_hit(hit_grade: String, attacker: Node2D) -> void:
+	if _stagger == null:
+		return
+	var is_heavy := hit_grade == "강"
+	var result := _stagger.register_hit(is_heavy)
+	if not result["staggered"]:
+		return
+	var rules := _stagger.rules
+	var stagger_duration := rules.heavy_stagger_sec if is_heavy else rules.light_stagger_sec
+	var knockback_tiles := rules.heavy_knockback_tiles if is_heavy else rules.light_knockback_tiles
+	var direction := Vector2.ZERO
+	if attacker:
+		direction = global_position - attacker.global_position
+	if direction.is_zero_approx():
+		direction = Vector2.DOWN  ## 공격자 위치를 알 수 없을 때(예: 테스트)의 임의 대체 방향
+	var distance_px := stats.tiles_to_px(knockback_tiles)
+	_knockback_velocity = (
+		direction.normalized() * (distance_px / stagger_duration)
+		if stagger_duration > 0.0
+		else Vector2.ZERO
+	)
 
 
 func _die() -> void:

@@ -16,6 +16,17 @@ func before_each() -> void:
 	_slime.target = _target
 
 
+## self_destructed 분기가 get_tree().root에 직접 스폰하는 RiftSlimeAcidPool은
+## add_child_autofree 대상이 아니라 각 테스트가 남긴 웅덩이가 다음 테스트로 새어나갈 수
+## 있다 — queue_free()는 삭제를 다음 프레임으로 미루므로, 프레임 경계 없이 연달아 도는
+## GUT 동기 테스트 사이에서는 즉시 free()로 확실히 정리한다.
+func after_each() -> void:
+	for child in get_tree().root.get_children():
+		if child is RiftSlimeAcidPool:
+			get_tree().root.remove_child(child)
+			child.free()
+
+
 func test_initial_state_is_wander() -> void:
 	assert_eq(_slime.state, RiftSlimeMonster.State.WANDER)
 
@@ -70,3 +81,23 @@ func test_medium_hit_finish_also_triggers_self_destruct() -> void:
 	_slime.take_damage(9999.0, "중")
 	assert_signal_emitted(_slime, "self_destructed")
 	assert_signal_not_emitted(_slime, "core_broken")
+
+
+# --- 산성 웅덩이 실제 스폰 (M2 후반 통합, 2026-07-17) ---
+
+
+func test_self_destruct_spawns_acid_pool_at_death_position() -> void:
+	_slime.global_position = Vector2(320, 240)
+	_slime.take_damage(9999.0, "약")
+	var pool: RiftSlimeAcidPool = null
+	for child in get_tree().root.get_children():
+		if child is RiftSlimeAcidPool:
+			pool = child
+	assert_not_null(pool, "약/중 등급 마무리 시 산성 웅덩이가 스폰되어야 함")
+	assert_eq(pool.global_position, Vector2(320, 240))
+
+
+func test_core_break_does_not_spawn_acid_pool() -> void:
+	_slime.take_damage(9999.0, "강")
+	for child in get_tree().root.get_children():
+		assert_false(child is RiftSlimeAcidPool, "코어 파괴(강 등급 마무리)는 자폭 웅덩이가 없어야 함")

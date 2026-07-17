@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=3]
+[gd_scene load_steps=32 format=3]
 
 [ext_resource type="Script" path="res://scripts/ai/rift_slime_monster.gd" id="1"]
 [ext_resource type="Resource" path="res://data/monsters/slime_stats.tres" id="2"]
@@ -7,6 +7,10 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/monsters/mob_slime_crack_attack.png" id="5"]
 [ext_resource type="Texture2D" path="res://assets/sprites/monsters/mob_slime_crack_death.png" id="6"]
 [ext_resource type="PackedScene" path="res://scenes/monsters/rift_slime_projectile.tscn" id="7"]
+[ext_resource type="Script" path="res://scripts/combat/mob_stagger_component.gd" id="8"]
+[ext_resource type="Resource" path="res://data/combat/mob_stagger_rules_heavy.tres" id="9"]
+[ext_resource type="PackedScene" path="res://scenes/monsters/rift_slime_acid_pool.tscn" id="10"]
+[ext_resource type="Resource" path="res://data/combat/damage_formula.tres" id="11"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_idle0"]
 atlas = ExtResource("3")
@@ -106,6 +110,8 @@ radius = 7.0
 script = ExtResource("1")
 stats = ExtResource("2")
 projectile_scene = ExtResource("7")
+acid_pool_scene = ExtResource("10")
+formula_data = ExtResource("11")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_1")
@@ -114,3 +120,7 @@ shape = SubResource("CircleShape2D_1")
 sprite_frames = SubResource("SpriteFrames_1")
 animation = &"idle"
 autoplay = "idle"
+
+[node name="MobStagger" type="Node" parent="."]
+script = ExtResource("8")
+rules = ExtResource("9")
