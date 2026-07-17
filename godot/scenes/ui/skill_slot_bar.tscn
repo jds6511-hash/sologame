@@ -1,0 +1,44 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/ui/skill_slot.tscn" id="1"]
+[ext_resource type="Script" path="res://scripts/ui/skill_slot_bar.gd" id="2"]
+
+[node name="SkillSlotBar" type="HBoxContainer"]
+position = Vector2(400, 616)
+mouse_filter = 2
+theme_override_constants/separation = 6
+script = ExtResource("2")
+
+[node name="Slot1" parent="." instance=ExtResource("1")]
+layout_mode = 2
+
+[node name="Slot2" parent="." instance=ExtResource("1")]
+layout_mode = 2
+
+[node name="Slot3" parent="." instance=ExtResource("1")]
+layout_mode = 2
+
+[node name="Slot4" parent="." instance=ExtResource("1")]
+layout_mode = 2
+
+[node name="SlotQ" parent="." instance=ExtResource("1")]
+layout_mode = 2
+
+[node name="SlotE" parent="." instance=ExtResource("1")]
+layout_mode = 2
+
+[node name="SlotUltimate" parent="." instance=ExtResource("1")]
+layout_mode = 2
+
+[node name="Divider" type="ColorRect" parent="."]
+custom_minimum_size = Vector2(6, 56)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+color = Color(0.75294119, 0.79607844, 0.86274511, 0.4)
+
+[node name="Slot5" parent="." instance=ExtResource("1")]
+layout_mode = 2
+
+[node name="Slot6" parent="." instance=ExtResource("1")]
+layout_mode = 2

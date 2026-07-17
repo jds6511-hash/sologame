@@ -1,0 +1,111 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/player_status_panel.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/player_warrior_idle.png" id="2"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_portrait"]
+atlas = ExtResource("2")
+region = Rect2(0, 0, 32, 32)
+
+[node name="PlayerStatusPanel" type="Panel"]
+offset_left = 16.0
+offset_top = 16.0
+offset_right = 316.0
+offset_bottom = 136.0
+mouse_filter = 2
+script = ExtResource("1")
+
+[node name="Portrait" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 72.0
+offset_bottom = 72.0
+mouse_filter = 2
+texture = SubResource("AtlasTexture_portrait")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="LevelJobLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 80.0
+offset_top = 8.0
+offset_right = 292.0
+offset_bottom = 28.0
+mouse_filter = 2
+text = ""
+
+[node name="HPBar" type="Control" parent="."]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 78.0
+offset_right = 292.0
+offset_bottom = 96.0
+mouse_filter = 2
+
+[node name="Background" type="ColorRect" parent="HPBar"]
+layout_mode = 0
+offset_right = 284.0
+offset_bottom = 18.0
+mouse_filter = 2
+color = Color(0.09411765, 0.078431375, 0.14509805, 1)
+
+[node name="Ghost" type="ColorRect" parent="HPBar"]
+layout_mode = 0
+offset_right = 284.0
+offset_bottom = 18.0
+mouse_filter = 2
+color = Color(1, 1, 1, 0.35)
+
+[node name="Fill" type="ColorRect" parent="HPBar"]
+layout_mode = 0
+offset_right = 284.0
+offset_bottom = 18.0
+mouse_filter = 2
+color = Color(0.89411765, 0.23137255, 0.26666668, 1)
+
+[node name="BorderBlink" type="Panel" parent="HPBar"]
+layout_mode = 0
+offset_right = 284.0
+offset_bottom = 18.0
+mouse_filter = 2
+
+[node name="Label" type="Label" parent="HPBar"]
+layout_mode = 0
+offset_right = 284.0
+offset_bottom = 18.0
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+text = "0/0"
+
+[node name="MPBar" type="Control" parent="."]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 100.0
+offset_right = 292.0
+offset_bottom = 114.0
+mouse_filter = 2
+
+[node name="Background" type="ColorRect" parent="MPBar"]
+layout_mode = 0
+offset_right = 284.0
+offset_bottom = 14.0
+mouse_filter = 2
+color = Color(0.09411765, 0.078431375, 0.14509805, 1)
+
+[node name="Fill" type="ColorRect" parent="MPBar"]
+layout_mode = 0
+offset_right = 284.0
+offset_bottom = 14.0
+mouse_filter = 2
+color = Color(0, 0.6, 0.858824, 1)
+
+[node name="Label" type="Label" parent="MPBar"]
+layout_mode = 0
+offset_right = 284.0
+offset_bottom = 14.0
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+text = "0/0"
