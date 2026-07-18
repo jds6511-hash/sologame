@@ -111,6 +111,7 @@ func _physics_process(delta: float) -> void:
 
 	if is_hit_stunned:
 		velocity = _knockback_velocity
+		_clamp_velocity_to_finite()
 		move_and_slide()
 		_update_visual()
 		return
@@ -135,6 +136,7 @@ func _physics_process(delta: float) -> void:
 		else:
 			velocity = Vector2.ZERO
 
+	_clamp_velocity_to_finite()
 	move_and_slide()
 	_update_visual()
 
@@ -491,7 +493,17 @@ func take_hit(is_heavy: bool, knockback_direction: Vector2 = Vector2.ZERO) -> vo
 
 	## 넉백 소(0.5타일)는 "일반 피격"에만 명시되어 있다(combat.md 5-1장) — 넉다운(강공격)은
 	## 넉백 거리 수치가 없어 밀려나지 않는다(경직/무적 타이머만 적용).
-	if not is_heavy and knockback_direction != Vector2.ZERO:
+	## _hit_stun_timer가 0 이하면(경직 시간 0 설정 등) 나눗셈이 Infinity/NaN을 만들고,
+	## knockback_direction 자체가 이미 NaN 등으로 오염되어 있으면(공격자 쪽 좌표 오염 등)
+	## `!= Vector2.ZERO` 비교를 그대로 통과해 normalized()가 "Vector2 cannot be normalized"
+	## 경고를 반복시킨다(2026-07-18 경고 스팸 수정) — monster_base.gd의 넉백 가드와
+	## 동일하게 둘 다 확인한다.
+	if (
+		not is_heavy
+		and knockback_direction != Vector2.ZERO
+		and knockback_direction.is_finite()
+		and _hit_stun_timer > 0.0
+	):
 		var distance_px := hit_rules.light_knockback_tiles * movement_data.tile_size_px
 		_knockback_velocity = knockback_direction.normalized() * (distance_px / _hit_stun_timer)
 	else:
@@ -537,6 +549,14 @@ func _update_superarmor_state(delta: float) -> void:
 	)
 	if _buff_superarmor_timer > 0.0:
 		_buff_superarmor_timer = max(_buff_superarmor_timer - delta, 0.0)
+
+
+## 좌표 오염 확산 차단(이중 방어, 2026-07-18 경고 스팸 수정) — monster_base.gd의
+## 동명 함수와 동일한 목적. 예기치 못한 경로로 velocity가 비유한 값이 되면
+## move_and_slide() 호출 직전에 ZERO로 리셋한다.
+func _clamp_velocity_to_finite() -> void:
+	if not velocity.is_finite():
+		velocity = Vector2.ZERO
 
 
 func _update_hit_reaction(delta: float) -> void:

@@ -46,6 +46,7 @@ func _physics_process(delta: float) -> void:
 		return
 	if is_staggered():
 		velocity = _knockback_velocity
+		_clamp_velocity_to_finite()
 		move_and_slide()
 		return
 	match state:
@@ -60,6 +61,7 @@ func _physics_process(delta: float) -> void:
 			_swing.update(delta)
 		State.RETURN:
 			_process_return()
+	_clamp_velocity_to_finite()
 	move_and_slide()
 
 

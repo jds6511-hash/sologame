@@ -142,14 +142,25 @@ func _register_stagger_hit(hit_grade: String, attacker: Node2D) -> void:
 	var direction := Vector2.ZERO
 	if attacker:
 		direction = global_position - attacker.global_position
-	if direction.is_zero_approx():
-		direction = Vector2.DOWN  ## 공격자 위치를 알 수 없을 때(예: 테스트)의 임의 대체 방향
+	## 공격자 위치를 알 수 없거나(테스트 등) 이미 NaN 등으로 오염되어 있으면(2026-07-18
+	## 경고 스팸 수정 — is_zero_approx()는 NaN에서 false를 반환해 그대로 normalized()로
+	## 흘러가 "Vector2 cannot be normalized" 경고를 반복시킨다) 임의 대체 방향을 쓴다.
+	if direction.is_zero_approx() or not direction.is_finite():
+		direction = Vector2.DOWN
 	var distance_px := stats.tiles_to_px(knockback_tiles)
 	_knockback_velocity = (
 		direction.normalized() * (distance_px / stagger_duration)
 		if stagger_duration > 0.0
 		else Vector2.ZERO
 	)
+
+
+## 좌표 오염 확산 차단(이중 방어, 2026-07-18 경고 스팸 수정). 공격자 위치가 이미 NaN으로
+## 오염되어 있는 등 예기치 못한 경로로 velocity가 비유한 값이 되면 move_and_slide() 호출
+## 직전에 ZERO로 리셋한다 — 각 하위 클래스는 move_and_slide() 호출 앞에 이 함수를 붙인다.
+func _clamp_velocity_to_finite() -> void:
+	if not velocity.is_finite():
+		velocity = Vector2.ZERO
 
 
 func _die() -> void:
@@ -183,16 +194,19 @@ func random_wander_direction() -> Vector2:
 	return Vector2(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)).normalized()
 
 
+## point가 NaN 등 비유한 좌표(예: 대상 쪽 좌표 오염)를 담고 있으면 is_zero_approx()가
+## false를 반환해 그대로 normalized()에 들어가 "Vector2 cannot be normalized" 경고가
+## 매 프레임 반복된다(2026-07-18 경고 스팸 수정) — 정지 상태(ZERO)로 대체해 방지한다.
 func move_toward_point(point: Vector2, speed_tiles: float) -> Vector2:
 	var to_point := point - global_position
-	if to_point.is_zero_approx():
+	if to_point.is_zero_approx() or not to_point.is_finite():
 		return Vector2.ZERO
 	return to_point.normalized() * stats.tiles_to_px(speed_tiles)
 
 
 func move_away_from_point(point: Vector2, speed_tiles: float) -> Vector2:
 	var away := global_position - point
-	if away.is_zero_approx():
+	if away.is_zero_approx() or not away.is_finite():
 		return Vector2.ZERO
 	return away.normalized() * stats.tiles_to_px(speed_tiles)
 
