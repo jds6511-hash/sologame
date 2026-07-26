@@ -27,13 +27,15 @@
   - ATTACK : side [A2, A3(예고: 고개 치켜듦), D2, D3(발동: 물기), B0(회수)]
   - DEATH  : side [A3(피격 젖힘), TOP2(웅크림), TOP3(주저앉음), TOP3 페이드]
 
-STYLE_GUIDE.md 준수(2026-07-18 개정, G2-2): 출력 캔버스 32x24(가로 2타일x세로 1.5타일,
-표준 체급), 실체 약 26x16. 원본 64px 셀에서 크롭한 온전한 늑대를 종횡비 유지 NEAREST로
-축소(TARGET_W/TARGET_H) 후 EDG32 재양자화 → 안티앨리어싱 없음. 아웃라인 1px #181425,
-잡몹 예산 idle4/walk4/attack5/death4 x3방향=51프레임(hit은 idle 재사용).
+STYLE_GUIDE.md 준수(2026-07-27 스톤샤드식 안 1 개정): 출력 캔버스 **32x24 -> 36x28**(가로
+2.25타일x세로 1.75타일, 표준 체급, +4/+4), 실체 약 30x19. 원본 64px 셀에서 크롭한 온전한
+늑대를 종횡비 유지 NEAREST로 축소(TARGET_W/TARGET_H) 후 EDG32 재양자화 → 안티앨리어싱 없음.
+아웃라인 1px #181425. **명암 4단**(STYLE_GUIDE 3-2-1, recolor_ramp4로 야수 가죽 램프
+tan→ochre→red_brown_dark→dark_maroon). 잡몹 예산 idle4/walk4/attack5/death4 x3방향=51프레임
+(hit은 idle 재사용).
 
 출력: godot\\assets\\sprites\\monsters\\mob_wolf_feral_{idle,walk,attack,death}.png
-      (idle/walk/death 128x72, attack 160x72) + 각 파일의 4배 확대 프리뷰(_preview_ 접두사)
+      (idle/walk/death 144x84, attack 180x84) + 각 파일의 4배 확대 프리뷰(_preview_ 접두사)
 """
 
 from __future__ import annotations
@@ -54,7 +56,7 @@ from sprite_source_common import (
     fade,
     new_sheet,
     paste_frame,
-    recolor_by_luminance,
+    recolor_ramp4,
     resize_nearest,
     save_with_preview,
     snap_to_colors,
@@ -65,9 +67,9 @@ OUT_DIR = ASSETS_DIR / "sprites" / "monsters"
 
 RIGHT_OFFSET_X = 320  # 4족 측면 늑대는 오른쪽 절반
 SRC_CELL_W = 64  # 늑대 한 마리는 64px 폭 셀을 차지(머리~꼬리 온전) - 이전 32px 오해가 버그 원인
-OUT_CELL = (32, 24)  # 표준 체급 신규격(STYLE_GUIDE 1-2)
-TARGET_W = 26  # 실체 목표 폭
-TARGET_H = 16  # 실체 목표 높이
+OUT_CELL = (36, 28)  # 표준 체급 신규격(STYLE_GUIDE 1-2, 2026-07-27 +4/+4) - 구 32x24에서 상향
+TARGET_W = 30  # 실체 목표 폭 (실체 약 30x19)
+TARGET_H = 19  # 실체 목표 높이
 
 # 오른쪽 절반의 서브행 y밴드(위 그리드 설명 참조). 값은 원본 알파 점유 프로파일의
 # 국소 최소점(행 간 골)에서 산출.
@@ -79,11 +81,13 @@ BANDS = {
     "D": (161, 192),
 }
 
+# 야수 가죽 4단 램프(STYLE_GUIDE 3-2-1, EDG32 내 인접 명도 - 따뜻한 갈색 → 어두운 적갈)
 OUTLINE = RGB["darkest"]
-SHADOW = RGB["red_brown_dark"]
-BASE = RGB["ochre"]
-HIGHLIGHT = RGB["tan"]
-SNAP_COLORS = [OUTLINE, SHADOW, BASE, HIGHLIGHT]
+SHADOW2 = RGB["dark_maroon"]  # 최암부(내부 그림자2)
+SHADOW = RGB["red_brown_dark"]  # 그림자1
+BASE = RGB["ochre"]  # 기본
+HIGHLIGHT = RGB["tan"]  # 하이라이트
+SNAP_COLORS = [OUTLINE, SHADOW2, SHADOW, BASE, HIGHLIGHT]
 
 
 def extract_cell(arr: np.ndarray, band: str, col: int) -> Image.Image:
@@ -113,8 +117,9 @@ def get_frame(arr: np.ndarray, band: str, col: int) -> Image.Image:
     if factor < 1.0:
         nw, nh = max(1, round(w * factor)), max(1, round(h * factor))
         cell = cell.resize((nw, nh), Image.NEAREST)
-    recolored = recolor_by_luminance(
-        cell, OUTLINE, SHADOW, BASE, HIGHLIGHT, t_outline=0.22, t_shadow=0.5, t_highlight=0.8
+    recolored = recolor_ramp4(
+        cell, OUTLINE, SHADOW2, SHADOW, BASE, HIGHLIGHT,
+        t_outline=0.16, t_shadow2=0.34, t_shadow1=0.52, t_highlight=0.80,
     )
     return ensure_outline(recolored, OUTLINE)
 
@@ -187,7 +192,7 @@ def main() -> None:
     save_with_preview(make_sheet(*build_walk(arr)), OUT_DIR / "mob_wolf_feral_walk.png")
     save_with_preview(make_sheet(*build_attack(arr)), OUT_DIR / "mob_wolf_feral_attack.png")
     save_with_preview(make_sheet(*build_death(arr)), OUT_DIR / "mob_wolf_feral_death.png")
-    print("들개 마수 스프라이트 생성 완료(32x24, 상반신 누락 수정판):", OUT_DIR)
+    print("들개 마수 스프라이트 생성 완료(36x28 신규격, 4단 명암, 전신 유지):", OUT_DIR)
 
 
 if __name__ == "__main__":

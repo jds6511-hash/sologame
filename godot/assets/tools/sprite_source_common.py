@@ -81,6 +81,50 @@ def recolor_by_luminance(
     return out
 
 
+def recolor_ramp4(
+    im: Image.Image,
+    outline_rgb: tuple[int, int, int],
+    shadow2_rgb: tuple[int, int, int],
+    shadow1_rgb: tuple[int, int, int],
+    base_rgb: tuple[int, int, int],
+    highlight_rgb: tuple[int, int, int],
+    t_outline: float = 0.14,
+    t_shadow2: float = 0.34,
+    t_shadow1: float = 0.54,
+    t_highlight: float = 0.80,
+) -> Image.Image:
+    """휘도 기준 5밴드 양자화 → EDG32 색으로 치환 (STYLE_GUIDE 3-2-1 캐릭터·몬스터 4단 램프).
+
+    recolor_by_luminance의 4밴드 확장판. 내부 재질 명도를 **4단(shadow2/shadow1/base/highlight)**
+    으로 나누고, 그보다 더 어두운 최암부(내부 선)만 outline_rgb로 남긴다 — 이후 ensure_outline이
+    1px 실루엣 테두리를 다시 #181425로 강제하므로, 이 함수의 outline 밴드는 '내부 어두운 선'용이다.
+    ramp(shadow2→highlight)는 반드시 EDG32 내 인접 명도 4색으로만 넘긴다(팔레트 확장 없음).
+    """
+    src = im.convert("RGBA")
+    out = Image.new("RGBA", src.size, (0, 0, 0, 0))
+    px_in = src.load()
+    px_out = out.load()
+    for yy in range(src.height):
+        for xx in range(src.width):
+            r, g, b, a = px_in[xx, yy]
+            if a == 0:
+                continue
+            lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255.0
+            if lum < t_outline:
+                color = outline_rgb
+            elif lum < t_shadow2:
+                color = shadow2_rgb
+            elif lum < t_shadow1:
+                color = shadow1_rgb
+            elif lum < t_highlight:
+                color = base_rgb
+            else:
+                color = highlight_rgb
+            out_a = 255 if a >= 128 else 0
+            px_out[xx, yy] = (*color, out_a)
+    return out
+
+
 def ensure_outline(im: Image.Image, outline_rgb: tuple[int, int, int]) -> Image.Image:
     """실루엣 가장 바깥 테두리 1px을 outline_rgb로 강제 (재색상화 후 경계가 무뎌진 경우 보강)."""
     src = im.convert("RGBA")

@@ -7,9 +7,12 @@
   본 스크립트는 blue 색상 행 그룹(5~9행)을 뼈대로 쓰고 EDG32 균열 팔레트로 완전히 재색상화한다.
 
 STYLE_GUIDE.md 준수:
-- 1-2장: 소형 몬스터 캔버스 32x32
-- 2장: EDG32 32색만 사용 (recolor_by_luminance로 4단 치환)
+- 1-2장(2026-07-27 스톤샤드식 안 1 개정): 중량 체급 캔버스 **32x32 -> 36x36**(+4/+4). 소싱
+  원본 격자는 32x32 그대로 크롭(SRC_CELL)하고, autotrim한 실체를 36 캔버스 하단 중앙에 배치.
+- 2장: EDG32 32색만 사용
 - 3-1장: 아웃라인 1px #181425
+- 3-2-1장: **명암 4단**(recolor_ramp4로 균열 점액 램프 purple→dark_purple→dark_maroon→dark_navy,
+  스타일 가이드 3-2-1 예시 그대로) + 발광 코어(cyan)
 - 3-3장: 잡몹 예산 - idle4/walk4(CC0 소싱 허용치)/attack5(예고2+발동2+회수1)/death4, 3방향
 - CB-0 스펙(m2-monster-spec.md 3-3): 솔로 스폰, "핵" 시각 표현 - 몸통 중심에 발광 코어 추가
 
@@ -18,7 +21,7 @@ STYLE_GUIDE.md 준수:
 report에 명시).
 
 출력: godot\\assets\\sprites\\monsters\\mob_slime_crack_{idle,walk,attack,death}.png
-      (각 3행 x N열, 32x32 셀)
+      (각 3행 x N열, 36x36 셀) + 각 파일의 4배 확대 프리뷰(_preview_ 접두사)
 """
 
 from __future__ import annotations
@@ -38,17 +41,22 @@ from sprite_source_common import (
     ensure_outline,
     new_sheet,
     paste_frame,
-    recolor_by_luminance,
+    recolor_ramp4,
+    save_with_preview,
 )
 
-CELL = 32
+CELL = 36  # 중량 체급 신규격(STYLE_GUIDE 1-2, 2026-07-27 +4/+4) - 구 32에서 상향(출력 캔버스)
+SRC_CELL = 32  # 소싱 원본(slime_calciumtrice.png) 격자 피치 - 원본은 32x32 셀 그대로 유지
+TARGET_W = 30  # 실체 목표 폭(STYLE_GUIDE 1-2 중량 실체 약 30x29) - 원본 소형 블롭을 NEAREST 확대
 SRC_PATH = RAW_SRC_DIR / "slime_calciumtrice.png"
 OUT_DIR = ASSETS_DIR / "sprites" / "monsters"
 
+# 균열 점액 4단 램프(STYLE_GUIDE 3-2-1 예시, EDG32 내 인접 명도)
 OUTLINE = RGB["darkest"]
-SHADOW = RGB["dark_maroon"]
-BASE = RGB["dark_purple"]
-HIGHLIGHT = RGB["purple"]
+SHADOW2 = RGB["dark_navy"]  # 최암부(그림자2)
+SHADOW = RGB["dark_maroon"]  # 그림자1
+BASE = RGB["dark_purple"]  # 기본
+HIGHLIGHT = RGB["purple"]  # 발광 하이라이트
 CORE = RGB["cyan"]
 
 # blue 색상 그룹 = 절대 행 5~9 (idle, gesture, walk, attack, death 순)
@@ -65,9 +73,18 @@ DEATH_COLS = [0, 3, 6, 9]
 
 
 def get_frame(im: Image.Image, row: int, col: int) -> Image.Image:
-    cell = crop_cell(im, col * CELL, row * CELL, CELL, CELL)
+    # 소싱 원본 셀은 32x32이므로 원본 좌표는 32 피치 그대로 크롭한다(신규 캔버스 36과 무관).
+    cell = crop_cell(im, col * SRC_CELL, row * SRC_CELL, SRC_CELL, SRC_CELL)
     cell = autotrim(cell)
-    recolored = recolor_by_luminance(cell, OUTLINE, SHADOW, BASE, HIGHLIGHT)
+    # 원본 Calciumtrice 슬라임 실체는 셀 안에서 작게(약 12x10) 그려져 있어, 그대로 쓰면
+    # 중량 체급 목표(실체 약 30x29, STYLE_GUIDE 1-2)에 크게 못 미쳐 경량(뿔토끼 18x18)보다도
+    # 작아지는 체급 역전이 생긴다. NEAREST로 목표 폭(TARGET_W)까지 확대해 규격을 충족시킨다
+    # (재양자화 전 확대라 안티앨리어싱 없음 — 이후 recolor_ramp4가 휘도 4단으로 스냅).
+    w, h = cell.size
+    factor = TARGET_W / w
+    if factor > 1.0:
+        cell = cell.resize((round(w * factor), round(h * factor)), Image.NEAREST)
+    recolored = recolor_ramp4(cell, OUTLINE, SHADOW2, SHADOW, BASE, HIGHLIGHT)
     recolored = ensure_outline(recolored, OUTLINE)
     add_core(recolored)
     return recolored
@@ -103,11 +120,11 @@ def main() -> None:
     im = Image.open(SRC_PATH).convert("RGBA")
     OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    build_sheet(im, ROW_IDLE, IDLE_COLS).save(OUT_DIR / "mob_slime_crack_idle.png")
-    build_sheet(im, ROW_WALK, WALK_COLS).save(OUT_DIR / "mob_slime_crack_walk.png")
-    build_sheet(im, ROW_ATTACK, ATTACK_COLS).save(OUT_DIR / "mob_slime_crack_attack.png")
-    build_sheet(im, ROW_DEATH, DEATH_COLS).save(OUT_DIR / "mob_slime_crack_death.png")
-    print("균열 점액 스프라이트 생성 완료:", OUT_DIR)
+    save_with_preview(build_sheet(im, ROW_IDLE, IDLE_COLS), OUT_DIR / "mob_slime_crack_idle.png")
+    save_with_preview(build_sheet(im, ROW_WALK, WALK_COLS), OUT_DIR / "mob_slime_crack_walk.png")
+    save_with_preview(build_sheet(im, ROW_ATTACK, ATTACK_COLS), OUT_DIR / "mob_slime_crack_attack.png")
+    save_with_preview(build_sheet(im, ROW_DEATH, DEATH_COLS), OUT_DIR / "mob_slime_crack_death.png")
+    print("균열 점액 스프라이트 생성 완료(36x36 신규격, 4단 명암):", OUT_DIR)
 
 
 if __name__ == "__main__":

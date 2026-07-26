@@ -9,19 +9,22 @@
   합성했다 - m2-monster-spec.md 3-1장 "근접 스윙(박치기)" 행동에 대응.
 
 STYLE_GUIDE.md 준수:
-- 1-2장(2026-07-18 개정, G2-2): 경량 체급 캔버스 **32x32 -> 16x16**로 축소, 실체 약 14x12.
-  원본 크롭 bbox를 autotrim한 뒤 최대 변 길이가 14px를 넘지 않도록 축소 비율을 프레임마다
-  적응적으로 계산해(`TARGET_MAX_DIM`) NEAREST 리사이즈 - 팔레트 재양자화 전에 수행하므로
-  안티앨리어싱이 생기지 않는다.
+- 1-2장(2026-07-27 스톤샤드식 안 1 개정): 경량 체급 캔버스 **16x16 -> 20x20**로 상향(+4/+4),
+  실체 약 18x15. 원본 크롭 bbox를 autotrim한 뒤 최대 변 길이가 18px를 넘지 않도록 축소 비율을
+  프레임마다 적응적으로 계산해(`TARGET_MAX_DIM`) NEAREST 리사이즈 - 팔레트 재양자화 전에
+  수행하므로 안티앨리어싱이 생기지 않는다.
 - 2장: EDG32만 사용 (recolor_by_luminance)
 - 3-1장: 아웃라인 1px #181425
+- 3-2-1장(명암 단수): 최소 프레임(20x20)이라 4단 램프가 뭉개지므로 **3단으로 절제**한다
+  (스타일 가이드가 명시 허용한 소형 프레임 예외 — recolor_by_luminance의 shadow/base/highlight
+  3단 유지). 나머지 3종(전사·들개·점액)은 4단.
 - 3-3장: 잡몹 예산 idle4/walk4/attack5/death4 x 3방향 = 51프레임 (hit은 idle 프레임 재사용,
   별도 에셋 불필요 - STYLE_GUIDE 3-3 예산 공식에도 hit 미포함)
 - 6-3장: 종 식별 실루엣 요소 - 정수리에 뿔(각) 추가 ("뿔토끼" 정체성, m2-monster-spec 실루엣 힌트).
-  16x16으로 축소되며 뿔 크기도 비례 축소(1~2px).
+  20x20으로 축소되며 뿔 크기도 비례 축소(1~2px).
 
 출력: godot\\assets\\sprites\\monsters\\mob_rabbit_horned_{idle,walk,attack,death}.png
-      (16x16 셀) + 각 파일의 4배 확대 프리뷰(_preview_ 접두사)
+      (20x20 셀) + 각 파일의 4배 확대 프리뷰(_preview_ 접두사)
 """
 
 from __future__ import annotations
@@ -70,8 +73,8 @@ SIDE_B_EXTRA = [(59, 255, 85, 284), (137, 255, 166, 284)]
 SIDE_B_MAIN = [(27, 288, 52, 316), (61, 288, 87, 316), (96, 288, 129, 316), (138, 288, 167, 316),
                (178, 288, 204, 316), (208, 288, 235, 316), (240, 288, 268, 316), (275, 288, 303, 316)]
 
-CELL = 16  # 경량 체급 신규격(STYLE_GUIDE 1-2, 2026-07-18 개정) - 구 32에서 축소
-TARGET_MAX_DIM = 14  # 실체 목표 최대 변 길이(가로/세로 중 큰 값) - 16 캔버스에 여백 확보
+CELL = 20  # 경량 체급 신규격(STYLE_GUIDE 1-2, 2026-07-27 스톤샤드식 +4/+4) - 구 16에서 상향
+TARGET_MAX_DIM = 18  # 실체 목표 최대 변 길이(가로/세로 중 큰 값) - 20 캔버스에 여백 확보(실체 약 18x15)
 
 
 def add_horn(frame: Image.Image) -> None:
@@ -209,7 +212,7 @@ def main() -> None:
     death_side = build_death(im, SIDE_A_MAIN)
     save_with_preview(make_sheet([death_down, death_side, death_up]), OUT_DIR / "mob_rabbit_horned_death.png")
 
-    print("뿔토끼 스프라이트 생성 완료(16x16 신규격):", OUT_DIR)
+    print("뿔토끼 스프라이트 생성 완료(20x20 신규격, 3단 절제):", OUT_DIR)
 
 
 if __name__ == "__main__":
