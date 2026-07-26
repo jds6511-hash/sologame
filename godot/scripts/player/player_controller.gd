@@ -67,6 +67,9 @@ var _dash_recharge_timers: Array[float] = []
 var _hit_stun_timer: float = 0.0
 var _hit_invincibility_timer: float = 0.0
 var _knockback_velocity := Vector2.ZERO
+## 위치 오염 복구용 마지막 유한 좌표 캐시(monster_base의 home_position 역할). 플레이어에는
+## 스폰/home 개념이 없어 매 프레임 유한할 때 갱신해 두고, 오염 시 이 값으로 되돌린다.
+var _last_finite_position := Vector2.ZERO
 ## 현재 히트박스 판정을 낸 주체(WarriorAttackStep 또는 WarriorSkillData) — attack_hit emit용.
 var _current_action_step = null
 
@@ -94,12 +97,18 @@ var _buff_superarmor_timer: float = 0.0
 
 func _ready() -> void:
 	dash_charges = movement_data.dash_charge_max
+	_last_finite_position = global_position if global_position.is_finite() else Vector2.ZERO
 	_attack_hitbox.monitoring = false
 	_debug_hitbox_visual.visible = false
 	_attack_hitbox.body_entered.connect(_on_attack_hitbox_body_entered)
 
 
 func _physics_process(delta: float) -> void:
+	## 위치가 유한한 동안 마지막 정상 좌표를 캐시해 둔다(오염 복구 기준점). 이미 오염된
+	## 프레임에서는 갱신하지 않아 직전 정상값을 보존한다.
+	if global_position.is_finite():
+		_last_finite_position = global_position
+
 	_move_input = Input.get_vector("move_left", "move_right", "move_up", "move_down")
 	if _move_input.length_squared() > 0.0:
 		_last_move_direction = _move_input.normalized()
@@ -111,7 +120,7 @@ func _physics_process(delta: float) -> void:
 
 	if is_hit_stunned:
 		velocity = _knockback_velocity
-		_clamp_velocity_to_finite()
+		_guard_finite_before_move()
 		move_and_slide()
 		_update_visual()
 		return
@@ -136,7 +145,7 @@ func _physics_process(delta: float) -> void:
 		else:
 			velocity = Vector2.ZERO
 
-	_clamp_velocity_to_finite()
+	_guard_finite_before_move()
 	move_and_slide()
 	_update_visual()
 
@@ -551,11 +560,22 @@ func _update_superarmor_state(delta: float) -> void:
 		_buff_superarmor_timer = max(_buff_superarmor_timer - delta, 0.0)
 
 
-## 좌표 오염 확산 차단(이중 방어, 2026-07-18 경고 스팸 수정) — monster_base.gd의
-## 동명 함수와 동일한 목적. 예기치 못한 경로로 velocity가 비유한 값이 되면
-## move_and_slide() 호출 직전에 ZERO로 리셋한다.
-func _clamp_velocity_to_finite() -> void:
+## move_and_slide() 직전 트랜스폼·속도 유한성 가드 — monster_base.gd의
+## _guard_finite_before_move()와 동일한 근본 수정(2026-07-26 경고 스팸).
+##
+## CharacterBody2D.global_position이 한번 non-finite(NaN/Inf)가 되면 그 이후
+## move_and_slide()는 velocity가 (0,0)이어도 매 프레임 충돌 법선을 normalize하며
+## "Vector2 cannot be normalized" 경고를 무한 반복한다 — 위치는 스스로 낫지 않으므로
+## velocity만 ZERO로 눌러선 잡히지 않는다. 따라서 velocity뿐 아니라 global_position
+## 자체의 유한성을 확인해, 오염 시 마지막 유한 좌표로 복구한다(플레이어는 home이 없어
+## _last_finite_position을 기준점으로 쓴다).
+func _guard_finite_before_move() -> void:
 	if not velocity.is_finite():
+		velocity = Vector2.ZERO
+	if not global_position.is_finite():
+		global_position = (
+			_last_finite_position if _last_finite_position.is_finite() else Vector2.ZERO
+		)
 		velocity = Vector2.ZERO
 
 

@@ -27,8 +27,8 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/player/player_warrior_death.png" id="25"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_1"]
-radius = 6.0
-height = 4.0
+radius = 5.0
+height = 16.0
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_idle_front0"]
 atlas = ExtResource("21")

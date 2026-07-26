@@ -101,8 +101,8 @@ animations = [{
 }]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_1"]
-radius = 5.0
-height = 6.0
+radius = 7.0
+height = 16.0
 
 [node name="WolfMonster" type="CharacterBody2D"]
 collision_layer = 4
