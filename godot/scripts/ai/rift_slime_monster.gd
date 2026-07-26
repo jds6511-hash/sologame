@@ -127,6 +127,8 @@ func _spawn_projectile(aim_point: Vector2) -> void:
 	var proj := projectile_scene.instantiate() as Node2D
 	get_tree().root.add_child(proj)
 	proj.global_position = global_position
+	if proj.has_method("configure"):
+		proj.call("configure", effective_attack_power(), formula_data)
 	if proj.has_method("launch"):
 		proj.call("launch", aim_point, stats.tiles_to_px(stats.projectile_speed_tiles))
 

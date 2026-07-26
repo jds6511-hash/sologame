@@ -1,4 +1,3 @@
-extends Node2D
 ## CB-9 디버그 전투장 — alpha-tester가 손맛 반복 검증에 쓰는 전용 씬(combat.md 9-1장).
 ##
 ## 기능: 몬스터 3종 소환(F1~F3)·스탯 조작(F6~F9)·즉시 리셋(F5)·프레임 카운터.
@@ -6,17 +5,17 @@ extends Node2D
 ## 겹치지 않도록 디버그 전용 키는 전부 함수키(F1~F9)를 raw keycode로 처리한다
 ## (godot/scripts/vfx_common/hit_feedback_demo.gd의 raw keycode 데모 패턴과 동일).
 ##
-## 몬스터 씬(scenes/monsters/*.tscn)에는 MonsterAttackResolver가 배선되어 있지 않다
-## (CB-4 스크립트 헤더 주석 — 배선은 ai-dev/level-designer 몫). 이 디버그 씬은 몬스터를
-## 스폰할 때마다 코드로 MonsterAttackResolver를 형제 노드로 붙여, 소환된 몬스터가 실제로
-## 플레이어에게 데미지를 줄 수 있게 한다(test_monster_attack_resolver.gd와 동일한 배치
-## 패턴 — 몬스터·리졸버를 형제로 묶고 monster_path로 서로를 가리킨다).
+## 데미지 배선(2026-07-26 수정): 근접 2종(뿔토끼·들개 마수) 씬에는 MonsterAttackResolver가,
+## 균열 점액은 원거리 투사체·산성 웅덩이에 실피해 경로가 각 씬/스크립트에 직접 baked되어 있다.
+## 따라서 이 디버그 씬은 더 이상 스폰 시 리졸버를 동적으로 붙이지 않는다(그 임시 배선은 실제
+## 게임 스포너 monster_spawner.gd에는 없어 디렉터 플레이에서 "몬스터가 데미지를 주지 못하는"
+## 차단 버그의 원인이 되었다 — 배선을 씬으로 옮겨 게임 전역에서 일관되게 작동하게 했다).
 class_name DebugCombatArena
+extends Node2D
 
 const WOLF_SCENE: PackedScene = preload("res://scenes/monsters/wolf.tscn")
 const RABBIT_SCENE: PackedScene = preload("res://scenes/monsters/rabbit.tscn")
 const RIFT_SLIME_SCENE: PackedScene = preload("res://scenes/monsters/rift_slime.tscn")
-const DAMAGE_FORMULA: DamageFormulaData = preload("res://data/combat/damage_formula.tres")
 
 const ATTACK_POWER_STEP := 10.0
 const MAX_HP_STEP := 50.0
@@ -27,16 +26,16 @@ const TIME_JUMP_HOURS := 1.0  ## G2-4 디버그 시간 점프 — 밤을 기다�
 @export var monsters_root_path: NodePath
 @export var status_label_path: NodePath
 
+var _player_spawn_position := Vector2.ZERO
+var _frame_count: int = 0
+var _spawn_sequence: int = 0
+
 @onready var _player: PlayerController = get_node(player_path)
 @onready var _monsters_root: Node2D = get_node(monsters_root_path)
 @onready var _status_label: Label = get_node(status_label_path)
 @onready var _player_stats: PlayerStatsComponent = _player.get_node("PlayerStats")
 @onready var _attacker_stats: CombatantStats = _player.get_node("AttackResolver").attacker_stats
 @onready var _hud: Hud = $Hud
-
-var _player_spawn_position := Vector2.ZERO
-var _frame_count: int = 0
-var _spawn_sequence: int = 0
 
 
 func _ready() -> void:
@@ -86,13 +85,6 @@ func _spawn_monster(scene: PackedScene, display_name: String) -> void:
 	monster.global_position = _player.global_position + Vector2(SPAWN_DISTANCE_PX, 0).rotated(angle)
 	_monsters_root.add_child(monster)
 	monster.target = _player
-
-	## MonsterAttackResolver를 형제 노드로 동적 배선(스크립트 상단 주석 참조).
-	var resolver := MonsterAttackResolver.new()
-	resolver.name = "DebugMonster_%d_Resolver" % _spawn_sequence
-	resolver.monster_path = NodePath("../" + monster.name)
-	resolver.formula_data = DAMAGE_FORMULA
-	_monsters_root.add_child(resolver)
 
 	_update_status_label("%s 소환" % display_name)
 
@@ -171,7 +163,7 @@ func _update_status_label(last_action: String = "") -> void:
 		)
 		+ (
 			"프레임: %d · FPS: %d · 몬스터 수: %d\n"
-			% [_frame_count, Engine.get_frames_per_second(), _monsters_root.get_child_count() / 2]
+			% [_frame_count, Engine.get_frames_per_second(), _monsters_root.get_child_count()]
 		)
 		+ (
 			"공격력 %.0f · 최대 HP %.0f · HP %.0f/%.0f · MP %.0f/%.0f\n"

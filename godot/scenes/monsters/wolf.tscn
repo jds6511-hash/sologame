@@ -1,7 +1,9 @@
-[gd_scene load_steps=29 format=3]
+[gd_scene load_steps=31 format=3]
 
 [ext_resource type="Script" path="res://scripts/ai/wolf_monster.gd" id="1"]
 [ext_resource type="Resource" path="res://data/monsters/wolf_stats.tres" id="2"]
+[ext_resource type="Script" path="res://scripts/combat/monster_attack_resolver.gd" id="9"]
+[ext_resource type="Resource" path="res://data/combat/damage_formula.tres" id="10"]
 [ext_resource type="Texture2D" path="res://assets/sprites/monsters/mob_wolf_feral_idle.png" id="3"]
 [ext_resource type="Texture2D" path="res://assets/sprites/monsters/mob_wolf_feral_walk.png" id="4"]
 [ext_resource type="Texture2D" path="res://assets/sprites/monsters/mob_wolf_feral_attack.png" id="5"]
@@ -132,3 +134,8 @@ monitorable = false
 [node name="MobStagger" type="Node" parent="."]
 script = ExtResource("7")
 rules = ExtResource("8")
+
+[node name="AttackResolver" type="Node" parent="."]
+script = ExtResource("9")
+monster_path = NodePath("..")
+formula_data = ExtResource("10")
