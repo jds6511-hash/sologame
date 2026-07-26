@@ -31,6 +31,16 @@ enum AttackState { NONE, STARTUP, ACTIVE, RECOVERY }
 const DODGE_SFX := preload("res://assets/audio/sfx/sfx_combat_dodge.wav")
 const PLAYER_HIT_SFX := preload("res://assets/audio/sfx/sfx_combat_player_hit.wav")
 
+## 공격 편의(QoL) 튜닝 상수 — 디렉터 지시 4종(홀드 연타/자동 조준/재조준/이동 허용).
+## 밸런스에 직접 영향을 주므로 하드코딩하지 않고 상수로 노출한다(combat.md 조작/QoL 절
+## 갱신 필요, systems-designer 재검토 대상).
+const AUTO_AIM_CONE_HALF_DEG := 35.0  ## 마우스 방향 기준 ±35° 안의 적만 자동 조준 스냅 대상
+const AUTO_AIM_RANGE_TILES := 3.0  ## 자동 조준 스냅을 허용하는 최대 거리(타일)
+## 공격 중 이동 속도 배율(평소의 45%). combat.md "정지 스윙 전제" 설계와 상충 가능 —
+## 이 계수 조정으로 밸런스 재조율 가능하게 분리했다.
+const ATTACK_MOVE_SPEED_MULTIPLIER := 0.45
+const MONSTER_GROUP := "monsters"  ## 자동 조준 후보 우선 탐색 그룹
+
 @export var movement_data: PlayerMovementData
 @export var combo_data: WarriorComboData
 @export var hit_rules: PlayerHitRules  ## CB-4: combat.md 5-1장 피격 경직/무적 수치
@@ -72,6 +82,8 @@ var _knockback_velocity := Vector2.ZERO
 var _last_finite_position := Vector2.ZERO
 ## 현재 히트박스 판정을 낸 주체(WarriorAttackStep 또는 WarriorSkillData) — attack_hit emit용.
 var _current_action_step = null
+## 자동 조준 후보 캐시(스윙 시작 시 1회 수집, 스윙 동안 재사용) — 스냅/재조준 공용.
+var _aim_candidates: Array = []
 
 var _skill_phase_timer: float = 0.0
 var _skill_dash_direction := Vector2.ZERO
@@ -141,7 +153,18 @@ func _physics_process(delta: float) -> void:
 			velocity = _move_input * movement_data.get_walk_speed_px_per_sec()
 			_update_facing_to_mouse()
 		else:
-			velocity = Vector2.ZERO
+			## QoL④ 공격 중 이동 허용(속도 페널티) — 기본 공격 콤보 한정. 스킬/차지는
+			## _process_skill_state·_process_charge_hold에서 정지·이동취소를 그대로 유지한다
+			## (combat.md 3장 "캐스팅 스킬은 이동 시 취소" 규칙 불변).
+			velocity = (
+				_move_input
+				* movement_data.get_walk_speed_px_per_sec()
+				* ATTACK_MOVE_SPEED_MULTIPLIER
+			)
+			## QoL③ 스윙 중 재조준 — 판정 발생(ACTIVE) 전 STARTUP까지만 방향을 갱신하고,
+			## ACTIVE 진입 이후에는 고정한다(맞추는 각도가 판정 도중 바뀌지 않게).
+			if attack_state == AttackState.STARTUP:
+				_apply_attack_aim()
 
 	_guard_finite_before_move()
 	move_and_slide()
@@ -157,11 +180,84 @@ func _update_facing_to_mouse() -> void:
 		_facing.look_at(mouse_pos)
 
 
+# --- 자동 조준 보정(QoL②) · 스윙 중 재조준(QoL③) ---
+
+
+## 스윙 STARTUP 동안 매 프레임 호출된다 — 마우스 방향 기준 자동 조준 대상이 있으면 그
+## 적으로, 없으면 순수 마우스 방향으로 Facing을 갱신한다.
+func _apply_attack_aim() -> void:
+	var aim_pos := _resolve_aim_position()
+	if aim_pos.distance_squared_to(global_position) > 0.01:
+		_facing.look_at(aim_pos)
+
+
+## 조준이 향할 월드 좌표 — 자동 조준 대상이 있으면 그 위치, 없으면 마우스 위치.
+func _resolve_aim_position() -> Vector2:
+	var mouse_pos := get_global_mouse_position()
+	var aim_vec := mouse_pos - global_position
+	if aim_vec.length_squared() <= 0.01:
+		return mouse_pos
+	var target := _find_auto_aim_target(aim_vec.normalized())
+	return target.global_position if target != null else mouse_pos
+
+
+## 마우스 방향(aim_dir) 기준 ±AUTO_AIM_CONE_HALF_DEG 콘 안, AUTO_AIM_RANGE_TILES 사거리
+## 안에서 가장 가까운 "살아있는" 몬스터를 반환한다. 조건을 만족하는 적이 없으면 null(→
+## 순수 마우스 방향 유지). 스냅 각도/사거리는 상단 상수로 튜닝한다.
+func _find_auto_aim_target(aim_dir: Vector2) -> Node2D:
+	var range_px := AUTO_AIM_RANGE_TILES * movement_data.tile_size_px
+	var range_sq := range_px * range_px
+	var cos_limit := cos(deg_to_rad(AUTO_AIM_CONE_HALF_DEG))
+	var best: Node2D = null
+	var best_dist_sq := INF
+	for candidate in _aim_candidates:
+		if not is_instance_valid(candidate):
+			continue
+		if candidate.has_method("is_dead") and candidate.is_dead():
+			continue
+		var to_candidate: Vector2 = candidate.global_position - global_position
+		var dist_sq := to_candidate.length_squared()
+		if dist_sq > range_sq or dist_sq <= 0.01:
+			continue
+		if to_candidate.normalized().dot(aim_dir) < cos_limit:
+			continue  ## 콘(원뿔) 각도 밖
+		if dist_sq < best_dist_sq:
+			best_dist_sq = dist_sq
+			best = candidate
+	return best
+
+
+## 자동 조준 후보 수집 — "monsters" 그룹을 우선 사용하고, 그룹이 비어 있으면 씬 트리에서
+## MonsterBase를 직접 탐색한다(현재 스포너는 그룹 등록을 하지 않으므로 실동작 경로는 후자).
+func _gather_aim_candidates() -> void:
+	_aim_candidates = get_tree().get_nodes_in_group(MONSTER_GROUP)
+	if _aim_candidates.is_empty():
+		var found: Array = []
+		_collect_monster_bases(get_tree().root, found)
+		_aim_candidates = found
+
+
+func _collect_monster_bases(node: Node, out: Array) -> void:
+	for child in node.get_children():
+		if child is MonsterBase:
+			out.append(child)
+		else:
+			_collect_monster_bases(child, out)
+
+
 # --- 기본 공격 콤보 (m2-warrior-skills.md 2장 "대검 2타 콤보") ---
 
 
 func _process_attack_input() -> void:
-	if not Input.is_action_just_pressed("attack"):
+	_advance_attack_from_input(Input.is_action_pressed("attack"))
+
+
+## QoL① 홀드 연타 — attack을 누르고 있는 동안 콤보를 자동 지속한다. 기본 공격은 쿨다운이
+## 없으므로 콤보 윈도우·스윙 타이밍만 존중하면 된다: STARTUP/ACTIVE(윈도우 0) 중에는 아무
+## 일도 하지 않고, RECOVERY(윈도우 > 0)에서만 다음 타를 예약하며, 콤보가 끝나(NONE) 여전히
+## 눌려 있으면 첫 타부터 다시 시작한다. 단발 클릭도 이 경로로 처리된다(누른 프레임에 진입).
+func _advance_attack_from_input(attack_held: bool) -> void:
+	if not attack_held:
 		return
 	if attack_state == AttackState.NONE:
 		_start_attack_step(0)
@@ -175,6 +271,7 @@ func _start_attack_step(step_index: int) -> void:
 	_attack_phase_timer = 0.0
 	_combo_window_timer = 0.0
 	_queued_next_attack = false
+	_gather_aim_candidates()  ## QoL②③ 스냅·재조준용 후보를 스윙 시작 시 1회 수집
 	var step: WarriorAttackStep = combo_data.steps[step_index]
 	attack_step_started.emit(step_index, step.hitstop_preset)
 
@@ -660,9 +757,9 @@ func _current_action_name() -> String:
 	return "idle"
 
 
-## 애니메이션 방향 판정에 쓸 기준 벡터. 공격/스킬 중에는 Facing 노드가 이미 마우스를
-## 조준한 각도로 고정돼 있으므로(공격 시작 시점 이후 갱신되지 않음, _physics_process
-## 참고) 그 각도를 그대로 쓰고, 그 외에는 이동 입력(없으면 마지막 이동 방향)을 쓴다.
+## 애니메이션 방향 판정에 쓸 기준 벡터. 공격/스킬 중에는 Facing 노드의 조준 각도를 그대로
+## 쓴다(기본 공격은 STARTUP 동안 마우스/자동 조준으로 갱신되다가 ACTIVE 진입 시 고정된다,
+## QoL③ _apply_attack_aim 참고). 그 외에는 이동 입력(없으면 마지막 이동 방향)을 쓴다.
 func _current_facing_vector() -> Vector2:
 	if (
 		attack_state != AttackState.NONE
