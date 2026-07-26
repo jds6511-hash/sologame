@@ -14,71 +14,71 @@
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_idle0"]
 atlas = ExtResource("3")
-region = Rect2(0, 32, 32, 32)
+region = Rect2(0, 36, 36, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_idle1"]
 atlas = ExtResource("3")
-region = Rect2(32, 32, 32, 32)
+region = Rect2(36, 36, 36, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_idle2"]
 atlas = ExtResource("3")
-region = Rect2(64, 32, 32, 32)
+region = Rect2(72, 36, 36, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_idle3"]
 atlas = ExtResource("3")
-region = Rect2(96, 32, 32, 32)
+region = Rect2(108, 36, 36, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_walk0"]
 atlas = ExtResource("4")
-region = Rect2(0, 32, 32, 32)
+region = Rect2(0, 36, 36, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_walk1"]
 atlas = ExtResource("4")
-region = Rect2(32, 32, 32, 32)
+region = Rect2(36, 36, 36, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_walk2"]
 atlas = ExtResource("4")
-region = Rect2(64, 32, 32, 32)
+region = Rect2(72, 36, 36, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_walk3"]
 atlas = ExtResource("4")
-region = Rect2(96, 32, 32, 32)
+region = Rect2(108, 36, 36, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_atk0"]
 atlas = ExtResource("5")
-region = Rect2(0, 32, 32, 32)
+region = Rect2(0, 36, 36, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_atk1"]
 atlas = ExtResource("5")
-region = Rect2(32, 32, 32, 32)
+region = Rect2(36, 36, 36, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_atk2"]
 atlas = ExtResource("5")
-region = Rect2(64, 32, 32, 32)
+region = Rect2(72, 36, 36, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_atk3"]
 atlas = ExtResource("5")
-region = Rect2(96, 32, 32, 32)
+region = Rect2(108, 36, 36, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_atk4"]
 atlas = ExtResource("5")
-region = Rect2(128, 32, 32, 32)
+region = Rect2(144, 36, 36, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_death0"]
 atlas = ExtResource("6")
-region = Rect2(0, 32, 32, 32)
+region = Rect2(0, 36, 36, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_death1"]
 atlas = ExtResource("6")
-region = Rect2(32, 32, 32, 32)
+region = Rect2(36, 36, 36, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_death2"]
 atlas = ExtResource("6")
-region = Rect2(64, 32, 32, 32)
+region = Rect2(72, 36, 36, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_death3"]
 atlas = ExtResource("6")
-region = Rect2(96, 32, 32, 32)
+region = Rect2(108, 36, 36, 36)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_1"]
 animations = [{
@@ -104,7 +104,7 @@ animations = [{
 }]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_1"]
-radius = 7.0
+radius = 8.0
 
 [node name="RiftSlimeMonster" type="CharacterBody2D"]
 collision_layer = 4
@@ -116,9 +116,11 @@ acid_pool_scene = ExtResource("10")
 formula_data = ExtResource("11")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -8)
 shape = SubResource("CircleShape2D_1")
 
 [node name="Sprite" type="AnimatedSprite2D" parent="."]
+offset = Vector2(0, -18)
 sprite_frames = SubResource("SpriteFrames_1")
 animation = &"idle"
 autoplay = "idle"

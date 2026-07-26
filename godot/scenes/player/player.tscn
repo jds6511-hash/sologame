@@ -27,236 +27,236 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/player/player_warrior_death.png" id="25"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_1"]
-radius = 5.0
-height = 16.0
+radius = 6.0
+height = 18.0
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_idle_front0"]
 atlas = ExtResource("21")
-region = Rect2(0, 0, 16, 32)
+region = Rect2(0, 0, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_idle_front1"]
 atlas = ExtResource("21")
-region = Rect2(16, 0, 16, 32)
+region = Rect2(20, 0, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_idle_front2"]
 atlas = ExtResource("21")
-region = Rect2(32, 0, 16, 32)
+region = Rect2(40, 0, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_idle_front3"]
 atlas = ExtResource("21")
-region = Rect2(48, 0, 16, 32)
+region = Rect2(60, 0, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_idle_side0"]
 atlas = ExtResource("21")
-region = Rect2(0, 32, 16, 32)
+region = Rect2(0, 36, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_idle_side1"]
 atlas = ExtResource("21")
-region = Rect2(16, 32, 16, 32)
+region = Rect2(20, 36, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_idle_side2"]
 atlas = ExtResource("21")
-region = Rect2(32, 32, 16, 32)
+region = Rect2(40, 36, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_idle_side3"]
 atlas = ExtResource("21")
-region = Rect2(48, 32, 16, 32)
+region = Rect2(60, 36, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_idle_back0"]
 atlas = ExtResource("21")
-region = Rect2(0, 64, 16, 32)
+region = Rect2(0, 72, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_idle_back1"]
 atlas = ExtResource("21")
-region = Rect2(16, 64, 16, 32)
+region = Rect2(20, 72, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_idle_back2"]
 atlas = ExtResource("21")
-region = Rect2(32, 64, 16, 32)
+region = Rect2(40, 72, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_idle_back3"]
 atlas = ExtResource("21")
-region = Rect2(48, 64, 16, 32)
+region = Rect2(60, 72, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_walk_front0"]
 atlas = ExtResource("22")
-region = Rect2(0, 0, 16, 32)
+region = Rect2(0, 0, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_walk_front1"]
 atlas = ExtResource("22")
-region = Rect2(16, 0, 16, 32)
+region = Rect2(20, 0, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_walk_front2"]
 atlas = ExtResource("22")
-region = Rect2(32, 0, 16, 32)
+region = Rect2(40, 0, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_walk_front3"]
 atlas = ExtResource("22")
-region = Rect2(48, 0, 16, 32)
+region = Rect2(60, 0, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_walk_front4"]
 atlas = ExtResource("22")
-region = Rect2(64, 0, 16, 32)
+region = Rect2(80, 0, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_walk_front5"]
 atlas = ExtResource("22")
-region = Rect2(80, 0, 16, 32)
+region = Rect2(100, 0, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_walk_side0"]
 atlas = ExtResource("22")
-region = Rect2(0, 32, 16, 32)
+region = Rect2(0, 36, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_walk_side1"]
 atlas = ExtResource("22")
-region = Rect2(16, 32, 16, 32)
+region = Rect2(20, 36, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_walk_side2"]
 atlas = ExtResource("22")
-region = Rect2(32, 32, 16, 32)
+region = Rect2(40, 36, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_walk_side3"]
 atlas = ExtResource("22")
-region = Rect2(48, 32, 16, 32)
+region = Rect2(60, 36, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_walk_side4"]
 atlas = ExtResource("22")
-region = Rect2(64, 32, 16, 32)
+region = Rect2(80, 36, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_walk_side5"]
 atlas = ExtResource("22")
-region = Rect2(80, 32, 16, 32)
+region = Rect2(100, 36, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_walk_back0"]
 atlas = ExtResource("22")
-region = Rect2(0, 64, 16, 32)
+region = Rect2(0, 72, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_walk_back1"]
 atlas = ExtResource("22")
-region = Rect2(16, 64, 16, 32)
+region = Rect2(20, 72, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_walk_back2"]
 atlas = ExtResource("22")
-region = Rect2(32, 64, 16, 32)
+region = Rect2(40, 72, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_walk_back3"]
 atlas = ExtResource("22")
-region = Rect2(48, 64, 16, 32)
+region = Rect2(60, 72, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_walk_back4"]
 atlas = ExtResource("22")
-region = Rect2(64, 64, 16, 32)
+region = Rect2(80, 72, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_walk_back5"]
 atlas = ExtResource("22")
-region = Rect2(80, 64, 16, 32)
+region = Rect2(100, 72, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_attack_front0"]
 atlas = ExtResource("23")
-region = Rect2(0, 0, 16, 32)
+region = Rect2(0, 0, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_attack_front1"]
 atlas = ExtResource("23")
-region = Rect2(16, 0, 16, 32)
+region = Rect2(20, 0, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_attack_front2"]
 atlas = ExtResource("23")
-region = Rect2(32, 0, 16, 32)
+region = Rect2(40, 0, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_attack_front3"]
 atlas = ExtResource("23")
-region = Rect2(48, 0, 16, 32)
+region = Rect2(60, 0, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_attack_side0"]
 atlas = ExtResource("23")
-region = Rect2(0, 32, 16, 32)
+region = Rect2(0, 36, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_attack_side1"]
 atlas = ExtResource("23")
-region = Rect2(16, 32, 16, 32)
+region = Rect2(20, 36, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_attack_side2"]
 atlas = ExtResource("23")
-region = Rect2(32, 32, 16, 32)
+region = Rect2(40, 36, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_attack_side3"]
 atlas = ExtResource("23")
-region = Rect2(48, 32, 16, 32)
+region = Rect2(60, 36, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_attack_back0"]
 atlas = ExtResource("23")
-region = Rect2(0, 64, 16, 32)
+region = Rect2(0, 72, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_attack_back1"]
 atlas = ExtResource("23")
-region = Rect2(16, 64, 16, 32)
+region = Rect2(20, 72, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_attack_back2"]
 atlas = ExtResource("23")
-region = Rect2(32, 64, 16, 32)
+region = Rect2(40, 72, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_attack_back3"]
 atlas = ExtResource("23")
-region = Rect2(48, 64, 16, 32)
+region = Rect2(60, 72, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_hit_front0"]
 atlas = ExtResource("24")
-region = Rect2(0, 0, 16, 32)
+region = Rect2(0, 0, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_hit_side0"]
 atlas = ExtResource("24")
-region = Rect2(0, 32, 16, 32)
+region = Rect2(0, 36, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_hit_back0"]
 atlas = ExtResource("24")
-region = Rect2(0, 64, 16, 32)
+region = Rect2(0, 72, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_death_front0"]
 atlas = ExtResource("25")
-region = Rect2(0, 0, 16, 32)
+region = Rect2(0, 0, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_death_front1"]
 atlas = ExtResource("25")
-region = Rect2(16, 0, 16, 32)
+region = Rect2(20, 0, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_death_front2"]
 atlas = ExtResource("25")
-region = Rect2(32, 0, 16, 32)
+region = Rect2(40, 0, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_death_front3"]
 atlas = ExtResource("25")
-region = Rect2(48, 0, 16, 32)
+region = Rect2(60, 0, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_death_side0"]
 atlas = ExtResource("25")
-region = Rect2(0, 32, 16, 32)
+region = Rect2(0, 36, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_death_side1"]
 atlas = ExtResource("25")
-region = Rect2(16, 32, 16, 32)
+region = Rect2(20, 36, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_death_side2"]
 atlas = ExtResource("25")
-region = Rect2(32, 32, 16, 32)
+region = Rect2(40, 36, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_death_side3"]
 atlas = ExtResource("25")
-region = Rect2(48, 32, 16, 32)
+region = Rect2(60, 36, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_death_back0"]
 atlas = ExtResource("25")
-region = Rect2(0, 64, 16, 32)
+region = Rect2(0, 72, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_death_back1"]
 atlas = ExtResource("25")
-region = Rect2(16, 64, 16, 32)
+region = Rect2(20, 72, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_death_back2"]
 atlas = ExtResource("25")
-region = Rect2(32, 64, 16, 32)
+region = Rect2(40, 72, 20, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_death_back3"]
 atlas = ExtResource("25")
-region = Rect2(48, 64, 16, 32)
+region = Rect2(60, 72, 20, 36)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_1"]
 animations = [{
@@ -366,11 +366,11 @@ stats = ExtResource("6")
 recovery_rules = ExtResource("12")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(0, -8)
+position = Vector2(0, -9)
 shape = SubResource("CapsuleShape2D_1")
 
 [node name="Sprite" type="AnimatedSprite2D" parent="."]
-offset = Vector2(0, -16)
+offset = Vector2(0, -18)
 sprite_frames = SubResource("SpriteFrames_1")
 animation = &"idle_front"
 autoplay = "idle_front"
