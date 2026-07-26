@@ -14,6 +14,11 @@
 class_name MonsterSpawner
 extends Node2D
 
+## 몬스터 1마리가 씬 트리에 추가될 때마다(스폰 시점과 무관하게) 발생한다. 스폰이 여러
+## 프레임에 걸쳐 분산되므로(_ready() 직후 일괄 완료를 보장하지 않음), 부모 노드가 스폰된
+## 몬스터를 빠짐없이 받으려면 get_children() 일괄 조회 대신 이 시그널을 구독해야 한다.
+signal monster_spawned(monster: MonsterBase)
+
 const RABBIT_SCENE: PackedScene = preload("res://scenes/monsters/rabbit.tscn")
 const WOLF_SCENE: PackedScene = preload("res://scenes/monsters/wolf.tscn")
 const SLIME_SCENE: PackedScene = preload("res://scenes/monsters/rift_slime.tscn")
@@ -39,12 +44,17 @@ const TILE_SIZE_PX := 16.0  ## STYLE_GUIDE.md 1장 — 월드 타일 크기
 var _rng := RandomNumberGenerator.new()
 
 
+## 뿔토끼(마커당 1마리, 최대 3마리)는 온보딩 튜토리얼(eastern_frontier_starting_area.gd
+## _start_tutorial)이 _ready() 직후 get_children()으로 즉시 필요로 하므로 동기 스폰을
+## 유지한다. 몬스터 수가 많은 들개 마수·균열 점액은 마커(무리) 단위로 한 프레임씩 양보해,
+## 시작 지역 진입 시 몬스터 9~13마리를 한 프레임에 동기 생성해 발생하던 스톨(tech-artist
+## 프로파일링 — 진입 직후 ~1초간 FPS 1~4)을 완화한다.
 func _ready() -> void:
 	_rng.randomize()
 	var player := get_node_or_null(player_path) as Node2D
 	_spawn_rabbits(player)
-	_spawn_wolf_packs(player)
-	_spawn_slimes(player)
+	await _spawn_wolf_packs(player)
+	await _spawn_slimes(player)
 
 
 func _spawn_rabbits(player: Node2D) -> void:
@@ -54,7 +64,7 @@ func _spawn_rabbits(player: Node2D) -> void:
 
 ## 들개 마수는 pack_id를 씬 트리 진입(_ready) 전에 지정해야 무리 어그로 그룹 등록
 ## (wolf_monster.gd _ready)이 올바르게 이뤄지므로, 공용 헬퍼(_spawn_monster) 대신
-## 직접 인스턴스화한다.
+## 직접 인스턴스화한다. 무리(마커) 하나를 다 스폰할 때마다 한 프레임을 양보한다.
 func _spawn_wolf_packs(player: Node2D) -> void:
 	for marker in _spawn_markers(wolf_pack_spawn_root_path):
 		var pack_id := "dogpack_%s" % marker.name
@@ -76,11 +86,14 @@ func _spawn_wolf_packs(player: Node2D) -> void:
 			wolf.global_position = marker.global_position + offset
 			wolf.target = player
 			add_child(wolf)
+			monster_spawned.emit(wolf)
+		await get_tree().process_frame
 
 
 func _spawn_slimes(player: Node2D) -> void:
 	for marker in _spawn_markers(slime_spawn_root_path):
 		_spawn_monster(SLIME_SCENE, marker.global_position, player)
+		await get_tree().process_frame
 
 
 func _spawn_markers(root_path: NodePath) -> Array[Marker2D]:
@@ -101,4 +114,5 @@ func _spawn_monster(scene: PackedScene, spawn_position: Vector2, player: Node2D)
 	monster.global_position = spawn_position
 	monster.target = player
 	add_child(monster)
+	monster_spawned.emit(monster)
 	return monster
