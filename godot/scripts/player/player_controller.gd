@@ -90,7 +90,6 @@ var _buff_superarmor_timer: float = 0.0
 @onready var _facing: Node2D = $Facing
 @onready var _attack_hitbox: Area2D = $Facing/AttackHitbox
 @onready var _attack_collision: CollisionPolygon2D = $Facing/AttackHitbox/CollisionPolygon2D
-@onready var _debug_hitbox_visual: Polygon2D = $Facing/DebugHitboxVisual
 @onready var _sprite: AnimatedSprite2D = $Sprite
 @onready var _stats: PlayerStatsComponent = get_node_or_null("PlayerStats")
 
@@ -99,7 +98,6 @@ func _ready() -> void:
 	dash_charges = movement_data.dash_charge_max
 	_last_finite_position = global_position if global_position.is_finite() else Vector2.ZERO
 	_attack_hitbox.monitoring = false
-	_debug_hitbox_visual.visible = false
 	_attack_hitbox.body_entered.connect(_on_attack_hitbox_body_entered)
 
 
@@ -224,14 +222,11 @@ func _enable_attack_hitbox(step) -> void:
 	var angle_deg: float = step.hitbox_angle_deg
 	var polygon := _build_sector_polygon(radius_px, angle_deg)
 	_attack_collision.polygon = polygon
-	_debug_hitbox_visual.polygon = polygon
 	_attack_hitbox.monitoring = true
-	_debug_hitbox_visual.visible = true
 
 
 func _disable_attack_hitbox() -> void:
 	_attack_hitbox.monitoring = false
-	_debug_hitbox_visual.visible = false
 
 
 ## 부채꼴 판정 범위를 근사하는 다각형 생성(로컬 +X가 정면). segments가 클수록 매끄럽다.

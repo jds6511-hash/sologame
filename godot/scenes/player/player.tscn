@@ -384,7 +384,3 @@ monitoring = false
 monitorable = false
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Facing/AttackHitbox"]
-
-[node name="DebugHitboxVisual" type="Polygon2D" parent="Facing"]
-visible = false
-color = Color(1, 0, 0, 0.35)
