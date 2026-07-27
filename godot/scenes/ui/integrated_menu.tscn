@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/integrated_menu.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/ui/inventory_tab_stub.tscn" id="2"]
 [ext_resource type="PackedScene" path="res://scenes/ui/character_tab.tscn" id="3"]
 [ext_resource type="PackedScene" path="res://scenes/ui/placeholder_tab.tscn" id="4"]
+[ext_resource type="PackedScene" path="res://scenes/ui/skill_tab.tscn" id="5"]
 
 [node name="IntegratedMenu" type="CanvasLayer"]
 layer = 10
@@ -28,7 +29,7 @@ layout_mode = 2
 [node name="CharacterTab" parent="Tabs" instance=ExtResource("3")]
 layout_mode = 2
 
-[node name="SkillTab" parent="Tabs" instance=ExtResource("4")]
+[node name="SkillTab" parent="Tabs" instance=ExtResource("5")]
 layout_mode = 2
 
 [node name="JournalTab" parent="Tabs" instance=ExtResource("4")]

@@ -18,10 +18,15 @@ func _ready() -> void:
 	_stat_list_label.add_theme_color_override("font_color", UiStyle.COLOR_TEXT)
 
 
-## stats: CombatantStats(읽기 전용). level/job_name: 레벨 시스템 미구현이라 호출자가 넘겨준다.
-func bind_stats(stats: CombatantStats, level: int, job_name: String) -> void:
+## stats: 공유 CombatantStats(읽기 전용). level/job_name: 호출자가 PlayerProgression·직업에서
+## 읽어 넘긴다(M3 B-4). crit_percent: 치명타%(0~100). 음수면 표시하지 않는다 — 치명타는
+## CombatantStats에 저장되지 않고 DamageCalculator.calculate_crit_chance(민첩, formula)로
+## 산출해야 하므로(spec 5-2), 그 값을 아는 호출자만 넘긴다. 표시는 round()(spec 8-1).
+func bind_stats(
+	stats: CombatantStats, level: int, job_name: String, crit_percent: float = -1.0
+) -> void:
 	_level_job_label.text = "Lv.%d %s" % [level, job_name]
-	_stat_list_label.text = (
+	var text := (
 		"공격력 %d\n방어력 %d\n민첩 %d\n최대 HP %d\n최대 MP %d"
 		% [
 			roundi(stats.attack_power),
@@ -31,3 +36,6 @@ func bind_stats(stats: CombatantStats, level: int, job_name: String) -> void:
 			roundi(stats.max_mp),
 		]
 	)
+	if crit_percent >= 0.0:
+		text += "\n치명타 %d%%" % roundi(crit_percent)
+	_stat_list_label.text = text

@@ -77,3 +77,56 @@ func test_bind_player_hp_changed_signal_updates_label() -> void:
 	var hp_label: Label = _hud.get_node("PlayerStatusPanel/HPBar/Label")
 	var expected := "%d/%d" % [roundi(stats.current_hp), roundi(stats.stats.max_hp)]
 	assert_eq(hp_label.text, expected)
+
+
+# --- M3 B-4: 레벨/경험치 바 PlayerProgression 연동 ---
+
+
+func test_bind_player_syncs_initial_level_and_job() -> void:
+	var player: PlayerController = _spawn_player()
+	_hud.bind_player(player, player.get_node("PlayerStats"))
+	var label: Label = _hud.get_node("PlayerStatusPanel/LevelJobLabel")
+	assert_eq(label.text, "Lv.1 전사")
+
+
+func test_leveled_up_updates_level_label_and_shows_flash() -> void:
+	var player: PlayerController = _spawn_player()
+	var progression: PlayerProgression = player.get_node("PlayerProgression")
+	_hud.bind_player(player, player.get_node("PlayerStats"))
+
+	## REQ(1)=55 정확히 투입 → Lv2 도달.
+	progression.add_exp(55)
+
+	var label: Label = _hud.get_node("PlayerStatusPanel/LevelJobLabel")
+	assert_eq(label.text, "Lv.2 전사")
+	var flash: Label = _hud.get_node("LevelUpFlash")
+	assert_true(flash.visible, "레벨업 연출 라벨이 표시되어야 한다")
+	assert_true(flash.text.contains("Lv.2"))
+
+
+func test_exp_changed_updates_fill_ratio() -> void:
+	var player: PlayerController = _spawn_player()
+	var progression: PlayerProgression = player.get_node("PlayerProgression")
+	_hud.bind_player(player, player.get_node("PlayerStats"))
+
+	## REQ(1)=55의 절반 → 바 50%.
+	progression.add_exp(27)
+
+	var exp_bar_width: float = _hud.get_node("ExpBar").size.x
+	var fill: ColorRect = _hud.get_node("ExpBar/Fill")
+	var ratio := 27.0 / 55.0
+	assert_almost_eq(fill.size.x, exp_bar_width * ratio, 0.5)
+
+
+func test_max_level_shows_max_label_and_full_fill() -> void:
+	var player: PlayerController = _spawn_player()
+	_hud.bind_player(player, player.get_node("PlayerStats"))
+
+	## exp_to_next=0 은 만렙 신호(PlayerProgression.exp_to_next 계약).
+	_hud._on_exp_changed(0, 0)
+
+	var max_label: Label = _hud.get_node("ExpBar/MaxLabel")
+	assert_true(max_label.visible, "만렙 시 MAX 표기")
+	var exp_bar_width: float = _hud.get_node("ExpBar").size.x
+	var fill: ColorRect = _hud.get_node("ExpBar/Fill")
+	assert_almost_eq(fill.size.x, exp_bar_width, 0.5)

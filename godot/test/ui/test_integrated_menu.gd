@@ -1,6 +1,8 @@
 ## UI-2 검증 — 통합 메뉴 골격의 단축키 진입/토글/전환, ESC 복귀, 오픈 시 일시정지를 재현한다.
 extends GutTest
 
+const PLAYER_SCENE := preload("res://scenes/player/player.tscn")
+
 var _menu: IntegratedMenu
 
 
@@ -8,6 +10,12 @@ func before_each() -> void:
 	var scene: PackedScene = load("res://scenes/ui/integrated_menu.tscn")
 	_menu = scene.instantiate()
 	add_child_autofree(_menu)
+
+
+func _spawn_player() -> PlayerController:
+	var player: PlayerController = PLAYER_SCENE.instantiate()
+	add_child_autofree(player)
+	return player
 
 
 func after_each() -> void:
@@ -76,3 +84,48 @@ func test_bind_character_stats_updates_character_tab_labels() -> void:
 	var stat_list_label: Label = _menu.get_node("Tabs/CharacterTab/VBox/StatListLabel")
 	assert_true(stat_list_label.text.contains("공격력 42"))
 	assert_true(stat_list_label.text.contains("최대 HP 135"))
+
+
+# --- M3 B-4: bind_player 통합 배선(캐릭터 탭 치명타% · 스킬 탭 강화) ---
+
+
+func test_bind_player_shows_crit_in_character_tab() -> void:
+	var player := _spawn_player()
+	_menu.bind_player(player)
+	var stat_list_label: Label = _menu.get_node("Tabs/CharacterTab/VBox/StatListLabel")
+	assert_true(stat_list_label.text.contains("치명타"), "치명타% 표시(공유 스탯+formula 산출)")
+
+
+func test_skill_tab_binds_available_points() -> void:
+	var player := _spawn_player()
+	var skill_points: PlayerSkillPoints = player.get_node("PlayerSkillPoints")
+	skill_points.grant_transition_points()  ## +2
+	_menu.bind_player(player)
+	var points_label: Label = _menu.get_node("Tabs/SkillTab/VBox/PointsLabel")
+	assert_true(points_label.text.contains("2"), "잔여 스킬 포인트 표시")
+
+
+func test_skill_tab_upgrade_button_spends_points_and_levels_skill() -> void:
+	var player := _spawn_player()
+	var skill_points: PlayerSkillPoints = player.get_node("PlayerSkillPoints")
+	skill_points.grant_transition_points()  ## +2
+	_menu.bind_player(player)
+
+	## 첫 행 = 강타(강타 Lv1→2 비용 1). 강화 버튼을 눌러 실제 상태 변화 확인.
+	var first_row: HBoxContainer = _menu.get_node("Tabs/SkillTab/VBox/SkillList").get_child(0)
+	var button: Button = first_row.get_child(2)
+	button.pressed.emit()
+
+	assert_eq(skill_points.get_skill_level(&"강타"), 2, "강타 Lv2로 강화")
+	assert_eq(skill_points.available_points, 1, "비용 1 차감")
+	var level_label: Label = first_row.get_child(1)
+	assert_true(level_label.text.contains("Lv.2"), "강화 후 레벨 라벨 갱신")
+
+
+func test_skill_tab_button_disabled_without_points() -> void:
+	var player := _spawn_player()
+	_menu.bind_player(player)  ## 포인트 0(레벨업/전직 없음)
+
+	var first_row: HBoxContainer = _menu.get_node("Tabs/SkillTab/VBox/SkillList").get_child(0)
+	var button: Button = first_row.get_child(2)
+	assert_true(button.disabled, "포인트 부족 시 강화 버튼 비활성")
