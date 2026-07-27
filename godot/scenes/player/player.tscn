@@ -1,4 +1,4 @@
-[gd_scene load_steps=92 format=3]
+[gd_scene load_steps=95 format=3]
 
 [ext_resource type="Script" path="res://scripts/player/player_controller.gd" id="1"]
 [ext_resource type="Resource" path="res://data/player/player_movement.tres" id="2"]
@@ -33,6 +33,9 @@
 [ext_resource type="Resource" path="res://data/progression/job_growth_warrior.tres" id="31"]
 [ext_resource type="Script" path="res://scripts/progression/player_skill_points.gd" id="32"]
 [ext_resource type="Resource" path="res://data/progression/skill_point_rule.tres" id="33"]
+[ext_resource type="Script" path="res://scripts/progression/player_job_transition.gd" id="34"]
+[ext_resource type="Resource" path="res://data/jobs/job_def_warrior.tres" id="35"]
+[ext_resource type="Resource" path="res://data/jobs/job_def_archer.tres" id="36"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_1"]
 radius = 6.0
@@ -387,6 +390,11 @@ combat_stats = ExtResource("6")
 [node name="PlayerSkillPoints" type="Node" parent="."]
 script = ExtResource("32")
 rule = ExtResource("33")
+
+[node name="PlayerJobTransition" type="Node" parent="."]
+script = ExtResource("34")
+available_jobs = [ExtResource("35"), ExtResource("36")]
+initial_job_id = &"warrior"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, -9)

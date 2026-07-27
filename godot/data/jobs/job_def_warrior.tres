@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="JobDefinition" load_steps=13 format=3]
+
+[ext_resource type="Script" path="res://scripts/progression/job_definition.gd" id="1"]
+[ext_resource type="Resource" path="res://data/progression/job_growth_warrior.tres" id="2"]
+[ext_resource type="Resource" path="res://data/player/warrior_basic_combo.tres" id="3"]
+[ext_resource type="Resource" path="res://data/items/wpn_gs_01_c.tres" id="4"]
+[ext_resource type="Resource" path="res://data/player/skills/skill_slot1_strike.tres" id="5"]
+[ext_resource type="Resource" path="res://data/player/skills/skill_slot2_sprint.tres" id="6"]
+[ext_resource type="Resource" path="res://data/player/skills/skill_slot3_first_aid.tres" id="7"]
+[ext_resource type="Resource" path="res://data/player/skills/skill_slot4_crushing_blow.tres" id="8"]
+[ext_resource type="Resource" path="res://data/player/skills/skill_slotq_charge_rush.tres" id="9"]
+[ext_resource type="Resource" path="res://data/player/skills/skill_slote_battle_shout.tres" id="10"]
+[ext_resource type="Resource" path="res://data/player/skills/skill_ultimate_earth_smash.tres" id="11"]
+[ext_resource type="Resource" path="res://data/player/skills/skill_secondary_charged_smash.tres" id="12"]
+
+[resource]
+script = ExtResource("1")
+job_id = &"warrior"
+display_name = "전사"
+growth = ExtResource("2")
+basic_combo = ExtResource("3")
+granted_weapon = ExtResource("4")
+skill_slot_1 = ExtResource("5")
+skill_slot_2 = ExtResource("6")
+skill_slot_3 = ExtResource("7")
+skill_slot_4 = ExtResource("8")
+skill_slot_q = ExtResource("9")
+skill_slot_e = ExtResource("10")
+skill_ultimate = ExtResource("11")
+skill_charge = ExtResource("12")

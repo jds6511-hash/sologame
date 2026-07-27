@@ -503,6 +503,42 @@ func get_skill_cooldown_remaining(key: String) -> float:
 	return float(_skill_cooldowns.get(key, 0.0))
 
 
+# --- 전직 로드아웃 교체 (M3 B-5, 승계형 교체 — m3-warrior-tier2-skills.md 1장) ---
+
+
+## 전직 시 활성 스킬 슬롯과 기본 공격 콤보를 교체한다(PlayerJobTransition이 호출).
+## slots는 슬롯 이름("slot_1"~"slot_3"·"slot_4"·"slot_q"·"slot_e"·"ultimate"·"charge") ->
+## WarriorSkillData 사전이며, 값이 없거나 null이면 해당 슬롯은 미개방으로 둔다(승계형 교체 —
+## 새 키를 만들지 않고 같은 슬롯을 직업 스킬로 채운다). combo가 주어지면 기본 공격 무기를
+## 교체한다(대검 -> 활 등). 진행 중 콤보/스킬/차지와 쿨다운을 초기화해 이전 직업의 잔여
+## 상태가 남지 않게 한다.
+func apply_transition_loadout(slots: Dictionary, combo: WarriorComboData = null) -> void:
+	skill_slot_1 = slots.get("slot_1") as WarriorSkillData
+	skill_slot_2 = slots.get("slot_2") as WarriorSkillData
+	skill_slot_3 = slots.get("slot_3") as WarriorSkillData
+	skill_slot_4 = slots.get("slot_4") as WarriorSkillData
+	skill_slot_q = slots.get("slot_q") as WarriorSkillData
+	skill_slot_e = slots.get("slot_e") as WarriorSkillData
+	skill_ultimate = slots.get("ultimate") as WarriorSkillData
+	skill_charge = slots.get("charge") as WarriorSkillData
+	if combo != null:
+		combo_data = combo
+	_reset_action_state()
+
+
+## 진행 중인 콤보·스킬·차지와 쿨다운을 초기화한다(전직 슬롯 교체 시 잔여 상태 제거).
+func _reset_action_state() -> void:
+	if attack_state != AttackState.NONE:
+		_disable_attack_hitbox()
+		_end_combo()
+	if skill_state != AttackState.NONE:
+		_cancel_skill()
+	if _is_charging_secondary:
+		_cancel_charge()
+	_skill_cooldowns.clear()
+	_cooldown_secondary = 0.0
+
+
 # --- 차지 강타 (우클릭 홀드, m2-warrior-skills.md 3장) ---
 
 
