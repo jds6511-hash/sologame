@@ -45,9 +45,8 @@ func _ready() -> void:
 		"slot_e": $SlotE,
 		"ultimate": $SlotUltimate,
 	}
-	for key in _slots.keys():
-		var icon: Texture2D = load(ICON_PATHS[key])
-		_slots[key].configure(icon, KEY_LABELS[key], key == "ultimate")
+	## 스킬 칸의 아이콘·미개방 표시는 bind_player 시점의 실제 로드아웃으로 결정한다
+	## (모험가 시작이라 4/Q/E/R은 전직 전까지 미개방 — _refresh_skill_slots).
 	## 포션 퀵슬롯(5)은 아이템 아이콘이 아직 없다(IT-1 스타터 9종에 포션 미포함,
 	## economy-foundation.md 3-1장 vs 5장 별도 — 결과 보고 참조). 6번은 완전 빈 자리.
 	_quickslot_5.configure(null, "5")
@@ -60,15 +59,37 @@ func _ready() -> void:
 func bind_player(player: PlayerController, stats: PlayerStatsComponent) -> void:
 	_player = player
 	_stats = stats
+	_refresh_skill_slots()
+	## M3: 전직(PlayerJobTransition)으로 슬롯 4/Q/E/R이 열리면 스냅샷을 다시 잡는다 —
+	## bind 시점에 굳으면 전직해도 스킬 바에 새 스킬이 나타나지 않는다.
+	var transition := player.get_node_or_null("PlayerJobTransition") as PlayerJobTransition
+	if transition:
+		transition.job_changed.connect(_on_job_changed)
+
+
+func _on_job_changed(_job_id: StringName) -> void:
+	_refresh_skill_slots()
+
+
+## 플레이어의 현재 스킬 로드아웃을 다시 읽어 각 칸의 아이콘·미개방 표시를 맞춘다.
+## 슬롯이 비어 있으면(해당 직업이 아직 그 키를 쓰지 않음) 아이콘을 비우고 어둡게 낮춘다.
+func _refresh_skill_slots() -> void:
 	_skill_data = {
-		"slot1": player.skill_slot_1,
-		"slot2": player.skill_slot_2,
-		"slot3": player.skill_slot_3,
-		"slot4": player.skill_slot_4,
-		"slot_q": player.skill_slot_q,
-		"slot_e": player.skill_slot_e,
-		"ultimate": player.skill_ultimate,
+		"slot1": _player.skill_slot_1,
+		"slot2": _player.skill_slot_2,
+		"slot3": _player.skill_slot_3,
+		"slot4": _player.skill_slot_4,
+		"slot_q": _player.skill_slot_q,
+		"slot_e": _player.skill_slot_e,
+		"ultimate": _player.skill_ultimate,
 	}
+	for key in _slots.keys():
+		var is_open: bool = _skill_data[key] != null
+		var icon: Texture2D = load(ICON_PATHS[key]) if is_open else null
+		_slots[key].configure(icon, KEY_LABELS[key], key == "ultimate")
+		_slots[key].set_locked(not is_open)
+		_slots[key].set_cooldown(0.0, 0.0)
+		_slots[key].set_mp_insufficient(false)
 
 
 func _process(_delta: float) -> void:

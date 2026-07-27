@@ -133,6 +133,16 @@ func bind_player(player: PlayerController) -> void:
 	var skill_points := player.get_node_or_null("PlayerSkillPoints") as PlayerSkillPoints
 	if skill_points:
 		_skill_tab.bind(skill_points, _collect_skills(player))
+	## M3: 전직 시 스킬 로드아웃과 스탯이 함께 바뀌므로 두 탭을 다시 채운다 — bind 시점
+	## 스냅샷이 굳으면 전직해도 스킬 탭에 새 스킬(4/Q/E/R/우클릭)이 나타나지 않는다.
+	var transition := player.get_node_or_null("PlayerJobTransition") as PlayerJobTransition
+	if transition:
+		transition.job_changed.connect(_on_job_changed)
+
+
+func _on_job_changed(_job_id: StringName) -> void:
+	_refresh_character_tab()
+	_skill_tab.rebind_skills(_collect_skills(_bound_player))
 
 
 ## 캐릭터 탭 실값 갱신 — 치명타%는 공유 CombatantStats에 없어 formula로 산출한다(spec 5-2).
@@ -162,8 +172,9 @@ func _resolve_job_name(player: PlayerController) -> String:
 	return "전사"
 
 
-## 강화 대상 스킬 목록 — 플레이어의 슬롯 7종(강타·질주·응급 처치·분쇄 베기·돌격·결의의
-## 외침·대지 분쇄). 스킬 바(F행)와 동일 순서.
+## 강화 대상 스킬 목록 — 스킬 바(F행)와 동일 순서의 슬롯 7종 + 우클릭(보조 동작). 우클릭은
+## HUD 스킬 바에 칸이 없지만(ux 5장 F행은 9칸 고정) 전직으로 개방되는 직업 스킬이므로 강화
+## 대상에 포함한다. null 슬롯(미개방)은 SkillTab이 건너뛴다.
 func _collect_skills(player: PlayerController) -> Array:
 	return [
 		player.skill_slot_1,
@@ -173,4 +184,5 @@ func _collect_skills(player: PlayerController) -> Array:
 		player.skill_slot_q,
 		player.skill_slot_e,
 		player.skill_ultimate,
+		player.skill_charge,
 	]

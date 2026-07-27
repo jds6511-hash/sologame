@@ -34,6 +34,15 @@ func bind(skill_points: PlayerSkillPoints, skills: Array) -> void:
 	_refresh_all()
 
 
+## 전직으로 스킬 로드아웃이 바뀌었을 때 스킬 행만 다시 만든다(시그널은 bind에서 이미 연결돼
+## 있으므로 재연결하지 않는다 — 중복 연결 방지). bind 전에 호출되면 아무것도 하지 않는다.
+func rebind_skills(skills: Array) -> void:
+	if _skill_points == null:
+		return
+	_build_rows(skills)
+	_refresh_all()
+
+
 func _build_rows(skills: Array) -> void:
 	for child in _skill_list.get_children():
 		child.queue_free()

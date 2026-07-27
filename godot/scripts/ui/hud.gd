@@ -17,6 +17,9 @@ const LEVEL_UP_FLASH_SEC := 1.2
 
 var _exp_bar_width := 0.0
 var _job_name := "전사"
+## M3 전직 UI 배선용 참조(bind_player가 채운다).
+var _bound_player: PlayerController = null
+var _progression: PlayerProgression = null
 
 @onready var _status_panel: PlayerStatusPanel = $PlayerStatusPanel
 @onready var _minimap: MinimapDisplay = $Minimap
@@ -27,6 +30,9 @@ var _job_name := "전사"
 @onready var _exp_fill: ColorRect = $ExpBar/Fill
 @onready var _exp_max_label: Label = $ExpBar/MaxLabel
 @onready var _level_up_flash: Label = $LevelUpFlash
+@onready var _job_notice: JobTransitionNotice = $JobTransitionNotice
+@onready var _job_selection: JobSelectionScreen = $JobSelectionScreen
+@onready var _debug_level_keys: DebugLevelKeys = $DebugLevelKeys
 
 
 func _ready() -> void:
@@ -39,12 +45,14 @@ func _ready() -> void:
 	_level_up_flash.add_theme_color_override("font_outline_color", UiStyle.COLOR_OUTLINE)
 	_level_up_flash.add_theme_constant_override("outline_size", 6)
 	_level_up_flash.visible = false
+	_job_notice.selection_requested.connect(_job_selection.open)
 
 
 ## player: player.tscn 루트(PlayerController). stats: player.tscn의 "PlayerStats" 자식
 ## (PlayerStatsComponent). 통합 예시: 월드 씬에 이 HUD 씬을 추가한 뒤
 ## `hud.bind_player(player, player.get_node("PlayerStats"))` 호출.
 func bind_player(player: PlayerController, stats: PlayerStatsComponent) -> void:
+	_bound_player = player
 	_skill_bar.bind_player(player, stats)
 	_minimap.bind_player(player)
 	stats.hp_changed.connect(_status_panel.set_hp)
@@ -52,6 +60,7 @@ func bind_player(player: PlayerController, stats: PlayerStatsComponent) -> void:
 	_status_panel.set_hp(stats.current_hp, stats.stats.max_hp)
 	_status_panel.set_mp(stats.current_mp, stats.stats.max_mp)
 	_bind_progression(player)
+	_bind_job_transition(player)
 
 
 ## 레벨·경험치 바를 PlayerProgression(B-1)에 연결한다(m3-leveling-spec 7-5). 노드가 없는
@@ -62,10 +71,30 @@ func _bind_progression(player: PlayerController) -> void:
 	if progression == null:
 		_status_panel.set_level_and_job(1, _job_name)
 		return
+	_progression = progression
+	_debug_level_keys.bind_progression(progression)
 	progression.leveled_up.connect(_on_leveled_up)
 	progression.exp_changed.connect(_on_exp_changed)
 	_status_panel.set_level_and_job(progression.current_level, _job_name)
 	_on_exp_changed(progression.current_exp, progression.exp_to_next())
+
+
+## 전직 UI(M3) 배선 — 전직 가능 알림과 직업 선택 화면을 PlayerJobTransition(B-5)에 연결한다.
+## 노드가 없는 씬(구버전·테스트 씬)에서는 알림이 표시되지 않고 화면도 열리지 않는다.
+func _bind_job_transition(player: PlayerController) -> void:
+	var transition := player.get_node_or_null("PlayerJobTransition") as PlayerJobTransition
+	_job_notice.bind_transition(transition)
+	_job_selection.bind_transition(transition)
+	if transition:
+		transition.job_changed.connect(_on_job_changed)
+
+
+## 전직 완료 시 레벨·직업 라벨을 새 직업명으로 갱신한다 — 직업명은 bind 시점 스냅샷이라
+## 이 갱신이 없으면 전직해도 "모험가"로 남는다.
+func _on_job_changed(_job_id: StringName) -> void:
+	_job_name = _resolve_job_name(_bound_player)
+	var level: int = _progression.current_level if _progression else 1
+	_status_panel.set_level_and_job(level, _job_name)
 
 
 ## 직업명은 PlayerStatGrowth.job(JobGrowthData)의 display_name에서 읽는다(전직 시 B-5가

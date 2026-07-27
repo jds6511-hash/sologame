@@ -70,6 +70,12 @@ func set_mp_insufficient(is_insufficient: bool) -> void:
 	_mp_block.visible = is_insufficient
 
 
+## 미개방 슬롯 표시 — 칸 전체를 어둡게 낮춘다(전직 전 4/Q/E/R 슬롯). 호출자가 아이콘도 함께
+## 비우므로 "어두움 + 아이콘 없음"의 이중 신호가 되어 색만으로 상태를 구분하지 않는다(ux 1장).
+func set_locked(is_locked: bool) -> void:
+	modulate.a = 0.35 if is_locked else 1.0
+
+
 ## 퀵슬롯(포션 등) 보유 수량 표시. quantity < 0이면 라벨을 숨긴다 — 인벤토리 시스템(IT-3)
 ## 연동 전에는 수량 정보 자체가 없으므로 기본은 숨김 상태다.
 func set_quantity(quantity: int) -> void:

@@ -129,3 +129,62 @@ func test_skill_tab_button_disabled_without_points() -> void:
 	var first_row: HBoxContainer = _menu.get_node("Tabs/SkillTab/VBox/SkillList").get_child(0)
 	var button: Button = first_row.get_child(2)
 	assert_true(button.disabled, "포인트 부족 시 강화 버튼 비활성")
+
+
+# --- M3 전직 UI: 전직 후 스킬/캐릭터 탭 재바인딩(job_changed 구독) ---
+
+
+## 큐에 삭제 예약된 이전 행을 제외한 실제 스킬 행 목록(재바인딩 직후 검사용).
+func _live_skill_rows() -> Array:
+	var rows: Array = []
+	for child in _menu.get_node("Tabs/SkillTab/VBox/SkillList").get_children():
+		if not child.is_queued_for_deletion():
+			rows.append(child)
+	return rows
+
+
+func _level_up_to_transition(progression: PlayerProgression) -> void:
+	while progression.current_level < 10:
+		progression.add_exp(progression.exp_to_next())
+
+
+func test_skill_tab_lists_only_adventurer_skills_before_transition() -> void:
+	var player := _spawn_player()
+	_menu.bind_player(player)
+	assert_eq(_live_skill_rows().size(), 3, "모험가는 공용 3종만 강화 대상")
+
+
+func test_skill_tab_rebinds_job_skills_after_transition() -> void:
+	var player := _spawn_player()
+	var transition: PlayerJobTransition = player.get_node("PlayerJobTransition")
+	_menu.bind_player(player)
+	_level_up_to_transition(player.get_node("PlayerProgression"))
+
+	transition.request_transition_by_index(0)  ## 0 = 전사
+
+	## 전사 로드아웃 = 공용 3 + 고유 4(4/Q/E/궁극기) + 우클릭 1 = 8종.
+	assert_eq(_live_skill_rows().size(), 8, "전직 후 개방 스킬이 스킬 탭에 나타난다")
+
+
+func test_skill_tab_grants_transition_points_after_transition() -> void:
+	var player := _spawn_player()
+	var transition: PlayerJobTransition = player.get_node("PlayerJobTransition")
+	_menu.bind_player(player)
+	_level_up_to_transition(player.get_node("PlayerProgression"))
+
+	transition.request_transition_by_index(0)
+
+	var points_label: Label = _menu.get_node("Tabs/SkillTab/VBox/PointsLabel")
+	assert_false(points_label.text.contains(": 0"), "전직 보너스 포인트가 스킬 탭에 반영")
+
+
+func test_character_tab_shows_job_name_after_transition() -> void:
+	var player := _spawn_player()
+	var transition: PlayerJobTransition = player.get_node("PlayerJobTransition")
+	_menu.bind_player(player)
+	_level_up_to_transition(player.get_node("PlayerProgression"))
+
+	transition.request_transition_by_index(0)
+
+	var level_job_label: Label = _menu.get_node("Tabs/CharacterTab/VBox/LevelJobLabel")
+	assert_true(level_job_label.text.contains("전사"), "전직 후 캐릭터 탭 직업명 갱신")
