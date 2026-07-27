@@ -12,6 +12,14 @@ CC0/무료 소싱을 우선 시도했으나 판타지 대검 전사 + idle/walk/
 hit/death)으로 확장했다. 파일명·행 구성(하/측/상)·프레임 수(idle4/walk6/attack4/hit1/death4)·
 애니메이션 순서는 구 규격과 동일, 셀 크기와 명암 단수만 신규격으로 바꿨다.
 
+**2026-07-27 측면 재디자인 (디렉터 지적: "전사 옆모습이 못생겼다")**:
+측면 행(r=1)만 재설계했다 — (1) 스카프를 목~가슴 두꺼운 블록에서 목에 감긴 얇은 칼라(2px)
++ 뒤로 날리는 가는 자락으로 축소, (2) 앞가슴 림 하이라이트·등 최암부·위로 솟은 견갑·앞으로
+뻗은 검 쥔 팔·앞/뒤 겹친 측면 다리(발끝 앞으로)로 옆선을 또렷하게, (3) attack 측면 스윙을
+windup(뒤 위)→hit(두꺼운 전방 베기)→recover(앞아래 사선)→settle(곧게 내림) 4프레임으로
+프레임 간 실루엣 차이를 크게. 정면(r=0)·후면(r=2)은 균형상 유지(손대지 않음). attack 시퀀스
+recover×2 중복을 recover+settle로 대체(정면/후면은 settle을 recover와 동일 처리해 규격 유지).
+
 STYLE_GUIDE.md 준수:
 - 1-2장: 캔버스 20x36(~1.25타일 x 2.25타일), 실체 약 15x33(~3.3등신, 머리 ~10px), 발밑 원점(하단 중앙)
 - 2장: EDG32 32색만 사용 (직접 RGB 튜플만 그려 안티앨리어싱 원천 차단)
@@ -97,6 +105,20 @@ def draw_legs(im: Image.Image, ldy: int, rdy: int) -> None:
     rect(im, cx + 1, 31 + rdy, cx + 4, 33 + rdy, BOOT)
 
 
+# ------------------------------------------------------- 다리(측면: 앞/뒤 겹침)
+def draw_legs_side(im: Image.Image, ldy: int, rdy: int) -> None:
+    """측면 전용 다리 — 앞다리(밝음)와 뒷다리(어둠)를 겹쳐 세우고 발끝을 앞(우)으로
+    내밀어 방향과 옆선을 또렷하게 한다. ldy=뒷다리, rdy=앞다리 상하 오프셋(걷기)."""
+    cx = CX
+    # 뒷다리(먼저, 어둡게)
+    rect(im, cx - 2, 24 + ldy, cx + 1, 33 + ldy, PANTS_SHADOW)
+    rect(im, cx - 2, 31 + ldy, cx + 2, 33 + ldy, BOOT)  # 뒤 부츠(발끝 앞으로)
+    # 앞다리(밝게)
+    rect(im, cx + 0, 24 + rdy, cx + 3, 33 + rdy, PANTS_BASE)
+    rect(im, cx + 0, 24 + rdy, cx + 1, 32 + rdy, PANTS_SHADOW)  # 앞다리 뒤 결
+    rect(im, cx + 0, 31 + rdy, cx + 4, 33 + rdy, BOOT)  # 앞 부츠(발끝 앞으로)
+
+
 # ---------------------------------------------------------------- 정면(down)
 def draw_body_down(im: Image.Image, bob: int, arm_dx: int) -> None:
     cx = CX
@@ -142,38 +164,53 @@ def draw_body_down(im: Image.Image, bob: int, arm_dx: int) -> None:
 
 # ---------------------------------------------------------------- 측면(side, 우향)
 def draw_body_side(im: Image.Image, bob: int, arm_dx: int) -> None:
+    """측면 재디자인(2026-07-27 디렉터 지적 반영): 앞가슴 볼록·등 곧은 옆선, 위로 솟은
+    견갑, 앞으로 뻗은 검 쥔 팔로 '옆으로 선 전사'가 읽히게 한다. 스카프는 목에 감긴
+    얇은 칼라(2px) + 뒤로 날리는 가는 자락으로 두께를 크게 줄였다."""
     cx = CX
     b = bob
-    # 몸통 갑옷(측면 폭 좁게, 4단)
-    rect(im, cx - 3, 13 + b, cx + 4, 24 + b, ARMOR_DARK)
-    rect(im, cx - 3, 13 + b, cx + 3, 24 + b, ARMOR_SHADOW)  # 등(뒤) 그림자
-    rect(im, cx - 1, 13 + b, cx + 4, 24 + b, ARMOR_BASE)
-    rect(im, cx + 2, 13 + b, cx + 4, 22 + b, ARMOR_HI)  # 앞가슴 하이라이트
-    rect(im, cx - 3, 15 + b, cx - 2, 22 + b, ARMOR_DARK)  # 등 최암부
-    # 벨트
+    # ---- 몸통 갑옷(측면: 등[좌]은 곧게, 가슴[우]은 앞으로 볼록) ----
+    rect(im, cx - 3, 14 + b, cx + 4, 24 + b, ARMOR_SHADOW)  # 전체 바탕(그림자)
+    rect(im, cx - 1, 14 + b, cx + 4, 23 + b, ARMOR_BASE)  # 앞쪽 기본면
+    rect(im, cx - 3, 15 + b, cx - 2, 23 + b, ARMOR_DARK)  # 등 최암부(뒤 옆선)
+    rect(im, cx + 3, 15 + b, cx + 4, 21 + b, ARMOR_HI)  # 가슴 앞 림 하이라이트(옆선 강조)
+    rect(im, cx + 1, 16 + b, cx + 2, 22 + b, ARMOR_SHADOW)  # 가슴판 세로 이음선
+    # ---- 어깨 견갑(위로 볼록, 전사 실루엣) ----
+    rect(im, cx - 2, 12 + b, cx + 4, 15 + b, ARMOR_SHADOW)
+    rect(im, cx - 1, 12 + b, cx + 3, 14 + b, ARMOR_BASE)
+    rect(im, cx - 1, 12 + b, cx + 2, 13 + b, ARMOR_HI)  # 견갑 상단 광
+    # ---- 벨트 ----
     rect(im, cx - 3, 22 + b, cx + 4, 24 + b, BELT)
-    # 팔(검 쥔 앞팔)
-    rect(im, cx + 1 + arm_dx, 14 + b, cx + 4 + arm_dx, 20 + b, ARMOR_SHADOW)
-    rect(im, cx + 2 + arm_dx, 14 + b, cx + 4 + arm_dx, 19 + b, ARMOR_BASE)
-    rect(im, cx + 2 + arm_dx, 20 + b, cx + 5 + arm_dx, 26 + b, SKIN_MID)  # 손
-    rect(im, cx + 2 + arm_dx, 20 + b, cx + 4 + arm_dx, 24 + b, SKIN_BASE)
-    # 스카프
-    rect(im, cx - 3, 11 + b, cx + 4, 14 + b, SCARF)
-    rect(im, cx - 4, 12 + b, cx - 1, 15 + b, SCARF)  # 뒤로 날리는 자락
-    rect(im, cx, 11 + b, cx + 3, 12 + b, SCARF_HI)
-    # 머리(측면 프로필, 피부 4단)
-    rect(im, cx - 3, 4 + b, cx + 3, 12 + b, SKIN_SHADOW)
-    rect(im, cx - 1, 4 + b, cx + 3, 12 + b, SKIN_MID)
-    rect(im, cx, 4 + b, cx + 3, 12 + b, SKIN_BASE)
-    rect(im, cx + 1, 4 + b, cx + 3, 10 + b, SKIN_HI)  # 앞뺨 하이라이트
-    rect(im, cx + 3, 7 + b, cx + 4, 10 + b, SKIN_BASE)  # 코
-    # 머리카락(뒤통수)
-    rect(im, cx - 3, 2 + b, cx + 3, 6 + b, HAIR)
-    rect(im, cx - 3, 2 + b, cx, 11 + b, HAIR)
-    rect(im, cx - 3, 2 + b, cx - 1, 6 + b, HAIR_DARK)
-    rect(im, cx - 1, 6 + b, cx + 2, 7 + b, HAIR)
+    rect(im, cx + 2, 22 + b, cx + 4, 24 + b, POMMEL)  # 버클
+    # ---- 팔(검 쥔 앞팔) ----
+    rect(im, cx + 2, 15 + b, cx + 5, 20 + b, ARMOR_SHADOW)
+    rect(im, cx + 2, 15 + b, cx + 4, 19 + b, ARMOR_BASE)
+    rect(im, cx + 3, 19 + b, cx + 6, 23 + b, ARMOR_DARK)  # 건틀릿
+    rect(im, cx + 3, 19 + b, cx + 5, 22 + b, ARMOR_SHADOW)
+    rect(im, cx + 3, 18 + b, cx + 6, 22 + b, SKIN_MID)  # 손
+    rect(im, cx + 3, 18 + b, cx + 5, 21 + b, SKIN_BASE)
+    # ---- 머리(측면 프로필, 우향) ----
+    rect(im, cx - 3, 5 + b, cx + 3, 12 + b, SKIN_MID)  # 얼굴 바탕
+    rect(im, cx + 0, 5 + b, cx + 3, 12 + b, SKIN_BASE)  # 앞 얼굴
+    rect(im, cx + 2, 6 + b, cx + 3, 10 + b, SKIN_HI)  # 앞뺨 광
+    rect(im, cx + 0, 10 + b, cx + 2, 12 + b, SKIN_MID)  # 턱 그림자
+    rect(im, cx + 3, 8 + b, cx + 4, 10 + b, SKIN_BASE)  # 코(앞으로 돌출)
+    # 머리카락
+    rect(im, cx - 3, 2 + b, cx + 3, 5 + b, HAIR)  # 상단
+    rect(im, cx - 3, 2 + b, cx + 0, 11 + b, HAIR)  # 뒤통수
+    rect(im, cx - 3, 3 + b, cx - 1, 10 + b, HAIR_DARK)  # 뒤통수 결(어둠)
+    rect(im, cx + 0, 4 + b, cx + 3, 5 + b, HAIR)  # 앞머리(이마 프린지)
     # 눈
-    rect(im, cx + 1, 8 + b, cx + 2, 9 + b, OUTLINE)
+    rect(im, cx + 1, 7 + b, cx + 2, 8 + b, OUTLINE)
+    # ---- 스카프(얇게: 목 둘레 2px + 뒤로 날리는 가는 자락) ----
+    rect(im, cx - 1, 11 + b, cx + 3, 13 + b, SCARF)  # 목 둘레(2px)
+    rect(im, cx + 2, 11 + b, cx + 4, 13 + b, SCARF)  # 앞 매듭
+    rect(im, cx - 1, 11 + b, cx + 2, 12 + b, SCARF_HI)  # 상단 광
+    # 뒤로 날리는 자락(가늘게)
+    rect(im, cx - 2, 12 + b, cx + 0, 14 + b, SCARF)
+    rect(im, cx - 3, 14 + b, cx - 1, 16 + b, SCARF)
+    rect(im, cx - 4, 15 + b, cx - 2, 18 + b, SCARF)
+    rect(im, cx - 4, 15 + b, cx - 3, 17 + b, SCARF_HI)
 
 
 # ---------------------------------------------------------------- 후면(up)
@@ -218,32 +255,49 @@ def draw_sword(im: Image.Image, direction: str, pose: str, arm_dx: int) -> None:
         return
     cx = CX
     if direction == "side":
-        bx = cx + 3 + arm_dx  # 검 기준 x(측면)
+        # 측면 재디자인(2026-07-27): 검 들기(windup, 뒤 위로)→앞으로 크게 베기(hit, 두껍게
+        # 전방)→내리기(recover, 앞아래 사선)→갈무리(settle, 앞에 곧게)로 프레임 간 실루엣이
+        # 확연히 달라지게 해 스윙 가독성을 높였다. idle/walk는 대검을 앞에 세운 대기 자세.
         if pose == "idle":
-            rect(im, bx, 5, bx + 3, 24, BLADE_SHADOW)
-            rect(im, bx, 5, bx + 2, 24, BLADE)
-            rect(im, bx, 5, bx + 1, 24, BLADE_HI)
-            rect(im, bx, 3, bx + 2, 6, BLADE)
-            rect(im, bx, 2, bx + 1, 4, BLADE_HI)
-            rect(im, bx - 1, 24, bx + 4, 26, HILT_DARK)
-            rect(im, bx - 1, 24, bx + 4, 25, HILT)
-            rect(im, bx + 1, 26, bx + 2, 30, HILT)
-            rect(im, bx, 30, bx + 3, 32, POMMEL)
-        elif pose == "windup":  # 뒤로 치켜듦
-            rect(im, cx - 6, 2, cx - 3, 5, BLADE)
-            rect(im, cx - 6, 2, cx - 4, 4, BLADE_HI)
-            rect(im, cx - 5, 5, cx - 2, 14, BLADE_SHADOW)
-            rect(im, cx - 5, 5, cx - 3, 14, BLADE)
-            rect(im, cx - 3, 14, cx, 16, HILT)
-        elif pose == "hit":  # 앞으로 크게 베기(수평)
-            rect(im, cx + 4, 12, cx + 12, 14, BLADE_SHADOW)
-            rect(im, cx + 4, 12, cx + 12, 13, BLADE_HI)
-            rect(im, cx + 10, 10, cx + 13, 16, BLADE)  # 검신 끝 넓힘
-            rect(im, cx + 2, 13, cx + 5, 16, HILT)
-        elif pose == "recover":  # 앞아래로 내림
-            rect(im, cx + 4, 16, cx + 7, 32, BLADE_SHADOW)
-            rect(im, cx + 4, 16, cx + 6, 32, BLADE)
-            rect(im, cx + 3, 16, cx + 7, 18, HILT)
+            bx = cx + 4  # 앞에 세운 대검
+            rect(im, bx, 2, bx + 3, 16, BLADE_SHADOW)
+            rect(im, bx, 2, bx + 2, 16, BLADE)
+            rect(im, bx, 3, bx + 1, 15, BLADE_HI)  # 풀러(가운데 광)
+            rect(im, bx, 1, bx + 1, 3, BLADE_HI)  # 칼끝
+            rect(im, bx - 2, 16, bx + 4, 18, HILT_DARK)  # 코등이
+            rect(im, bx - 2, 16, bx + 4, 17, HILT)
+            rect(im, bx, 18, bx + 2, 22, HILT)  # 손잡이
+            rect(im, bx - 1, 22, bx + 3, 24, POMMEL)  # 폼멜
+        elif pose == "windup":  # 뒤 위로 치켜듦(손→어깨 너머 사선)
+            rect(im, cx - 1, 12, cx + 3, 15, HILT_DARK)  # 손 근처 코등이
+            rect(im, cx - 1, 13, cx + 2, 15, HILT)
+            rect(im, cx - 2, 9, cx + 1, 13, BLADE_SHADOW)
+            rect(im, cx - 2, 9, cx + 0, 12, BLADE)
+            rect(im, cx - 4, 5, cx + 0, 10, BLADE_SHADOW)
+            rect(im, cx - 4, 5, cx - 2, 9, BLADE)
+            rect(im, cx - 4, 5, cx - 3, 9, BLADE_HI)
+            rect(im, cx - 6, 1, cx - 3, 6, BLADE)  # 칼끝(뒤 위)
+            rect(im, cx - 6, 1, cx - 4, 4, BLADE_HI)
+        elif pose == "hit":  # 앞으로 크게 베기(두껍게, 칼끝 화면 끝까지)
+            rect(im, cx + 2, 17, cx + 5, 21, HILT)  # 손 위치 코등이
+            rect(im, cx + 4, 13, cx + 9, 19, BLADE_SHADOW)
+            rect(im, cx + 4, 13, cx + 9, 18, BLADE)
+            rect(im, cx + 4, 13, cx + 8, 14, BLADE_HI)  # 윗날 광
+            rect(im, cx + 8, 14, cx + 9, 18, BLADE)  # 칼끝
+        elif pose == "recover":  # 앞아래 사선으로 내림(휘두른 여파)
+            rect(im, cx + 1, 17, cx + 4, 20, HILT)
+            rect(im, cx + 2, 19, cx + 5, 24, BLADE_SHADOW)
+            rect(im, cx + 2, 19, cx + 4, 23, BLADE)
+            rect(im, cx + 3, 23, cx + 6, 30, BLADE_SHADOW)
+            rect(im, cx + 3, 23, cx + 5, 30, BLADE)
+            rect(im, cx + 4, 30, cx + 6, 33, BLADE)  # 칼끝(앞아래)
+            rect(im, cx + 3, 20, cx + 4, 29, BLADE_HI)
+        elif pose == "settle":  # 갈무리 — 앞에 곧게 내려 세움
+            rect(im, cx + 3, 16, cx + 6, 18, HILT)
+            rect(im, cx + 4, 18, cx + 7, 30, BLADE_SHADOW)
+            rect(im, cx + 4, 18, cx + 6, 30, BLADE)
+            rect(im, cx + 4, 19, cx + 5, 29, BLADE_HI)
+            rect(im, cx + 4, 30, cx + 6, 32, BLADE)  # 칼끝
         return
     # ----- down -----
     if pose == "idle":
@@ -268,7 +322,7 @@ def draw_sword(im: Image.Image, direction: str, pose: str, arm_dx: int) -> None:
         rect(im, cx + 5, 14, cx + 7, 30, BLADE)
         rect(im, cx + 5, 14, cx + 6, 30, BLADE_HI)
         rect(im, cx + 4, 12, cx + 8, 16, HILT)
-    elif pose == "recover":
+    elif pose in ("recover", "settle"):  # 정면은 settle을 recover와 동일 처리
         rect(im, cx + 6, 16, cx + 9, 30, BLADE_SHADOW)
         rect(im, cx + 6, 16, cx + 8, 30, BLADE)
         rect(im, cx + 5, 24, cx + 10, 26, HILT)
@@ -280,14 +334,27 @@ DIRECTIONS = ["down", "side", "up"]
 
 def frame(direction: str, ldy=0, rdy=0, arm_dx=0, bob=0, sword="idle") -> Image.Image:
     im = blank()
-    # 검을 몸 뒤에서 세워 드는 idle/walk는 몸보다 먼저(뒤 레이어), 앞으로 내치는 공격은 몸 뒤에 두되
-    # 겹침이 자연스럽도록 idle/windup은 몸 전에, hit/recover는 몸 후에 그린다.
-    if sword in ("idle", "windup"):
+
+    def _legs() -> None:
+        if direction == "side":
+            draw_legs_side(im, ldy, rdy)
+        else:
+            draw_legs(im, ldy, rdy)
+
+    # 레이어: idle은 손이 자루를 쥔 게 보이도록 검을 몸 뒤에 둔다. 스윙(windup/hit/recover/
+    # settle)은 궤적이 몸 앞에 보이게 검을 몸 위에 그린다 — 단 측면 windup은 어깨 너머 궤적을
+    # 보여야 하므로 앞 레이어로 뺀다(정면/후면 windup은 기존대로 뒤 레이어 유지).
+    if direction == "side":
+        sword_behind = sword == "idle"
+    else:
+        sword_behind = sword in ("idle", "windup")
+
+    if sword_behind:
         draw_sword(im, direction, sword, arm_dx)
-        draw_legs(im, ldy, rdy)
+        _legs()
         DRAW[direction](im, bob, arm_dx)
     else:
-        draw_legs(im, ldy, rdy)
+        _legs()
         DRAW[direction](im, bob, arm_dx)
         draw_sword(im, direction, sword, arm_dx)
     return ensure_outline(im, OUTLINE)
@@ -335,7 +402,9 @@ def build_walk() -> dict[str, list[Image.Image]]:
 
 
 def build_attack() -> dict[str, list[Image.Image]]:
-    seq = ["windup", "hit", "recover", "recover"]
+    # 검 들기→앞으로 베기→내리기→갈무리로 프레임 간 실루엣 차이를 크게(측면 스윙 가독성).
+    # 정면/후면은 settle을 recover와 동일 처리(draw_sword 참조)해 기존 4프레임 규격 유지.
+    seq = ["windup", "hit", "recover", "settle"]
     return {
         d: [frame(d, sword=p, bob=(-1 if p == "windup" else 0)) for p in seq]
         for d in DIRECTIONS
