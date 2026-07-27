@@ -108,6 +108,9 @@ var _buff_superarmor_timer: float = 0.0
 @onready var _attack_collision: CollisionPolygon2D = $Facing/AttackHitbox/CollisionPolygon2D
 @onready var _sprite: AnimatedSprite2D = $Sprite
 @onready var _stats: PlayerStatsComponent = get_node_or_null("PlayerStats")
+## 스킬 강화 배율 반영용(M3 B-3) — 버프·힐 효과 수치에 +8%/레벨을 곱한다(spec 6-2).
+## 노드가 없는 씬/테스트에서는 null → 배율 1.0(하위 호환).
+@onready var _skill_points: PlayerSkillPoints = get_node_or_null("PlayerSkillPoints")
 
 
 func _ready() -> void:
@@ -462,12 +465,19 @@ func _deactivate_skill_effect(_skill: WarriorSkillData) -> void:
 func _apply_self_buff(skill: WarriorSkillData) -> void:
 	if _stats == null:
 		return
+	## 버프·힐도 스킬 강화 레벨만큼 효과 수치(회복%·버프%·지속)가 오른다(spec 6-2 구현 규약).
+	## Lv1이면 배율 1.0이라 값이 그대로다.
+	var mult := 1.0
+	if _skill_points != null:
+		mult = _skill_points.effective_multiplier(StringName(skill.skill_name))
 	if skill.self_heal_percent > 0.0:
-		_stats.heal(_stats.stats.max_hp * skill.self_heal_percent)
+		_stats.heal(_stats.stats.max_hp * skill.self_heal_percent * mult)
 	if skill.grants_superarmor_sec > 0.0:
-		_buff_superarmor_timer = skill.grants_superarmor_sec
+		_buff_superarmor_timer = skill.grants_superarmor_sec * mult
 	if skill.defense_buff_percent > 0.0:
-		_stats.apply_defense_buff(skill.defense_buff_percent, skill.defense_buff_duration_sec)
+		_stats.apply_defense_buff(
+			skill.defense_buff_percent * mult, skill.defense_buff_duration_sec * mult
+		)
 
 
 func _cancel_skill() -> void:

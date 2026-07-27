@@ -37,6 +37,9 @@ const MONSTER_DEATH_SFX := preload("res://assets/audio/sfx/sfx_combat_monster_de
 @export var preset_strong: HitFeedbackPreset
 
 @onready var _player: PlayerController = get_parent()
+## 스킬 강화 계수 반영용(M3 B-3). 스킬(WarriorSkillData) 판정에만 런타임 강화 배율을 곱한다.
+## 노드가 없는 씬/테스트에서는 null → base 계수 그대로(하위 호환).
+@onready var _skill_points: PlayerSkillPoints = get_node_or_null("../PlayerSkillPoints")
 
 
 func _ready() -> void:
@@ -46,15 +49,21 @@ func _ready() -> void:
 func _on_attack_hit(step, target: Node) -> void:
 	var target_defense := _resolve_target_defense(target)
 
+	## 스킬은 강화 레벨에 따라 계수가 오른다(spec 6-2, +8%/레벨). 기본 콤보(WarriorAttackStep)는
+	## 강화 대상이 아니므로 base 계수를 그대로 쓴다. 차지 강타는 홀드 비율로 이미 덮어쓴
+	## damage_coefficient에 배율이 곱해지는데, k x lerp(a,b,t) = lerp(k*a, k*b, t)이므로
+	## "charge_min/max 두 값에 동일 배율" 규격과 결과가 일치한다.
+	var coefficient: float = step.damage_coefficient
+	if step is WarriorSkillData and _skill_points != null:
+		coefficient = _skill_points.effective_coefficient(
+			step.damage_coefficient, StringName(step.skill_name)
+		)
+
 	var crit_chance := DamageCalculator.calculate_crit_chance(attacker_stats.agility, formula_data)
 	var is_critical := DamageCalculator.roll_critical(crit_chance)
+	## 마지막 인자 false = 위치 보정 미적용(전사는 후방 보정 없음, 도적 계열 전용 — combat.md 6장).
 	var damage := DamageCalculator.calculate_damage(
-		attacker_stats.attack_power,
-		step.damage_coefficient,
-		target_defense,
-		formula_data,
-		is_critical,
-		false  ## 전사는 위치 보정 미적용 (도적 계열 전용, combat.md 6장)
+		attacker_stats.attack_power, coefficient, target_defense, formula_data, is_critical, false
 	)
 
 	## 치명타는 등급과 무관하게 항상 "강"으로 승격한다
