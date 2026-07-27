@@ -211,7 +211,7 @@ func test_archer_hook_transitions_growth_and_common_skills() -> void:
 	assert_null(_stub.last_slots["slot_4"], "궁수 고유 슬롯은 C-4까지 미개방(null)")
 
 
-# --- initial_job_id: M2 전사 직행(이미 전직 상태) 호환 ---
+# --- initial_job_id: 디버그 직행 시작(이미 전직 상태) ---
 
 
 func test_initial_job_id_starts_already_transitioned() -> void:
@@ -223,6 +223,12 @@ func test_initial_job_id_starts_already_transitioned() -> void:
 	_stub.add_child(node)
 	assert_true(node.is_transitioned, "initial_job_id 지정 시 이미 전직 상태")
 	assert_eq(node.current_job_id, &"warrior")
+	## 직행 시작도 성장 배분·스킬 로드아웃은 실제로 적용한다(씬에 전사 값이 배선돼 있지
+	## 않아도 전사 상태가 된다). 단 전직 절차가 아니므로 보너스 포인트는 지급하지 않는다.
+	assert_eq(_growth.job.job_id, &"warrior", "직행 시작 — 성장 배분 전사")
+	assert_eq(_stub.loadout_calls, 1, "직행 시작 — 로드아웃 적용")
+	assert_eq(_stub.last_combo, WARRIOR_DEF.basic_combo, "직행 시작 — 무기 콤보 적용")
+	assert_eq(_points.available_points, 0, "직행 시작은 전직 보너스 미지급")
 	## 이미 전직 상태이므로 Lv10에 도달해도 전직 가능 플래그가 서지 않고 재전직도 거부된다.
 	_prog.add_exp(_exp_to_reach(10))
 	assert_false(node.transition_available, "이미 전직 — Lv10 전직 가능 플래그 없음")

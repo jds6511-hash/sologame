@@ -1,4 +1,4 @@
-[gd_scene load_steps=95 format=3]
+[gd_scene load_steps=90 format=3]
 
 [ext_resource type="Script" path="res://scripts/player/player_controller.gd" id="1"]
 [ext_resource type="Resource" path="res://data/player/player_movement.tres" id="2"]
@@ -15,11 +15,6 @@
 [ext_resource type="Resource" path="res://data/player/skills/skill_slot1_strike.tres" id="13"]
 [ext_resource type="Resource" path="res://data/player/skills/skill_slot2_sprint.tres" id="14"]
 [ext_resource type="Resource" path="res://data/player/skills/skill_slot3_first_aid.tres" id="15"]
-[ext_resource type="Resource" path="res://data/player/skills/skill_slot4_crushing_blow.tres" id="16"]
-[ext_resource type="Resource" path="res://data/player/skills/skill_slotq_charge_rush.tres" id="17"]
-[ext_resource type="Resource" path="res://data/player/skills/skill_slote_battle_shout.tres" id="18"]
-[ext_resource type="Resource" path="res://data/player/skills/skill_ultimate_earth_smash.tres" id="19"]
-[ext_resource type="Resource" path="res://data/player/skills/skill_secondary_charged_smash.tres" id="20"]
 [ext_resource type="Texture2D" path="res://assets/sprites/player/player_warrior_idle.png" id="21"]
 [ext_resource type="Texture2D" path="res://assets/sprites/player/player_warrior_walk.png" id="22"]
 [ext_resource type="Texture2D" path="res://assets/sprites/player/player_warrior_attack.png" id="23"]
@@ -30,7 +25,7 @@
 [ext_resource type="Resource" path="res://data/progression/level_diff_curve.tres" id="28"]
 [ext_resource type="Script" path="res://scripts/progression/player_stat_growth.gd" id="29"]
 [ext_resource type="Resource" path="res://data/progression/stat_growth_formula.tres" id="30"]
-[ext_resource type="Resource" path="res://data/progression/job_growth_warrior.tres" id="31"]
+[ext_resource type="Resource" path="res://data/progression/job_growth_adventurer.tres" id="31"]
 [ext_resource type="Script" path="res://scripts/progression/player_skill_points.gd" id="32"]
 [ext_resource type="Resource" path="res://data/progression/skill_point_rule.tres" id="33"]
 [ext_resource type="Script" path="res://scripts/progression/player_job_transition.gd" id="34"]
@@ -357,11 +352,6 @@ hit_rules = ExtResource("4")
 skill_slot_1 = ExtResource("13")
 skill_slot_2 = ExtResource("14")
 skill_slot_3 = ExtResource("15")
-skill_slot_4 = ExtResource("16")
-skill_slot_q = ExtResource("17")
-skill_slot_e = ExtResource("18")
-skill_ultimate = ExtResource("19")
-skill_charge = ExtResource("20")
 
 [node name="AttackResolver" type="Node" parent="."]
 script = ExtResource("5")
@@ -394,7 +384,6 @@ rule = ExtResource("33")
 [node name="PlayerJobTransition" type="Node" parent="."]
 script = ExtResource("34")
 available_jobs = [ExtResource("35"), ExtResource("36")]
-initial_job_id = &"warrior"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, -9)

@@ -3,7 +3,13 @@
 ## 동작하는지 확인한다. 히트박스 판정 성립 시 attack_hit(step, target)에 스킬 데이터
 ## 자체를 실어 보내 PlayerAttackResolver가 자동 소비하는지도 함께 검증한다
 ## (combo와 동일한 duck-typing 파이프라인, test_player_attack_resolver.gd와 대응).
+##
+## player.tscn은 정식 흐름대로 모험가(공용 3종만 개방)로 시작하므로(M3 B-5 후속), 전사
+## 스킬 세트를 검증하려면 전사 전직 로드아웃을 먼저 적용한다 — 실제 전직이 통과하는 경로와
+## 동일한 apply_transition_loadout을 쓴다.
 extends GutTest
+
+const WARRIOR_DEF: JobDefinition = preload("res://data/jobs/job_def_warrior.tres")
 
 var _player: PlayerController
 var _stats: PlayerStatsComponent
@@ -13,6 +19,7 @@ func before_each() -> void:
 	var scene: PackedScene = load("res://scenes/player/player.tscn")
 	_player = scene.instantiate()
 	add_child_autofree(_player)
+	_player.apply_transition_loadout(WARRIOR_DEF.skill_loadout(), WARRIOR_DEF.basic_combo)
 	_stats = _player.get_node("PlayerStats")
 
 

@@ -17,6 +17,9 @@ current = true
 [node name="Player" parent="." instance=ExtResource("2")]
 position = Vector2(160, 192)
 
+[node name="PlayerJobTransition" parent="Player" index="5"]
+initial_job_id = &"warrior"
+
 [node name="DebugHUD" type="CanvasLayer" parent="."]
 script = ExtResource("3")
 player_path = NodePath("../Player")

@@ -82,11 +82,13 @@ func test_bind_player_hp_changed_signal_updates_label() -> void:
 # --- M3 B-4: 레벨/경험치 바 PlayerProgression 연동 ---
 
 
+## 시작 직업은 모험가다(M3 B-5 후속 — 정식 흐름 "모험가 시작 -> Lv10 전직"). 라벨은
+## PlayerStatGrowth의 성장 배분 표시명을 그대로 읽으므로 전직 후에는 직업명으로 바뀐다.
 func test_bind_player_syncs_initial_level_and_job() -> void:
 	var player: PlayerController = _spawn_player()
 	_hud.bind_player(player, player.get_node("PlayerStats"))
 	var label: Label = _hud.get_node("PlayerStatusPanel/LevelJobLabel")
-	assert_eq(label.text, "Lv.1 전사")
+	assert_eq(label.text, "Lv.1 모험가")
 
 
 func test_leveled_up_updates_level_label_and_shows_flash() -> void:
@@ -98,7 +100,7 @@ func test_leveled_up_updates_level_label_and_shows_flash() -> void:
 	progression.add_exp(55)
 
 	var label: Label = _hud.get_node("PlayerStatusPanel/LevelJobLabel")
-	assert_eq(label.text, "Lv.2 전사")
+	assert_eq(label.text, "Lv.2 모험가")
 	var flash: Label = _hud.get_node("LevelUpFlash")
 	assert_true(flash.visible, "레벨업 연출 라벨이 표시되어야 한다")
 	assert_true(flash.text.contains("Lv.2"))

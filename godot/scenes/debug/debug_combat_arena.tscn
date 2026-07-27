@@ -22,6 +22,9 @@ current = true
 [node name="Player" parent="." instance=ExtResource("3")]
 position = Vector2(320, 192)
 
+[node name="PlayerJobTransition" parent="Player" index="5"]
+initial_job_id = &"warrior"
+
 [node name="MonstersRoot" type="Node2D" parent="."]
 
 [node name="UILayer" type="CanvasLayer" parent="."]
