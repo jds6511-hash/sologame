@@ -186,3 +186,44 @@ func test_move_full_speed_when_not_attacking() -> void:
 
 	var walk := _player.movement_data.get_walk_speed_px_per_sec()
 	assert_almost_eq(_player.velocity.length(), walk, 1.0, "비공격 시 이동은 100% 속도여야 한다(페널티 대조군)")
+
+
+# --- 공격 애니메이션 재시작 회귀 (디렉터 지적: 스윙 모션이 안 보임) ---
+# 콤보/홀드 내내 anim_name이 "attack_*"로 고정돼도, 각 스윙(스텝 진입)마다 애니메이션이
+# 프레임0부터 다시 재생되어야 스윙 모션이 보인다(재시작 가드 우회 검증).
+
+
+func test_attack_step_start_requests_anim_restart() -> void:
+	_player._attack_anim_restart_requested = false
+	_player._start_attack_step(0)
+	assert_true(_player._attack_anim_restart_requested, "공격 스텝 진입 시 애니메이션 재시작이 요청되어야 한다")
+
+
+func test_attack_step_replays_animation_from_frame0() -> void:
+	var sprite: AnimatedSprite2D = _player._sprite
+	## 첫 스윙 — 비주얼 반영 후 공격 애니메이션이 걸려야 한다(기본 조준 = 측면).
+	_player._start_attack_step(0)
+	_player._update_visual()
+	assert_eq(sprite.animation, "attack_side", "공격 시작 시 attack_side가 재생되어야 한다")
+	## 스윙이 끝나 마지막 프레임에 머문 상황을 모사(loop=false라 실제로도 마지막 프레임 고정).
+	sprite.set_frame_and_progress(3, 0.0)
+	assert_eq(sprite.frame, 3)
+
+	## 콤보 다음 스텝(새 스윙) 진입 → 같은 anim_name이지만 프레임0부터 다시 재생돼야 한다.
+	_player._start_attack_step(1)
+	_player._update_visual()
+	assert_eq(sprite.frame, 0, "새 스윙에서 공격 애니메이션이 프레임0부터 재생되어야 한다")
+	assert_true(sprite.is_playing(), "새 스윙에서 공격 애니메이션이 재생 상태여야 한다")
+	assert_false(_player._attack_anim_restart_requested, "재시작 요청은 1회성으로 소비되어야 한다")
+
+
+func test_visual_does_not_restart_attack_without_request() -> void:
+	## 재시작 요청이 없으면(같은 상태 지속) 프레임을 매 프레임 0으로 되감지 않아야 한다
+	## (기존 재시작 가드 유지 — 불필요한 재시작 방지).
+	var sprite: AnimatedSprite2D = _player._sprite
+	_player._start_attack_step(0)
+	_player._update_visual()
+	sprite.set_frame_and_progress(2, 0.0)
+	_player._attack_anim_restart_requested = false
+	_player._update_visual()
+	assert_eq(sprite.frame, 2, "재시작 요청이 없으면 진행 중인 공격 프레임을 되감지 않아야 한다")

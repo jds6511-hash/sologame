@@ -68,6 +68,10 @@ var active_skill: WarriorSkillData = null
 var _move_input := Vector2.ZERO
 var _last_move_direction := Vector2.DOWN  ## 대시 기본 방향(이동 입력 없을 시 마지막 방향 유지)
 var _attack_step_index: int = -1
+## 다음 _update_visual에서 공격 애니메이션을 프레임0부터 강제 재생하라는 1회성 요청.
+## 각 스윙(공격 스텝 진입) 시 켜서, 콤보 내내 anim_name이 "attack_*"로 고정돼도 스윙마다
+## 애니메이션이 프레임0부터 다시 재생되게 한다(재시작 가드 우회, 스윙 모션 표시 보장).
+var _attack_anim_restart_requested: bool = false
 var _attack_phase_timer: float = 0.0
 var _combo_window_timer: float = 0.0
 var _queued_next_attack: bool = false
@@ -271,6 +275,7 @@ func _start_attack_step(step_index: int) -> void:
 	_attack_phase_timer = 0.0
 	_combo_window_timer = 0.0
 	_queued_next_attack = false
+	_attack_anim_restart_requested = true  ## 이 스윙의 공격 애니메이션을 프레임0부터 강제 재생
 	_gather_aim_candidates()  ## QoL②③ 스냅·재조준용 후보를 스윙 시작 시 1회 수집
 	var step: WarriorAttackStep = combo_data.steps[step_index]
 	attack_step_started.emit(step_index, step.hitstop_preset)
@@ -789,8 +794,16 @@ func _update_visual() -> void:
 	var suffix := _facing_suffix(direction)
 	_sprite.flip_h = suffix == "side" and direction.x < 0.0
 	var anim_name := "%s_%s" % [_current_action_name(), suffix]
-	if _sprite.sprite_frames.has_animation(anim_name) and _sprite.animation != anim_name:
-		_sprite.play(anim_name)
+	if _sprite.sprite_frames.has_animation(anim_name):
+		if _sprite.animation != anim_name:
+			## 다른 상태로 전환 — 평소처럼 새 애니메이션을 재생한다(불필요한 재시작 방지).
+			_sprite.play(anim_name)
+		elif _attack_anim_restart_requested:
+			## 같은 "attack_*"가 이어지는 콤보/홀드라도 스윙마다 프레임0부터 다시 베도록 강제한다.
+			## 재시작 가드(animation != anim_name)로는 막히므로 프레임을 명시적으로 0으로 되감는다.
+			_sprite.play(anim_name)
+			_sprite.set_frame_and_progress(0, 0.0)
+	_attack_anim_restart_requested = false
 
 
 # --- 디버그 HUD 연동용 상태 조회 ---
