@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="JobGrowthData" format=3]
+
+[ext_resource type="Script" path="res://scripts/progression/job_growth_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+job_id = &"adventurer"
+display_name = "모험가"
+main_stat = 0
+growth_str = 1.5
+growth_agi = 1.5
+growth_int = 1.5
+growth_vit = 1.5
+transition_level = 10

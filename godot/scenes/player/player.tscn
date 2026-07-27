@@ -1,4 +1,4 @@
-[gd_scene load_steps=87 format=3]
+[gd_scene load_steps=90 format=3]
 
 [ext_resource type="Script" path="res://scripts/player/player_controller.gd" id="1"]
 [ext_resource type="Resource" path="res://data/player/player_movement.tres" id="2"]
@@ -28,6 +28,9 @@
 [ext_resource type="Script" path="res://scripts/progression/player_progression.gd" id="26"]
 [ext_resource type="Resource" path="res://data/progression/level_curve.tres" id="27"]
 [ext_resource type="Resource" path="res://data/progression/level_diff_curve.tres" id="28"]
+[ext_resource type="Script" path="res://scripts/progression/player_stat_growth.gd" id="29"]
+[ext_resource type="Resource" path="res://data/progression/stat_growth_formula.tres" id="30"]
+[ext_resource type="Resource" path="res://data/progression/job_growth_warrior.tres" id="31"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_1"]
 radius = 6.0
@@ -372,6 +375,12 @@ recovery_rules = ExtResource("12")
 script = ExtResource("26")
 level_curve = ExtResource("27")
 level_diff_curve = ExtResource("28")
+
+[node name="PlayerStatGrowth" type="Node" parent="."]
+script = ExtResource("29")
+job = ExtResource("31")
+formula = ExtResource("30")
+combat_stats = ExtResource("6")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, -9)

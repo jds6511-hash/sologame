@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="StatGrowthFormula" format=3]
+
+[ext_resource type="Script" path="res://scripts/progression/stat_growth_formula.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+initial_stat = 8.0
+adventurer_growth = 1.5
+hp_base = 50.0
+hp_per_vit = 10.0
+hp_per_level = 5.0
+mp_base = 30.0
+mp_per_int = 5.0
+mp_per_level = 2.0
+attack_per_main_stat = 2.0
+defense_per_vit = 1.0
+weapon_attack_base = 8.0
+weapon_attack_per_level = 1.6
+armor_defense_base = 5.0
+armor_defense_per_level = 1.5

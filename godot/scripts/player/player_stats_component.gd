@@ -102,6 +102,19 @@ func spend_mp(amount: float) -> void:
 	mp_changed.emit(current_mp, stats.max_mp)
 
 
+## 레벨업으로 최대 HP/MP가 늘었을 때 PlayerStatGrowth(M3 B-2)가 호출한다. 늘어난 최대치만큼
+## 현재값을 가산해 "레벨업 = 약간 회복" 체감을 준다(m3-leveling-spec.md 3-2 규약, 전체 회복
+## 아님). stats(공유 CombatantStats)의 max_hp/max_mp는 호출 전에 이미 새 값으로 갱신돼 있어야
+## 한다(PlayerStatGrowth가 재계산 후 이 함수를 부른다).
+func grow_max_stats(hp_increase: float, mp_increase: float) -> void:
+	if hp_increase > 0.0:
+		current_hp += hp_increase
+		hp_changed.emit(current_hp, stats.max_hp)
+	if mp_increase > 0.0:
+		current_mp += mp_increase
+		mp_changed.emit(current_mp, stats.max_mp)
+
+
 ## 결의의 외침(m2-warrior-skills.md 5-3장) 등 방어력 버프 적용.
 func apply_defense_buff(percent: float, duration_sec: float) -> void:
 	_defense_buff_percent = percent
