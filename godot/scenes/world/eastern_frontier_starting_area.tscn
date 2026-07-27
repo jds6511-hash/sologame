@@ -9,7 +9,6 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="7_hud"]
 [ext_resource type="PackedScene" path="res://scenes/ui/integrated_menu.tscn" id="8_menu"]
 [ext_resource type="Script" path="res://scripts/items/inventory_component.gd" id="9_inventory_script"]
-[ext_resource type="Resource" path="res://data/combat/warrior_lv1_combatant_stats.tres" id="10_combatant_stats"]
 [ext_resource type="Script" path="res://scripts/items/drop_system.gd" id="11_drop_system_script"]
 [ext_resource type="Resource" path="res://data/items/drop_rate_config.tres" id="12_drop_rate_config"]
 [ext_resource type="PackedScene" path="res://scenes/items/world_item.tscn" id="13_world_item"]
@@ -40,7 +39,6 @@ script = ExtResource("4_camerashake")
 
 [node name="Inventory" type="Node" parent="Player"]
 script = ExtResource("9_inventory_script")
-combat_stats = ExtResource("10_combatant_stats")
 
 [node name="HitFeedbackBridge" type="Node" parent="."]
 script = ExtResource("5_bridge")

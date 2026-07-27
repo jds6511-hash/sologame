@@ -30,11 +30,15 @@ const NIGHT_COLOR := Color("6d7ab5")
 const DAY_NIGHT_FADE_SEC := 3.0
 
 @onready var _player: PlayerController = $Player
+## Inventory의 combat_stats는 의도적으로 비배선이다(골드만 사용). M3에서는 성장 계층
+## (PlayerStatGrowth)이 전투 스탯의 단독 권위이며, 장착 보너스를 같은 CombatantStats에
+## 얹으면 이중 계산·스테일 base 문제가 생긴다 — docs\design\systems\m3-gear-growth-wiring.md
 @onready var _inventory: InventoryComponent = $Player/Inventory
 @onready var _progression: PlayerProgression = $Player/PlayerProgression
 @onready var _drop_system: DropSystem = $DropSystem
 @onready var _monster_spawner: MonsterSpawner = $MonsterSpawner
 @onready var _hud: Hud = $Hud
+@onready var _integrated_menu: IntegratedMenu = $IntegratedMenu
 @onready var _onboarding_hint_bar: OnboardingHintBar = $OnboardingHintBar
 @onready var _tutorial: TutorialController = $TutorialController
 @onready var _day_night_modulate: CanvasModulate = $DayNightModulate
@@ -42,6 +46,7 @@ const DAY_NIGHT_FADE_SEC := 3.0
 
 func _ready() -> void:
 	_hud.bind_player(_player, _player.get_node("PlayerStats"))
+	_integrated_menu.bind_player(_player)
 	print("[통합] HUD 바인딩 완료")
 	_drop_system.gold_dropped.connect(_inventory.add_gold)
 	_monster_spawner.monster_spawned.connect(_on_monster_spawned)
