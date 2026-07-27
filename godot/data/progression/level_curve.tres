@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="LevelCurveData" format=3]
+
+[ext_resource type="Script" path="res://scripts/progression/level_curve.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+max_level = 100
+req_coefficient = 55.0
+req_exponent = 2.5
+mob_exp_coefficient = 5.0
+mob_exp_exponent = 1.5
+elite_multiplier = 6.0
+boss_multiplier = 40.0
+night_exp_multiplier = 1.2

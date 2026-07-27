@@ -31,6 +31,7 @@ const DAY_NIGHT_FADE_SEC := 3.0
 
 @onready var _player: PlayerController = $Player
 @onready var _inventory: InventoryComponent = $Player/Inventory
+@onready var _progression: PlayerProgression = $Player/PlayerProgression
 @onready var _drop_system: DropSystem = $DropSystem
 @onready var _monster_spawner: MonsterSpawner = $MonsterSpawner
 @onready var _hud: Hud = $Hud
@@ -110,6 +111,8 @@ func _register_monster(monster: Node) -> void:
 	if drop_table == null:
 		return
 	_drop_system.register_monster(monster, drop_table)
+	## 처치 경험치 지급(B-1) — 드랍과 동일하게 몬스터 레벨·등급을 DropTableData에서 재사용한다.
+	_progression.register_monster(monster, drop_table)
 	print("[통합] 몬스터 등록: %s" % monster.name)
 
 
