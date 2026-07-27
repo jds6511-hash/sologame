@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="MonsterStatsData" format=3]
+
+[ext_resource type="Script" path="res://scripts/ai/monster_stats_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+display_name = "포효 임프장"
+max_hp = 5040.0
+attack_power = 114.0
+defense = 8.0
+is_elite = true
+shares_pack_aggro = true
+perception_range_tiles = 5.0
+leash_range_tiles = 8.0
+wander_speed_tiles = 1.5
+combat_move_speed_tiles = 3.4
+melee_range_tiles = 1.5
+melee_telegraph_sec = 0.5
+melee_active_sec = 0.12
+melee_recovery_sec = 0.3
+blink_telegraph_sec = 0.3
+blink_max_range_tiles = 5.0
+blink_trigger_distance_tiles = 3.0
+blink_target_offset_tiles = 2.5
+blink_recovery_sec = 0.3
+blink_cooldown_sec = 6.0
+roar_telegraph_sec = 0.5
+roar_radius_tiles = 6.0
+roar_atk_buff_pct = 0.2
+roar_speed_buff_pct = 0.2
+roar_buff_duration_sec = 6.0
+roar_cooldown_sec = 12.0

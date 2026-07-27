@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="MonsterStatsData" format=3]
+
+[ext_resource type="Script" path="res://scripts/ai/monster_stats_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+display_name = "무법자"
+max_hp = 740.0
+attack_power = 65.0
+defense = 7.0
+shares_pack_aggro = true
+perception_range_tiles = 6.0
+leash_range_tiles = 10.0
+wander_speed_tiles = 1.8
+combat_move_speed_tiles = 4.0
+melee_range_tiles = 1.5
+charge_telegraph_sec = 0.6
+charge_speed_tiles = 8.0
+charge_distance_tiles = 6.0
+charge_min_distance_tiles = 2.0
+charge_recovery_sec = 0.5
+charge_wall_stun_sec = 0.8
+charge_damage_mult = 1.2
+charge_cooldown_sec = 4.0
+guard_enter_sec = 0.2
+guard_duration_sec = 1.5
+guard_frontal_arc_deg = 120.0
+guard_damage_reduction_pct = 0.6
+guard_break_stun_sec = 1.0
+guard_recovery_sec = 0.4
+guard_cooldown_sec = 6.0

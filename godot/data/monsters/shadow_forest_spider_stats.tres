@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="MonsterStatsData" format=3]
+
+[ext_resource type="Script" path="res://scripts/ai/monster_stats_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+display_name = "그림자 숲거미"
+max_hp = 540.0
+attack_power = 45.0
+defense = 5.0
+shares_pack_aggro = false
+perception_range_tiles = 6.0
+leash_range_tiles = 8.0
+wander_speed_tiles = 1.8
+combat_move_speed_tiles = 3.6
+leap_telegraph_sec = 0.5
+leap_travel_sec = 0.35
+leap_max_range_tiles = 4.0
+leap_min_range_tiles = 1.0
+leap_land_radius_tiles = 1.0
+leap_active_sec = 0.15
+leap_recovery_sec = 0.4
+leap_damage_mult = 1.0
+leap_cooldown_sec = 3.5
+web_telegraph_sec = 0.6
+web_range_tiles = 4.0
+web_speed_tiles = 4.0
+web_slow_pct = 0.4
+web_slow_duration_sec = 3.0
+web_damage_mult = 0.0
+web_cooldown_sec = 5.0

@@ -30,12 +30,24 @@
 ## effective_attack_power()가 그 값을 곱해 파생시킨다. GameClock.night_started/
 ## day_started를 구독해 전환 시 배율을 갱신하고, 그 시점의 hp는 "체력 비율 유지"로
 ## 재계산한다(예: 밤에 50% 남았다면 낮이 되어 최대 HP가 줄어도 50% 그대로).
+##
+## M3(C-8) 공용 추가 — 기본값이 M2 동작과 완전히 동일해 3종(뿔토끼·들개 마수·균열 점액)의
+## 거동은 바뀌지 않는다(회귀 테스트로 확인):
+##   - current_attack_multiplier: 실행 중인 행동 블록의 데미지 계수(도약 ×1.0·돌진 ×1.2 등,
+##     m3-monster-spec 3장). MonsterAttackResolver(scripts/combat, 수정 금지 영역)가 스킬
+##     계수 1.0으로 고정해 계산하므로, 블록별 계수는 effective_attack_power()에 곱해 넘긴다.
+##   - _filter_incoming_damage()/_ignores_stagger(): 무법자 가드(정면 −60%·넉백 무효)와
+##     정예 슈퍼아머(stats.is_elite, combat.md 5-2 정예 행)를 위한 훅. 기본 구현은 감쇄 없음.
+##   - _play_animation_or(): 신규 상태 프레임(웅크림·돌진·가드·순간이동 등)이 아직 없는
+##     C-9 이전 단계에서도 기존 4종 애니메이션으로 자동 폴백한다.
 class_name MonsterBase
 extends CharacterBody2D
 
 signal took_damage(amount: float, remaining_hp: float)
 signal died
 signal attack_landed(target: Node)  ## 근접 스윙 명중 — CB-3 연동 지점
+
+const HOME_ARRIVAL_TOLERANCE_PX := 4.0  ## 귀환 도착 판정 허용 오차
 
 @export var stats: MonsterStatsData
 
@@ -48,6 +60,10 @@ var hp: float = 0.0
 var home_position: Vector2 = Vector2.ZERO
 var last_hit_grade: String = "약"
 var last_attacker: Node2D = null
+
+## 현재 실행 중인 공격 행동 블록의 데미지 계수(헤더 "M3 공용 추가" 참고). 블록이 판정
+## 구간에 들어갈 때 하위 클래스가 설정하고, 판정이 끝나면 1.0으로 되돌린다.
+var current_attack_multiplier: float = 1.0
 
 var _swing: MeleeSwingBlock = null
 var _facing_left: bool = false
@@ -77,7 +93,7 @@ func effective_max_hp() -> float:
 
 
 func effective_attack_power() -> float:
-	return stats.attack_power * _night_multiplier
+	return stats.attack_power * _night_multiplier * current_attack_multiplier
 
 
 func _on_night_started(_day_number: int) -> void:
@@ -108,12 +124,27 @@ func take_damage(amount: float, hit_grade: String = "약", attacker: Node2D = nu
 	last_hit_grade = hit_grade
 	if attacker:
 		last_attacker = attacker
-	hp = max(hp - amount, 0.0)
-	took_damage.emit(amount, hp)
+	var final_amount := _filter_incoming_damage(amount, hit_grade, attacker)
+	hp = max(hp - final_amount, 0.0)
+	took_damage.emit(final_amount, hp)
 	if hp <= 0.0:
 		_die()
 		return
+	if _ignores_stagger(hit_grade, attacker):
+		return
 	_register_stagger_hit(hit_grade, attacker)
+
+
+## 피격 데미지 감쇄 훅 — 기본은 감쇄 없음. 무법자 가드(정면 ±60° −60%, m3-monster-spec
+## 3-4장)처럼 방어 블록이 있는 종이 재정의한다.
+func _filter_incoming_damage(amount: float, _hit_grade: String, _attacker: Node2D) -> float:
+	return amount
+
+
+## 경직·넉백 무시 훅 — 정예는 평시 슈퍼아머(combat.md 5-2 정예 행)라 경직이 발생하지
+## 않는다. 그로기 게이지는 정예 공용 프레임 소관이라 C-8 범위 밖(m3-monster-spec 7-5장).
+func _ignores_stagger(_hit_grade: String, _attacker: Node2D) -> bool:
+	return stats.is_elite
 
 
 func is_dead() -> bool:
@@ -217,6 +248,19 @@ func move_toward_point(point: Vector2, speed_tiles: float) -> Vector2:
 	return to_point.normalized() * stats.tiles_to_px(speed_tiles)
 
 
+## 귀환(leash) 공용 처리 — 스폰 지점으로 이동하고, 도착하면 HP를 완전 회복한 뒤 true를
+## 반환한다(combat.md 2-2, M2 들개 마수 _process_return과 동일 규칙). M3 신규 3종이 공유한다.
+func _return_to_home() -> bool:
+	if home_position.distance_to(global_position) <= HOME_ARRIVAL_TOLERANCE_PX:
+		global_position = home_position
+		hp = effective_max_hp()
+		velocity = Vector2.ZERO
+		return true
+	velocity = move_toward_point(home_position, stats.combat_move_speed_tiles)
+	_play_animation("walk", velocity)
+	return false
+
+
 func move_away_from_point(point: Vector2, speed_tiles: float) -> Vector2:
 	var away := global_position - point
 	if away.is_zero_approx() or not away.is_finite():
@@ -235,11 +279,20 @@ func _init_melee_swing() -> void:
 	_swing.telegraph_started.connect(_on_swing_telegraph_started)
 	_swing.became_active.connect(_enable_attack_hitbox)
 	_swing.ended.connect(_disable_attack_hitbox)
+	_setup_attack_hitbox(stats.melee_range_tiles)
+
+
+## AttackHitbox의 판정 반경을 지정하고 body_entered를 연결한다. 근접 스윙(사거리)뿐 아니라
+## M3 신규 블록(숲거미 도약 착지 반경·무법자 돌진 경로)도 같은 히트박스를 반경만 바꿔 쓴다.
+func _setup_attack_hitbox(radius_tiles: float) -> void:
 	if _attack_hitbox_shape:
 		var circle := CircleShape2D.new()
-		circle.radius = stats.tiles_to_px(stats.melee_range_tiles)
+		circle.radius = stats.tiles_to_px(radius_tiles)
 		_attack_hitbox_shape.shape = circle
-	if _attack_hitbox:
+	if (
+		_attack_hitbox
+		and not _attack_hitbox.body_entered.is_connected(_on_attack_hitbox_body_entered)
+	):
 		_attack_hitbox.body_entered.connect(_on_attack_hitbox_body_entered)
 
 
@@ -290,3 +343,14 @@ func _play_animation(anim_name: String, direction: Vector2 = Vector2.ZERO) -> vo
 	_sprite.flip_h = _facing_left
 	if _sprite.animation != anim_name or not _sprite.is_playing():
 		_sprite.play(anim_name)
+
+
+## preferred 애니메이션(예: 도약 예고 "crouch")이 스프라이트 시트에 없으면 fallback으로
+## 재생한다 — 신규 상태 프레임이 C-9에서 추가되면 코드 수정 없이 자동으로 승격된다.
+func _play_animation_or(
+	preferred: String, fallback: String, direction: Vector2 = Vector2.ZERO
+) -> void:
+	if _sprite and _sprite.sprite_frames and _sprite.sprite_frames.has_animation(preferred):
+		_play_animation(preferred, direction)
+		return
+	_play_animation(fallback, direction)
