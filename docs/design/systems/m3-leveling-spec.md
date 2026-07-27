@@ -10,6 +10,7 @@
   - 구현체: `godot\scripts\combat\combatant_stats.gd`, `godot\scripts\player\player_stats_component.gd`, `godot\scripts\combat\damage_calculator.gd`, `godot\scripts\player\warrior_skill_data.gd`, `godot\data\combat\warrior_lv1_combatant_stats.tres`
 - **변경 이력**:
   - 2026-07-27: 최초 작성 — growth.md 2·5·6장을 systems-dev가 바로 구현할 데이터/공식 시트로 확정. 경험치 곡선 1~20 + 밴드 검산표(REQ·누적·몹EXP·환산처치·1차 총합·전사 파생 검산 — growth.md 5-2·2-2와 일치 확인), 레벨업 트리거 규칙, 레벨 차 보정 데이터, 스킬 포인트 경제, .tres 스키마 제안. 표시 반올림 규칙·전직 임계 교차 처리 등 4건을 확인 플래그로 명시.
+  - 2026-07-27: 5-2장에 성장↔장비 배선 확정 참조 추가 — B-2 이중 계산 충돌 해소를 `m3-gear-growth-wiring.md`로 분리 확정(검산표=동렙 B급 착용 판정, M3 배선·Post-M3 이관).
 
 > **전제**: 최대 레벨 100, 전직 Lv10/40/80(`growth.md` 10장 확정). **M3 범위는 Lv1~약 20 구간의 실측 판정**(1차 전직 Lv10 통과 포함)이므로 본 시트는 1~20을 상세화하고 40/80/100 밴드는 검산용으로 병기한다. M3는 **속성 상성 없음 — 단일 데미지 축**(`M3_PLAN.md` 1-4).
 >
@@ -203,6 +204,7 @@ stat_x(level, job) = 8.0
 | 치명타% | `min(5 + 민첩×0.05, 40)` | 전부 progression | (장신구 옵션 가산 가능) |
 
 - **책임 분리**: progression은 "스탯 기여분"만 계산해 `CombatantStats`에 넣고, 무기/방어구 기여는 장비 시스템(IT, M3 범위 밖이나 기존 `.tres` 장비 존재)이 더한다. 공격력/방어력 최종값 = progression 기여 + 장비 기여.
+  - **[배선 확정, 2026-07-27]** 이 책임 분리의 M3 실제 배선(gear_* 처리·InventoryComponent 배선 여부·Post-M3 이관)은 B-2 이중 계산 충돌 해소로 **`m3-gear-growth-wiring.md`에서 확정**됐다. 요지: M3에선 성장 계층이 B급 기준선을 계속 공급하고 InventoryComponent를 공유 CombatantStats에서 분리(gear_* 유지), 완전 분리(gear_*→0 + 인벤토리 장비 공급)는 Post-M3. 검산표(2-3·growth.md 2-2)는 "동렙 B급 장비 착용" 상태임이 확정(순수 성장 아님).
 - 2-3장 검산표는 "동렙 B급 장비 장착" 상태의 합산 결과다. **B-2 GUT는 스탯 기여분**(주스탯×2, 체력×1, HP/MP/치명타 전체)을 검증하고, 장비까지 합친 최종값은 특정 테스트 장비(`warrior_lv1_combatant_stats.tres` 등)로 확인.
 - 주스탯 결정: `job.main_stat`(전사=힘, 궁수=민첩). growth.md 1-1 "공격 기여 스탯은 무기 계열이 결정 = 직업이 결정".
 - 치명타 상한 40%·치명 배율 150%는 `combat.md` 6장, 기존 `DamageCalculator`/`DamageFormulaData`가 이미 보유 — 재구현 불필요, 민첩 값만 갱신되면 됨.
