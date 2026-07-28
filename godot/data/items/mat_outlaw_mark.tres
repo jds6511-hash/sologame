@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/items/item_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+item_id = "MAT-OUTLAW-MARK"
+item_name = "무법자 인식표"
+item_type = 5
+grade = 0
+level_limit = 1
+equip_slot = 0
+price = 210
+acquisition = "무법자(Lv14) 드랍 30% (m3-monster-spec.md 5-2장) — 판매가 210골드 확정 = 2 x g(14) (economy-foundation.md 2-9장). 판매 전용"

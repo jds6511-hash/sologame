@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/items/item_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+item_id = "MAT-POACHER-PELT"
+item_name = "밀렵꾼 가죽 꾸러미"
+item_type = 5
+grade = 0
+level_limit = 1
+equip_slot = 0
+price = 864
+acquisition = "밀렵꾼(무법자 서부 아종, Lv36) 드랍 30% (m3-monster-spec.md 7-3장) — 판매가 864골드 확정 = 2 x g(36) (economy-foundation.md 2-9장). 판매 전용"

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/items/item_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+item_id = "MAT-SPIDER-SILK"
+item_name = "거미줄 실"
+item_type = 5
+grade = 0
+level_limit = 1
+equip_slot = 0
+price = 126
+acquisition = "숲거미(Lv10)·그림자 숲거미 드랍 30%(야간 34.5%) (m3-monster-spec.md 5-1·7-1장) — 판매가 126골드 확정 = 2 x g(10) (economy-foundation.md 2-9장). 판매 전용"

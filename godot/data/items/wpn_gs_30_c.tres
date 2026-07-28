@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/items/item_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+item_id = "WPN-GS-30-C"
+item_name = "투박한 무쇠 대검"
+item_type = 0
+grade = 0
+level_limit = 30
+equip_slot = 1
+main_stat_type = 1
+main_stat_value = 48.0
+price = 19740
+acquisition = "상점 19,740골드(60마리분 x g(30)) · 일반몹 드랍 4% (밀렵꾼 등 Lv30 티어)"

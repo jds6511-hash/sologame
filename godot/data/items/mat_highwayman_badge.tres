@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/items/item_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+item_id = "MAT-HIGHWAYMAN-BADGE"
+item_name = "노상강도 완장"
+item_type = 5
+grade = 0
+level_limit = 1
+equip_slot = 0
+price = 358
+acquisition = "노상강도(무법자 가도 아종, Lv20) 드랍 30% (m3-monster-spec.md 7-2장) — 판매가 358골드 확정 = 2 x g(20) (economy-foundation.md 2-9장). 판매 전용"
