@@ -24,11 +24,12 @@ func test_attack_hit_applies_damage_to_target_with_get_combat_defense() -> void:
 	target.defense = 0.5  ## m2-monster-spec.md 3-1장 뿔토끼 방어력
 	add_child_autofree(target)
 
-	_resolver._on_attack_hit(_player.combo_data.steps[0], target)  ## 1타, 계수 1.0
+	var step: WarriorAttackStep = _player.combo_data.steps[0]
+	_resolver._on_attack_hit(step, target)  ## 1타 — 계수는 배선된 콤보(모험가 소검 0.65)에서 읽는다
 
 	assert_eq(target.take_damage_call_count, 1)
 	assert_eq(target.last_attacker, _player)
-	var base_reduced := 26.0 * (100.0 / 100.5)
+	var base_reduced := 26.0 * step.damage_coefficient * (100.0 / 100.5)
 	if target.last_hit_grade == "강":
 		assert_between(target.last_damage, base_reduced * 1.5 * 0.95, base_reduced * 1.5 * 1.05)
 	else:
@@ -43,10 +44,11 @@ func test_attack_hit_reads_defense_from_stats_property_when_no_getter() -> void:
 	target.stats = stats
 	add_child_autofree(target)
 
-	_resolver._on_attack_hit(_player.combo_data.steps[0], target)
+	var step: WarriorAttackStep = _player.combo_data.steps[0]
+	_resolver._on_attack_hit(step, target)
 
 	assert_eq(target.take_damage_call_count, 1)
-	var base_reduced := 26.0 * (100.0 / 102.0)
+	var base_reduced := 26.0 * step.damage_coefficient * (100.0 / 102.0)
 	if target.last_hit_grade == "강":
 		assert_between(target.last_damage, base_reduced * 1.5 * 0.95, base_reduced * 1.5 * 1.05)
 	else:

@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/player/player_controller.gd" id="1"]
 [ext_resource type="Resource" path="res://data/player/player_movement.tres" id="2"]
-[ext_resource type="Resource" path="res://data/player/warrior_basic_combo.tres" id="3"]
+[ext_resource type="Resource" path="res://data/player/adventurer_basic_combo.tres" id="3"]
 [ext_resource type="Resource" path="res://data/combat/player_hit_rules.tres" id="4"]
 [ext_resource type="Script" path="res://scripts/combat/player_attack_resolver.gd" id="5"]
 [ext_resource type="Resource" path="res://data/combat/warrior_lv1_combatant_stats.tres" id="6"]

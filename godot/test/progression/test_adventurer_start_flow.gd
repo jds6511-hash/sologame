@@ -156,6 +156,24 @@ func test_transition_recomputes_stats_with_warrior_distribution() -> void:
 	assert_almost_eq(_stats.max_mp, 166.5, TOL, "전사 Lv12 최대 MP")
 
 
+## jobs.md 6장 "전직 시 직업 전용 무기 지급" — 두 직업 모두 Lv10 C급(공격력 20)이 배선돼
+## 있어야 한다(economy-foundation.md 3-1장의 "1차 전직 지급" 표기 아이템). 직업 선택 화면이
+## 이 값을 카드에 표시하므로 null이면 "없음 (준비 중)"으로 노출된다.
+func test_granted_weapon_is_wired_for_each_job() -> void:
+	for job_def in [WARRIOR_DEF, ARCHER_DEF]:
+		var weapon: ItemData = job_def.granted_weapon
+		assert_not_null(weapon, "%s 지급 무기 배선" % job_def.display_name)
+		assert_eq(weapon.level_limit, 10, "%s 지급 무기 = Lv10 제한" % job_def.display_name)
+		assert_eq(weapon.grade, 0, "%s 지급 무기 = C급" % job_def.display_name)
+		assert_almost_eq(weapon.main_stat_value, 20.0, TOL, "%s 지급 무기 공격력" % job_def.display_name)
+
+
+func test_granted_weapon_returned_after_transition() -> void:
+	_prog.add_exp(_exp_to_reach(10))
+	assert_true(_trans.perform_transition(&"archer"))
+	assert_eq(_trans.granted_weapon(), ARCHER_DEF.granted_weapon, "전직 후 지급 무기 조회")
+
+
 func test_transition_emits_job_changed() -> void:
 	_prog.add_exp(_exp_to_reach(10))
 	watch_signals(_trans)

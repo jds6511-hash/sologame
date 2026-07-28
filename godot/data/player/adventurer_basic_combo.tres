@@ -1,0 +1,56 @@
+; 모험가 기본 공격(소검) 3타 콤보 — m3-adventurer-basic-combo.md 2·7장.
+;
+; 게임 시작 = 모험가(Lv1~9)의 기본 무기다. 전사 대검(2타·1.0/1.5·리치 1.8~2.0타일)과 달리
+; "가볍고 빠른 3연격, 그러나 리치가 없다": 계수 0.65/0.65/1.00, 리치 1.5/1.5/1.7타일,
+; 판정각 70/70/100°. 1·2타 70°는 자동 조준 스냅 각(±35°)과 일치시켜 "스냅이 걸린 대상은
+; 반드시 판정에 들어온다"를 보장한다(2장). 리치 1.5타일 = 잡몹 근접 스윙 사거리와 동률이라
+; 모험가는 적의 사거리 안에서 싸운다.
+;
+; 사이클 총계수 2.30 / 총 시간 1.12초 → 계수/초 2.054로 대검(2.083)과 의도적 동률이다
+; (1장) — 전직 시 기본 공격 화력의 계단을 만들지 않는다.
+;
+; combo_window_sec 0.35은 최대 후딜(3타 0.25초)보다 커야 후딜 구간 입력이 유실되지 않는다
+; (7-4장 #1) — 0.25 미만으로 내리지 말 것.
+; dodge_backward = false → 표준 입력 방향 대시(후방 점프는 궁수 활 전용).
+;
+; WarriorAttackStep 기본값은 대검 1타용이므로 전 필드를 명시 지정한다(7-2장).
+[gd_resource type="Resource" script_class="WarriorComboData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/player/warrior_combo_data.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/player/warrior_attack_step.gd" id="2"]
+
+[sub_resource type="Resource" id="Resource_sword_1"]
+script = ExtResource("2")
+damage_coefficient = 0.65
+hitbox_range_tiles = 1.5
+hitbox_angle_deg = 70.0
+startup_sec = 0.09
+active_sec = 0.07
+recovery_sec = 0.16
+hitstop_preset = "약"
+
+[sub_resource type="Resource" id="Resource_sword_2"]
+script = ExtResource("2")
+damage_coefficient = 0.65
+hitbox_range_tiles = 1.5
+hitbox_angle_deg = 70.0
+startup_sec = 0.09
+active_sec = 0.07
+recovery_sec = 0.16
+hitstop_preset = "약"
+
+[sub_resource type="Resource" id="Resource_sword_3"]
+script = ExtResource("2")
+damage_coefficient = 1.0
+hitbox_range_tiles = 1.7
+hitbox_angle_deg = 100.0
+startup_sec = 0.13
+active_sec = 0.1
+recovery_sec = 0.25
+hitstop_preset = "중"
+
+[resource]
+script = ExtResource("1")
+steps = Array[ExtResource("2")]([SubResource("Resource_sword_1"), SubResource("Resource_sword_2"), SubResource("Resource_sword_3")])
+combo_window_sec = 0.35
+dodge_backward = false
