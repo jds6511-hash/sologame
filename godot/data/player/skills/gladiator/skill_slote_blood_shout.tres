@@ -1,0 +1,27 @@
+; 혈투의 함성 (슬롯 E, 버프·자가 유지) — m3-warrior-tier2-skills.md 4-3장. 결의의 외침 승계.
+;
+; 방어형(슈퍼아머 3초 + 방어 +20%) -> 공세형으로 성격이 바뀐다: 8초간 흡혈 12%(1회 발동당
+; 총 회복 상한 = 최대 HP 30% 하드 캡) + 분노 충전량 +50% + 슈퍼아머 2초.
+; combat.md 5-4 "검투사 자가 유지기 최소 1개" 요건을 이 스킬이 단독 승계한다.
+;
+; 흡혈·분노 가속은 GladiatorSkillData의 검투사 버프 필드이며 PlayerRageModule이 소비한다.
+; lifesteal_total_cap_percent는 combat.md 7장 힐 총량 규격의 하드 캡이라 스킬 강화 배율을
+; 곱하지 않는다(흡혈률·지속·분노 가속만 강화된다).
+[gd_resource type="Resource" script_class="GladiatorSkillData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/player/gladiator_skill_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+skill_name = "혈투의 함성"
+skill_type = 3
+cooldown_sec = 22.0
+mp_cost_percent = 0.20
+startup_sec = 0.4
+active_sec = 0.0
+recovery_sec = 0.3
+grants_superarmor_sec = 2.0
+lifesteal_percent = 0.12
+lifesteal_total_cap_percent = 0.3
+rage_gain_buff_percent = 0.5
+buff_duration_sec = 8.0

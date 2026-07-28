@@ -72,6 +72,11 @@ var is_hit_invincible: bool = false  ## CB-4: 피격 후 무적 중
 
 var active_skill: WarriorSkillData = null
 
+## 검투사 분노 게이지(충전·격노·감쇠·처형 일격 소모) 담당 모듈 — 검투사 로드아웃이 적용된
+## 동안에만 활성이다(scripts/player/player_rage_module.gd). HUD가 게이지 시그널을 구독하므로
+## 공개 상태로 둔다.
+var rage := PlayerRageModule.new()
+
 var _move_input := Vector2.ZERO
 var _last_move_direction := Vector2.DOWN  ## 대시 기본 방향(이동 입력 없을 시 마지막 방향 유지)
 var _attack_step_index: int = -1
@@ -107,6 +112,8 @@ var _cooldown_secondary: float = 0.0
 ## 궁수 원거리 사격(조준 스탠스·화살 발사·매의 눈 가산) 담당 모듈 — 원거리 전용 상태를
 ## 이 컨트롤러에서 분리했다(scripts/player/archer_shot_module.gd).
 var _shots := ArcherShotModule.new()
+## 애니메이션 이름 결정·재생 담당 모듈(scripts/player/player_visual_module.gd).
+var _visual := PlayerVisualModule.new()
 
 ## 이동 둔화 디버프(숲거미 거미줄 등) — 남은 지속시간과 감소 비율.
 var _move_slow_percent: float = 0.0
@@ -136,6 +143,7 @@ func _ready() -> void:
 	_shots.setup(self, movement_data.tile_size_px)
 	_shots.arrow_hit_landed.connect(_on_arrow_hit_landed)
 	_shots.refresh_stance(skill_charge)
+	_visual.setup(self, _sprite)
 
 
 func _physics_process(delta: float) -> void:
@@ -155,6 +163,7 @@ func _physics_process(delta: float) -> void:
 	_update_move_slow(delta)
 	_shots.update_stance()
 	_shots.advance(delta)
+	rage.advance(delta)
 
 	if is_hit_stunned:
 		velocity = _knockback_velocity
@@ -537,6 +546,8 @@ func _apply_self_buff(skill: WarriorSkillData) -> void:
 	_shots.apply_buff(skill as ArcherSkillData, mult)
 	if _stats == null:
 		return
+	## 검투사 버프(혈투의 함성 — 흡혈·분노 가속)는 흡혈 총량 상한 계산에 최대 HP가 필요하다.
+	rage.apply_buff(skill as GladiatorSkillData, mult, _stats.stats.max_hp)
 	if skill.self_heal_percent > 0.0:
 		_stats.heal(_stats.stats.max_hp * skill.self_heal_percent * mult)
 	if skill.grants_superarmor_sec > 0.0:
@@ -626,6 +637,8 @@ func apply_transition_loadout(slots: Dictionary, combo: WarriorComboData = null)
 	if combo != null:
 		combo_data = combo
 	_shots.refresh_stance(skill_charge)
+	## 우클릭 격노 파생 슬롯(검투사 처형 일격) — 있으면 분노 게이지가 켜진다(2차 전직).
+	rage.refresh_job(slots.get("rage_finisher") as WarriorSkillData)
 	_reset_action_state()
 
 
@@ -650,6 +663,11 @@ func _process_secondary_charge_start_input() -> void:
 	if _shots.aim_stance != null:
 		return  ## 우클릭이 궁수 조준 스탠스 — 차지가 아니라 ArcherShotModule이 처리한다
 	if not Input.is_action_just_pressed("skill_secondary"):
+		return
+	## 분노 ≥ 50이면 우클릭이 차지 강타 대신 처형 일격으로 대체된다(2-3·4-4장 조건부 파생 —
+	## 신규 키를 만들지 않는다). 게이지가 하한 미달이거나 검투사가 아니면 기존 차지 경로.
+	if rage.can_use_finisher():
+		_use_rage_finisher()
 		return
 	if skill_charge == null or _cooldown_secondary > 0.0:
 		return
@@ -709,6 +727,37 @@ func _release_charge() -> void:
 		skill_charge.charge_min_recovery_sec, skill_charge.charge_max_recovery_sec, ratio
 	)
 	_begin_skill_active(skill_charge)
+
+
+# --- 분노 게이지 연결 (M3 C-1 — 상세는 player_rage_module.gd) ---
+
+
+## 처형 일격 발동 — 보유 분노를 전량 소모하고, 소모량에 선형 비례하는 계수(3.5~5.0)를
+## 리소스에 써넣은 뒤 일반 스킬 경로로 시전한다(차지 강타가 홀드 비율로 계수를 덮어쓰는
+## 것과 동일 방식 — 항상 발동 직전에 다시 계산되므로 이전 값이 남지 않는다).
+## MP·쿨다운은 없다(분노 게이지가 곧 재사용 제한 — 4-4장).
+func _use_rage_finisher() -> bool:
+	var finisher := rage.finisher
+	var consumed := rage.consume_for_finisher()
+	if consumed <= 0.0:
+		return false
+	finisher.damage_coefficient = rage.finisher_coefficient(consumed)
+	_start_skill(finisher)
+	return true
+
+
+## PlayerAttackResolver가 전 데미지에 곱하는 배율 — 격노 중 공격력 +12%(2-3장).
+func get_attack_power_multiplier() -> float:
+	return rage.attack_multiplier()
+
+
+## 공격 판정이 성립해 데미지가 적용된 뒤 PlayerAttackResolver가 호출한다 — 분노 충전과
+## 혈투의 함성 흡혈을 처리한다. 분노 게이지가 없는 직업에서는 모듈이 전부 무시한다.
+func on_attack_landed(action: Resource, damage: float, is_critical: bool) -> void:
+	rage.add_from_attack(action, is_critical)
+	var healed := rage.lifesteal_heal(damage)
+	if healed > 0.0 and _stats:
+		_stats.heal(healed)
 
 
 # --- 포션 (CB-5, combat.md 5-4장) ---
@@ -775,6 +824,7 @@ func take_hit(is_heavy: bool, knockback_direction: Vector2 = Vector2.ZERO) -> vo
 ## 몬스터 등 공격자가 실제 HP 피해를 적용할 때 호출하는 공개 API(MonsterAttackResolver
 ## 연동 지점) — HP 차감·사망(임시 리스폰) 자체는 PlayerStats 컴포넌트가 담당한다.
 func take_damage(amount: float, hit_grade: String = "약", attacker: Node2D = null) -> void:
+	rage.add_from_hit_taken()  ## 피격 +12 — 분노의 최대 단일 충전원(2-2장)
 	if _stats:
 		_stats.take_damage(amount, hit_grade, attacker)
 
@@ -903,70 +953,17 @@ func _update_dash_recharge(delta: float) -> void:
 			dash_charges = mini(dash_charges + 1, movement_data.dash_charge_max)
 
 
-# --- 비주얼(애니메이션) 갱신 — pixel-artist AR-1 신규 스프라이트(16x32, 3방향) 배선 ---
-# 시트는 idle/walk/attack/hit/death 각각 정면(front)/측면(side)/후면(back) 3방향으로
-# 구성되어 있다(STYLE_GUIDE.md 3-3장). 좌우는 별도 프레임 없이 측면 애니메이션의
-# flip_h로 근사한다(문서 "좌우는 미러 허용" 원칙).
-
-
-## 현재 재생해야 할 상태(동작) 이름 — 애니메이션 이름의 앞부분(예: "walk")이 된다.
-func _current_action_name() -> String:
-	if is_dead():
-		return "death"
-	if is_hit_stunned:
-		return "hit"
-	if (
-		attack_state != AttackState.NONE
-		or skill_state != AttackState.NONE
-		or _is_charging_secondary
-	):
-		return "attack"
-	if _move_input.length_squared() > 0.0:
-		return "walk"
-	return "idle"
-
-
-## 애니메이션 방향 판정에 쓸 기준 벡터. 공격/스킬 중에는 Facing 노드의 조준 각도를 그대로
-## 쓴다(기본 공격은 STARTUP 동안 마우스/자동 조준으로 갱신되다가 ACTIVE 진입 시 고정된다,
-## QoL③ _apply_attack_aim 참고). 그 외에는 이동 입력(없으면 마지막 이동 방향)을 쓴다.
-func _current_facing_vector() -> Vector2:
-	if (
-		attack_state != AttackState.NONE
-		or skill_state != AttackState.NONE
-		or _is_charging_secondary
-	):
-		return Vector2.RIGHT.rotated(_facing.rotation)
-	if _move_input.length_squared() > 0.0:
-		return _move_input
-	return _last_move_direction
-
-
-## 방향 벡터를 3방향 시트 행 이름으로 근사한다 — 상하 성분이 더 크면 정면/후면,
-## 아니면 측면(좌우는 flip_h로 구분).
-func _facing_suffix(direction: Vector2) -> String:
-	if direction == Vector2.ZERO:
-		return "front"
-	if absf(direction.y) >= absf(direction.x):
-		return "back" if direction.y < 0.0 else "front"
-	return "side"
+# --- 비주얼(애니메이션) 갱신 — 상세는 player_visual_module.gd ---
 
 
 func _update_visual() -> void:
-	if not _sprite or not _sprite.sprite_frames:
-		return
-	var direction := _current_facing_vector()
-	var suffix := _facing_suffix(direction)
-	_sprite.flip_h = suffix == "side" and direction.x < 0.0
-	var anim_name := "%s_%s" % [_current_action_name(), suffix]
-	if _sprite.sprite_frames.has_animation(anim_name):
-		if _sprite.animation != anim_name:
-			## 다른 상태로 전환 — 평소처럼 새 애니메이션을 재생한다(불필요한 재시작 방지).
-			_sprite.play(anim_name)
-		elif _attack_anim_restart_requested:
-			## 같은 "attack_*"가 이어지는 콤보/홀드라도 스윙마다 프레임0부터 다시 베도록 강제한다.
-			## 재시작 가드(animation != anim_name)로는 막히므로 프레임을 명시적으로 0으로 되감는다.
-			_sprite.play(anim_name)
-			_sprite.set_frame_and_progress(0, 0.0)
+	_visual.update(
+		_attack_anim_restart_requested,
+		_is_charging_secondary,
+		_move_input,
+		_last_move_direction,
+		_facing.rotation
+	)
 	_attack_anim_restart_requested = false
 
 
@@ -994,4 +991,7 @@ func get_debug_state_text() -> String:
 		text = "회피 대시%s" % (" (무적)" if is_dash_invincible else "")
 	if is_hit_stunned:
 		text = "피격 경직%s" % (" (무적)" if is_hit_invincible else "")
+	if rage.is_active():
+		var enrage := " 격노!" if rage.is_enraged() else ""
+		text += " | 분노 %d/%d%s" % [int(rage.current_rage), int(rage.max_rage()), enrage]
 	return text

@@ -1,0 +1,49 @@
+; 검투사 — 전사 2차 전직(Lv40) 직업 정의. m3-warrior-tier2-skills.md 1-1장 승계형 교체.
+;
+; 승계형 교체(신규 키 0): 모험가 공용 3종(강타·질주·응급 처치)은 그대로 두고, 1차 전사
+; 스킬 3종(분쇄 베기·돌격·결의의 외침)을 검투사 승계판이 같은 슬롯에서 대체한다. 궁극기
+; (대지 분쇄)와 우클릭(차지 강타)은 유지하고, 우클릭만 분노 ≥ 50에서 처형 일격으로
+; 조건부 파생한다(skill_rage_finisher) — 2차 전직으로 늘어나는 키는 0개다.
+;
+; required_job_id = 전사 → 전사일 때만 전직할 수 있다(궁수는 후보에 들지 않는다).
+; transition_level_override = 40 → jobs.md 1장 2차 전직 임계. growth의 transition_level
+; (모험가 균등 배분이 끝나는 레벨 = 10)과는 의미가 달라 별도 필드를 쓴다.
+;
+; growth = 전사 배분 그대로다. jobs.md는 2차 전직의 스탯 배분 변화를 규정하지 않았으므로
+; 임의 수치를 만들지 않고 1차 배분을 승계한다(결과 보고의 기획 확인 항목).
+; granted_weapon = null: jobs.md 6장은 2차 전직 지급 무기를 "B급"으로 규정하지만 Lv40 대검
+; 아이템이 경제 데이터에 아직 없다(현재 최고 WPN-GS-30-B) — 경제 담당 확정 후 배선한다.
+; basic_combo = 대검 유지(2차 전직으로 무기 계열이 바뀌지 않는다).
+[gd_resource type="Resource" script_class="JobDefinition" load_steps=13 format=3]
+
+[ext_resource type="Script" path="res://scripts/progression/job_definition.gd" id="1"]
+[ext_resource type="Resource" path="res://data/progression/job_growth_warrior.tres" id="2"]
+[ext_resource type="Resource" path="res://data/player/warrior_basic_combo.tres" id="3"]
+[ext_resource type="Resource" path="res://data/player/skills/skill_slot1_strike.tres" id="4"]
+[ext_resource type="Resource" path="res://data/player/skills/skill_slot2_sprint.tres" id="5"]
+[ext_resource type="Resource" path="res://data/player/skills/skill_slot3_first_aid.tres" id="6"]
+[ext_resource type="Resource" path="res://data/player/skills/gladiator/skill_slot4_whirlwind.tres" id="7"]
+[ext_resource type="Resource" path="res://data/player/skills/gladiator/skill_slotq_charge_slam.tres" id="8"]
+[ext_resource type="Resource" path="res://data/player/skills/gladiator/skill_slote_blood_shout.tres" id="9"]
+[ext_resource type="Resource" path="res://data/player/skills/skill_ultimate_earth_smash.tres" id="10"]
+[ext_resource type="Resource" path="res://data/player/skills/skill_secondary_charged_smash.tres" id="11"]
+[ext_resource type="Resource" path="res://data/player/skills/gladiator/skill_secondary_execution.tres" id="12"]
+
+[resource]
+script = ExtResource("1")
+job_id = &"gladiator"
+display_name = "검투사"
+growth = ExtResource("2")
+required_job_id = &"warrior"
+transition_level_override = 40
+basic_combo = ExtResource("3")
+granted_weapon = null
+skill_slot_1 = ExtResource("4")
+skill_slot_2 = ExtResource("5")
+skill_slot_3 = ExtResource("6")
+skill_slot_4 = ExtResource("7")
+skill_slot_q = ExtResource("8")
+skill_slot_e = ExtResource("9")
+skill_ultimate = ExtResource("10")
+skill_charge = ExtResource("11")
+skill_rage_finisher = ExtResource("12")

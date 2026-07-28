@@ -58,6 +58,10 @@ func _on_attack_hit(step, target: Node) -> void:
 		coefficient = _skill_points.effective_coefficient(
 			step.damage_coefficient, StringName(step.skill_name)
 		)
+	## 검투사 격노(공격력 +12%)는 전 데미지에 걸리고, 처형 보너스(대상 HP 25% 이하 ×1.5,
+	## 보스 ×1.15)는 처형 일격에만 걸린다(m3-warrior-tier2-skills.md 2-3·4-4장). 데미지는
+	## 공격력·계수에 각각 선형이므로 계수 쪽에 곱해도 결과가 같다.
+	coefficient *= _player.get_attack_power_multiplier() * _execute_multiplier(step, target)
 
 	## 치명타는 스탯(민첩)에서 나온 확률에 능동 버프 가산치를 더해 굴린다 — 궁수 매의 눈
 	## (+15%p, m3-archer-skills 4-3장)이 여기로 들어온다. 상한 40%(combat.md 6장)는 가산
@@ -88,8 +92,42 @@ func _on_attack_hit(step, target: Node) -> void:
 	if step is WarriorSkillData:
 		HitFeedback.play_sfx(SKILL_HIT_SFX, target_position)
 
+	## 분노 충전(기본 +4 / 스킬 +8 / 치명타 ×1.5)과 혈투의 함성 흡혈 — 검투사 외에는 무동작.
+	_player.on_attack_landed(step, damage, is_critical)
+
 	var preset := _preset_for_grade(hit_grade)
 	HitFeedback.play(preset, target_position, target)
+
+
+## 처형 보너스 배율 — 처형 일격(is_rage_finisher)이 아니거나 대상 HP를 읽을 수 없으면 1.0.
+## 대상 인터페이스는 MonsterBase의 실제 계약(hp 프로퍼티 + effective_max_hp() + stats.is_boss)을
+## duck typing으로 읽는다.
+func _execute_multiplier(step, target: Node) -> float:
+	var skill := step as GladiatorSkillData
+	if skill == null or not skill.is_rage_finisher:
+		return 1.0
+	var hp_ratio := _target_hp_ratio(target)
+	if hp_ratio < 0.0 or hp_ratio > skill.execute_hp_threshold:
+		return 1.0
+	return skill.execute_boss_multiplier if _is_boss(target) else skill.execute_multiplier
+
+
+## 대상의 현재 HP 비율(0~1). 읽을 수 없으면 -1.
+func _target_hp_ratio(target: Node) -> float:
+	var hp: Variant = target.get("hp")
+	if hp == null or not target.has_method("effective_max_hp"):
+		return -1.0
+	var max_hp: float = target.effective_max_hp()
+	if max_hp <= 0.0:
+		return -1.0
+	return float(hp) / max_hp
+
+
+func _is_boss(target: Node) -> bool:
+	var target_stats: Variant = target.get("stats")
+	if target_stats == null:
+		return false
+	return bool(target_stats.get("is_boss"))
 
 
 func _on_target_died(at_position: Vector2) -> void:

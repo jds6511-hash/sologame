@@ -1,0 +1,49 @@
+; 처형 일격 (우클릭 격노 파생, 분노 소모 피니셔) — m3-warrior-tier2-skills.md 2·4-4장. 신규.
+;
+; 분노 ≥ 50이면 우클릭이 차지 강타 대신 이 스킬을 발동한다(신규 키 0 — 승계형 교체 1-1장).
+; 발동 시 보유 분노를 전량 소모하고, 소모량에 선형 비례한 계수(50 소모 3.5 ~ 100 소모 5.0)가
+; damage_coefficient에 써진다(차지 강타가 홀드 비율로 덮어쓰는 것과 동일 방식).
+; 대상 현재 HP ≤ 25%면 처형 보너스 ×1.5(보스는 ×1.15로 감쇠 — 후반 즉살 방지).
+;
+; 계수 3.5~5.0은 combat.md 7장 일반 스킬 상한(3.5)을 넘는 예외다 — 우클릭 자원 소모형
+; 피니셔(차지 강타와 동일 계열)이고, 쿨다운 대신 분노 축적(약 15~22초)이 재사용 제한이다.
+; 상한 5.0은 궁극기 하한(6.0) 아래로 억제해 대지 분쇄(8.0)의 위상을 침범하지 않는다.
+; MP 0 · 쿨다운 없음 · 선딜~판정 슈퍼아머(피해는 그대로 받는다, combat.md 5-1) · 히트스톱 강.
+;
+; **이 리소스가 분노 게이지 규칙 전체를 소유한다** — 게이지를 켜는 조건이 "격노 파생 스킬이
+; 배선돼 있는가"이고 충전량이 기본 4 / 스킬 8로 균일해서, 전 스킬에 값을 복제하는 대신
+; 튜닝 지점을 한 파일로 모았다(player_rage_module.gd 헤더 참조). 분노 밸런스 조정은 이 파일만.
+[gd_resource type="Resource" script_class="GladiatorSkillData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/player/gladiator_skill_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+skill_name = "처형 일격"
+skill_type = 0
+cooldown_sec = 0.0
+mp_cost_percent = 0.0
+damage_coefficient = 3.5
+hitbox_range_tiles = 2.4
+hitbox_angle_deg = 120.0
+startup_sec = 0.35
+active_sec = 0.15
+recovery_sec = 0.5
+hitstop_preset = "강"
+self_superarmor_during_cast = true
+is_rage_finisher = true
+rage_coefficient_at_min = 3.5
+rage_coefficient_at_max = 5.0
+execute_hp_threshold = 0.25
+execute_multiplier = 1.5
+execute_boss_multiplier = 1.15
+rage_max = 100.0
+rage_gain_basic_hit = 4.0
+rage_gain_skill_hit = 8.0
+rage_gain_crit_multiplier = 1.5
+rage_gain_on_hit_taken = 12.0
+rage_finisher_min = 50.0
+rage_enrage_threshold = 80.0
+enrage_attack_buff_percent = 0.12
+rage_combat_exit_sec = 5.0
+rage_decay_per_sec = 5.0

@@ -18,6 +18,15 @@ extends Resource
 ## 이 직업의 레벨당 스탯 성장 배분(전직 후 recompute_stats에 쓰인다).
 @export var growth: JobGrowthData
 
+@export_group("전직 계통 (jobs.md 1장 — 1차 Lv10 / 2차 Lv40)")
+## 이 직업으로 전직하기 위해 먼저 갖춰야 할 직업 id. 비우면 모험가에서 바로 가는 1차
+## 직업이고, 값이 있으면 그 직업일 때만 전직할 수 있는 상위 계통이다(검투사 = 전사 전제).
+@export var required_job_id: StringName = &""
+## 전직 임계 레벨을 직접 지정한다(0이면 growth.transition_level 사용). 2차 전직(Lv40)은
+## growth의 transition_level(= "모험가 균등 배분이 끝나는 레벨" Lv10)과 의미가 달라
+## 재사용할 수 없으므로 별도 필드로 둔다.
+@export var transition_level_override: int = 0
+
 @export_group("무기 (jobs.md 5·6장 — 전직 시 직업 전용 무기)")
 ## 기본 공격 콤보(대검 2타·활 연사 등). 전직 시 PlayerController.combo_data로 교체된다.
 ## 궁수 활 연사 콤보는 C-5에서 채운다(그전까지 null이면 전직 시 콤보 유지).
@@ -35,10 +44,17 @@ extends Resource
 @export var skill_slot_e: WarriorSkillData  ## E키 — 직업 고유
 @export var skill_ultimate: WarriorSkillData  ## R키 — 직업 궁극기
 @export var skill_charge: WarriorSkillData  ## 우클릭 — 직업 보조 동작
+## 우클릭의 조건부 파생 스킬(검투사 처형 일격 — 분노 ≥ 50에서 차지 강타를 대체한다).
+## 신규 키를 만들지 않는 승계형 교체의 일부이며, 이 값이 있는 직업만 분노 게이지를 쓴다
+## (m3-warrior-tier2-skills.md 1-1·2장).
+@export var skill_rage_finisher: WarriorSkillData
 
 
-## 전직 임계 레벨(성장 데이터에서 가져온다 — 전 직업 1차 전직 Lv10). growth 미할당 시 10.
+## 전직 임계 레벨. override(2차 Lv40)가 있으면 그 값, 없으면 성장 데이터(1차 Lv10).
+## 둘 다 없으면 10.
 func transition_level() -> int:
+	if transition_level_override > 0:
+		return transition_level_override
 	return growth.transition_level if growth != null else 10
 
 
@@ -54,4 +70,5 @@ func skill_loadout() -> Dictionary:
 		"slot_e": skill_slot_e,
 		"ultimate": skill_ultimate,
 		"charge": skill_charge,
+		"rage_finisher": skill_rage_finisher,
 	}
