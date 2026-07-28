@@ -140,7 +140,12 @@ func _die() -> void:
 ## 포션 사용 시도. 성공하면 true를 돌려준다. 인벤토리 수량 차감은 IT-3(systems-dev)의
 ## 아이템 시스템 몫이며, 이 함수는 "포션 1개를 지금 쓸 수 있는가"(쿨다운·보스전 캡)만
 ## 판정한다 — 호출자가 실제 아이템 보유 여부를 먼저 확인해야 한다.
-func use_potion() -> bool:
+##
+## heal_override: 아이템 데이터의 고정 회복량(ItemData.heal_amount, economy-foundation.md
+## 5-1장). 양수면 그 절댓값으로 회복하고, 미지정(0 이하)이면 종전대로
+## PlayerRecoveryRules.potion_heal_percent(최대 HP 30%)로 회복한다 — 회복량 데이터가 없는
+## 호출부(디버그 단축키 등)는 인자 없이 그대로 호출하면 된다.
+func use_potion(heal_override: float = -1.0) -> bool:
 	if is_dead():
 		return false
 	if _potion_cooldown_timer > 0.0:
@@ -150,7 +155,9 @@ func use_potion() -> bool:
 		potion_use_failed.emit()
 		return false
 
-	var heal_amount := stats.max_hp * recovery_rules.potion_heal_percent
+	var heal_amount := (
+		heal_override if heal_override > 0.0 else stats.max_hp * recovery_rules.potion_heal_percent
+	)
 	heal(heal_amount)
 	_potion_cooldown_timer = recovery_rules.potion_cooldown_sec
 	if is_boss_encounter:

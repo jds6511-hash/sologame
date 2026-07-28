@@ -25,6 +25,9 @@ signal item_dropped(item: ItemData, quantity: int, world_position: Vector2)
 
 @export var rate_config: DropRateConfig
 @export var world_item_scene: PackedScene  ## scenes/items/world_item.tscn
+## 스마트 드랍(jobs.md 5-2장)용 현재 직업 조회 대상. 씬에서 비워 두면 트리에서 자동으로
+## 찾는다 — 월드 씬 배선은 level-designer 소관이라 자동 탐색을 기본 경로로 뒀다.
+@export var job_transition: PlayerJobTransition
 
 var _item_cache: Array[ItemData] = []
 
@@ -320,10 +323,38 @@ func _night_drop_multiplier(tier: DropTableData.MonsterTier) -> float:
 	return GameClock.get_item_drop_rate_multiplier(tier == DropTableData.MonsterTier.BOSS)
 
 
+## 스마트 드랍에 쓰는 현재 직업의 무기 계열 프리픽스(jobs.md 5-2장). 매 판정 시점에 직업을
+## 조회하므로 전직(PlayerJobTransition.perform_transition)만으로 드랍 계열이 따라간다 —
+## 별도 갱신 호출이나 job_changed 구독이 필요 없다. 조회 대상을 못 찾으면 미전직(모험가)
+## 계열로 본다.
+func current_weapon_series_prefix() -> String:
+	var transition := _resolve_job_transition()
+	var job_id: StringName = (
+		transition.current_job_id if transition != null else PlayerJobTransition.ADVENTURER_JOB_ID
+	)
+	return rate_config.weapon_series_prefix_for_job(job_id)
+
+
+func _resolve_job_transition() -> PlayerJobTransition:
+	if job_transition == null and is_inside_tree():
+		job_transition = _find_job_transition(get_tree().root)
+	return job_transition
+
+
+static func _find_job_transition(node: Node) -> PlayerJobTransition:
+	if node is PlayerJobTransition:
+		return node as PlayerJobTransition
+	for child in node.get_children():
+		var found := _find_job_transition(child)
+		if found != null:
+			return found
+	return null
+
+
 func _drop_equipment_of_grade(monster_level: int, grade: ItemData.ItemGrade, pos: Vector2) -> void:
 	var slot := roll_equipment_slot(rate_config, randf() * total_slot_weight(rate_config))
 	var item := resolve_equipment_item(
-		_item_cache, monster_level, grade, slot, rate_config.current_job_weapon_series_prefix
+		_item_cache, monster_level, grade, slot, current_weapon_series_prefix()
 	)
 	if item:
 		_spawn_item(item, 1, pos)

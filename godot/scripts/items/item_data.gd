@@ -56,6 +56,12 @@ enum MainStatType {
 ## 신발 전용 고정 옵션 — economy-foundation.md 3-4장 등급별 고정값 공식 (C+2/B+3/A+4/S+5, 레벨 무관)
 @export var move_speed_bonus: float = 0.0
 
+## 포션 전용 고정 회복량 — economy-foundation.md 5-1장 포션 4티어 표(POT-HP-1 100 / -2 320 /
+## -3 550 / -4 730). "고정치 + 레벨 제한"이 저레벨의 상급 포션 과회복을 막는 장치이므로
+## 회복량은 최대 HP 비율이 아니라 이 절댓값으로 적용한다. 0이면 값 미지정으로 보고
+## PlayerRecoveryRules 기본값(최대 HP 30%)으로 회복한다.
+@export var heal_amount: float = 0.0
+
 ## 골드 가격. 판매 미확정/비매품(표에 "—")인 경우 -1
 @export var price: int = -1
 

@@ -4,3 +4,9 @@
 
 [resource]
 script = ExtResource("1")
+job_weapon_series_prefixes = {
+"adventurer": "WPN-SW-",
+"archer": "WPN-BW-",
+"warrior": "WPN-GS-"
+}
+fallback_weapon_series_prefix = "WPN-SW-"

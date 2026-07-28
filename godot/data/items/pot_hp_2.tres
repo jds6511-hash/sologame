@@ -10,5 +10,6 @@ item_type = 3
 grade = 0
 level_limit = 30
 equip_slot = 0
+heal_amount = 320.0
 price = 3000
-acquisition = "상점 구매 3,000골드 · 레벨 제한 30 · 회복량 320 고정 (economy-foundation.md 5-1장) · 밀렵꾼(Lv36) 드랍 2% (m3-monster-spec.md 7-3장). 회복량은 아직 스키마 필드가 없어 PlayerRecoveryRules(최대 HP 30%)가 담당하며 이 아이템은 인벤토리 추적용 — POT-HP-1과 동일 취급"
+acquisition = "상점 구매 3,000골드 · 레벨 제한 30 · 회복량 320 고정 (economy-foundation.md 5-1장) · 밀렵꾼(Lv36) 드랍 2% (m3-monster-spec.md 7-3장)"

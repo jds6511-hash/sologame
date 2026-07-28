@@ -10,5 +10,6 @@ item_type = 3
 grade = 0
 level_limit = 1
 equip_slot = 0
+heal_amount = 100.0
 price = 300
-acquisition = "상점 구매 300골드(economy-foundation.md 5-1장) · 뿔토끼/들개 마수/균열 점액 드랍 2%(m2-monster-spec.md 4장). 실제 회복량은 PlayerRecoveryRules(최대 HP 30%, CB-5)가 담당하며 이 아이템은 인벤토리 추적용"
+acquisition = "상점 구매 300골드 · 레벨 제한 1 · 회복량 100 고정 (economy-foundation.md 5-1장) · 뿔토끼/들개 마수/균열 점액 드랍 2%(m2-monster-spec.md 4장)"

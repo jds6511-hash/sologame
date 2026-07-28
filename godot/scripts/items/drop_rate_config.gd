@@ -52,7 +52,20 @@ extends Resource
 @export var slot_weight_ring: float = 13.4  ## 반지 2슬롯분(6.7 x 2) 합산 — equip_slot 값은 1종
 @export var slot_weight_necklace: float = 6.7
 
-@export_group("스마트 드랍 (jobs.md 5-2장 — M2는 전사 1직업 고정)")
-## M2에는 직업 전환이 없어 "현재 직업 계열"을 고정값으로 둔다. 다른 직업이 추가되면
-## 이 필드를 플레이어 직업 조회로 대체해야 한다(기획 필요 — 후속 마일스톤).
-@export var current_job_weapon_series_prefix: String = "WPN-GS-"
+@export_group("스마트 드랍 (jobs.md 5-2장 — 직업별 무기 계열)")
+## 직업 id -> 무기 계열 ID 프리픽스. 계열 코드는 economy-foundation.md 2-3장, 직업별 배정은
+## 같은 문서 3-5장(모험가 소검 SW · 전사 대검 GS · 궁수 활 BW)을 따른다. 현재 직업은
+## PlayerJobTransition.current_job_id로 조회한다(DropSystem.current_weapon_series_prefix) —
+## 직업이 늘어도 이 사전에 한 줄만 추가하면 드랍 계열이 따라간다.
+@export var job_weapon_series_prefixes: Dictionary = {
+	"adventurer": "WPN-SW-",
+	"warrior": "WPN-GS-",
+	"archer": "WPN-BW-",
+}
+## 사전에 없는 직업 id일 때 쓰는 계열 — 전 직업 공용 소검(미전직 모험가 계열).
+@export var fallback_weapon_series_prefix: String = "WPN-SW-"
+
+
+## 직업 id에 대응하는 스마트 드랍 무기 계열 프리픽스. 미등록 직업은 fallback을 쓴다.
+func weapon_series_prefix_for_job(job_id: StringName) -> String:
+	return job_weapon_series_prefixes.get(String(job_id), fallback_weapon_series_prefix)

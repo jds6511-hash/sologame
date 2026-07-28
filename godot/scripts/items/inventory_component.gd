@@ -252,12 +252,14 @@ func drop_item(item_id: String, quantity: int = 1) -> ItemData:
 
 
 ## item_id 포션이 가방에 있는지 먼저 확인한 뒤 실제 사용 판정(쿨다운·보스전 캡)을
-## player_stats에 위임한다. 성공한 경우에만 수량을 차감한다.
+## player_stats에 위임한다. 성공한 경우에만 수량을 차감한다. 회복량은 아이템 데이터의
+## 고정치(ItemData.heal_amount, economy-foundation.md 5-1장)를 넘겨 적용한다 — 티어별 고정치
+## 덕분에 저레벨이 상급 포션으로 30% 규격을 넘겨 회복하는 구멍이 막힌다.
 func use_potion(item_id: String, player_stats: PlayerStatsComponent) -> bool:
 	var entry := _find_bag_entry(item_id)
 	if entry.is_empty():
 		return false
-	if not player_stats.use_potion():
+	if not player_stats.use_potion(entry.item.heal_amount):
 		return false
 	entry.quantity -= 1
 	if entry.quantity <= 0:
