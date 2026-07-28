@@ -10,6 +10,13 @@
 ## WarriorAttackStep 또는 스킬의 WarriorSkillData)를 그대로 실어 보낸다 — 두 리소스 모두
 ## damage_coefficient/hitstop_preset 필드를 노출하므로(duck typing) PlayerAttackResolver는
 ## 콤보인지 스킬인지 구분할 필요 없이 그대로 소비한다.
+##
+## 원거리(궁수, M3 C-4/C-5 · m3-archer-skills.md)도 같은 파이프라인을 쓴다: 판정 주체가
+## ArcherAttackStep/ArcherSkillData이고 arrow(ArrowSpec)를 들고 있으면 부채꼴 히트박스 대신
+## ArrowProjectile을 발사하고, 화살이 명중하면 그 판정 주체를 그대로 attack_hit에 실어
+## 보낸다 — 근접/원거리 어느 쪽이든 리졸버 쪽 계약은 동일하다. 무기·회피·우클릭 동작 차이는
+## 전부 데이터(전직 로드아웃)로 갈린다: 활 콤보(dodge_backward=true) → 후방 점프 회피,
+## 우클릭 슬롯이 조준 스탠스(ArcherSkillData.is_aim_stance) → 차지 대신 조준 모드.
 class_name PlayerController
 extends CharacterBody2D
 
@@ -97,6 +104,14 @@ var _is_charging_secondary: bool = false
 var _charge_hold_timer: float = 0.0
 var _cooldown_secondary: float = 0.0
 
+## 궁수 원거리 사격(조준 스탠스·화살 발사·매의 눈 가산) 담당 모듈 — 원거리 전용 상태를
+## 이 컨트롤러에서 분리했다(scripts/player/archer_shot_module.gd).
+var _shots := ArcherShotModule.new()
+
+## 이동 둔화 디버프(숲거미 거미줄 등) — 남은 지속시간과 감소 비율.
+var _move_slow_percent: float = 0.0
+var _move_slow_timer: float = 0.0
+
 ## 슈퍼아머 — combat.md 5-1 "슈퍼아머 스킬 시전 중: 경직 무시, 무적은 아님(피해는 그대로)".
 ## 두 출처를 합산한다: ① 시전 중 슈퍼아머(차지 강타·대지 분쇄, self_superarmor_during_cast)
 ## ② 결의의 외침이 부여하는 시간제 버프(_buff_superarmor_timer).
@@ -118,6 +133,9 @@ func _ready() -> void:
 	_last_finite_position = global_position if global_position.is_finite() else Vector2.ZERO
 	_attack_hitbox.monitoring = false
 	_attack_hitbox.body_entered.connect(_on_attack_hitbox_body_entered)
+	_shots.setup(self, movement_data.tile_size_px)
+	_shots.arrow_hit_landed.connect(_on_arrow_hit_landed)
+	_shots.refresh_stance(skill_charge)
 
 
 func _physics_process(delta: float) -> void:
@@ -134,6 +152,9 @@ func _physics_process(delta: float) -> void:
 	_update_hit_reaction(delta)
 	_update_superarmor_state(delta)
 	_update_skill_cooldowns(delta)
+	_update_move_slow(delta)
+	_shots.update_stance()
+	_shots.advance(delta)
 
 	if is_hit_stunned:
 		velocity = _knockback_velocity
@@ -157,17 +178,13 @@ func _physics_process(delta: float) -> void:
 		_process_attack_input()
 		_process_attack_state(delta)
 		if attack_state == AttackState.NONE:
-			velocity = _move_input * movement_data.get_walk_speed_px_per_sec()
+			velocity = _move_input * _resolve_move_speed_px(false)
 			_update_facing_to_mouse()
 		else:
 			## QoL④ 공격 중 이동 허용(속도 페널티) — 기본 공격 콤보 한정. 스킬/차지는
 			## _process_skill_state·_process_charge_hold에서 정지·이동취소를 그대로 유지한다
 			## (combat.md 3장 "캐스팅 스킬은 이동 시 취소" 규칙 불변).
-			velocity = (
-				_move_input
-				* movement_data.get_walk_speed_px_per_sec()
-				* ATTACK_MOVE_SPEED_MULTIPLIER
-			)
+			velocity = _move_input * _resolve_move_speed_px(true)
 			## QoL③ 스윙 중 재조준 — 판정 발생(ACTIVE) 전 STARTUP까지만 방향을 갱신하고,
 			## ACTIVE 진입 이후에는 고정한다(맞추는 각도가 판정 도중 바뀌지 않게).
 			if attack_state == AttackState.STARTUP:
@@ -187,32 +204,70 @@ func _update_facing_to_mouse() -> void:
 		_facing.look_at(mouse_pos)
 
 
+## 현재 상태의 최종 이동 속도(px/초).
+##
+## 조준 모드(궁수 우클릭 스탠스, m3-archer-skills 5장)는 자체 페널티(×0.4)가 공격 중 이동
+## 페널티(×0.45)를 대체한다 — 두 페널티를 곱하면 ×0.18로 사실상 정지가 되어 "느리지만
+## 멈추지는 않음" 규격에서 벗어나기 때문이다. 둔화 디버프는 그 위에 곱해진다.
+## 조준 중이 아니고 둔화도 없으면 기존 전사 동작과 동일하다.
+func _resolve_move_speed_px(is_attacking: bool) -> float:
+	var speed := movement_data.get_walk_speed_px_per_sec() * (1.0 - _move_slow_percent)
+	var aim_multiplier := _shots.move_speed_multiplier()
+	if aim_multiplier < 1.0:
+		return speed * aim_multiplier
+	if is_attacking:
+		return speed * ATTACK_MOVE_SPEED_MULTIPLIER
+	return speed
+
+
+## 몬스터(숲거미 거미줄 등)가 호출하는 이동 둔화 공개 API — 걷기 속도를 percent 비율만큼
+## duration_sec초 동안 낮춘다. 중첩은 "더 강한 값·더 긴 지속으로 갱신"(포효 버프와 동일
+## 규약)이라 각각 최대값을 취한다. 회피 대시는 무적 이동기라 둔화 대상이 아니다.
+func apply_move_speed_slow(percent: float, duration_sec: float) -> void:
+	if percent <= 0.0 or duration_sec <= 0.0:
+		return
+	_move_slow_percent = maxf(_move_slow_percent, clampf(percent, 0.0, 1.0))
+	_move_slow_timer = maxf(_move_slow_timer, duration_sec)
+
+
+func _update_move_slow(delta: float) -> void:
+	if _move_slow_timer <= 0.0:
+		return
+	_move_slow_timer = maxf(_move_slow_timer - delta, 0.0)
+	if _move_slow_timer <= 0.0:
+		_move_slow_percent = 0.0
+
+
 # --- 자동 조준 보정(QoL②) · 스윙 중 재조준(QoL③) ---
 
 
 ## 스윙 STARTUP 동안 매 프레임 호출된다 — 마우스 방향 기준 자동 조준 대상이 있으면 그
 ## 적으로, 없으면 순수 마우스 방향으로 Facing을 갱신한다.
-func _apply_attack_aim() -> void:
-	var aim_pos := _resolve_aim_position()
+##
+## range_tiles는 자동 조준 스냅을 허용하는 최대 거리다. 근접 스윙은 기본값(3타일)을 쓰고,
+## 원거리 사격은 그 화살의 유효 사거리를 넘겨 사거리 전체에서 스냅이 걸리게 한다
+## (m3-archer-skills 4-1장 "3발은 자동 조준 대상에 집속").
+func _apply_attack_aim(range_tiles: float = AUTO_AIM_RANGE_TILES) -> void:
+	var aim_pos := _resolve_aim_position(range_tiles)
 	if aim_pos.distance_squared_to(global_position) > 0.01:
 		_facing.look_at(aim_pos)
 
 
 ## 조준이 향할 월드 좌표 — 자동 조준 대상이 있으면 그 위치, 없으면 마우스 위치.
-func _resolve_aim_position() -> Vector2:
+func _resolve_aim_position(range_tiles: float = AUTO_AIM_RANGE_TILES) -> Vector2:
 	var mouse_pos := get_global_mouse_position()
 	var aim_vec := mouse_pos - global_position
 	if aim_vec.length_squared() <= 0.01:
 		return mouse_pos
-	var target := _find_auto_aim_target(aim_vec.normalized())
+	var target := _find_auto_aim_target(aim_vec.normalized(), range_tiles)
 	return target.global_position if target != null else mouse_pos
 
 
-## 마우스 방향(aim_dir) 기준 ±AUTO_AIM_CONE_HALF_DEG 콘 안, AUTO_AIM_RANGE_TILES 사거리
+## 마우스 방향(aim_dir) 기준 ±AUTO_AIM_CONE_HALF_DEG 콘 안, range_tiles 사거리
 ## 안에서 가장 가까운 "살아있는" 몬스터를 반환한다. 조건을 만족하는 적이 없으면 null(→
-## 순수 마우스 방향 유지). 스냅 각도/사거리는 상단 상수로 튜닝한다.
-func _find_auto_aim_target(aim_dir: Vector2) -> Node2D:
-	var range_px := AUTO_AIM_RANGE_TILES * movement_data.tile_size_px
+## 순수 마우스 방향 유지). 스냅 각도/기본 사거리는 상단 상수로 튜닝한다.
+func _find_auto_aim_target(aim_dir: Vector2, range_tiles: float = AUTO_AIM_RANGE_TILES) -> Node2D:
+	var range_px := range_tiles * movement_data.tile_size_px
 	var range_sq := range_px * range_px
 	var cos_limit := cos(deg_to_rad(AUTO_AIM_CONE_HALF_DEG))
 	var best: Node2D = null
@@ -287,14 +342,16 @@ func _start_attack_step(step_index: int) -> void:
 func _process_attack_state(delta: float) -> void:
 	if attack_state == AttackState.NONE:
 		return
-	_attack_phase_timer += delta
 	var step: WarriorAttackStep = combo_data.steps[_attack_step_index]
+	_attack_phase_timer += delta * _attack_rate_for_step(step)
 	match attack_state:
 		AttackState.STARTUP:
 			if _attack_phase_timer >= step.startup_sec:
 				attack_state = AttackState.ACTIVE
 				_attack_phase_timer = 0.0
-				_enable_attack_hitbox(step)
+				## 화살 규격이 있으면 투사체 발사, 없으면 기존 근접 부채꼴 판정(전사).
+				if not _try_fire_arrows(step):
+					_enable_attack_hitbox(step)
 		AttackState.ACTIVE:
 			if _attack_phase_timer >= step.active_sec:
 				attack_state = AttackState.RECOVERY
@@ -315,6 +372,12 @@ func _end_combo() -> void:
 	_attack_step_index = -1
 	_combo_window_timer = 0.0
 	_queued_next_attack = false
+
+
+## 기본 공격 진행 속도 배율(1.0 = 규격 그대로) — 궁수 매의 눈 공격 속도와 조준 모드 사격
+## 사이클이 여기에 반영된다. 전사는 두 값이 모두 비어 있어 항상 1.0(기존 동작과 동일).
+func _attack_rate_for_step(step: WarriorAttackStep) -> float:
+	return _shots.attack_rate(step.get_total_motion_sec())
 
 
 ## 기본 콤보·스킬 공용 히트박스 활성화. step은 WarriorAttackStep 또는 WarriorSkillData —
@@ -445,16 +508,18 @@ func _process_skill_state(delta: float) -> void:
 				_end_skill()
 
 
+## 스킬 판정 발동. 궁수 스킬(arrow 보유)은 근접 히트박스 대신 화살을 발사한다 — 곡예 사격은
+## 이동 방향(입력)과 사격 방향(조준)이 독립이므로 DASH 분기에서 둘을 함께 처리한다(4-2장).
 func _activate_skill_effect(skill: WarriorSkillData) -> void:
 	match skill.skill_type:
 		WarriorSkillData.SkillType.DASH:
 			_skill_dash_direction = _last_move_direction
-			if skill.hitbox_range_tiles > 0.0:
+			if not _try_fire_arrows(skill) and skill.hitbox_range_tiles > 0.0:
 				_enable_attack_hitbox(skill)
 		WarriorSkillData.SkillType.BUFF_HEAL:
 			_apply_self_buff(skill)
 		_:  ## INSTANT · CHARGE · ULTIMATE
-			if skill.hitbox_range_tiles > 0.0:
+			if not _try_fire_arrows(skill) and skill.hitbox_range_tiles > 0.0:
 				_enable_attack_hitbox(skill)
 
 
@@ -463,13 +528,15 @@ func _deactivate_skill_effect(_skill: WarriorSkillData) -> void:
 
 
 func _apply_self_buff(skill: WarriorSkillData) -> void:
-	if _stats == null:
-		return
 	## 버프·힐도 스킬 강화 레벨만큼 효과 수치(회복%·버프%·지속)가 오른다(spec 6-2 구현 규약).
 	## Lv1이면 배율 1.0이라 값이 그대로다.
 	var mult := 1.0
 	if _skill_points != null:
 		mult = _skill_points.effective_multiplier(StringName(skill.skill_name))
+	## 궁수 버프(매의 눈)는 HP/MP를 건드리지 않으므로 PlayerStats 없이도 적용된다.
+	_shots.apply_buff(skill as ArcherSkillData, mult)
+	if _stats == null:
+		return
 	if skill.self_heal_percent > 0.0:
 		_stats.heal(_stats.stats.max_hp * skill.self_heal_percent * mult)
 	if skill.grants_superarmor_sec > 0.0:
@@ -482,6 +549,7 @@ func _apply_self_buff(skill: WarriorSkillData) -> void:
 
 func _cancel_skill() -> void:
 	_disable_attack_hitbox()
+	_shots.cancel_burst()
 	skill_state = AttackState.NONE
 	active_skill = null
 
@@ -501,6 +569,40 @@ func _update_skill_cooldowns(delta: float) -> void:
 
 func get_skill_cooldown_remaining(key: String) -> float:
 	return float(_skill_cooldowns.get(key, 0.0))
+
+
+# --- 궁수 원거리 사격 연결 (M3 C-4/C-5 — 상세는 archer_shot_module.gd) ---
+
+
+## PlayerAttackResolver가 치명타 확률에 더하는 가산 보너스(매의 눈 +15%p). 상한 40%
+## (combat.md 6장)은 리졸버 쪽에서 적용한다.
+func get_crit_chance_bonus() -> float:
+	return _shots.crit_chance_bonus
+
+
+## 매의 눈이 부여한 사거리 가산(타일) — 화살 사거리·자동 조준 스냅 거리에 함께 더해진다.
+func get_attack_range_bonus_tiles() -> float:
+	return _shots.attack_range_bonus_tiles
+
+
+## action(기본 공격 스텝 또는 스킬)에 화살 규격이 있으면 발사하고 true를 돌려준다.
+## 없으면 false — 호출자가 기존 근접 히트박스 경로를 유지한다(전사 회귀 방지).
+func _try_fire_arrows(action: Resource) -> bool:
+	var spec := _shots.arrow_spec_for(action)
+	if spec == null:
+		return false
+	_current_action_step = action
+	## 발사 직전에 조준을 확정한다(자동 조준 스냅 사거리 = 화살 유효 사거리).
+	_gather_aim_candidates()
+	_apply_attack_aim(_shots.effective_range_tiles(spec))
+	_shots.fire(action, spec, Vector2.RIGHT.rotated(_facing.rotation))
+	return true
+
+
+## 화살 명중을 근접 판정과 동일한 attack_hit 계약으로 중계한다 — PlayerAttackResolver가
+## 계수(스킬 강화 포함)·치명타 굴림·방어 감산·히트피드백을 그대로 처리한다(6-2장 델타 ②③).
+func _on_arrow_hit_landed(action: Resource, body: Node) -> void:
+	attack_hit.emit(action, body)
 
 
 # --- 전직 로드아웃 교체 (M3 B-5, 승계형 교체 — m3-warrior-tier2-skills.md 1장) ---
@@ -523,6 +625,7 @@ func apply_transition_loadout(slots: Dictionary, combo: WarriorComboData = null)
 	skill_charge = slots.get("charge") as WarriorSkillData
 	if combo != null:
 		combo_data = combo
+	_shots.refresh_stance(skill_charge)
 	_reset_action_state()
 
 
@@ -535,6 +638,7 @@ func _reset_action_state() -> void:
 		_cancel_skill()
 	if _is_charging_secondary:
 		_cancel_charge()
+	_shots.cancel_burst()
 	_skill_cooldowns.clear()
 	_cooldown_secondary = 0.0
 
@@ -543,6 +647,8 @@ func _reset_action_state() -> void:
 
 
 func _process_secondary_charge_start_input() -> void:
+	if _shots.aim_stance != null:
+		return  ## 우클릭이 궁수 조준 스탠스 — 차지가 아니라 ArcherShotModule이 처리한다
 	if not Input.is_action_just_pressed("skill_secondary"):
 		return
 	if skill_charge == null or _cooldown_secondary > 0.0:
@@ -754,12 +860,24 @@ func _start_dash() -> void:
 		_cancel_skill()
 	dash_charges -= 1
 	_dash_recharge_timers.append(movement_data.dash_recharge_sec)
-	_dash_direction = _last_move_direction
+	_dash_direction = _resolve_dodge_direction()
 	is_dashing = true
 	is_dash_invincible = false
 	_dash_timer = 0.0
 	dash_started.emit()
 	HitFeedback.play_sfx(DODGE_SFX, global_position)
+
+
+## 회피 방향 — 기본은 입력 방향(전사 대시, combat.md 4장). 무기(콤보)가 후방 회피를 쓰는
+## 궁수 활이면 조준 반대 방향으로 튀는 후방 점프 회피가 된다(m3-archer-skills 2-2장 —
+## "궁수 회피는 카이팅 그 자체"). 조준 방향이 없거나 오염되면 입력 방향으로 안전 복귀한다.
+func _resolve_dodge_direction() -> Vector2:
+	if combo_data == null or not combo_data.dodge_backward:
+		return _last_move_direction
+	var aim_dir := Vector2.RIGHT.rotated(_facing.rotation)
+	if not aim_dir.is_finite() or aim_dir.length_squared() <= 0.0001:
+		return _last_move_direction
+	return -aim_dir
 
 
 func _process_dash(delta: float) -> void:
@@ -870,6 +988,8 @@ func get_debug_state_text() -> String:
 		text = "스킬: %s%s" % [active_skill.skill_name, " (슈퍼아머)" if is_superarmor() else ""]
 	if _is_charging_secondary:
 		text = "차지 강타 홀드 중 (%.2fs)" % _charge_hold_timer
+	if _shots.is_aiming:
+		text = "조준 모드 (%s)" % ("사격" if attack_state != AttackState.NONE else "대기")
 	if is_dashing:
 		text = "회피 대시%s" % (" (무적)" if is_dash_invincible else "")
 	if is_hit_stunned:

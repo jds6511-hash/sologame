@@ -1,0 +1,25 @@
+; 곡예 사격 (슬롯 Q, 이동기 + 투사체) — m3-archer-skills.md 4-2장.
+; 구르는 방향은 입력(이동) 방향, 사격 방향은 마우스 조준으로 서로 독립이다. 이동기 공통
+; 규칙대로 무적 프레임은 없다(회피 Space와의 역할 분담).
+[gd_resource type="Resource" script_class="ArcherSkillData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/player/archer_skill_data.gd" id="1"]
+[ext_resource type="Resource" path="res://data/player/arrows/arrow_skill.tres" id="2"]
+
+[resource]
+script = ExtResource("1")
+skill_name = "곡예 사격"
+skill_type = 2
+cooldown_sec = 10.0
+mp_cost_percent = 0.10
+damage_coefficient = 1.3
+hitbox_range_tiles = 0.0
+hitbox_angle_deg = 0.0
+startup_sec = 0.1
+active_sec = 0.3
+recovery_sec = 0.2
+hitstop_preset = "중"
+dash_distance_tiles = 2.5
+dash_duration_sec = 0.3
+arrow = ExtResource("2")
+projectile_count = 1

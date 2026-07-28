@@ -1,0 +1,24 @@
+; 관통 폭사 (궁극기 R, 투사체·무제한 관통) — m3-archer-skills.md 4-4장.
+; 고정 선딜 0.6초(정조준, 이 구간 슈퍼아머 — 궁수가 유일하게 슈퍼아머를 얻는 순간) 후
+; 초고속 관통 화살 1발. 관통한 각 적에 개별 치명타 굴림. 히트스톱 강(궁극기 고정).
+[gd_resource type="Resource" script_class="ArcherSkillData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/player/archer_skill_data.gd" id="1"]
+[ext_resource type="Resource" path="res://data/player/arrows/arrow_piercing_burst.tres" id="2"]
+
+[resource]
+script = ExtResource("1")
+skill_name = "관통 폭사"
+skill_type = 4
+cooldown_sec = 75.0
+mp_cost_percent = 0.30
+damage_coefficient = 8.0
+hitbox_range_tiles = 0.0
+hitbox_angle_deg = 0.0
+startup_sec = 0.6
+active_sec = 0.1
+recovery_sec = 0.5
+hitstop_preset = "강"
+self_superarmor_during_cast = true
+arrow = ExtResource("2")
+projectile_count = 1

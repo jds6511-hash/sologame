@@ -202,13 +202,14 @@ func test_unknown_job_rejected() -> void:
 # --- 궁수 연결 훅(프레임워크 일반화) ---
 
 
-func test_archer_hook_transitions_growth_and_common_skills() -> void:
-	## 궁수 스킬 구현은 C-4지만, 프레임워크는 궁수도 그대로 받는다(성장 배분·공용 3종 개방).
+func test_archer_hook_transitions_growth_and_skills() -> void:
+	## 프레임워크는 직업 무관하게 그대로 동작한다 — 궁수도 성장 배분 전환 + 8슬롯 개방.
 	_prog.add_exp(_exp_to_reach(10))
 	assert_true(_trans.perform_transition(&"archer"), "궁수 전직 성공")
 	assert_eq(_growth.job.job_id, &"archer", "민첩 배분(궁수)으로 전환")
 	assert_eq(_stub.last_slots["slot_1"], ARCHER_DEF.skill_slot_1, "공용 강타 유지")
-	assert_null(_stub.last_slots["slot_4"], "궁수 고유 슬롯은 C-4까지 미개방(null)")
+	assert_eq(_stub.last_slots["slot_4"], ARCHER_DEF.skill_slot_4, "궁수 고유 슬롯 개방(C-4)")
+	assert_eq(_stub.last_combo, ARCHER_DEF.basic_combo, "무기 교체 — 활 연사 콤보")
 
 
 # --- initial_job_id: 디버그 직행 시작(이미 전직 상태) ---
@@ -241,8 +242,12 @@ func test_initial_job_id_starts_already_transitioned() -> void:
 func test_real_controller_apply_loadout_handles_null_slots() -> void:
 	var player: Node = PLAYER_SCENE.instantiate()
 	add_child_autofree(player)
-	## 궁수 로드아웃(공용 3 + 고유 슬롯 null)을 실제 컨트롤러에 적용.
-	player.apply_transition_loadout(ARCHER_DEF.skill_loadout(), null)
+	## 공용 3종만 채우고 고유 슬롯을 비운 로드아웃(미완성 직업 정의를 모사)을 적용한다 —
+	## 궁수 로드아웃은 C-4에서 8슬롯이 모두 채워졌으므로 null 처리 검증에는 쓸 수 없다.
+	var partial := ARCHER_DEF.skill_loadout()
+	for slot in ["slot_4", "slot_q", "slot_e", "ultimate", "charge"]:
+		partial[slot] = null
+	player.apply_transition_loadout(partial, null)
 	assert_eq(player.skill_slot_1, ARCHER_DEF.skill_slot_1, "공용 강타 배선")
 	assert_null(player.skill_slot_4, "null 슬롯은 미개방으로 비워짐")
 	assert_null(player.skill_ultimate, "null 궁극기 슬롯 미개방")

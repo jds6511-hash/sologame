@@ -1,0 +1,13 @@
+; 조준 모드 정밀 화살 — m3-archer-skills.md 5장 (관통 3체 / 사거리 7.5타일 = 5.0×1.5 /
+; 20타일·초). 조준 모드(우클릭 홀드) 중의 좌클릭 사격이 이 화살로 대체된다.
+[gd_resource type="Resource" script_class="ArrowSpec" format=3]
+
+[ext_resource type="Script" path="res://scripts/player/arrow_spec.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+speed_tiles_per_sec = 20.0
+range_tiles = 7.5
+pierce_count = 3
+width_tiles = 0.6
+visual_color = Color(0.72, 0.92, 1.0, 1)

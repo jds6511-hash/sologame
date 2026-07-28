@@ -1,0 +1,13 @@
+; 관통 폭사(궁극기) 초고속 관통 화살 — m3-archer-skills.md 4-4장
+; (사거리 12타일 / 24타일·초 / 무제한 관통(-1) / 폭 1.0타일).
+[gd_resource type="Resource" script_class="ArrowSpec" format=3]
+
+[ext_resource type="Script" path="res://scripts/player/arrow_spec.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+speed_tiles_per_sec = 24.0
+range_tiles = 12.0
+pierce_count = -1
+width_tiles = 1.0
+visual_color = Color(1.0, 0.96, 0.78, 1)

@@ -59,7 +59,13 @@ func _on_attack_hit(step, target: Node) -> void:
 			step.damage_coefficient, StringName(step.skill_name)
 		)
 
+	## 치명타는 스탯(민첩)에서 나온 확률에 능동 버프 가산치를 더해 굴린다 — 궁수 매의 눈
+	## (+15%p, m3-archer-skills 4-3장)이 여기로 들어온다. 상한 40%(combat.md 6장)는 가산
+	## 후에도 유지한다. 전사는 가산치가 0이라 기존과 동일하다.
 	var crit_chance := DamageCalculator.calculate_crit_chance(attacker_stats.agility, formula_data)
+	crit_chance = clampf(
+		crit_chance + _player.get_crit_chance_bonus(), 0.0, formula_data.crit_chance_cap
+	)
 	var is_critical := DamageCalculator.roll_critical(crit_chance)
 	## 마지막 인자 false = 위치 보정 미적용(전사는 후방 보정 없음, 도적 계열 전용 — combat.md 6장).
 	var damage := DamageCalculator.calculate_damage(

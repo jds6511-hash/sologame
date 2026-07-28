@@ -1,0 +1,29 @@
+; 궁수 기본 공격(활 사격) — m3-archer-skills.md 2-2·5·8장.
+; 전사 대검 2타 콤보와 달리 1타 단발을 반복하는 "연사" 리듬이다: 총 모션 0.5초(선딜 0.2 /
+; 발사 0.05 / 후딜 0.25) = 약 2발/초, 계수 1.0. 홀드 연타(QoL①)로 누르고 있으면 계속 쏜다.
+; dodge_backward = true → 회피(Space)가 조준 반대 방향 후방 점프가 된다(2-2장).
+; steps 배열 타입은 WarriorComboData 선언대로 WarriorAttackStep이며(타입 불변), 원소로
+; 그 하위 클래스인 ArcherAttackStep(화살 규격 보유)을 넣는다.
+[gd_resource type="Resource" script_class="WarriorComboData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/player/warrior_combo_data.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/player/warrior_attack_step.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/player/archer_attack_step.gd" id="3"]
+[ext_resource type="Resource" path="res://data/player/arrows/arrow_basic.tres" id="4"]
+
+[sub_resource type="Resource" id="Resource_archer_shot"]
+script = ExtResource("3")
+damage_coefficient = 1.0
+hitbox_range_tiles = 0.0
+hitbox_angle_deg = 0.0
+startup_sec = 0.2
+active_sec = 0.05
+recovery_sec = 0.25
+hitstop_preset = "약"
+arrow = ExtResource("4")
+
+[resource]
+script = ExtResource("1")
+steps = Array[ExtResource("2")]([SubResource("Resource_archer_shot")])
+combo_window_sec = 0.6
+dodge_backward = true

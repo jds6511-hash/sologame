@@ -1,0 +1,12 @@
+; 기본 활 사격 화살 — m3-archer-skills.md 5·8장 (사거리 5.0타일 / 16타일·초 / 비관통).
+[gd_resource type="Resource" script_class="ArrowSpec" format=3]
+
+[ext_resource type="Script" path="res://scripts/player/arrow_spec.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+speed_tiles_per_sec = 16.0
+range_tiles = 5.0
+pierce_count = 0
+width_tiles = 0.6
+visual_color = Color(0.94, 0.88, 0.55, 1)

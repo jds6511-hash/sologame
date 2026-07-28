@@ -1,0 +1,29 @@
+; 조준 모드 (우클릭 홀드 스탠스) — m3-archer-skills.md 5장.
+; 데미지 스킬이 아니라 기본 공격을 변형하는 모드다: 홀드 중 이동 ×0.4, 좌클릭 사격이
+; 관통(3체)·사거리 ×1.5(7.5타일)·속도 20타일·초 정밀 화살로 바뀌고 사격 사이클이
+; 0.65초로 느려진다. MP·쿨다운 없음(비용은 이동 페널티·무방비라는 포지셔닝 리스크),
+; 슈퍼아머 없음(전사 차지 강타와 정반대 — 2-2장 대비의 핵심).
+; skill_type은 우클릭 슬롯 관례상 CHARGE(1)로 두지만 차지 로직은 쓰지 않는다
+; (is_aim_stance = true 이면 컨트롤러가 조준 스탠스 경로로 분기한다).
+[gd_resource type="Resource" script_class="ArcherSkillData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/player/archer_skill_data.gd" id="1"]
+[ext_resource type="Resource" path="res://data/player/arrows/arrow_aimed.tres" id="2"]
+
+[resource]
+script = ExtResource("1")
+skill_name = "조준 모드"
+skill_type = 1
+cooldown_sec = 0.0
+mp_cost_percent = 0.0
+damage_coefficient = 1.0
+hitbox_range_tiles = 0.0
+hitbox_angle_deg = 0.0
+startup_sec = 0.0
+active_sec = 0.0
+recovery_sec = 0.0
+hitstop_preset = "약"
+is_aim_stance = true
+aim_move_speed_multiplier = 0.4
+aimed_arrow = ExtResource("2")
+aim_shot_cycle_sec = 0.65

@@ -1,0 +1,23 @@
+; 매의 눈 (슬롯 E, 자기 버프) — m3-archer-skills.md 4-3장.
+; 치명타 확률 +15%p / 기본·스킬 사거리 +1타일 / 공격 속도 +15%, 8초. 피해 없음.
+; 상한 40%(combat.md 6장) 안에서 작동하며, 저레벨 구간에서도 치명타를 체감시키는
+; 능동 증폭기 역할이다(7-2장).
+[gd_resource type="Resource" script_class="ArcherSkillData" format=3]
+
+[ext_resource type="Script" path="res://scripts/player/archer_skill_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+skill_name = "매의 눈"
+skill_type = 3
+cooldown_sec = 20.0
+mp_cost_percent = 0.20
+hitbox_range_tiles = 0.0
+hitbox_angle_deg = 0.0
+startup_sec = 0.3
+active_sec = 0.0
+recovery_sec = 0.2
+crit_chance_bonus = 0.15
+attack_range_bonus_tiles = 1.0
+attack_speed_bonus_percent = 0.15
+buff_duration_sec = 8.0

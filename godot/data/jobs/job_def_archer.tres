@@ -1,23 +1,29 @@
-[gd_resource type="Resource" script_class="JobDefinition" load_steps=6 format=3]
+[gd_resource type="Resource" script_class="JobDefinition" load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://scripts/progression/job_definition.gd" id="1"]
 [ext_resource type="Resource" path="res://data/progression/job_growth_archer.tres" id="2"]
-[ext_resource type="Resource" path="res://data/player/skills/skill_slot1_strike.tres" id="3"]
-[ext_resource type="Resource" path="res://data/player/skills/skill_slot2_sprint.tres" id="4"]
-[ext_resource type="Resource" path="res://data/player/skills/skill_slot3_first_aid.tres" id="5"]
+[ext_resource type="Resource" path="res://data/player/archer_basic_combo.tres" id="3"]
+[ext_resource type="Resource" path="res://data/player/skills/skill_slot1_strike.tres" id="4"]
+[ext_resource type="Resource" path="res://data/player/skills/skill_slot2_sprint.tres" id="5"]
+[ext_resource type="Resource" path="res://data/player/skills/skill_slot3_first_aid.tres" id="6"]
+[ext_resource type="Resource" path="res://data/player/skills/archer/skill_slot4_rapid_shot.tres" id="7"]
+[ext_resource type="Resource" path="res://data/player/skills/archer/skill_slotq_acrobatic_shot.tres" id="8"]
+[ext_resource type="Resource" path="res://data/player/skills/archer/skill_slote_hawk_eye.tres" id="9"]
+[ext_resource type="Resource" path="res://data/player/skills/archer/skill_ultimate_piercing_burst.tres" id="10"]
+[ext_resource type="Resource" path="res://data/player/skills/archer/skill_secondary_aim_mode.tres" id="11"]
 
 [resource]
 script = ExtResource("1")
 job_id = &"archer"
 display_name = "궁수"
 growth = ExtResource("2")
-basic_combo = null
+basic_combo = ExtResource("3")
 granted_weapon = null
-skill_slot_1 = ExtResource("3")
-skill_slot_2 = ExtResource("4")
-skill_slot_3 = ExtResource("5")
-skill_slot_4 = null
-skill_slot_q = null
-skill_slot_e = null
-skill_ultimate = null
-skill_charge = null
+skill_slot_1 = ExtResource("4")
+skill_slot_2 = ExtResource("5")
+skill_slot_3 = ExtResource("6")
+skill_slot_4 = ExtResource("7")
+skill_slot_q = ExtResource("8")
+skill_slot_e = ExtResource("9")
+skill_ultimate = ExtResource("10")
+skill_charge = ExtResource("11")

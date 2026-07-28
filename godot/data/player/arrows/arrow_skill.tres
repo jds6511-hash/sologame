@@ -1,0 +1,13 @@
+; 궁수 1차 스킬 공용 화살 — 속사(4-1장)·곡예 사격(4-2장)이 동일 규격을 쓴다
+; (사거리 5.5타일 / 16타일·초 / 비관통 / 폭 0.6타일).
+[gd_resource type="Resource" script_class="ArrowSpec" format=3]
+
+[ext_resource type="Script" path="res://scripts/player/arrow_spec.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+speed_tiles_per_sec = 16.0
+range_tiles = 5.5
+pierce_count = 0
+width_tiles = 0.6
+visual_color = Color(1.0, 0.82, 0.42, 1)

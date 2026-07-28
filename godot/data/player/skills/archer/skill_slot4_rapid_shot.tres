@@ -1,0 +1,25 @@
+; 속사 (슬롯 4, 즉발·3연사) — m3-archer-skills.md 4-1장.
+; 계수는 "발당 0.8 × 3발 = 합계 2.4"로, damage_coefficient에는 발당 값을 넣는다(화살 1발이
+; 곧 1회 판정이므로). 스킬 강화(+8%/레벨)도 발당 계수에 곱해져 합계가 같은 비율로 오른다.
+; 화살마다 독립 치명타 굴림(3회) — 궁수 치명타 체감의 핵심 장치(7-2장).
+[gd_resource type="Resource" script_class="ArcherSkillData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/player/archer_skill_data.gd" id="1"]
+[ext_resource type="Resource" path="res://data/player/arrows/arrow_skill.tres" id="2"]
+
+[resource]
+script = ExtResource("1")
+skill_name = "속사"
+skill_type = 0
+cooldown_sec = 7.0
+mp_cost_percent = 0.10
+damage_coefficient = 0.8
+hitbox_range_tiles = 0.0
+hitbox_angle_deg = 0.0
+startup_sec = 0.2
+active_sec = 0.24
+recovery_sec = 0.25
+hitstop_preset = "중"
+arrow = ExtResource("2")
+projectile_count = 3
+projectile_interval_sec = 0.08

@@ -239,8 +239,8 @@ func test_debug_scenes_start_as_warrior_directly() -> void:
 		assert_not_null(player.skill_charge, "%s — 우클릭 차지 강타 개방" % scene_path)
 
 
-func test_debug_initial_job_id_archer_opens_common_only() -> void:
-	## 궁수 고유 스킬은 C-4 소관 — 직행 시작도 공용 3종만 열리는 것이 정상이다.
+func test_debug_initial_job_id_archer_opens_full_loadout() -> void:
+	## 궁수 고유 스킬이 C-4에서 구현된 뒤로는 직행 시작도 8슬롯이 모두 열린다.
 	var player: PlayerController = PLAYER_SCENE.instantiate()
 	var trans: PlayerJobTransition = player.get_node("PlayerJobTransition")
 	trans.initial_job_id = &"archer"
@@ -249,4 +249,5 @@ func test_debug_initial_job_id_archer_opens_common_only() -> void:
 
 	assert_eq(trans.current_job_id, &"archer")
 	assert_eq(player.skill_slot_1, ARCHER_DEF.skill_slot_1, "공용 강타 유지")
-	assert_null(player.skill_slot_4, "궁수 고유 슬롯 미개방(C-4)")
+	assert_eq(player.skill_slot_4, ARCHER_DEF.skill_slot_4, "궁수 고유 슬롯 개방(속사)")
+	assert_eq(player.skill_charge, ARCHER_DEF.skill_charge, "우클릭 조준 모드 개방")
