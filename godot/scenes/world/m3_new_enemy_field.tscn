@@ -1,0 +1,110 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/m3_new_enemy_field.gd" id="1_root"]
+[ext_resource type="Script" path="res://scripts/world/m3_enemy_field_grid.gd" id="2_grid"]
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="3_player"]
+[ext_resource type="Script" path="res://scripts/vfx_common/camera_shake.gd" id="4_camerashake"]
+[ext_resource type="Script" path="res://scripts/world/hit_feedback_camera_bridge.gd" id="5_bridge"]
+[ext_resource type="Script" path="res://scripts/world/monster_spawner.gd" id="6_spawner"]
+[ext_resource type="Script" path="res://scripts/items/inventory_component.gd" id="7_inventory"]
+[ext_resource type="Script" path="res://scripts/items/drop_system.gd" id="8_drop_system"]
+[ext_resource type="Resource" path="res://data/items/drop_rate_config.tres" id="9_drop_rate_config"]
+[ext_resource type="PackedScene" path="res://scenes/items/world_item.tscn" id="10_world_item"]
+[ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="11_hud"]
+
+[node name="M3NewEnemyField" type="Node2D"]
+script = ExtResource("1_root")
+
+[node name="Grid" type="Node2D" parent="."]
+script = ExtResource("2_grid")
+
+[node name="Player" parent="." instance=ExtResource("3_player")]
+position = Vector2(72, 248)
+
+[node name="Camera2D" type="Camera2D" parent="Player"]
+current = true
+zoom = Vector2(4, 4)
+
+[node name="CameraShake" type="Node" parent="Player/Camera2D"]
+script = ExtResource("4_camerashake")
+
+[node name="Inventory" type="Node" parent="Player"]
+script = ExtResource("7_inventory")
+
+[node name="HitFeedbackBridge" type="Node" parent="."]
+script = ExtResource("5_bridge")
+camera_shake_path = NodePath("../Player/Camera2D/CameraShake")
+
+[node name="MonsterSpawner" type="Node2D" parent="."]
+y_sort_enabled = true
+script = ExtResource("6_spawner")
+player_path = NodePath("../Player")
+forest_spider_spawn_root_path = NodePath("../Markers/MonsterSpawns_숲거미")
+shadow_forest_spider_night_spawn_root_path = NodePath("../Markers/MonsterSpawns_그림자숲거미_야간")
+outlaw_pack_spawn_root_path = NodePath("../Markers/MonsterSpawns_무법자")
+highwayman_pack_spawn_root_path = NodePath("../Markers/MonsterSpawns_노상강도")
+poacher_spawn_root_path = NodePath("../Markers/MonsterSpawns_밀렵꾼")
+imp_pack_spawn_root_path = NodePath("../Markers/MonsterSpawns_임프")
+imp_lord_camp_spawn_root_path = NodePath("../Markers/MonsterSpawns_임프장균열포인트")
+
+[node name="DropSystem" type="Node" parent="."]
+script = ExtResource("8_drop_system")
+rate_config = ExtResource("9_drop_rate_config")
+world_item_scene = ExtResource("10_world_item")
+
+[node name="Hud" parent="." instance=ExtResource("11_hud")]
+
+[node name="InfoLayer" type="CanvasLayer" parent="."]
+
+[node name="InfoLabel" type="Label" parent="InfoLayer"]
+offset_left = 16.0
+offset_top = 220.0
+offset_right = 1200.0
+offset_bottom = 320.0
+theme_override_font_sizes/font_size = 17
+
+[node name="Markers" type="Node2D" parent="."]
+
+[node name="MonsterSpawns_숲거미" type="Node2D" parent="Markers"]
+
+[node name="ForestSpiderSpawn_A1a" type="Marker2D" parent="Markers/MonsterSpawns_숲거미"]
+position = Vector2(136, 120)
+
+[node name="ForestSpiderSpawn_A1b" type="Marker2D" parent="Markers/MonsterSpawns_숲거미"]
+position = Vector2(200, 120)
+
+[node name="ForestSpiderSpawn_A1c" type="Marker2D" parent="Markers/MonsterSpawns_숲거미"]
+position = Vector2(168, 72)
+
+[node name="MonsterSpawns_그림자숲거미_야간" type="Node2D" parent="Markers"]
+
+[node name="ShadowSpiderSpawn_A1a" type="Marker2D" parent="Markers/MonsterSpawns_그림자숲거미_야간"]
+position = Vector2(136, 168)
+
+[node name="ShadowSpiderSpawn_A1b" type="Marker2D" parent="Markers/MonsterSpawns_그림자숲거미_야간"]
+position = Vector2(200, 168)
+
+[node name="MonsterSpawns_무법자" type="Node2D" parent="Markers"]
+
+[node name="OutlawPackSpawn_A2" type="Marker2D" parent="Markers/MonsterSpawns_무법자"]
+position = Vector2(424, 120)
+
+[node name="MonsterSpawns_노상강도" type="Node2D" parent="Markers"]
+
+[node name="HighwaymanPackSpawn_A3" type="Marker2D" parent="Markers/MonsterSpawns_노상강도"]
+position = Vector2(680, 120)
+
+[node name="MonsterSpawns_밀렵꾼" type="Node2D" parent="Markers"]
+
+[node name="PoacherSpawn_B1" type="Marker2D" parent="Markers/MonsterSpawns_밀렵꾼"]
+position = Vector2(168, 376)
+
+[node name="MonsterSpawns_임프" type="Node2D" parent="Markers"]
+
+[node name="ImpPackSpawn_B2" type="Marker2D" parent="Markers/MonsterSpawns_임프"]
+position = Vector2(424, 376)
+
+[node name="MonsterSpawns_임프장균열포인트" type="Node2D" parent="Markers"]
+
+[node name="ImpLordCampSpawn_B3" type="Marker2D" parent="Markers/MonsterSpawns_임프장균열포인트"]
+position = Vector2(680, 376)

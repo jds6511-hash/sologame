@@ -1,0 +1,142 @@
+[gd_scene load_steps=30 format=3]
+
+[ext_resource type="Script" path="res://scripts/ai/imp_monster.gd" id="1"]
+[ext_resource type="Resource" path="res://data/monsters/imp_lord_stats.tres" id="2"]
+[ext_resource type="Texture2D" path="res://assets/sprites/monsters/mob_slime_crack_idle.png" id="3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/monsters/mob_slime_crack_walk.png" id="4"]
+[ext_resource type="Texture2D" path="res://assets/sprites/monsters/mob_slime_crack_attack.png" id="5"]
+[ext_resource type="Texture2D" path="res://assets/sprites/monsters/mob_slime_crack_death.png" id="6"]
+[ext_resource type="Script" path="res://scripts/combat/mob_stagger_component.gd" id="7"]
+[ext_resource type="Resource" path="res://data/combat/mob_stagger_rules_light.tres" id="8"]
+[ext_resource type="Script" path="res://scripts/combat/monster_attack_resolver.gd" id="9"]
+[ext_resource type="Resource" path="res://data/combat/damage_formula.tres" id="10"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_idle0"]
+atlas = ExtResource("3")
+region = Rect2(0, 36, 36, 36)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_idle1"]
+atlas = ExtResource("3")
+region = Rect2(36, 36, 36, 36)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_idle2"]
+atlas = ExtResource("3")
+region = Rect2(72, 36, 36, 36)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_idle3"]
+atlas = ExtResource("3")
+region = Rect2(108, 36, 36, 36)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_walk0"]
+atlas = ExtResource("4")
+region = Rect2(0, 36, 36, 36)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_walk1"]
+atlas = ExtResource("4")
+region = Rect2(36, 36, 36, 36)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_walk2"]
+atlas = ExtResource("4")
+region = Rect2(72, 36, 36, 36)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_walk3"]
+atlas = ExtResource("4")
+region = Rect2(108, 36, 36, 36)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_atk0"]
+atlas = ExtResource("5")
+region = Rect2(0, 36, 36, 36)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_atk1"]
+atlas = ExtResource("5")
+region = Rect2(36, 36, 36, 36)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_atk2"]
+atlas = ExtResource("5")
+region = Rect2(72, 36, 36, 36)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_atk3"]
+atlas = ExtResource("5")
+region = Rect2(108, 36, 36, 36)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_atk4"]
+atlas = ExtResource("5")
+region = Rect2(144, 36, 36, 36)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_death0"]
+atlas = ExtResource("6")
+region = Rect2(0, 36, 36, 36)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_death1"]
+atlas = ExtResource("6")
+region = Rect2(36, 36, 36, 36)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_death2"]
+atlas = ExtResource("6")
+region = Rect2(72, 36, 36, 36)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_death3"]
+atlas = ExtResource("6")
+region = Rect2(108, 36, 36, 36)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_1"]
+animations = [{
+"name": "idle",
+"speed": 6.0,
+"loop": true,
+"frames": [SubResource("AtlasTexture_idle0"), SubResource("AtlasTexture_idle1"), SubResource("AtlasTexture_idle2"), SubResource("AtlasTexture_idle3")]
+}, {
+"name": "walk",
+"speed": 10.0,
+"loop": true,
+"frames": [SubResource("AtlasTexture_walk0"), SubResource("AtlasTexture_walk1"), SubResource("AtlasTexture_walk2"), SubResource("AtlasTexture_walk3")]
+}, {
+"name": "attack",
+"speed": 12.0,
+"loop": true,
+"frames": [SubResource("AtlasTexture_atk0"), SubResource("AtlasTexture_atk1"), SubResource("AtlasTexture_atk2"), SubResource("AtlasTexture_atk3"), SubResource("AtlasTexture_atk4")]
+}, {
+"name": "death",
+"speed": 6.0,
+"loop": false,
+"frames": [SubResource("AtlasTexture_death0"), SubResource("AtlasTexture_death1"), SubResource("AtlasTexture_death2"), SubResource("AtlasTexture_death3")]
+}]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_1"]
+radius = 6.0
+height = 14.0
+
+[node name="ImpLordMonster" type="CharacterBody2D"]
+modulate = Color(1, 0.4, 0.32, 1)
+collision_layer = 4
+collision_mask = 7
+script = ExtResource("1")
+stats = ExtResource("2")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -8)
+shape = SubResource("CapsuleShape2D_1")
+
+[node name="Sprite" type="AnimatedSprite2D" parent="."]
+offset = Vector2(0, -16)
+sprite_frames = SubResource("SpriteFrames_1")
+animation = &"idle"
+autoplay = "idle"
+
+[node name="AttackHitbox" type="Area2D" parent="."]
+position = Vector2(0, -8)
+collision_layer = 0
+collision_mask = 2
+monitoring = false
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AttackHitbox"]
+
+[node name="MobStagger" type="Node" parent="."]
+script = ExtResource("7")
+rules = ExtResource("8")
+
+[node name="AttackResolver" type="Node" parent="."]
+script = ExtResource("9")
+monster_path = NodePath("..")
+formula_data = ExtResource("10")

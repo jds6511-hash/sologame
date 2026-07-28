@@ -51,6 +51,8 @@ player_path = NodePath("../Player")
 rabbit_spawn_root_path = NodePath("../Markers/MonsterSpawns_뿔토끼")
 wolf_pack_spawn_root_path = NodePath("../Markers/MonsterSpawns_들개마수")
 slime_spawn_root_path = NodePath("../Markers/MonsterSpawns_균열점액")
+forest_spider_spawn_root_path = NodePath("../Markers/MonsterSpawns_숲거미")
+shadow_forest_spider_night_spawn_root_path = NodePath("../Markers/MonsterSpawns_그림자숲거미_야간")
 
 [node name="DropSystem" type="Node" parent="."]
 script = ExtResource("11_drop_system_script")
@@ -121,3 +123,22 @@ position = Vector2(104, 104)
 
 [node name="SlimeSpawn_B" type="Marker2D" parent="Markers/MonsterSpawns_균열점액" unique_id=898679861]
 position = Vector2(216, 104)
+
+[node name="MonsterSpawns_숲거미" type="Node2D" parent="Markers"]
+
+[node name="ForestSpiderSpawn_A" type="Marker2D" parent="Markers/MonsterSpawns_숲거미"]
+position = Vector2(296, 152)
+
+[node name="ForestSpiderSpawn_B" type="Marker2D" parent="Markers/MonsterSpawns_숲거미"]
+position = Vector2(376, 104)
+
+[node name="ForestSpiderSpawn_C" type="Marker2D" parent="Markers/MonsterSpawns_숲거미"]
+position = Vector2(344, 200)
+
+[node name="MonsterSpawns_그림자숲거미_야간" type="Node2D" parent="Markers"]
+
+[node name="ShadowSpiderSpawn_A" type="Marker2D" parent="Markers/MonsterSpawns_그림자숲거미_야간"]
+position = Vector2(408, 152)
+
+[node name="ShadowSpiderSpawn_B" type="Marker2D" parent="Markers/MonsterSpawns_그림자숲거미_야간"]
+position = Vector2(328, 72)

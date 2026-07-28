@@ -15,10 +15,6 @@
 class_name EasternFrontierStartingArea
 extends Node2D
 
-const RABBIT_DROP_TABLE: DropTableData = preload("res://data/drops/rabbit_drop_table.tres")
-const WOLF_DROP_TABLE: DropTableData = preload("res://data/drops/wolf_drop_table.tres")
-const SLIME_DROP_TABLE: DropTableData = preload("res://data/drops/rift_slime_drop_table.tres")
-
 ## 주야간 CanvasModulate 색조 — `docs\art\STYLE_GUIDE.md` 5-1장 확정값 그대로(EDG32 팔레트
 ## 내 색상). CanvasModulate는 같은 캔버스의 Node2D 하위 트리에만 적용되고 Hud/IntegratedMenu/
 ## OnboardingHintBar(전부 CanvasLayer)는 별도 레이어라 영향받지 않는다.
@@ -97,35 +93,29 @@ func _start_tutorial() -> void:
 
 
 ## MonsterSpawner가 _ready() 시점까지 동기 스폰해 둔 몬스터(뿔토끼)를 종류별 드랍
-## 테이블로 DropSystem에 등록한다. 들개 마수·균열 점액은 스폰이 이후 프레임으로 분산돼
-## 이 시점에는 아직 자식으로 없을 수 있으므로 _on_monster_spawned(시그널)가 등록한다 —
-## 시점이 겹치지 않아 이중 등록되지 않는다.
+## 테이블로 DropSystem에 등록한다. 들개 마수·균열 점액·숲거미는 스폰이 이후 프레임으로
+## 분산돼 이 시점에는 아직 자식으로 없을 수 있으므로 _on_monster_spawned(시그널)가
+## 등록한다 — 시점이 겹치지 않아 이중 등록되지 않는다.
 func _register_spawned_monsters() -> void:
 	for monster in _monster_spawner.get_children():
 		_register_monster(monster)
 
 
 ## MonsterSpawner.monster_spawned 시그널 핸들러 — 스폰이 프레임 분산된 이후에 추가되는
-## 몬스터(들개 마수·균열 점액)를 놓치지 않고 DropSystem에 등록한다.
+## 몬스터(들개 마수·균열 점액·숲거미)와 밤마다 새로 스폰되는 야간 전용 종(그림자 숲거미)을
+## 놓치지 않고 DropSystem에 등록한다.
 func _on_monster_spawned(monster: MonsterBase) -> void:
 	_register_monster(monster)
 
 
+## 드랍 테이블 조회는 MonsterDropRegistry(scripts/world) 한 곳으로 통일했다 — M3 신규 종은
+## 한 스크립트가 여러 종(무법자/노상강도/밀렵꾼 등)을 담당해 클래스 분기로 아종을 구분할 수
+## 없기 때문이다(레지스트리 헤더 참고).
 func _register_monster(monster: Node) -> void:
-	var drop_table := _drop_table_for(monster)
+	var drop_table := MonsterDropRegistry.table_for(monster)
 	if drop_table == null:
 		return
 	_drop_system.register_monster(monster, drop_table)
 	## 처치 경험치 지급(B-1) — 드랍과 동일하게 몬스터 레벨·등급을 DropTableData에서 재사용한다.
 	_progression.register_monster(monster, drop_table)
 	print("[통합] 몬스터 등록: %s" % monster.name)
-
-
-func _drop_table_for(monster: Node) -> DropTableData:
-	if monster is RabbitMonster:
-		return RABBIT_DROP_TABLE
-	if monster is WolfMonster:
-		return WOLF_DROP_TABLE
-	if monster is RiftSlimeMonster:
-		return SLIME_DROP_TABLE
-	return null
