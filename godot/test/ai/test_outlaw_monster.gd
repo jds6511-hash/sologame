@@ -101,14 +101,50 @@ func test_charge_opens_path_hitbox_only_while_charging() -> void:
 	assert_false(hitbox.monitoring)
 
 
+## spec 3-3 "경로 판정은 접촉 시 1회" — 첫 접촉 후에는 대상이 판정을 나갔다 다시 들어와도
+## attack_landed가 다시 발신되지 않아야 한다(발신이 곧 피해 적용 = MonsterAttackResolver).
+## 히트박스 monitoring은 body_entered 처리 중 직접 끌 수 없어 한 프레임 뒤에 꺼지므로
+## (monster_base.gd _disable_attack_hitbox_deferred), 1회 보장은 발신 잠금이 담당한다.
 func test_charge_path_hit_lands_only_once() -> void:
+	watch_signals(_outlaw)
+	_place_target_at_tiles(_outlaw, 4.0)
+	_outlaw._enter_chase(_target)
+	_outlaw._physics_process(0.016)
+	_outlaw._physics_process(0.6)
+	_outlaw._on_attack_hitbox_body_entered(_target)
+	_outlaw._on_attack_hitbox_body_entered(_target)  ## 재진입 — 판정이 또 성립해선 안 된다
+	assert_signal_emit_count(_outlaw, "attack_landed", 1, "spec 3-3 경로 판정은 접촉 시 1회")
+
+
+## 돌진 접촉 처리는 AttackHitbox의 body_entered 안에서 실행되므로 monitoring을 직접 끄면
+## 엔진 오류("Function blocked during in/out signal")가 난다 — set_deferred로 미뤄야 하고,
+## 그래서 monitoring은 같은 프레임이 아니라 다음 프레임에 꺼진다(2026-07-29 수정).
+func test_charge_path_hit_disables_hitbox_deferred_without_engine_error() -> void:
 	var hitbox: Area2D = _outlaw.get_node("AttackHitbox")
 	_place_target_at_tiles(_outlaw, 4.0)
 	_outlaw._enter_chase(_target)
 	_outlaw._physics_process(0.016)
 	_outlaw._physics_process(0.6)
 	_outlaw._on_attack_hitbox_body_entered(_target)
-	assert_false(hitbox.monitoring, "spec 3-3 경로 판정은 접촉 시 1회")
+	await wait_frames(2)
+	assert_false(hitbox.monitoring, "첫 접촉 뒤 판정 히트박스가 꺼져야 한다")
+
+
+## 새 돌진이 시작되면 1회 잠금이 풀려 다시 판정이 성립해야 한다(쿨다운마다 재사용).
+func test_new_charge_activation_unlocks_single_hit() -> void:
+	watch_signals(_outlaw)
+	_place_target_at_tiles(_outlaw, 4.0)
+	_outlaw._enter_chase(_target)
+	_outlaw._physics_process(0.016)
+	_outlaw._physics_process(0.6)
+	_outlaw._on_attack_hitbox_body_entered(_target)
+	_outlaw._physics_process(0.75)  ## 돌진 이동 종료 → 후딜
+	_outlaw._physics_process(0.5)  ## 후딜 종료 → 쿨다운
+	_outlaw._physics_process(4.0)  ## 쿨다운 종료 → 재돌진 준비
+	_outlaw._physics_process(0.016)  ## 두 번째 돌진 예고
+	_outlaw._physics_process(0.6)  ## 두 번째 돌진 개시 = 새 판정 구간
+	_outlaw._on_attack_hitbox_body_entered(_target)
+	assert_signal_emit_count(_outlaw, "attack_landed", 2, "돌진마다 1회씩 판정이 성립해야 한다")
 
 
 func test_charge_returns_to_chase_after_recovery_and_releases_token() -> void:

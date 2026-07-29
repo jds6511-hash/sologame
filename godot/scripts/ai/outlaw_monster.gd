@@ -66,6 +66,10 @@ func _ready() -> void:
 		## 돌진 경로 접촉 판정은 근접 사거리(1.5타일)를 그대로 반경으로 쓴다
 		## (spec 미기재 — 몸통 충돌 판정이라 근접 스윙과 같은 규격으로 근사).
 		_setup_attack_hitbox(stats.melee_range_tiles)
+		## spec 3-3 "경로 판정은 접촉 시 1회" — 히트박스를 끄는 것과 별개로 발신 자체를 잠근다
+		## (MonsterBase.single_hit_per_activation 주석 참고). 이 잠금이 없으면 돌진 중 플레이어가
+		## 판정을 나갔다 다시 들어올 때 MonsterAttackResolver가 두 번 피해를 적용한다.
+		single_hit_per_activation = true
 		attack_landed.connect(_on_charge_path_hit)
 	_wander_dir = random_wander_direction()
 	_wander_timer = randf_range(1.0, 2.5)
@@ -118,7 +122,7 @@ func _physics_process(delta: float) -> void:
 		return
 	if is_staggered():
 		_cancel_patterns()
-		velocity = _knockback_velocity
+		velocity = stagger_velocity()
 		_guard_finite_before_move()
 		move_and_slide()
 		return
@@ -242,12 +246,14 @@ func _on_charge_ended() -> void:
 	current_attack_multiplier = 1.0
 
 
-## 경로 판정은 "접촉 시 1회"(spec 3-3)라, 첫 명중 즉시 히트박스를 끈다.
+## 경로 판정은 "접촉 시 1회"(spec 3-3)라, 첫 명중 즉시 히트박스를 끈다. 이 함수는
+## AttackHitbox의 body_entered 처리 중에 실행되므로 monitoring을 직접 끌 수 없다 —
+## _disable_attack_hitbox_deferred()를 써야 한다(MonsterBase 해당 함수 주석 참고).
 func _on_charge_path_hit(_body: Node) -> void:
 	if _charge_hit_landed or not _charge.is_charging():
 		return
 	_charge_hit_landed = true
-	_disable_attack_hitbox()
+	_disable_attack_hitbox_deferred()
 
 
 func _on_charge_pattern_ended() -> void:
@@ -366,7 +372,7 @@ func _spawn_crossbow_bolt(aim_point: Vector2) -> void:
 	if projectile_scene == null:
 		return
 	var bolt := projectile_scene.instantiate() as Node2D
-	get_tree().root.add_child(bolt)
+	_world_spawn_parent().add_child(bolt)
 	bolt.global_position = global_position
 	if bolt.has_method("configure"):
 		bolt.call("configure", effective_attack_power(), formula_data)

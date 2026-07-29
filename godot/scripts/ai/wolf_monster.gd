@@ -45,7 +45,7 @@ func _physics_process(delta: float) -> void:
 	if is_dead():
 		return
 	if is_staggered():
-		velocity = _knockback_velocity
+		velocity = stagger_velocity()
 		_guard_finite_before_move()
 		move_and_slide()
 		return

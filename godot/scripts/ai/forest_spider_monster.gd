@@ -89,7 +89,7 @@ func _physics_process(delta: float) -> void:
 		return
 	if is_staggered():
 		_cancel_patterns()
-		velocity = _knockback_velocity
+		velocity = stagger_velocity()
 		_guard_finite_before_move()
 		move_and_slide()
 		return
@@ -240,7 +240,7 @@ func _spawn_web_projectile(aim_point: Vector2) -> void:
 	if web_projectile_scene == null:
 		return
 	var projectile := web_projectile_scene.instantiate() as Node2D
-	get_tree().root.add_child(projectile)
+	_world_spawn_parent().add_child(projectile)
 	projectile.global_position = global_position
 	if projectile.has_signal("hit_target"):
 		projectile.connect("hit_target", _on_web_projectile_hit)

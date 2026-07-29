@@ -65,7 +65,7 @@ func _physics_process(delta: float) -> void:
 	if is_dead():
 		return
 	if is_staggered():
-		velocity = _knockback_velocity
+		velocity = stagger_velocity()
 		_guard_finite_before_move()
 		move_and_slide()
 		return
@@ -125,7 +125,7 @@ func _spawn_projectile(aim_point: Vector2) -> void:
 	if projectile_scene == null:
 		return
 	var proj := projectile_scene.instantiate() as Node2D
-	get_tree().root.add_child(proj)
+	_world_spawn_parent().add_child(proj)
 	proj.global_position = global_position
 	if proj.has_method("configure"):
 		proj.call("configure", effective_attack_power(), formula_data)
@@ -151,7 +151,7 @@ func _spawn_acid_pool(spawn_position: Vector2) -> void:
 	if acid_pool_scene == null:
 		return
 	var pool := acid_pool_scene.instantiate() as Node2D
-	get_tree().root.add_child(pool)
+	_world_spawn_parent().add_child(pool)
 	pool.global_position = spawn_position
 	if pool.has_method("configure"):
 		pool.call(

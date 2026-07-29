@@ -40,12 +40,26 @@
 ##     정예 슈퍼아머(stats.is_elite, combat.md 5-2 정예 행)를 위한 훅. 기본 구현은 감쇄 없음.
 ##   - _play_animation_or(): 신규 상태 프레임(웅크림·돌진·가드·순간이동 등)이 아직 없는
 ##     C-9 이전 단계에서도 기존 4종 애니메이션으로 자동 폴백한다.
+##
+## 정예 공용 프레임 — 슈퍼아머 + 그로기 게이지 (combat.md 5-2 정예 행, m3-monster-spec 7-5장.
+## 정예 20종 전체가 쓰는 공용 인프라라 종별 구현은 0이다):
+##   [평시] 슈퍼아머 — 피격 경직·넉백 무효(_ignores_stagger), 타격 누적으로 게이지 상승
+##       --(게이지 만충)--> [그로기](groggy_started, 기본 3.0초 — 슈퍼아머 붕괴 = 무방비 딜 타임.
+##           is_staggered()가 true가 되어 각 하위 클래스 상태머신이 행동을 멈추고, 경직·넉백이
+##           정상 적용된다)
+##       --(지속 종료)--> [평시] 복귀(groggy_ended, 게이지 0으로 초기화)
+##   게이지 최대치 = effective_max_hp() × stats.groggy_gauge_hp_ratio (수치 근거는
+##   monster_stats_data.gd "정예 그로기" 그룹 주석 참고). 플레이어 스킬(전사 2차 난입 강타 등)이
+##   대량 축적할 때는 add_groggy()/add_groggy_ratio()를 호출한다 — 호출부는 플레이어 도메인 몫.
 class_name MonsterBase
 extends CharacterBody2D
 
 signal took_damage(amount: float, remaining_hp: float)
 signal died
 signal attack_landed(target: Node)  ## 근접 스윙 명중 — CB-3 연동 지점
+signal groggy_gauge_changed(current: float, maximum: float)  ## 정예 그로기 게이지 변동 (UI/연출용)
+signal groggy_started  ## 게이지 만충 — 슈퍼아머 붕괴, 무방비 딜 타임 시작
+signal groggy_ended  ## 그로기 종료 — 게이지 초기화 후 슈퍼아머 복귀
 
 const HOME_ARRIVAL_TOLERANCE_PX := 4.0  ## 귀환 도착 판정 허용 오차
 
@@ -65,10 +79,23 @@ var last_attacker: Node2D = null
 ## 구간에 들어갈 때 하위 클래스가 설정하고, 판정이 끝나면 1.0으로 되돌린다.
 var current_attack_multiplier: float = 1.0
 
+## true면 히트박스가 한 번 켜져 있는 동안(1개 판정 구간) attack_landed를 첫 접촉 1회만
+## 발신한다 — 무법자 돌진 경로 판정 "접촉 시 1회"(m3-monster-spec 3-3) 규격용. 기본 false는
+## M2 3종 근접 스윙 거동 그대로다(스윙 판정 구간 0.12초 동안 들어온 대상 모두 판정).
+##
+## 히트박스를 끄는 것만으로는 1회를 보장할 수 없다: body_entered 처리 중에는 monitoring을
+## 직접 끌 수 없어(엔진 오류) 한 프레임 미뤄 꺼야 하고, 그 사이 대상이 나갔다 다시 들어오면
+## 두 번째 판정이 성립한다. 따라서 발신 자체를 이 플래그로 잠근다.
+var single_hit_per_activation: bool = false
+
+var groggy_gauge: float = 0.0  ## 정예 그로기 게이지 누적치 (헤더 "정예 공용 프레임" 참고)
+
 var _swing: MeleeSwingBlock = null
 var _facing_left: bool = false
 var _knockback_velocity := Vector2.ZERO
 var _night_multiplier: float = 1.0
+var _activation_hit_landed: bool = false
+var _groggy_remaining_sec: float = 0.0
 
 @onready var _sprite: AnimatedSprite2D = get_node_or_null("Sprite")
 @onready var _attack_hitbox: Area2D = get_node_or_null("AttackHitbox")
@@ -130,6 +157,9 @@ func take_damage(amount: float, hit_grade: String = "약", attacker: Node2D = nu
 	if hp <= 0.0:
 		_die()
 		return
+	## 정예는 "타격 누적으로 그로기 게이지 상승"(combat.md 5-2) — 누적 단위는 실제로 들어간
+	## 최종 피해량이다(게이지 최대치도 HP 비례라 레벨·야간 배율과 자동으로 정합된다).
+	add_groggy(final_amount)
 	if _ignores_stagger(hit_grade, attacker):
 		return
 	_register_stagger_hit(hit_grade, attacker)
@@ -142,8 +172,10 @@ func _filter_incoming_damage(amount: float, _hit_grade: String, _attacker: Node2
 
 
 ## 경직·넉백 무시 훅 — 정예는 평시 슈퍼아머(combat.md 5-2 정예 행)라 경직이 발생하지
-## 않는다. 그로기 게이지는 정예 공용 프레임 소관이라 C-8 범위 밖(m3-monster-spec 7-5장).
+## 않지만, 그로기 중에는 슈퍼아머가 깨져 경직·넉백이 정상 적용된다(무방비 딜 타임).
 func _ignores_stagger(_hit_grade: String, _attacker: Node2D) -> bool:
+	if is_groggy():
+		return false
 	return stats.is_elite
 
 
@@ -151,11 +183,84 @@ func is_dead() -> bool:
 	return hp <= 0.0
 
 
-## 씬에 MobStagger 자식 노드가 있는 동안에만 true — 상태머신은 이 값이 true인 동안
-## 자신의 배회/추적/공격 로직을 건너뛰고 넉백 이동만 적용해야 한다(각 하위 클래스
-## _physics_process 최상단, is_dead() 다음 순서로 확인).
+## 행동 불가 상태 — 피격 경직(MobStagger 자식 노드가 있는 동안) 또는 정예 그로기.
+## 상태머신은 이 값이 true인 동안 자신의 배회/추적/공격 로직을 건너뛰고 경직 이동만
+## 적용해야 한다(각 하위 클래스 _physics_process 최상단, is_dead() 다음 순서로 확인).
 func is_staggered() -> bool:
+	if is_groggy():
+		return true
 	return _stagger != null and _stagger.is_staggered()
+
+
+## 경직 중 적용할 이동 속도 — 넉백은 MobStaggerComponent의 경직이 유지되는 동안만 유효하다.
+## (그로기 3초처럼 경직보다 긴 행동 불가 구간에서 마지막 넉백 속도가 남아 계속 밀려나가는
+## 것을 막는다. M2 3종은 is_staggered()가 곧 경직 중이라는 뜻이어서 거동이 동일하다.)
+func stagger_velocity() -> Vector2:
+	if _stagger != null and _stagger.is_staggered():
+		return _knockback_velocity
+	return Vector2.ZERO
+
+
+# --- 정예 그로기 게이지 (정예 공용 프레임 — 헤더 상태 전이 주석 참고) ---
+
+
+## 그로기 게이지를 쓰는 개체인지 — 정예·보스만 해당(잡몹은 평시부터 경직이 걸리므로 게이지가
+## 무의미하다). 보스 페이즈 전환 시 게이지 초기화(combat.md 5-2 보스 행)는 보스 구현이
+## reset_groggy_gauge()를 호출해 처리한다.
+func uses_groggy_gauge() -> bool:
+	return stats.is_elite or stats.is_boss
+
+
+func groggy_gauge_max() -> float:
+	return effective_max_hp() * stats.groggy_gauge_hp_ratio
+
+
+## 그로기 게이지 축적 공용 API (플레이어 도메인 연동 지점) — 정예·보스가 아니거나 이미
+## 그로기 중이면 무시한다. 만충되는 순간 그로기가 시작된다.
+func add_groggy(amount: float) -> void:
+	if not uses_groggy_gauge() or is_groggy() or is_dead() or amount <= 0.0:
+		return
+	var maximum := groggy_gauge_max()
+	groggy_gauge = min(groggy_gauge + amount, maximum)
+	groggy_gauge_changed.emit(groggy_gauge, maximum)
+	if groggy_gauge >= maximum:
+		_start_groggy()
+
+
+## 최대치 대비 비율(0.0~1.0)로 축적한다 — 플레이어 스킬 기획이 "게이지 최대치의 N%"로
+## 규정되는 경우(전사 2차 난입 강타 등)를 위한 편의 API.
+func add_groggy_ratio(ratio: float) -> void:
+	add_groggy(groggy_gauge_max() * ratio)
+
+
+func is_groggy() -> bool:
+	return _groggy_remaining_sec > 0.0
+
+
+func reset_groggy_gauge() -> void:
+	groggy_gauge = 0.0
+	groggy_gauge_changed.emit(0.0, groggy_gauge_max())
+
+
+## 그로기 지속 시간은 _process에서 감산한다 — 하위 클래스가 각자 정의하는 _physics_process와
+## 겹치지 않고, 히트스톱(Engine.time_scale=0, combat.md 5-3) 중에는 delta가 0이 되어 함께
+## 멈추므로 딜 타임이 히트스톱만큼 손해 보지 않는다.
+func _process(delta: float) -> void:
+	if _groggy_remaining_sec <= 0.0:
+		return
+	_groggy_remaining_sec -= delta
+	if _groggy_remaining_sec > 0.0:
+		return
+	_groggy_remaining_sec = 0.0
+	reset_groggy_gauge()
+	groggy_ended.emit()
+
+
+func _start_groggy() -> void:
+	_groggy_remaining_sec = stats.groggy_duration_sec
+	_knockback_velocity = Vector2.ZERO  ## 슈퍼아머로 무효였던 직전 넉백이 남아 있지 않게
+	_play_animation_or("hit", "idle")
+	groggy_started.emit()
 
 
 ## 피격 경직 등록 + 넉백 속도 산출(combat.md 5-2·5-2-1장). 슈퍼아머 중이면
@@ -303,6 +408,7 @@ func _on_swing_telegraph_started() -> void:
 
 
 func _enable_attack_hitbox() -> void:
+	_activation_hit_landed = false  ## 새 판정 구간 — single_hit_per_activation 잠금 해제
 	if _attack_hitbox:
 		_attack_hitbox.monitoring = true
 
@@ -314,10 +420,36 @@ func _disable_attack_hitbox() -> void:
 		_sprite.modulate = Color(1.0, 1.0, 1.0)
 
 
+## body_entered 처리 중에 호출해야 하는 판정 종료 — Area2D는 in/out 시그널을 발신하는 동안
+## 잠겨 있어 monitoring을 직접 끄면 엔진 오류가 난다("Function blocked during in/out signal.
+## Use set_deferred(...)", 무법자 돌진 접촉 시 발생 — 2026-07-29 수정). 실제 차단은 다음
+## 프레임이므로, 그 사이의 재진입 방지는 single_hit_per_activation 잠금이 담당한다.
+func _disable_attack_hitbox_deferred() -> void:
+	if _attack_hitbox:
+		_attack_hitbox.set_deferred("monitoring", false)
+	if _sprite:
+		_sprite.modulate = Color(1.0, 1.0, 1.0)
+
+
 func _on_attack_hitbox_body_entered(body: Node) -> void:
 	if body == self:
 		return  ## 충돌 레이어로 이미 차단되지만, 이중 안전장치로 자기 자신은 명시적으로 제외한다.
+	if single_hit_per_activation:
+		if _activation_hit_landed:
+			return
+		_activation_hit_landed = true
 	attack_landed.emit(body)
+
+
+## 투사체·산성 웅덩이처럼 "몬스터와 독립적인 생존주기"를 갖는 노드를 붙일 부모.
+##
+## get_tree().root에 직접 붙이면 몬스터가 속한 레벨(또는 테스트)이 정리된 뒤에도 노드가
+## 살아남아, 다음 씬에서 원점 근처에 스폰된 플레이어를 때린다 — 자기피격 회귀 테스트
+## 2건이 간헐 실패한 원인이었다(2026-07-29). 몬스터의 형제 노드로 붙이면 몬스터가 죽어도
+## 남지만(투사체는 발사체이므로 당연히 남아야 한다) 레벨과 함께 정리된다.
+func _world_spawn_parent() -> Node:
+	var parent := get_parent()
+	return parent if parent != null else get_tree().root
 
 
 # --- 애니메이션 재생 (AR-2 스프라이트, 3방향 시트 중 "측면" 행만 사용) ---

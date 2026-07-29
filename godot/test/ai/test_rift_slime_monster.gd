@@ -16,15 +16,27 @@ func before_each() -> void:
 	_slime.target = _target
 
 
-## self_destructed 분기가 get_tree().root에 직접 스폰하는 RiftSlimeAcidPool은
-## add_child_autofree 대상이 아니라 각 테스트가 남긴 웅덩이가 다음 테스트로 새어나갈 수
-## 있다 — queue_free()는 삭제를 다음 프레임으로 미루므로, 프레임 경계 없이 연달아 도는
-## GUT 동기 테스트 사이에서는 즉시 free()로 확실히 정리한다.
+## 산성 웅덩이·투사체는 균열 점액의 형제 노드로 스폰되므로(monster_base.gd
+## _world_spawn_parent) add_child_autofree 대상이 아니다 — 각 테스트가 남긴 것이 다음
+## 테스트로 새어나가지 않게 즉시 정리한다(queue_free()는 삭제를 다음 프레임으로 미루므로,
+## 프레임 경계 없이 연달아 도는 GUT 동기 테스트 사이에서는 free()를 쓴다).
+##
+## 2026-07-29: 이 누수가 root까지 번져(이전 구현은 get_tree().root에 스폰) 다음 테스트 스크립트가
+## 원점에 스폰한 플레이어를 투사체가 때리는 플레이키 실패를 만들었다 — test/combat
+## 자기피격 회귀 2건의 간헐 실패 원인. 스폰 부모 변경 + 이 정리로 양쪽에서 막는다.
 func after_each() -> void:
-	for child in get_tree().root.get_children():
-		if child is RiftSlimeAcidPool:
-			get_tree().root.remove_child(child)
-			child.free()
+	for child in _spawned_world_nodes():
+		child.get_parent().remove_child(child)
+		child.free()
+
+
+func _spawned_world_nodes() -> Array[Node]:
+	var found: Array[Node] = []
+	for parent in [self, get_tree().root]:
+		for child in parent.get_children():
+			if child is RiftSlimeAcidPool or child is RiftSlimeProjectile:
+				found.append(child)
+	return found
 
 
 func test_initial_state_is_wander() -> void:
@@ -90,7 +102,7 @@ func test_self_destruct_spawns_acid_pool_at_death_position() -> void:
 	_slime.global_position = Vector2(320, 240)
 	_slime.take_damage(9999.0, "약")
 	var pool: RiftSlimeAcidPool = null
-	for child in get_tree().root.get_children():
+	for child in _spawned_world_nodes():
 		if child is RiftSlimeAcidPool:
 			pool = child
 	assert_not_null(pool, "약/중 등급 마무리 시 산성 웅덩이가 스폰되어야 함")
@@ -99,5 +111,21 @@ func test_self_destruct_spawns_acid_pool_at_death_position() -> void:
 
 func test_core_break_does_not_spawn_acid_pool() -> void:
 	_slime.take_damage(9999.0, "강")
-	for child in get_tree().root.get_children():
-		assert_false(child is RiftSlimeAcidPool, "코어 파괴(강 등급 마무리)는 자폭 웅덩이가 없어야 함")
+	var pools := 0
+	for child in _spawned_world_nodes():
+		if child is RiftSlimeAcidPool:
+			pools += 1
+	assert_eq(pools, 0, "코어 파괴(강 등급 마무리)는 자폭 웅덩이가 없어야 함")
+
+
+## 투사체·웅덩이가 get_tree().root로 새어나가지 않아야 한다 — root에 붙으면 이 테스트
+## 스크립트가 끝난 뒤에도 살아남아 다음 스크립트의 플레이어를 때린다(after_each 주석 참고).
+func test_spawned_world_nodes_are_siblings_not_root_children() -> void:
+	_target.global_position = _slime.global_position + Vector2(3 * 16, 0)
+	_slime._start_aim()
+	_slime._physics_process(1.0)  ## 조준 예고 종료 → 투사체 발사
+	_slime.take_damage(9999.0, "약")  ## 자폭 → 산성 웅덩이
+	var spawned := _spawned_world_nodes()
+	assert_gt(spawned.size(), 0, "사전 조건: 투사체·웅덩이가 실제로 스폰되어야 한다")
+	for child in spawned:
+		assert_eq(child.get_parent(), self, "몬스터의 형제 노드로 스폰돼 레벨/테스트와 함께 정리돼야 한다")
