@@ -31,16 +31,33 @@ RAW_BASE = (
 DEST = Path(__file__).parent / "_raw_src" / "lpc"
 
 # 우리 상태 시트에 필요한 원본 애니메이션 (LPC 이름)
-ANIMS = ["idle", "walk", "slash", "thrust", "shoot", "spellcast", "hurt", "jump", "run"]
+# 7개 캐릭터 레이어가 모두 아래 15종을 동일한 파일명으로 갖는다(실측 확인).
+# `CREDITS.csv`의 `1h_backslash` 같은 표기는 실제 파일명이 아니다 — 실제는 `backslash.png`.
+ANIMS = [
+    "idle",
+    "combat_idle",  # 검을 뽑아 든 전투 대기 — 전사 idle/charge 의 원본
+    "walk",
+    "run",
+    "slash",
+    "backslash",
+    "halfslash",
+    "thrust",
+    "shoot",
+    "spellcast",
+    "hurt",
+    "jump",
+]
 
 # 캐릭터 레이어: 위 ANIMS 전부에 대해 같은 파일명이 존재한다
 CHARACTER_LAYERS = [
     "body/bodies/male",
     "head/heads/human/male",
-    "hair/plain/adult",
-    "torso/armour/legion/male",
-    "torso/clothes/longsleeve/longsleeve/male",
-    "legs/pants/male",
+    # 짧은 머리. `plain`·`messy` 계열은 머리 덩어리가 커서 20x36으로 줄이면
+    # 머리만 부풀어 두신이 3.3에서 2.5 수준으로 보인다(실측 확인) -> buzzcut 채택.
+    "hair/buzzcut/adult",
+    "torso/armour/plate/male",  # 전사 — 소매 있는 판금
+    "torso/clothes/longsleeve/longsleeve/male",  # 궁수 — 긴팔 천
+    "legs/pants/male",  # 다리 공용 (legs/armour/plate 는 combat_idle 이 없어 못 쓴다)
     "feet/boots/basic/male",
 ]
 
@@ -49,16 +66,26 @@ CHARACTER_LAYERS = [
 #   (`weapon/sword/longsword/walk.png` 같은 평평한 경로는 404 — `CREDITS.csv`의 filename 열은
 #    변형 파일명을 생략한 표기라 그대로 URL에 쓰면 안 된다. 실측으로 확인한 아래 경로가 정답이다.)
 EXTRA_FILES = [
-    # 검 (전사). `walk`/`hurt` 는 64x64 셀, `attack_*` 는 **128x128 oversize 셀**.
-    # `behind/` = 몸 뒤로 가려지는 부분(몸보다 먼저 합성해야 한다).
-    "weapon/sword/longsword/walk/longsword.png",
-    "weapon/sword/longsword/hurt/longsword.png",
-    "weapon/sword/longsword/attack_slash/longsword.png",
-    "weapon/sword/longsword/attack_slash/behind/longsword.png",
-    "weapon/sword/longsword/attack_slash_reverse/longsword.png",
-    "weapon/sword/longsword/attack_slash_reverse/behind/longsword.png",
-    "weapon/sword/longsword/attack_thrust/longsword.png",
-    "weapon/sword/longsword/attack_thrust/behind/longsword.png",
+    # 검 (전사) — **arming(한손검) 세트를 쓴다.**
+    # longsword 세트는 `walk` 시트가 '칼집에 꽂힌' 상태라 idle/walk 에서 검이 보이지 않는다.
+    # arming 세트는 `universal/{fg,bg}/` 아래 idle·combat_idle·walk·hurt 를 모두 갖고 있어
+    # **검을 뽑아 든 대기 자세**가 나온다(디렉터 지적 "검 든 모습"의 원본).
+    # fg = 몸보다 앞, bg = 몸보다 뒤에 합성. 재질 변형 8종 중 steel 사용.
+    "weapon/sword/arming/universal/fg/idle/steel.png",
+    "weapon/sword/arming/universal/bg/idle/steel.png",
+    "weapon/sword/arming/universal/fg/combat_idle/steel.png",
+    "weapon/sword/arming/universal/bg/combat_idle/steel.png",
+    "weapon/sword/arming/universal/fg/walk/steel.png",
+    "weapon/sword/arming/universal/bg/walk/steel.png",
+    "weapon/sword/arming/universal/fg/hurt/steel.png",
+    "weapon/sword/arming/universal/bg/hurt/steel.png",
+    # 공격 3종 (oversize 셀) — attack1 / attack2 / execute 의 원본
+    "weapon/sword/arming/attack_slash/fg.png",
+    "weapon/sword/arming/attack_slash/bg.png",
+    "weapon/sword/arming/attack_halfslash/fg.png",
+    "weapon/sword/arming/attack_halfslash/bg.png",
+    "weapon/sword/arming/attack_backslash/fg.png",
+    "weapon/sword/arming/attack_backslash/bg.png",
     # 활 (궁수) — 손 앞(foreground)/뒤(background) 2레이어
     "weapon/ranged/bow/normal/universal/background/shoot.png",
     "weapon/ranged/bow/normal/universal/background/hurt.png",
@@ -72,6 +99,8 @@ EXTRA_FILES = [
     "quiver/shoot/quiver.png",
     "quiver/hurt/quiver.png",
     "quiver/spellcast/quiver.png",
+    "quiver/slash/quiver.png",
+    "quiver/thrust/quiver.png",
 ]
 
 
