@@ -1,0 +1,64 @@
+{
+	"_주석": "BGM 곡 카탈로그·씬 매핑·전환 수치 데이터. 코드(scripts/audio/bgm_manager.gd)는 이 표만 읽고 어떤 수치도 하드코딩하지 않는다.",
+	"_기획_출처": "docs/art/audio-direction.md 2-1(슬롯)·2-2(주야간)·3-2(전환 수치표), docs/art/bgm-lyria-prompts.md 1-1·6장(실제 생성 6곡·용도 매핑)",
+	"_루프_주석": "loop는 코드에서 stream.loop에 직접 지정한다 — .ogg.import가 프로젝트 .gitignore 대상이라 임포트 루프 플래그가 저장소에 보존되지 않는다. 팡파레(S10)만 논루프.",
+	"tracks": {
+		"title_main_theme": {
+			"path": "res://assets/audio/bgm/bgm_title_main_theme.ogg",
+			"loop": true,
+			"슬롯": "S1 타이틀"
+		},
+		"town_novera": {
+			"path": "res://assets/audio/bgm/bgm_town_novera.ogg",
+			"loop": true,
+			"슬롯": "S2 평화(노베라 거점)"
+		},
+		"field_eastern_frontier_south": {
+			"path": "res://assets/audio/bgm/bgm_field_eastern_frontier_south.ogg",
+			"loop": true,
+			"슬롯": "S3 필드(동부 변경 남측 주간)"
+		},
+		"field_night_common": {
+			"path": "res://assets/audio/bgm/bgm_field_night_common.ogg",
+			"loop": true,
+			"슬롯": "S3 야간 공용"
+		},
+		"battle_normal_early": {
+			"path": "res://assets/audio/bgm/bgm_battle_normal_early.ogg",
+			"loop": true,
+			"슬롯": "S4 일반 전투(전반)"
+		},
+		"fanfare_ceremony": {
+			"path": "res://assets/audio/bgm/bgm_fanfare_ceremony.ogg",
+			"loop": false,
+			"슬롯": "S10 의전·팡파레(논루프)"
+		}
+	},
+	"scenes": {
+		"res://scenes/world/eastern_frontier_starting_area.tscn": {
+			"day": "field_eastern_frontier_south",
+			"night": "field_night_common"
+		},
+		"res://scenes/world/m3_new_enemy_field.tscn": {
+			"day": "battle_normal_early"
+		},
+		"res://scenes/debug/debug_combat_arena.tscn": {
+			"day": "battle_normal_early"
+		}
+	},
+	"situations": {
+		"battle": "battle_normal_early",
+		"fanfare": "fanfare_ceremony"
+	},
+	"timings": {
+		"scene_fade_out_sec": 0.8,
+		"scene_fade_in_sec": 0.8,
+		"battle_fade_out_sec": 0.3,
+		"battle_fade_in_sec": 0.5,
+		"battle_exit_crossfade_sec": 1.5,
+		"battle_exit_grace_sec": 5.0,
+		"day_night_crossfade_sec": 2.0,
+		"fanfare_fade_out_sec": 0.3,
+		"fanfare_resume_fade_in_sec": 1.5
+	}
+}

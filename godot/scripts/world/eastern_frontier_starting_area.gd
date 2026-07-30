@@ -49,6 +49,7 @@ func _ready() -> void:
 	_register_spawned_monsters()
 	_start_tutorial()
 	_init_day_night_modulate()
+	_init_bgm()
 
 
 # --- 주야간 시각 연출 (G2-4) ---
@@ -73,6 +74,16 @@ func _on_day_started(_day_number: int) -> void:
 func _fade_day_night_modulate(target_color: Color) -> void:
 	var tween := create_tween()
 	tween.tween_property(_day_night_modulate, "color", target_color, DAY_NIGHT_FADE_SEC)
+
+
+# --- BGM (M3 오디오) ---
+
+
+## 씬 기본 곡(주간 동부 변경 남측 / 야간 공용)을 걸고, 전직 팡파레 시그널을 연결한다.
+## 곡 매핑·주야간 전환·크로스페이드는 BgmManager가 data/audio/bgm_tracks.json을 보고 처리한다.
+func _init_bgm() -> void:
+	BgmManager.play_for_scene(scene_file_path)
+	BgmManager.bind_job_transition(_player.get_node_or_null("PlayerJobTransition"))
 
 
 ## 온보딩 튜토리얼(UI-4) 배선 — MonsterSpawner가 이미 스폰해 둔 뿔토끼만 골라 넘긴다.
@@ -112,6 +123,8 @@ func _on_monster_spawned(monster: MonsterBase) -> void:
 ## 한 스크립트가 여러 종(무법자/노상강도/밀렵꾼 등)을 담당해 클래스 분기로 아종을 구분할 수
 ## 없기 때문이다(레지스트리 헤더 참고).
 func _register_monster(monster: Node) -> void:
+	## 전투 곡 전환용 — 정예만 구독하고 잡몹은 무시한다(BgmManager.register_monster 참고).
+	BgmManager.register_monster(monster)
 	var drop_table := MonsterDropRegistry.table_for(monster)
 	if drop_table == null:
 		return

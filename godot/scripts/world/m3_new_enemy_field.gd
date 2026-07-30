@@ -61,6 +61,9 @@ func _ready() -> void:
 	for monster in _monster_spawner.get_children():
 		_register_monster(monster)
 	_capture_mode = OS.get_cmdline_user_args().has(CAPTURE_FLAG)
+	## 검증 필드 BGM — 매핑상 일반 전투 곡을 그대로 쓴다(bgm-lyria-prompts 1-1 판단 사항 2).
+	BgmManager.play_for_scene(scene_file_path)
+	BgmManager.bind_job_transition(_player.get_node_or_null("PlayerJobTransition"))
 
 
 func _process(delta: float) -> void:
@@ -82,6 +85,7 @@ func _process(delta: float) -> void:
 
 ## 시작 지역 씬과 동일한 배선 — 드랍 테이블 1개로 드랍·처치 경험치를 함께 등록한다.
 func _register_monster(monster: Node) -> void:
+	BgmManager.register_monster(monster)  ## 포효 임프장(정예) 교전 시 전투 곡 전환
 	var drop_table := MonsterDropRegistry.table_for(monster)
 	if drop_table == null:
 		return

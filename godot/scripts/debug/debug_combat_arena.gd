@@ -41,6 +41,9 @@ var _spawn_sequence: int = 0
 func _ready() -> void:
 	_player_spawn_position = _player.global_position
 	_hud.bind_player(_player, _player_stats)
+	## 디버그 전투장은 지역색이 필요 없어 일반 전투 곡을 그대로 쓴다
+	## (bgm-lyria-prompts.md 1-1 판단 사항 2 — 전용 트랙 미생성).
+	BgmManager.play_for_scene(scene_file_path)
 
 
 func _process(_delta: float) -> void:
