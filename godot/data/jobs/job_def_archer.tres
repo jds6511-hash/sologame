@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="JobDefinition" load_steps=13 format=3]
+[gd_resource type="Resource" script_class="JobDefinition" load_steps=14 format=3]
 
 [ext_resource type="Script" path="res://scripts/progression/job_definition.gd" id="1"]
 [ext_resource type="Resource" path="res://data/progression/job_growth_archer.tres" id="2"]
@@ -12,6 +12,7 @@
 [ext_resource type="Resource" path="res://data/player/skills/archer/skill_slote_hawk_eye.tres" id="9"]
 [ext_resource type="Resource" path="res://data/player/skills/archer/skill_ultimate_piercing_burst.tres" id="10"]
 [ext_resource type="Resource" path="res://data/player/skills/archer/skill_secondary_aim_mode.tres" id="11"]
+[ext_resource type="SpriteFrames" path="res://assets/sprites/player/player_archer_frames.tres" id="13"]
 
 [resource]
 script = ExtResource("1")
@@ -20,6 +21,7 @@ display_name = "궁수"
 growth = ExtResource("2")
 basic_combo = ExtResource("3")
 granted_weapon = ExtResource("12")
+sprite_frames = ExtResource("13")
 skill_slot_1 = ExtResource("4")
 skill_slot_2 = ExtResource("5")
 skill_slot_3 = ExtResource("6")

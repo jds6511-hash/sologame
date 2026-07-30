@@ -35,6 +35,13 @@ extends Resource
 ## 지급 사실만 기록·노출한다(경제/도감 후속 훅). 궁수 활 아이템은 경제/C-6에서 채운다.
 @export var granted_weapon: ItemData
 
+@export_group("외형 (M3 3-A 정식 스프라이트)")
+## 이 직업의 스프라이트 시트(직업당 9상태 x 3방향). 전직 시 PlayerController가 Sprite 노드에
+## 그대로 꽂는다 — 무기(대검/활)와 직업 전용 상태(전사 attack2·charge / 궁수 aim·rollshot)가
+## 시트마다 다르므로 상태별 교체가 아니라 시트째 교체가 맞다.
+## 비우면 전용 시트가 없는 직업(검투사 — 전사 시트를 계속 쓴다)이라 현재 시트를 유지한다.
+@export var sprite_frames: SpriteFrames
+
 @export_group("스킬 로드아웃 (승계형 교체 — 신규 키 0)")
 @export var skill_slot_1: WarriorSkillData  ## 1키 — 모험가 공용(강타)
 @export var skill_slot_2: WarriorSkillData  ## 2키 — 모험가 공용(질주)

@@ -1,0 +1,105 @@
+## M3 3-A 검증 ② — 직업 전용 스프라이트 시트 스왑과 없는 상태 폴백.
+##
+## 배선만 해서는 궁수 스프라이트가 화면에 나오지 않는다(player.tscn은 전사 시트로 시작한다).
+## 전직 시 JobDefinition.sprite_frames가 Sprite 노드에 실제로 꽂히는지, 그리고 직업마다
+## 상태 구성이 달라 요청한 상태가 시트에 없을 때 종전 이름으로 안전하게 접히는지 확인한다.
+## 상태별 애니메이션 이름 조립은 test_player_sprite_states.gd 담당.
+extends GutTest
+
+const WARRIOR_DEF: JobDefinition = preload("res://data/jobs/job_def_warrior.tres")
+const ARCHER_DEF: JobDefinition = preload("res://data/jobs/job_def_archer.tres")
+const GLADIATOR_DEF: JobDefinition = preload("res://data/jobs/job_def_gladiator.tres")
+
+var _player: PlayerController
+var _sprite: AnimatedSprite2D
+
+
+func before_each() -> void:
+	var scene: PackedScene = load("res://scenes/player/player.tscn")
+	_player = scene.instantiate()
+	add_child_autofree(_player)
+	_sprite = _player.get_node("Sprite")
+	## 조준 각도를 오른쪽으로 고정해 방향 접미사를 side로 확정한다.
+	_player._facing.rotation = 0.0
+	_player._last_move_direction = Vector2.RIGHT
+
+
+func _played_anim() -> String:
+	_player._update_visual()
+	return String(_sprite.animation)
+
+
+# --- 시트 스왑 ---
+
+
+func test_transition_to_archer_swaps_sheet() -> void:
+	## 전직은 스탯 재계산을 유발하고 그 결과가 공용 리소스(warrior_lv1_combatant_stats.tres)에
+	## 그대로 기록된다 — Lv1 스냅샷(방어력 14.0)을 기대하는 같은 프로세스의 다른 테스트를
+	## 오염시키므로, 이 테스트에서만 사본으로 갈아 재계산을 격리한다.
+	var growth: PlayerStatGrowth = _player.get_node("PlayerStatGrowth")
+	growth.combat_stats = growth.combat_stats.duplicate()
+
+	var transition: PlayerJobTransition = _player.get_node("PlayerJobTransition")
+	transition.transition_available = true
+
+	assert_true(transition.perform_transition(&"archer"), "전제: 궁수 전직 성공")
+
+	assert_eq(
+		_sprite.sprite_frames.resource_path,
+		"res://assets/sprites/player/player_archer_frames.tres",
+		"전직 시 궁수 시트로 교체돼야 함(배선만으로는 화면에 안 나온다)"
+	)
+	assert_true(_sprite.sprite_frames.has_animation("rollshot_front"), "궁수 전용 상태 사용 가능")
+
+
+func test_job_without_own_sheet_keeps_current_sheet() -> void:
+	## 검투사(2차)는 전용 시트가 아직 없다 — 전사 시트를 계속 쓰는 것이 정상이다.
+	assert_null(GLADIATOR_DEF.sprite_frames, "전제: 검투사 전용 시트 미제작")
+	var before := _sprite.sprite_frames
+
+	_player.visual.set_job_sprite_frames(GLADIATOR_DEF.sprite_frames)
+
+	assert_eq(_sprite.sprite_frames, before, "시트가 없는 직업은 직전 시트를 유지해야 함")
+
+
+func test_sheet_swap_leaves_a_valid_animation() -> void:
+	## 전사 전용 상태(attack2)를 재생하던 중 궁수 시트로 갈아타도 없는 애니메이션이 남지 않아야
+	## 한다(교체 직후 한 프레임의 빈 스프라이트 방지).
+	_player.apply_transition_loadout(WARRIOR_DEF.skill_loadout(), WARRIOR_DEF.basic_combo)
+	_player._start_attack_step(1)
+	assert_eq(_played_anim(), "attack2_side")
+
+	_player.visual.set_job_sprite_frames(ARCHER_DEF.sprite_frames)
+
+	assert_true(
+		_sprite.sprite_frames.has_animation(_sprite.animation),
+		"교체 후 재생 중인 애니메이션(%s)이 새 시트에 존재해야 함" % _sprite.animation
+	)
+
+
+# --- 폴백: 시트에 없는 상태는 종전 이름으로 접힌다 ---
+
+
+func test_missing_attack2_falls_back_to_attack() -> void:
+	_player.apply_transition_loadout(ARCHER_DEF.skill_loadout(), ARCHER_DEF.basic_combo)
+	_player.visual.set_job_sprite_frames(ARCHER_DEF.sprite_frames)
+	_player._start_attack_step(0)
+	_player._attack_step_index = 1  ## 궁수 시트에는 attack2가 없다
+	assert_eq(_played_anim(), "attack_side", "attack2가 없으면 기본 공격 모션으로 접혀야 함")
+
+
+func test_missing_rollshot_falls_back_to_attack() -> void:
+	## 전사 시트로 궁수 DASH 스킬 모션을 요청하는 교차 상황(로드아웃 전환 과도기 안전망).
+	_player.skill_state = PlayerController.AttackState.ACTIVE
+	_player.active_skill = ARCHER_DEF.skill_slot_q
+	assert_eq(_played_anim(), "attack_side", "rollshot이 없으면 공격 모션으로 접혀야 함")
+
+
+func test_empty_sprite_frames_does_not_crash() -> void:
+	_sprite.sprite_frames = SpriteFrames.new()
+	_sprite.sprite_frames.remove_animation("default")
+	_player._is_charging_secondary = true
+
+	_player._update_visual()  ## 후보가 전부 없는 경우 — 아무것도 재생하지 않고 조용히 넘어간다
+
+	assert_eq(_sprite.sprite_frames.get_animation_names().size(), 0, "애니메이션이 하나도 없는 시트")

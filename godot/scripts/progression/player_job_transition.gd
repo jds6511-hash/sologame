@@ -180,13 +180,20 @@ func perform_transition(job_id: StringName) -> bool:
 	return true
 
 
-## 승계형 스킬 슬롯 개방과 직업 무기(기본 공격 콤보) 교체를 부모 컨트롤러에 위임한다.
+## 승계형 스킬 슬롯 개방과 직업 무기(기본 공격 콤보) 교체, 직업 전용 스프라이트 시트 교체를
+## 부모 컨트롤러에 위임한다.
 ## 자식 _ready(직행 시작 경로)에서도 호출되는데, 그 시점 부모의 @onready 참조는 아직
 ## 비어 있다 — apply_transition_loadout은 슬롯 대입과 쿨다운 초기화만 하고 진행 중 동작
-## 정리는 상태 확인 후에만 하므로(시작 시 전부 정지 상태) 안전하다.
+## 정리는 상태 확인 후에만 하므로(시작 시 전부 정지 상태) 안전하다. 시트 교체도 같은 이유로
+## PlayerVisualModule이 캐시해 두고 컨트롤러 _ready의 setup에서 Sprite 노드에 반영한다.
 func _apply_loadout(job_def: JobDefinition) -> void:
-	if _controller and _controller.has_method("apply_transition_loadout"):
+	if _controller == null:
+		return
+	if _controller.has_method("apply_transition_loadout"):
 		_controller.apply_transition_loadout(job_def.skill_loadout(), job_def.basic_combo)
+	var visual := _controller.get("visual") as PlayerVisualModule
+	if visual != null:
+		visual.set_job_sprite_frames(job_def.sprite_frames)
 
 
 ## 현재 전직 후보 목록의 index번째 직업으로 전직을 실행한다(전직 실행 키·직업 선택 화면

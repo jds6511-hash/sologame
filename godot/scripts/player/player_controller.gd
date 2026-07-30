@@ -77,6 +77,10 @@ var active_skill: WarriorSkillData = null
 ## 공개 상태로 둔다.
 var rage := PlayerRageModule.new()
 
+## 애니메이션 이름 결정·재생·직업 시트 교체 담당 모듈(scripts/player/player_visual_module.gd).
+## 전직(PlayerJobTransition)이 직업 시트를 직접 넣으므로 rage와 같이 공개 상태로 둔다.
+var visual := PlayerVisualModule.new()
+
 var _move_input := Vector2.ZERO
 var _last_move_direction := Vector2.DOWN  ## 대시 기본 방향(이동 입력 없을 시 마지막 방향 유지)
 var _attack_step_index: int = -1
@@ -112,8 +116,6 @@ var _cooldown_secondary: float = 0.0
 ## 궁수 원거리 사격(조준 스탠스·화살 발사·매의 눈 가산) 담당 모듈 — 원거리 전용 상태를
 ## 이 컨트롤러에서 분리했다(scripts/player/archer_shot_module.gd).
 var _shots := ArcherShotModule.new()
-## 애니메이션 이름 결정·재생 담당 모듈(scripts/player/player_visual_module.gd).
-var _visual := PlayerVisualModule.new()
 
 ## 이동 둔화 디버프(숲거미 거미줄 등) — 남은 지속시간과 감소 비율.
 var _move_slow_percent: float = 0.0
@@ -143,7 +145,7 @@ func _ready() -> void:
 	_shots.setup(self, movement_data.tile_size_px)
 	_shots.arrow_hit_landed.connect(_on_arrow_hit_landed)
 	_shots.refresh_stance(skill_charge)
-	_visual.setup(self, _sprite)
+	visual.setup(self, _sprite, _shots)
 
 
 func _physics_process(delta: float) -> void:
@@ -957,12 +959,13 @@ func _update_dash_recharge(delta: float) -> void:
 
 
 func _update_visual() -> void:
-	_visual.update(
+	visual.update(
 		_attack_anim_restart_requested,
 		_is_charging_secondary,
 		_move_input,
 		_last_move_direction,
-		_facing.rotation
+		_facing.rotation,
+		_attack_step_index
 	)
 	_attack_anim_restart_requested = false
 
