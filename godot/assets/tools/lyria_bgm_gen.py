@@ -72,6 +72,8 @@ class Track:
     title: str  # 한국어 트랙명
     prompt: str  # 시트 2장 영어 프롬프트 원문 (수정 없이 그대로)
     model: str = "pro"  # 기본 pro(약 2분 30초). 짧은 논루프 트랙만 clip으로 지정
+    # 논루프 단곡의 클린 컷 허용 범위 (최소초, 최대초). None이면 자르지 않는다.
+    cut_range: tuple[float, float] | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -147,6 +149,7 @@ TRACKS: list[Track] = [
         loop=False,
         title="의전·팡파레 (전직·승급 연출)",
         model="clip",
+        cut_range=(5.0, 9.0),
         prompt=(
             "Short triumphant 8-bit chiptune ceremonial fanfare, about 5 to 8 seconds of usable "
             "material, bright square wave brass-style flourish building to a clear resolved "
@@ -211,6 +214,7 @@ TRACKS: list[Track] = [
         loop=False,
         title="보스 등장 인트로 스팅어 (일반)",
         model="clip",
+        cut_range=(2.0, 4.5),
         prompt=(
             "Short dramatic 8-bit chiptune stinger, a sudden intense minor-key sting with a "
             "rising noise sweep and a hard hit on the downbeat, signaling a boss enemy has "
@@ -573,6 +577,7 @@ TRACKS: list[Track] = [
         loop=False,
         title="보스 등장 인트로 스팅어 (상위)",
         model="clip",
+        cut_range=(2.0, 4.5),
         prompt=(
             "Short intense 8-bit chiptune stinger, bigger and more ominous rising sweep and "
             "heavier hit than a standard boss stinger, signaling an elite threat, instrumental "
@@ -704,6 +709,77 @@ def decode_to_wav(src: Path, dst: Path) -> None:
     _ffmpeg(["-i", str(src), "-ar", "44100", "-c:a", "pcm_s16le", str(dst)])
 
 
+def _mono(samples: np.ndarray) -> np.ndarray:
+    return samples.mean(axis=1) if samples.ndim > 1 else samples
+
+
+def _rms_envelope(mono: np.ndarray, sr: int, hop_sec: float = 0.05) -> tuple[np.ndarray, int]:
+    hop = max(1, int(sr * hop_sec))
+    usable = (len(mono) // hop) * hop
+    if usable == 0:
+        return np.zeros(0), hop
+    frames = mono[:usable].reshape(-1, hop)
+    return np.sqrt((frames**2).mean(axis=1)), hop
+
+
+def trim_edges(
+    samples: np.ndarray, sr: int, thresh_ratio: float = 0.45, max_trim_frac: float = 0.30
+) -> tuple[np.ndarray, dict]:
+    """인트로 페이드인·아웃트로 페이드아웃 구간을 잘라낸다.
+
+    Lyria 3는 프롬프트에 `no fade in or fade out`을 명시해도 곡 끝을 무음까지
+    페이드아웃시킨다(pro 모델 실측: 마지막 0.25초 RMS가 본문의 1% 이하). 이 구간을
+    남긴 채 루프하면 이음매에서 소리가 사라졌다 다시 커지는 것이 명확히 들리므로,
+    루프 접합 **전에** 본문(정상 세기 구간)만 남긴다.
+
+    판정: 50ms RMS 엔벨로프가 중앙값의 `thresh_ratio` 이상인 첫/마지막 프레임까지를
+    본문으로 본다. 오판으로 곡을 과도하게 깎지 않게 편당 최대 `max_trim_frac`까지만 자른다.
+    """
+    mono = _mono(samples)
+    env, hop = _rms_envelope(mono, sr)
+    if len(env) < 4:
+        return samples, {}
+    thresh = float(np.median(env)) * thresh_ratio
+    above = np.flatnonzero(env >= thresh)
+    if len(above) == 0:
+        return samples, {}
+    limit = int(len(env) * max_trim_frac)
+    lo = min(int(above[0]), limit)
+    hi = max(int(above[-1]) + 1, len(env) - limit)
+    s0 = lo * hop
+    s1 = min(hi * hop, len(mono))
+    if s1 - s0 < sr * 5:  # 5초 미만으로 남으면 판정 실패로 보고 원본 유지
+        return samples, {}
+    return samples[s0:s1].copy(), {
+        "trim_head_sec": round(s0 / sr, 2),
+        "trim_tail_sec": round((len(mono) - s1) / sr, 2),
+    }
+
+
+def clean_cut(
+    samples: np.ndarray, sr: int, min_sec: float, max_sec: float, fade_sec: float = 0.12
+) -> tuple[np.ndarray, dict]:
+    """논루프 단곡(스팅어·팡파레)을 지정 범위 안의 에너지 최저점에서 잘라낸다.
+
+    `bgm-lyria-prompts.md` 3장 3번의 "클린 컷". Lyria는 `about 5 to 8 seconds`를
+    지시해도 30초 전체를 채워 보내므로(실측), 악구가 끊기는 지점 = RMS 최저점을 찾아
+    자르고 짧은 등파워 페이드아웃으로 클릭을 막는다.
+    """
+    mono = _mono(samples)
+    env, hop = _rms_envelope(mono, sr)
+    lo = int(min_sec * sr / hop)
+    hi = min(int(max_sec * sr / hop), len(env))
+    if hi <= lo:
+        return samples, {}
+    idx = lo + int(np.argmin(env[lo:hi]))
+    end = min((idx + 1) * hop, len(mono))
+    out = samples[:end].copy()
+    fade_n = min(int(sr * fade_sec), end)
+    fade = np.sqrt(1.0 - np.linspace(0.0, 1.0, fade_n))
+    out[-fade_n:] *= fade[:, None] if out.ndim > 1 else fade
+    return out, {"cut_at_sec": round(end / sr, 2), "fade_out_sec": fade_sec}
+
+
 def loopify(samples: np.ndarray, sr: int, max_xfade_sec: float) -> tuple[np.ndarray, dict]:
     """등파워 크로스페이드로 심리스 루프를 만든다.
 
@@ -820,9 +896,15 @@ def process(track: Track, args: argparse.Namespace) -> dict:
     samples, sr = sf.read(str(work), always_2d=True, dtype="float32")
     before = analyze(samples, sr)
 
-    loop_info: dict = {}
+    edit_info: dict = {}
     if track.loop:
-        samples, loop_info = loopify(samples, sr, args.xfade)
+        # 페이드 제거 → 루프 접합 순서가 중요하다(페이드를 남기면 이음매가 무음으로 꺼진다).
+        samples, trim = trim_edges(samples, sr)
+        samples, join = loopify(samples, sr, args.xfade)
+        edit_info = {**trim, **join}
+        sf.write(str(work), samples, sr, subtype="PCM_16")
+    elif track.cut_range:
+        samples, edit_info = clean_cut(samples, sr, *track.cut_range)
         sf.write(str(work), samples, sr, subtype="PCM_16")
     after = analyze(samples, sr)
 
@@ -840,7 +922,7 @@ def process(track: Track, args: argparse.Namespace) -> dict:
         "ogg_bytes": ogg.stat().st_size,
         "raw_analysis": before,
         "final_analysis": after,
-        "loop_join": loop_info,
+        "post_edit": edit_info,
         "loudness": loud,
         "generated_at": time.strftime("%Y-%m-%d %H:%M:%S"),
     }
