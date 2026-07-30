@@ -1,7 +1,10 @@
-## M3 전직 UI 검증 — 전직 가능 알림, 직업 선택 화면, 전직 후 UI 재바인딩, 디버그 레벨 키.
+## M3 전직 UI 검증(1차) — 전직 가능 알림, 직업 선택 화면, 전직 후 UI 재바인딩, 디버그 레벨 키.
 ##
 ## 전직 조건(Lv10)은 PlayerProgression에 실제 경험치를 넣어 만든다 — 레벨업 시그널 경로를
 ## 그대로 태워야 PlayerJobTransition의 전직 가능 판정까지 실제 순서대로 재현된다.
+##
+## 2차 전직(Lv40 검투사) 화면과 분노 게이지 HUD 연동은 `test_job_transition_tier2_ui.gd`
+## 참고(gdlint max-public-methods 20개 제한으로 파일 분리).
 extends GutTest
 
 const PLAYER_SCENE := preload("res://scenes/player/player.tscn")

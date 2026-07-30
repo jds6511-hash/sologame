@@ -68,10 +68,14 @@ func _on_job_changed(_job_id: StringName) -> void:
 	set_available(false)
 
 
-## 배너 표시/숨김을 전환한다(테스트·외부 호출 공용).
+## 배너 표시/숨김을 전환한다(테스트·외부 호출 공용). 1차·2차 어느 단계의 알림인지 문구로
+## 구분한다 — 같은 배너가 Lv10과 Lv40에서 모두 뜨기 때문이다(M3 C-1).
 func set_available(is_available: bool) -> void:
 	visible = is_available
 	if is_available:
+		_title_label.text = (
+			"2차 전직 가능!" if _transition and _transition.is_transitioned else "전직 가능!"
+		)
 		_start_pulse()
 		return
 	_stop_pulse()

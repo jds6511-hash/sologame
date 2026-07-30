@@ -9,6 +9,9 @@
 ## PlayerProgression·PlayerStatGrowth를 노드 경로로 찾아 스스로 배선한다(월드 씬의 기존
 ## bind_player 호출만으로 레벨/EXP/레벨업 연출이 동작 — 추가 배선 불필요). 스킬 강화 화면과
 ## 스탯 상세(치명타% 포함)는 상시 표시가 아니므로(ux 5장 정보 위계) 통합 메뉴 K/C 탭 소관이다.
+##
+## M3 C-1: 검투사 분노 게이지(RageGauge)를 추가했다 — 검투사 로드아웃이 적용된 동안에만
+## 스스로 표시되므로(rage_gauge.gd 헤더) HUD는 bind만 하고 표시 조건에 관여하지 않는다.
 class_name Hud
 extends CanvasLayer
 
@@ -20,11 +23,13 @@ var _job_name := "전사"
 ## M3 전직 UI 배선용 참조(bind_player가 채운다).
 var _bound_player: PlayerController = null
 var _progression: PlayerProgression = null
+var _job_transition: PlayerJobTransition = null
 
 @onready var _status_panel: PlayerStatusPanel = $PlayerStatusPanel
 @onready var _minimap: MinimapDisplay = $Minimap
 @onready var _game_time: GameTimeDisplay = $GameTimeDisplay
 @onready var _skill_bar: SkillSlotBar = $SkillSlotBar
+@onready var _rage_gauge: RageGauge = $RageGauge
 @onready var _interaction_prompt: InteractionPrompt = $InteractionPrompt
 @onready var _exp_bar: Control = $ExpBar
 @onready var _exp_fill: ColorRect = $ExpBar/Fill
@@ -59,8 +64,12 @@ func bind_player(player: PlayerController, stats: PlayerStatsComponent) -> void:
 	stats.mp_changed.connect(_status_panel.set_mp)
 	_status_panel.set_hp(stats.current_hp, stats.stats.max_hp)
 	_status_panel.set_mp(stats.current_mp, stats.stats.max_mp)
+	## 분노 게이지(M3 C-1)는 검투사 로드아웃일 때만 스스로 나타난다 — 여기서는 연결만 한다.
+	_rage_gauge.bind_player(player)
+	## 직업명 표시가 전직 노드의 JobDefinition을 참조하므로 진행도보다 먼저 잡아 둔다.
+	_job_transition = player.get_node_or_null("PlayerJobTransition") as PlayerJobTransition
 	_bind_progression(player)
-	_bind_job_transition(player)
+	_bind_job_transition()
 
 
 ## 레벨·경험치 바를 PlayerProgression(B-1)에 연결한다(m3-leveling-spec 7-5). 노드가 없는
@@ -81,12 +90,11 @@ func _bind_progression(player: PlayerController) -> void:
 
 ## 전직 UI(M3) 배선 — 전직 가능 알림과 직업 선택 화면을 PlayerJobTransition(B-5)에 연결한다.
 ## 노드가 없는 씬(구버전·테스트 씬)에서는 알림이 표시되지 않고 화면도 열리지 않는다.
-func _bind_job_transition(player: PlayerController) -> void:
-	var transition := player.get_node_or_null("PlayerJobTransition") as PlayerJobTransition
-	_job_notice.bind_transition(transition)
-	_job_selection.bind_transition(transition)
-	if transition:
-		transition.job_changed.connect(_on_job_changed)
+func _bind_job_transition() -> void:
+	_job_notice.bind_transition(_job_transition)
+	_job_selection.bind_transition(_job_transition)
+	if _job_transition:
+		_job_transition.job_changed.connect(_on_job_changed)
 
 
 ## 전직 완료 시 레벨·직업 라벨을 새 직업명으로 갱신한다 — 직업명은 bind 시점 스냅샷이라
@@ -97,13 +105,37 @@ func _on_job_changed(_job_id: StringName) -> void:
 	_status_panel.set_level_and_job(level, _job_name)
 
 
-## 직업명은 PlayerStatGrowth.job(JobGrowthData)의 display_name에서 읽는다(전직 시 B-5가
-## 이 리소스를 교체하면 다음 bind부터 반영). 노드/리소스가 없으면 기본 "전사".
+## 직업명은 **전직 노드가 아는 JobDefinition.display_name을 먼저** 쓴다(M3 C-1). 성장 데이터
+## (PlayerStatGrowth.job = JobGrowthData)는 "레벨당 스탯 배분" 단위라 검투사가 전사 배분
+## (job_growth_warrior.tres)을 그대로 재사용하며, 그 display_name("전사")을 쓰면 2차 전직 후에도
+## 라벨이 "전사"로 남는다. 전직 노드가 없는 씬(구버전·테스트)이나 모험가(등록된 직업 정의가
+## 없다)는 기존대로 성장 데이터명으로 폴백한다.
 func _resolve_job_name(player: PlayerController) -> String:
+	var definition_name := _job_definition_name()
+	if not definition_name.is_empty():
+		return definition_name
 	var growth := player.get_node_or_null("PlayerStatGrowth")
 	if growth and growth.job:
 		return growth.job.display_name
 	return "전사"
+
+
+## 현재 직업 id와 일치하는 JobDefinition의 표시명(1차 목록 -> 상위 계통 순서로 찾는다).
+## 등록된 정의가 없으면 빈 문자열.
+func _job_definition_name() -> String:
+	if _job_transition == null:
+		return ""
+	var job_name := _find_job_display_name(_job_transition.available_jobs)
+	if job_name.is_empty():
+		job_name = _find_job_display_name(_job_transition.tier2_jobs)
+	return job_name
+
+
+func _find_job_display_name(definitions: Array[JobDefinition]) -> String:
+	for job_def in definitions:
+		if job_def != null and job_def.job_id == _job_transition.current_job_id:
+			return job_def.display_name
+	return ""
 
 
 ## 현재 레벨 내 경험치 변동 반영. exp_to_next<=0 이면 만렙 — 바를 만충하고 MAX를 표기한다

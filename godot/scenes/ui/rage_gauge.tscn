@@ -1,0 +1,70 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/rage_gauge.gd" id="1"]
+
+[node name="RageGauge" type="Control"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 600.0
+offset_top = -216.0
+offset_right = 1428.0
+offset_bottom = -168.0
+mouse_filter = 2
+script = ExtResource("1")
+
+[node name="StateLabel" type="Label" parent="."]
+layout_mode = 0
+offset_right = 828.0
+offset_bottom = 27.0
+mouse_filter = 2
+text = "분노 0 / 100"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Bar" type="Control" parent="."]
+layout_mode = 0
+offset_top = 30.0
+offset_right = 828.0
+offset_bottom = 48.0
+mouse_filter = 2
+
+[node name="Background" type="ColorRect" parent="Bar"]
+layout_mode = 0
+offset_right = 828.0
+offset_bottom = 18.0
+mouse_filter = 2
+color = Color(0.09411765, 0.078431375, 0.14509805, 1)
+
+[node name="Fill" type="ColorRect" parent="Bar"]
+layout_mode = 0
+offset_top = 12.0
+offset_bottom = 18.0
+mouse_filter = 2
+color = Color(0.63529414, 0.14901961, 0.19999999, 1)
+
+[node name="FinisherTick" type="ColorRect" parent="Bar"]
+layout_mode = 0
+offset_left = 412.5
+offset_top = -6.0
+offset_right = 415.5
+offset_bottom = 24.0
+mouse_filter = 2
+color = Color(0.75294118, 0.79607844, 0.86274510, 0.45)
+
+[node name="EnrageTick" type="ColorRect" parent="Bar"]
+layout_mode = 0
+offset_left = 660.9
+offset_top = -6.0
+offset_right = 663.9
+offset_bottom = 24.0
+mouse_filter = 2
+color = Color(0.75294118, 0.79607844, 0.86274510, 0.45)
+
+[node name="Border" type="Panel" parent="Bar"]
+layout_mode = 0
+offset_left = -4.0
+offset_top = -4.0
+offset_right = 832.0
+offset_bottom = 22.0
+mouse_filter = 2
+visible = false
