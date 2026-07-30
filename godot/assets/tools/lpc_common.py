@@ -68,6 +68,10 @@ RAMPS: dict[str, tuple[str, str, str, str]] = {
     "leather": ("#b86f50", "#733e39", "#3e2731", "#262b44"),
     "trouser_dark": ("#5a6988", "#3a4466", "#262b44", "#3e2731"),
     "cloth_green": ("#63c74d", "#3e8948", "#265c42", "#193c3e"),
+    # 전사 받침옷 — 짙은 남색 천. `STYLE_GUIDE` 2장의 청 계열(아군/플레이어 식별색)에
+    # 속하면서, 갈색(부츠·머리)·회청 판금·초록(궁수)과 모두 계열이 달라 부위 경계가 읽힌다.
+    # 고채도 `#0099db` 는 램프에서 제외한다 — 어깨에 발광하는 시안 반점처럼 보인다(실측).
+    "cloth_blue": ("#124e89", "#3a4466", "#262b44", "#3e2731"),
     "wood": ("#c28569", "#b86f50", "#733e39", "#3e2731"),
 }
 
@@ -289,9 +293,16 @@ def _fit_weapon(parts: list[_Part], body: _Part) -> float:
 
 def compose_frame(
     layers: list[Layer], spec: StateSpec, direction: str, order: int, mats: dict[str, int],
-    fit_weapon: bool = True,
-) -> tuple[Image.Image, Image.Image, float]:
-    """레이어를 합성해 (RGBA 합성물, 재질 ID 맵, 적용한 무기 단축률) 을 반환. 캔버스 128x128."""
+    fit_weapon: bool = True, weapon_mode: str = "composite",
+) -> tuple[Image.Image, Image.Image, dict]:
+    """레이어를 합성해 (RGBA, 재질 ID 맵, 부가정보) 를 반환. 캔버스 128x128.
+
+    `weapon_mode`:
+      - `"composite"`: LPC 무기 레이어를 그대로 합성한다(주축 단축 적용).
+      - `"probe"`: 무기를 합성하지 **않고** 손잡이 좌표만 재서 돌려준다. 무기는 이후
+        최종 20x36 해상도에서 직접 그린다(`draw_sword`·`draw_bow`).
+    부가정보 = `{"k": 단축률, "grip": (x, y) 캔버스 좌표 or None}`.
+    """
     row = LPC_ROW[direction]
     bframe = spec.frames[order]
     wf = spec.weapon_frames if spec.weapon_frames is not None else spec.frames
@@ -316,14 +327,25 @@ def compose_frame(
             if w.extra:
                 wfg.put(grab(w.extra, wframe, row, CELL), CELL, mid, (dx, dy))
 
-    k = _fit_weapon([wbg, wfg], body) if (w and fit_weapon) else 1.0
+    grip: tuple[float, float] | None = None
+    if w and weapon_mode == "probe":
+        merged = Image.new("L", (CANVAS, CANVAS), 0)
+        for p in (wbg, wfg):
+            merged.paste(p.mask(), (0, 0), p.mask())
+        if merged.getbbox():
+            _, grip = _axis_and_grip(merged, body.mask())
+        parts: tuple[_Part, ...] = (body,)
+        k = 1.0
+    else:
+        k = _fit_weapon([wbg, wfg], body) if (w and fit_weapon) else 1.0
+        parts = (wbg, body, wfg)
 
     rgba = Image.new("RGBA", (CANVAS, CANVAS), (0, 0, 0, 0))
     idmap = Image.new("L", (CANVAS, CANVAS), 0)
-    for part in (wbg, body, wfg):
+    for part in parts:
         rgba.alpha_composite(part.rgba)
         idmap.paste(part.idmap, (0, 0), part.mask())
-    return rgba, idmap, k
+    return rgba, idmap, {"k": k, "grip": grip}
 
 
 def rotate_pair(
@@ -483,6 +505,214 @@ def build_sheet(frames_by_dir: dict[str, list[Image.Image]]) -> Image.Image:
         for c, frame in enumerate(frames_by_dir[d]):
             sheet.paste(frame, (c * FRAME_W, r * FRAME_H))
     return sheet
+
+
+# =============================================================== 무기 직접 작화
+# 왜 무기를 원본에서 안 가져오고 직접 그리는가 (계획서 4-1절 "경로 4 = 실루엣 위 재작화"):
+#   LPC 무기 시트는 64~128px 캔버스에서 그려져 있어 20x36으로 줄이면 ① 칼날이 프레임을
+#   15~47px 벗어나 잘리고 ② 활은 정면·후면에서 형체 없는 검은 쐐기가 된다(둘 다 실측).
+#   반면 검·활은 **직선과 호(弧)로 된 규칙적 형태**라 절차 생성이 가장 강한 영역이다
+#   (계획서 1장 표). 그래서 **자세(몸·팔·손)는 LPC 손그림 그대로 쓰고, 무기만 최종
+#   20x36 해상도에서 직접 그린다.** 손 위치는 LPC 무기 레이어에서 실측한 손잡이 좌표를
+#   쓰므로 무기가 손에서 떨어지지 않는다.
+#   부수 이득: 프레임별 검 각도를 직접 지정할 수 있어 **공격 실루엣이 프레임마다 확실히
+#   변한다** — 디렉터가 지적한 "정면 검 든 모습 어색"의 직접적 원인이 이것이었다.
+
+BLADE = hx("#c0cbdc")
+BLADE_TIP = hx("#ffffff")
+GUARD = hx("#5a6988")
+GRIP_C = hx("#733e39")
+BOW_LIMB = hx("#b86f50")
+BOW_LIMB_HI = hx("#c28569")
+BOW_STRING = hx("#c0cbdc")
+ARROW_SHAFT = hx("#c28569")
+
+
+def frame_point(pt: tuple[float, float]) -> tuple[float, float]:
+    """캔버스(128) 좌표 -> 최종 20x36 프레임 좌표. `crop_to_frame` 과 같은 수식을 쓴다."""
+    s = SCALE_NUM / SCALE_DEN
+    off = (CANVAS - CELL) // 2
+    x0 = round((off + SRC_CENTER_X) * s) - FRAME_W // 2
+    y0 = round((off + SRC_FOOT_Y) * s) - (FRAME_H - 1)
+    return (pt[0] * s - x0, pt[1] * s - y0)
+
+
+def rotate_point(pt: tuple[float, float], deg: float) -> tuple[float, float]:
+    """`rotate_pair` 와 동일한 중심·부호로 점을 회전 (곡예 자세의 손 위치 추적용)."""
+    if not deg:
+        return pt
+    off = (CANVAS - CELL) // 2
+    cx, cy = off + SRC_CENTER_X, off + SRC_FOOT_Y - 12
+    a = math.radians(deg)
+    dx, dy = pt[0] - cx, pt[1] - cy
+    return (cx + dx * math.cos(a) - dy * math.sin(a), cy + dx * math.sin(a) + dy * math.cos(a))
+
+
+def facing_dir(direction: str, angle_deg: float) -> tuple[float, float]:
+    """측면 기준 각도를 방향별 단위벡터로 변환.
+
+    정면·후면은 스윙이 시청자 쪽(화면 깊이 방향)으로 일어나므로 가로 성분을 0.55배로
+    압축해 **원근 단축**을 흉내낸다. 후면은 좌우가 뒤집힌다.
+    """
+    a = math.radians(angle_deg)
+    x, y = math.cos(a), math.sin(a)
+    if direction == "front":
+        x *= 0.55
+    elif direction == "back":
+        x *= -0.55
+    n = math.hypot(x, y) or 1.0
+    return (x / n, y / n)
+
+
+def _line(p0: tuple[float, float], p1: tuple[float, float]) -> list[tuple[int, int]]:
+    n = max(2, int(math.hypot(p1[0] - p0[0], p1[1] - p0[1]) * 2) + 1)
+    return [
+        (round(p0[0] + (p1[0] - p0[0]) * i / (n - 1)), round(p0[1] + (p1[1] - p0[1]) * i / (n - 1)))
+        for i in range(n)
+    ]
+
+
+def _bezier(
+    p0: tuple[float, float], p1: tuple[float, float], p2: tuple[float, float]
+) -> list[tuple[int, int]]:
+    pts = []
+    for i in range(25):
+        t = i / 24
+        u = 1 - t
+        pts.append(
+            (
+                round(u * u * p0[0] + 2 * u * t * p1[0] + t * t * p2[0]),
+                round(u * u * p0[1] + 2 * u * t * p1[1] + t * t * p2[1]),
+            )
+        )
+    return pts
+
+
+def _max_len(hand: tuple[float, float], d: tuple[float, float], want: float) -> float:
+    """아웃라인 1px 여유를 두고 프레임 안에 들어오는 최대 길이. 잘린 무기를 원천 차단한다."""
+    lo, hi = 1.0, 1.0
+    while hi <= want:
+        tx, ty = hand[0] + d[0] * hi, hand[1] + d[1] * hi
+        if not (1 <= tx <= FRAME_W - 2 and 1 <= ty <= FRAME_H - 2):
+            break
+        lo = hi
+        hi += 0.5
+    return lo
+
+
+def _stamp(frame: Image.Image, strokes: list[tuple[list[tuple[int, int]], tuple[int, int, int]]]) -> None:
+    """획 목록을 프레임에 찍고, 그 실루엣 바깥 1px 을 `#181425` 아웃라인으로 감싼다."""
+    paint: dict[tuple[int, int], tuple[int, int, int]] = {}
+    for pts, color in strokes:
+        for x, y in pts:
+            if 0 <= x < FRAME_W and 0 <= y < FRAME_H:
+                paint[(x, y)] = color
+    if not paint:
+        return
+    px = frame.load()
+    for (x, y) in paint:
+        for nx, ny in ((x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)):
+            if (nx, ny) not in paint and 0 <= nx < FRAME_W and 0 <= ny < FRAME_H:
+                px[nx, ny] = (*OUTLINE, 255)
+    for (x, y), color in paint.items():
+        px[x, y] = (*color, 255)
+
+
+def draw_sword(frame: Image.Image, hand: tuple[float, float], d: tuple[float, float], want: float) -> None:
+    """손잡이에서 방향 `d` 로 뻗은 검 1자루. 칼날 1px + 칼끝 하이라이트 + 가드 + 손잡이."""
+    length = _max_len(hand, d, want)
+    if length < 3:
+        return
+    perp = (-d[1], d[0])
+    tip = (hand[0] + d[0] * length, hand[1] + d[1] * length)
+    guard_c = (hand[0] + d[0] * 1.5, hand[1] + d[1] * 1.5)
+    blade0 = (hand[0] + d[0] * 2.5, hand[1] + d[1] * 2.5)
+    _stamp(
+        frame,
+        [
+            # 손잡이 — 손에서 반대 방향으로 2px
+            (_line(hand, (hand[0] - d[0] * 2, hand[1] - d[1] * 2)), GRIP_C),
+            # 가드 — 날에 수직으로 3px
+            (
+                _line(
+                    (guard_c[0] - perp[0] * 1.5, guard_c[1] - perp[1] * 1.5),
+                    (guard_c[0] + perp[0] * 1.5, guard_c[1] + perp[1] * 1.5),
+                ),
+                GUARD,
+            ),
+            (_line(blade0, tip), BLADE),
+            # 칼끝 2px 만 흰색 — 20px 안에서 "베는 방향"이 읽히게 하는 최소 단서
+            (_line((tip[0] - d[0] * 1.5, tip[1] - d[1] * 1.5), tip), BLADE_TIP),
+        ],
+    )
+
+
+def draw_bow(
+    frame: Image.Image, hand: tuple[float, float], bulge: float, size: float,
+    draw_amt: float, arrow: bool,
+) -> None:
+    """수직 활. `bulge` = 활배가 향하는 화면 x 방향(+1/-1), `draw_amt` = 당김 정도 0~1.
+
+    림(限)을 세로로 두는 이유: 20px 폭 안에서 활을 가로로 놓으면 몸통에 겹쳐 형체가
+    사라진다. 세로 배치는 36px 세로 여유를 쓰므로 3방향 모두 활 실루엣이 남는다.
+    """
+    top = (hand[0], hand[1] - size)
+    bot = (hand[0], hand[1] + size)
+    ctrl = (hand[0] + bulge * size * 1.5, hand[1])
+    nock = (hand[0] - bulge * (1.0 + draw_amt * 3.5), hand[1])
+    strokes = [
+        (_bezier(top, ctrl, bot), BOW_LIMB),
+        (_bezier((top[0], top[1] + 1), (ctrl[0] - bulge, ctrl[1]), (bot[0], bot[1] - 1)), BOW_LIMB_HI),
+    ]
+    if draw_amt > 0.05:
+        strokes += [(_line(top, nock), BOW_STRING), (_line(nock, bot), BOW_STRING)]
+    else:
+        strokes.append((_line(top, bot), BOW_STRING))
+    if arrow:
+        d = (bulge, 0.0)
+        alen = _max_len(nock, d, size * 2.2)
+        atip = (nock[0] + d[0] * alen, nock[1])
+        strokes.append((_line(nock, atip), ARROW_SHAFT))
+        strokes.append((_line((atip[0] - d[0], atip[1]), atip), BLADE))
+    _stamp(frame, strokes)
+
+
+EYE = hx("#3e2731")
+_SKIN_SET = {hx(c) for c in ("#e8b796", "#e4a672", "#d77643")}
+
+
+def draw_eyes(frame: Image.Image, direction: str) -> bool:
+    """얼굴에 1px 눈 점을 찍는다 (계획서 4-2절 경로 4: "머리 1~2px 눈 점 + 헤어 실루엣").
+
+    64px 원본의 눈은 0.70배 축소 + 4단 양자화에서 살아남지 못해 얼굴이 **빈 살색 덩어리**가
+    된다. 눈 점 1px 은 20x36에서 얼굴 방향을 읽히게 하는 최소 단서다.
+    **후면은 찍지 않는다** — 눈 유무 자체가 앞/뒤 구분 신호가 된다.
+    피부색 행을 실측해 배치하므로 머리카락·투구 위에 눈이 찍히는 일은 없다.
+    """
+    if direction == "back":
+        return True
+    px = frame.load()
+
+    def skin_run(y: int) -> list[int]:
+        return [x for x in range(FRAME_W) if px[x, y][3] == 255 and px[x, y][:3] in _SKIN_SET]
+
+    brow = next((y for y in range(FRAME_H // 2) if len(skin_run(y)) >= 4), None)
+    if brow is None:
+        return False
+    ey = brow + 2
+    row = skin_run(ey) if ey < FRAME_H else []
+    if len(row) < 3:
+        return False
+    lo, hi = min(row), max(row)
+    if direction == "front":
+        cx = (lo + hi) // 2
+        xs = [cx - 2, cx + 2] if cx - 2 >= lo and cx + 2 <= hi else [cx - 1, cx + 1]
+    else:
+        xs = [hi - 1]  # 측면은 보이는 쪽 눈 1개만
+    for x in xs:
+        if lo <= x <= hi:
+            px[x, ey] = (*EYE, 255)
+    return True
 
 
 def palette_violations(im: Image.Image) -> dict[tuple[int, int, int], int]:
