@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/items/item_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+item_id = "WPN-GS-40-B"
+item_name = "왕국군 제식 대검"
+item_type = 0
+grade = 1
+level_limit = 40
+equip_slot = 1
+main_stat_type = 1
+main_stat_value = 72.0
+price = 91080
+acquisition = "2차 전직(검투사) 지급 (jobs.md 6장) · 일반몹 드랍 (실효 0.3%) · 명장 상점 91,080골드(180마리분)"

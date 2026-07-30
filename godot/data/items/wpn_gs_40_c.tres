@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/items/item_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+item_id = "WPN-GS-40-C"
+item_name = "투박한 강철 대검"
+item_type = 0
+grade = 0
+level_limit = 40
+equip_slot = 1
+main_stat_type = 1
+main_stat_value = 61.0
+price = 30360
+acquisition = "상점 30,360골드(60마리분 x g(40)) · 일반몹 드랍 4% (Lv40 밴드 몬스터 추가 시)"
