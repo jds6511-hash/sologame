@@ -5,10 +5,10 @@
 ## 모험가 균등 배분) ② Lv10 도달 시 전직 가능 ③ 전직 실행 후 전사 배분 소급·슬롯 교체·스킬
 ## 포인트 +2 ④ 다중 레벨업으로 Lv10을 건너뛴 경우 ⑤ 디버그 직행 시작(initial_job_id).
 ##
-## player.tscn은 AttackResolver·PlayerStats·PlayerStatGrowth가 한 CombatantStats 파일 리소스
-## (warrior_lv1_combatant_stats.tres)를 공유한다. 레벨업이 그 공유 리소스를 덮어써 다른
-## 테스트를 오염시키지 않도록, 인스턴스마다 duplicate()한 사본을 세 참조에 다시 꽂아 격리한다
-## (공유 구조 자체는 유지 — 재계산 결과가 전투 계산으로 퍼지는 경로를 그대로 검증한다).
+## player.tscn은 AttackResolver·PlayerStats·PlayerStatGrowth가 한 CombatantStats를 공유한다.
+## 그 원본 .tres는 resource_local_to_scene이라 인스턴스마다 사본으로 리맵되므로(공유 구조는
+## 유지) 레벨업 재계산이 파일 리소스를 오염시키지 않는다 — 여기서는 그 공유 사본을 그대로
+## 읽어 재계산 결과가 전투 계산으로 퍼지는 경로를 검증한다.
 extends GutTest
 
 const PLAYER_SCENE: PackedScene = preload("res://scenes/player/player.tscn")
@@ -36,23 +36,13 @@ func before_each() -> void:
 	_growth = _player.get_node("PlayerStatGrowth")
 	_points = _player.get_node("PlayerSkillPoints")
 	_trans = _player.get_node("PlayerJobTransition")
-	_stats = _isolate_combat_stats(_player)
+	_stats = _growth.combat_stats
 
 
 func _spawn_player() -> PlayerController:
 	var player: PlayerController = PLAYER_SCENE.instantiate()
 	add_child_autofree(player)
 	return player
-
-
-## 공유 CombatantStats를 사본으로 갈아 끼워 파일 리소스 오염을 막는다(세 참조 모두 동일 사본).
-func _isolate_combat_stats(player: PlayerController) -> CombatantStats:
-	var growth: PlayerStatGrowth = player.get_node("PlayerStatGrowth")
-	var fresh: CombatantStats = growth.combat_stats.duplicate()
-	growth.combat_stats = fresh
-	player.get_node("PlayerStats").stats = fresh
-	player.get_node("AttackResolver").attacker_stats = fresh
-	return fresh
 
 
 ## 목표 레벨 도달에 필요한 경험치 합(현재 Lv1 기준).
@@ -228,7 +218,6 @@ func test_debug_initial_job_id_starts_as_warrior() -> void:
 	var trans: PlayerJobTransition = player.get_node("PlayerJobTransition")
 	trans.initial_job_id = &"warrior"
 	add_child_autofree(player)
-	_isolate_combat_stats(player)
 
 	assert_true(trans.is_transitioned, "직행 시작 — 이미 전직 상태")
 	assert_eq(trans.current_job_id, &"warrior")
@@ -263,7 +252,6 @@ func test_debug_initial_job_id_archer_opens_full_loadout() -> void:
 	var trans: PlayerJobTransition = player.get_node("PlayerJobTransition")
 	trans.initial_job_id = &"archer"
 	add_child_autofree(player)
-	_isolate_combat_stats(player)
 
 	assert_eq(trans.current_job_id, &"archer")
 	assert_eq(player.skill_slot_1, ARCHER_DEF.skill_slot_1, "공용 강타 유지")

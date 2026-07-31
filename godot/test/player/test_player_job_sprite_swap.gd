@@ -33,12 +33,9 @@ func _played_anim() -> String:
 
 
 func test_transition_to_archer_swaps_sheet() -> void:
-	## 전직은 스탯 재계산을 유발하고 그 결과가 공용 리소스(warrior_lv1_combatant_stats.tres)에
-	## 그대로 기록된다 — Lv1 스냅샷(방어력 14.0)을 기대하는 같은 프로세스의 다른 테스트를
-	## 오염시키므로, 이 테스트에서만 사본으로 갈아 재계산을 격리한다.
-	var growth: PlayerStatGrowth = _player.get_node("PlayerStatGrowth")
-	growth.combat_stats = growth.combat_stats.duplicate()
-
+	## 전직이 유발하는 스탯 재계산은 씬 인스턴스 사본에만 기록된다 — Lv1 스냅샷 .tres가
+	## resource_local_to_scene이라 파일 리소스가 오염되지 않는다(수동 격리 불필요,
+	## test/progression/test_shared_combat_stats_isolation.gd 검증).
 	var transition: PlayerJobTransition = _player.get_node("PlayerJobTransition")
 	transition.transition_available = true
 
