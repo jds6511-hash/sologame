@@ -12,363 +12,363 @@
 
 [sub_resource type="AtlasTexture" id="Atlas_idle_front0"]
 atlas = ExtResource("tex_idle")
-region = Rect2(0, 0, 20, 36)
+region = Rect2(0, 0, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_idle_front1"]
 atlas = ExtResource("tex_idle")
-region = Rect2(20, 0, 20, 36)
+region = Rect2(28, 0, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_idle_front2"]
 atlas = ExtResource("tex_idle")
-region = Rect2(40, 0, 20, 36)
+region = Rect2(56, 0, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_idle_front3"]
 atlas = ExtResource("tex_idle")
-region = Rect2(60, 0, 20, 36)
+region = Rect2(84, 0, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_idle_side0"]
 atlas = ExtResource("tex_idle")
-region = Rect2(0, 36, 20, 36)
+region = Rect2(0, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_idle_side1"]
 atlas = ExtResource("tex_idle")
-region = Rect2(20, 36, 20, 36)
+region = Rect2(28, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_idle_side2"]
 atlas = ExtResource("tex_idle")
-region = Rect2(40, 36, 20, 36)
+region = Rect2(56, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_idle_side3"]
 atlas = ExtResource("tex_idle")
-region = Rect2(60, 36, 20, 36)
+region = Rect2(84, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_idle_back0"]
 atlas = ExtResource("tex_idle")
-region = Rect2(0, 72, 20, 36)
+region = Rect2(0, 72, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_idle_back1"]
 atlas = ExtResource("tex_idle")
-region = Rect2(20, 72, 20, 36)
+region = Rect2(28, 72, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_idle_back2"]
 atlas = ExtResource("tex_idle")
-region = Rect2(40, 72, 20, 36)
+region = Rect2(56, 72, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_idle_back3"]
 atlas = ExtResource("tex_idle")
-region = Rect2(60, 72, 20, 36)
+region = Rect2(84, 72, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_walk_front0"]
 atlas = ExtResource("tex_walk")
-region = Rect2(0, 0, 20, 36)
+region = Rect2(0, 0, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_walk_front1"]
 atlas = ExtResource("tex_walk")
-region = Rect2(20, 0, 20, 36)
+region = Rect2(28, 0, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_walk_front2"]
 atlas = ExtResource("tex_walk")
-region = Rect2(40, 0, 20, 36)
+region = Rect2(56, 0, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_walk_front3"]
 atlas = ExtResource("tex_walk")
-region = Rect2(60, 0, 20, 36)
+region = Rect2(84, 0, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_walk_front4"]
 atlas = ExtResource("tex_walk")
-region = Rect2(80, 0, 20, 36)
+region = Rect2(112, 0, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_walk_front5"]
 atlas = ExtResource("tex_walk")
-region = Rect2(100, 0, 20, 36)
+region = Rect2(140, 0, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_walk_side0"]
 atlas = ExtResource("tex_walk")
-region = Rect2(0, 36, 20, 36)
+region = Rect2(0, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_walk_side1"]
 atlas = ExtResource("tex_walk")
-region = Rect2(20, 36, 20, 36)
+region = Rect2(28, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_walk_side2"]
 atlas = ExtResource("tex_walk")
-region = Rect2(40, 36, 20, 36)
+region = Rect2(56, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_walk_side3"]
 atlas = ExtResource("tex_walk")
-region = Rect2(60, 36, 20, 36)
+region = Rect2(84, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_walk_side4"]
 atlas = ExtResource("tex_walk")
-region = Rect2(80, 36, 20, 36)
+region = Rect2(112, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_walk_side5"]
 atlas = ExtResource("tex_walk")
-region = Rect2(100, 36, 20, 36)
+region = Rect2(140, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_walk_back0"]
 atlas = ExtResource("tex_walk")
-region = Rect2(0, 72, 20, 36)
+region = Rect2(0, 72, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_walk_back1"]
 atlas = ExtResource("tex_walk")
-region = Rect2(20, 72, 20, 36)
+region = Rect2(28, 72, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_walk_back2"]
 atlas = ExtResource("tex_walk")
-region = Rect2(40, 72, 20, 36)
+region = Rect2(56, 72, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_walk_back3"]
 atlas = ExtResource("tex_walk")
-region = Rect2(60, 72, 20, 36)
+region = Rect2(84, 72, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_walk_back4"]
 atlas = ExtResource("tex_walk")
-region = Rect2(80, 72, 20, 36)
+region = Rect2(112, 72, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_walk_back5"]
 atlas = ExtResource("tex_walk")
-region = Rect2(100, 72, 20, 36)
+region = Rect2(140, 72, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_attack_front0"]
 atlas = ExtResource("tex_attack")
-region = Rect2(0, 0, 20, 36)
+region = Rect2(0, 0, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_attack_front1"]
 atlas = ExtResource("tex_attack")
-region = Rect2(20, 0, 20, 36)
+region = Rect2(28, 0, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_attack_front2"]
 atlas = ExtResource("tex_attack")
-region = Rect2(40, 0, 20, 36)
+region = Rect2(56, 0, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_attack_front3"]
 atlas = ExtResource("tex_attack")
-region = Rect2(60, 0, 20, 36)
+region = Rect2(84, 0, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_attack_side0"]
 atlas = ExtResource("tex_attack")
-region = Rect2(0, 36, 20, 36)
+region = Rect2(0, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_attack_side1"]
 atlas = ExtResource("tex_attack")
-region = Rect2(20, 36, 20, 36)
+region = Rect2(28, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_attack_side2"]
 atlas = ExtResource("tex_attack")
-region = Rect2(40, 36, 20, 36)
+region = Rect2(56, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_attack_side3"]
 atlas = ExtResource("tex_attack")
-region = Rect2(60, 36, 20, 36)
+region = Rect2(84, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_attack_back0"]
 atlas = ExtResource("tex_attack")
-region = Rect2(0, 72, 20, 36)
+region = Rect2(0, 72, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_attack_back1"]
 atlas = ExtResource("tex_attack")
-region = Rect2(20, 72, 20, 36)
+region = Rect2(28, 72, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_attack_back2"]
 atlas = ExtResource("tex_attack")
-region = Rect2(40, 72, 20, 36)
+region = Rect2(56, 72, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_attack_back3"]
 atlas = ExtResource("tex_attack")
-region = Rect2(60, 72, 20, 36)
+region = Rect2(84, 72, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_aim_front0"]
 atlas = ExtResource("tex_aim")
-region = Rect2(0, 0, 20, 36)
+region = Rect2(0, 0, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_aim_front1"]
 atlas = ExtResource("tex_aim")
-region = Rect2(20, 0, 20, 36)
+region = Rect2(28, 0, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_aim_side0"]
 atlas = ExtResource("tex_aim")
-region = Rect2(0, 36, 20, 36)
+region = Rect2(0, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_aim_side1"]
 atlas = ExtResource("tex_aim")
-region = Rect2(20, 36, 20, 36)
+region = Rect2(28, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_aim_back0"]
 atlas = ExtResource("tex_aim")
-region = Rect2(0, 72, 20, 36)
+region = Rect2(0, 72, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_aim_back1"]
 atlas = ExtResource("tex_aim")
-region = Rect2(20, 72, 20, 36)
+region = Rect2(28, 72, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_hit_front0"]
 atlas = ExtResource("tex_hit")
-region = Rect2(0, 0, 20, 36)
+region = Rect2(0, 0, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_hit_side0"]
 atlas = ExtResource("tex_hit")
-region = Rect2(0, 36, 20, 36)
+region = Rect2(0, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_hit_back0"]
 atlas = ExtResource("tex_hit")
-region = Rect2(0, 72, 20, 36)
+region = Rect2(0, 72, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_death_front0"]
 atlas = ExtResource("tex_death")
-region = Rect2(0, 0, 20, 36)
+region = Rect2(0, 0, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_death_front1"]
 atlas = ExtResource("tex_death")
-region = Rect2(20, 0, 20, 36)
+region = Rect2(28, 0, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_death_front2"]
 atlas = ExtResource("tex_death")
-region = Rect2(40, 0, 20, 36)
+region = Rect2(56, 0, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_death_front3"]
 atlas = ExtResource("tex_death")
-region = Rect2(60, 0, 20, 36)
+region = Rect2(84, 0, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_death_side0"]
 atlas = ExtResource("tex_death")
-region = Rect2(0, 36, 20, 36)
+region = Rect2(0, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_death_side1"]
 atlas = ExtResource("tex_death")
-region = Rect2(20, 36, 20, 36)
+region = Rect2(28, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_death_side2"]
 atlas = ExtResource("tex_death")
-region = Rect2(40, 36, 20, 36)
+region = Rect2(56, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_death_side3"]
 atlas = ExtResource("tex_death")
-region = Rect2(60, 36, 20, 36)
+region = Rect2(84, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_death_back0"]
 atlas = ExtResource("tex_death")
-region = Rect2(0, 72, 20, 36)
+region = Rect2(0, 72, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_death_back1"]
 atlas = ExtResource("tex_death")
-region = Rect2(20, 72, 20, 36)
+region = Rect2(28, 72, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_death_back2"]
 atlas = ExtResource("tex_death")
-region = Rect2(40, 72, 20, 36)
+region = Rect2(56, 72, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_death_back3"]
 atlas = ExtResource("tex_death")
-region = Rect2(60, 72, 20, 36)
+region = Rect2(84, 72, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_dodge_front0"]
 atlas = ExtResource("tex_dodge")
-region = Rect2(0, 0, 20, 36)
+region = Rect2(0, 0, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_dodge_front1"]
 atlas = ExtResource("tex_dodge")
-region = Rect2(20, 0, 20, 36)
+region = Rect2(28, 0, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_dodge_front2"]
 atlas = ExtResource("tex_dodge")
-region = Rect2(40, 0, 20, 36)
+region = Rect2(56, 0, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_dodge_side0"]
 atlas = ExtResource("tex_dodge")
-region = Rect2(0, 36, 20, 36)
+region = Rect2(0, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_dodge_side1"]
 atlas = ExtResource("tex_dodge")
-region = Rect2(20, 36, 20, 36)
+region = Rect2(28, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_dodge_side2"]
 atlas = ExtResource("tex_dodge")
-region = Rect2(40, 36, 20, 36)
+region = Rect2(56, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_dodge_back0"]
 atlas = ExtResource("tex_dodge")
-region = Rect2(0, 72, 20, 36)
+region = Rect2(0, 72, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_dodge_back1"]
 atlas = ExtResource("tex_dodge")
-region = Rect2(20, 72, 20, 36)
+region = Rect2(28, 72, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_dodge_back2"]
 atlas = ExtResource("tex_dodge")
-region = Rect2(40, 72, 20, 36)
+region = Rect2(56, 72, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_rollshot_front0"]
 atlas = ExtResource("tex_rollshot")
-region = Rect2(0, 0, 20, 36)
+region = Rect2(0, 0, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_rollshot_front1"]
 atlas = ExtResource("tex_rollshot")
-region = Rect2(20, 0, 20, 36)
+region = Rect2(28, 0, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_rollshot_front2"]
 atlas = ExtResource("tex_rollshot")
-region = Rect2(40, 0, 20, 36)
+region = Rect2(56, 0, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_rollshot_front3"]
 atlas = ExtResource("tex_rollshot")
-region = Rect2(60, 0, 20, 36)
+region = Rect2(84, 0, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_rollshot_side0"]
 atlas = ExtResource("tex_rollshot")
-region = Rect2(0, 36, 20, 36)
+region = Rect2(0, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_rollshot_side1"]
 atlas = ExtResource("tex_rollshot")
-region = Rect2(20, 36, 20, 36)
+region = Rect2(28, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_rollshot_side2"]
 atlas = ExtResource("tex_rollshot")
-region = Rect2(40, 36, 20, 36)
+region = Rect2(56, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_rollshot_side3"]
 atlas = ExtResource("tex_rollshot")
-region = Rect2(60, 36, 20, 36)
+region = Rect2(84, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_rollshot_back0"]
 atlas = ExtResource("tex_rollshot")
-region = Rect2(0, 72, 20, 36)
+region = Rect2(0, 72, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_rollshot_back1"]
 atlas = ExtResource("tex_rollshot")
-region = Rect2(20, 72, 20, 36)
+region = Rect2(28, 72, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_rollshot_back2"]
 atlas = ExtResource("tex_rollshot")
-region = Rect2(40, 72, 20, 36)
+region = Rect2(56, 72, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_rollshot_back3"]
 atlas = ExtResource("tex_rollshot")
-region = Rect2(60, 72, 20, 36)
+region = Rect2(84, 72, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_cast_front0"]
 atlas = ExtResource("tex_cast")
-region = Rect2(0, 0, 20, 36)
+region = Rect2(0, 0, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_cast_front1"]
 atlas = ExtResource("tex_cast")
-region = Rect2(20, 0, 20, 36)
+region = Rect2(28, 0, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_cast_side0"]
 atlas = ExtResource("tex_cast")
-region = Rect2(0, 36, 20, 36)
+region = Rect2(0, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_cast_side1"]
 atlas = ExtResource("tex_cast")
-region = Rect2(20, 36, 20, 36)
+region = Rect2(28, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_cast_back0"]
 atlas = ExtResource("tex_cast")
-region = Rect2(0, 72, 20, 36)
+region = Rect2(0, 72, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_cast_back1"]
 atlas = ExtResource("tex_cast")
-region = Rect2(20, 72, 20, 36)
+region = Rect2(28, 72, 28, 36)
 
 [resource]
 animations = [{

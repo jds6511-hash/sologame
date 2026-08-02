@@ -1,4 +1,9 @@
-"""LPC 레이어 합성 -> 20x36 EDG32 스프라이트 변환 공용 모듈 (M3 3-A).
+"""LPC 레이어 합성 -> 28x36 EDG32 스프라이트 변환 공용 모듈 (M3 3-A).
+
+2026-07-30 개정(art-director 판정, `m3-character-art-plan.md` 14장): 프레임 폭을
+20 -> **28**로 통일했다. 실체 폭이 정지 자세에서도 17~19px이라 20px 캔버스의 여백이
+좌우 0~1px뿐이었고, 그 결과 walk 전 프레임에서 주먹이 잘린 단면으로 남았다.
+실체는 1px도 키우지 않는다(높이 33 불변) — **캔버스 여백만** 늘린다.
 
 `docs\\art\\m3-character-art-plan.md` 4-3절 7단계 파이프라인의 3~6단계를 담당한다.
 **처리 순서 엄수: 합성 -> 축소 -> EDG32 재색상 -> 아웃라인.**
@@ -40,8 +45,8 @@ OUTLINE = (0x18, 0x14, 0x25)  # #181425 — STYLE_GUIDE 3-1 아웃라인 표준�
 LPC_ROW = {"front": 2, "side": 3, "back": 0}
 DIRECTIONS = ["front", "side", "back"]  # 우리 시트 행 순서 (STYLE_GUIDE 7-1)
 
-# 목표 규격 (STYLE_GUIDE 1-2)
-FRAME_W, FRAME_H = 20, 36
+# 목표 규격 (STYLE_GUIDE 1-2 — 2026-07-30 개정: 인간형 캔버스 28x36, 상한 28 엄수)
+FRAME_W, FRAME_H = 28, 36
 
 # LPC 원본 실측값 (measure_source_bbox.py) — 알파 bbox y=15..62, 중심 x=32, 실체높이 47.
 # bbox 하단은 **배타적**이므로 발밑 픽셀이 있는 마지막 행은 61이다.
@@ -65,6 +70,15 @@ RAMPS: dict[str, tuple[str, str, str, str]] = {
     "hair_dark": ("#b86f50", "#733e39", "#3e2731", "#262b44"),
     "steel": ("#8b9bb4", "#5a6988", "#3a4466", "#262b44"),
     "steel_bright": ("#ffffff", "#c0cbdc", "#8b9bb4", "#5a6988"),
+    # 전사 가슴판 — 계획서 14-4-3 처방 ③ "가슴판 하이라이트를 #c0cbdc까지 올린다".
+    # 아래 `cloth_navy_dark` 와 짝을 이뤄 "금속이 주인"으로 읽히게 하는 명도 대비를 만든다.
+    # #c0cbdc·#8b9bb4 두 색은 다른 어느 램프에도 없어서 **가슴판 판별 지표**로도 쓴다
+    # (`shoulder_row` — 견갑 작화 위치 탐지).
+    "steel_plate": ("#c0cbdc", "#8b9bb4", "#5a6988", "#3a4466"),
+    # 판금 아래 받침옷 — 위 처방 ③ "천을 #3a4466~#262b44로 낮춘다".
+    # 이 명도대에는 EDG32 색이 3개뿐이라(그 아래는 아웃라인 전용 #181425) 최암부를
+    # 반복해 **3단 램프**로 쓴다 (STYLE_GUIDE 3-2-1 1항 "4단은 상한이지 의무가 아니다").
+    "cloth_navy_dark": ("#3a4466", "#262b44", "#3e2731", "#3e2731"),
     "leather": ("#b86f50", "#733e39", "#3e2731", "#262b44"),
     "trouser_dark": ("#5a6988", "#3a4466", "#262b44", "#3e2731"),
     "cloth_green": ("#63c74d", "#3e8948", "#265c42", "#193c3e"),
@@ -223,8 +237,18 @@ def _shrink_matrix(grip: tuple[float, float], axis: tuple[float, float], k: floa
     return (a, b, gx - (a * gx + b * gy), d, e, gy - (d * gx + e * gy))
 
 
+def window_origin() -> tuple[int, int]:
+    """축소 후 좌표계에서 크롭 창의 좌상단. 발밑 = 하단 중앙, 몸 중심 = 프레임 중앙."""
+    s = SCALE_NUM / SCALE_DEN
+    off = (CANVAS - CELL) // 2
+    return (
+        round((off + SRC_CENTER_X) * s) - FRAME_W // 2,
+        round((off + SRC_FOOT_Y) * s) - (FRAME_H - 1),
+    )
+
+
 def _fits(bbox: tuple[int, int, int, int] | None) -> bool:
-    """합성 bbox 가 20x36 크롭 창 안에 들어오는지 **축소 후 좌표계에서** 판정한다.
+    """합성 bbox 가 28x36 크롭 창 안에 들어오는지 **축소 후 좌표계에서** 판정한다.
 
     원본(128) 좌표계에서 분수 경계와 비교하면 배타적 bbox 하단이 항상 경계를 1px 넘어
     영원히 실패한다 — 반드시 축소 후 정수 픽셀로 환산해 비교한다.
@@ -232,12 +256,27 @@ def _fits(bbox: tuple[int, int, int, int] | None) -> bool:
     if bbox is None:
         return True
     s = SCALE_NUM / SCALE_DEN
-    off = (CANVAS - CELL) // 2
-    x0 = round((off + SRC_CENTER_X) * s) - FRAME_W // 2
-    y0 = round((off + SRC_FOOT_Y) * s) - (FRAME_H - 1)
+    x0, y0 = window_origin()
     fx0, fx1 = math.floor(bbox[0] * s), math.floor((bbox[2] - 1) * s)
     fy0, fy1 = math.floor(bbox[1] * s), math.floor((bbox[3] - 1) * s)
     return fx0 >= x0 and fx1 < x0 + FRAME_W and fy0 >= y0 and fy1 < y0 + FRAME_H
+
+
+def _fits_x(bbox: tuple[int, int, int, int] | None, tol: int = 0) -> bool:
+    """가로만 판정 (세로 돌출은 가로 압축으로 해결되지 않으므로 분리한다).
+
+    `tol` = 허용 잔여 돌출(px). 잔여분은 크롭에서 잘리고 `ensure_outline` 이 단면을
+    다시 폐곡선으로 닫는다 — 1px 은 "팔이 1px 짧아진 것"으로 읽히지만, 그 이상은
+    주먹·손이 잘린 것으로 보이므로 압축으로 흡수한다(계획서 14-3절 clamp 지시).
+    """
+    if bbox is None:
+        return True
+    s = SCALE_NUM / SCALE_DEN
+    x0, _ = window_origin()
+    return (
+        math.floor(bbox[0] * s) >= x0 - tol
+        and math.floor((bbox[2] - 1) * s) < x0 + FRAME_W + tol
+    )
 
 
 def _solid_bbox(im: Image.Image) -> tuple[int, int, int, int] | None:
@@ -247,6 +286,62 @@ def _solid_bbox(im: Image.Image) -> tuple[int, int, int, int] | None:
     밀어낸다. 그 프린지는 재색상에서 버려지므로 맞춤 판정에 넣으면 영원히 실패한다.
     """
     return im.split()[-1].point(lambda v: 255 if v >= 96 else 0).getbbox()
+
+
+# --------------------------------------------------- 자세 가로 클램프 (캔버스 확대 금지)
+# `STYLE_GUIDE` 1-2-3 원칙 4 / 계획서 14-3절: 28px 캔버스로도 안 담기는 자세는 **캔버스를
+# 더 넓히지 않고 자세를 프레임 안으로 교정**한다. 처방 순서는 ① 자세 재작화 ② 실체 목표
+# 하향 ③ (28px 상한 내) 캔버스 조정이며, 여기가 ①의 절차적 구현이다.
+#
+# 방법: **몸 중심축 기준 가로만** 압축한다(높이 = 인간형 척도 33px 은 절대 불변).
+# 스윙 폭이 줄고 팔의 도달 거리가 각도 변화로 흡수되므로, 14-3절이 지시한
+# "스윙 정점을 가로 도달이 아니라 각도 변화로 표현"과 같은 결과가 된다.
+# 원본 프레임 선택으로 대부분을 해소한 뒤 남는 1~3px 을 이 클램프가 흡수하도록 쓰고,
+# 압축률이 바닥값에 닿으면 **원본 자세 선택이 잘못됐다는 신호**로 보고한다.
+NARROW_FLOOR = 0.74
+CLAMP_TOL = 1  # 압축 대신 크롭으로 흡수하는 잔여 돌출 상한(px) — `_fits_x` 주석 참조
+
+
+def _scale_x(im: Image.Image, gx: float, k: float, resample: int) -> Image.Image:
+    """`gx` 를 고정하고 가로만 `k` 배 압축 (PIL 은 역매핑 행렬을 받는다)."""
+    inv = 1.0 / k
+    return im.transform(im.size, Image.AFFINE, (inv, 0, gx * (1 - inv), 0, 1, 0), resample=resample)
+
+
+def narrow_to_frame(
+    rgba: Image.Image, idmap: Image.Image
+) -> tuple[Image.Image, Image.Image, float]:
+    """실체가 크롭 창을 가로로 넘으면 몸 중심축 기준 가로 압축으로 맞춘다.
+
+    반환값의 3번째는 적용한 압축률 k (1.0 = 무변형).
+    """
+    box = _solid_bbox(rgba)
+    if box is None or _fits_x(box, CLAMP_TOL):
+        return rgba, idmap, 1.0
+
+    s = SCALE_NUM / SCALE_DEN
+    gx = (CANVAS - CELL) // 2 + SRC_CENTER_X
+    x0, _ = window_origin()
+    # 창 경계를 원본(128) 좌표계로 환산한 뒤, 좌/우 각각 필요한 압축률을 구한다.
+    # 경계에서 0.5px 안쪽을 목표로 잡는다 — 아핀 보간이 실루엣 끝을 반 픽셀 번지게 해서
+    # 딱 경계에 맞추면 이산 판정에서 실패하고 불필요하게 더 압축된다.
+    left_lim = (x0 - CLAMP_TOL + 0.5) / s
+    right_lim = (x0 + FRAME_W - 1 + CLAMP_TOL - 0.5) / s
+    ks = [1.0]
+    if box[0] < left_lim:
+        ks.append((gx - left_lim) / (gx - box[0]))
+    if box[2] - 1 > right_lim:
+        ks.append((right_lim - gx) / ((box[2] - 1) - gx))
+    k = max(NARROW_FLOOR, min(ks))
+
+    # 분수 경계 때문에 해석값이 1px 부족할 수 있어 이산 판정으로 마무리한다.
+    for _ in range(24):
+        out_rgba = _scale_x(rgba, gx, k, Image.BILINEAR)
+        out_idmap = _scale_x(idmap, gx, k, Image.NEAREST)
+        if _fits_x(_solid_bbox(out_rgba), CLAMP_TOL) or k <= NARROW_FLOOR:
+            return out_rgba, out_idmap, k
+        k = max(NARROW_FLOOR, k - 0.01)
+    return out_rgba, out_idmap, k
 
 
 def _fit_weapon(parts: list[_Part], body: _Part) -> float:
@@ -475,26 +570,22 @@ def ensure_outline(im: Image.Image) -> Image.Image:
     return out
 
 
-def crop_to_frame(im: Image.Image) -> tuple[Image.Image, int]:
-    """축소 이미지에서 20x36 프레임을 잘라낸다. 발밑 = 캔버스 하단 중앙 고정.
+def crop_to_frame(im: Image.Image) -> tuple[Image.Image, tuple[int, int]]:
+    """축소 이미지에서 28x36 프레임을 잘라낸다. 발밑 = 캔버스 하단 중앙 고정.
 
-    두 번째 반환값은 **가로로 잘려나간 픽셀 수**(무기 돌출분) — 규격 검사·보고용.
+    두 번째 반환값은 **좌/우로 잘려나간 픽셀 수** — 규격 검사·보고용.
     """
-    s = SCALE_NUM / SCALE_DEN
-    off = (CANVAS - CELL) // 2
-    foot_y = round((off + SRC_FOOT_Y) * s)
-    cx = round((off + SRC_CENTER_X) * s)
-    x0 = cx - FRAME_W // 2
-    y0 = foot_y - (FRAME_H - 1)
+    x0, y0 = window_origin()
 
-    clipped = 0
+    left = right = 0
     bbox = im.split()[-1].getbbox()
     if bbox:
-        clipped = max(0, x0 - bbox[0]) + max(0, bbox[2] - (x0 + FRAME_W))
+        left = max(0, x0 - bbox[0])
+        right = max(0, bbox[2] - (x0 + FRAME_W))
 
     frame = Image.new("RGBA", (FRAME_W, FRAME_H), (0, 0, 0, 0))
     frame.paste(im.crop((x0, y0, x0 + FRAME_W, y0 + FRAME_H)), (0, 0))
-    return frame, clipped
+    return frame, (left, right)
 
 
 def build_sheet(frames_by_dir: dict[str, list[Image.Image]]) -> Image.Image:
@@ -519,9 +610,11 @@ def build_sheet(frames_by_dir: dict[str, list[Image.Image]]) -> Image.Image:
 #   변한다** — 디렉터가 지적한 "정면 검 든 모습 어색"의 직접적 원인이 이것이었다.
 
 BLADE = hx("#c0cbdc")
+BLADE_DARK = hx("#8b9bb4")  # 2px 칼날의 그림자쪽 — 대검 두께를 명도로 읽히게 한다
 BLADE_TIP = hx("#ffffff")
 GUARD = hx("#5a6988")
 GRIP_C = hx("#733e39")
+POMMEL = hx("#feae34")  # 자루 끝 1px — 손 위치를 눈에 띄게 해 "쥐고 있음"을 확정한다
 BOW_LIMB = hx("#b86f50")
 BOW_LIMB_HI = hx("#c28569")
 BOW_STRING = hx("#c0cbdc")
@@ -529,11 +622,9 @@ ARROW_SHAFT = hx("#c28569")
 
 
 def frame_point(pt: tuple[float, float]) -> tuple[float, float]:
-    """캔버스(128) 좌표 -> 최종 20x36 프레임 좌표. `crop_to_frame` 과 같은 수식을 쓴다."""
+    """캔버스(128) 좌표 -> 최종 28x36 프레임 좌표. `crop_to_frame` 과 같은 수식을 쓴다."""
     s = SCALE_NUM / SCALE_DEN
-    off = (CANVAS - CELL) // 2
-    x0 = round((off + SRC_CENTER_X) * s) - FRAME_W // 2
-    y0 = round((off + SRC_FOOT_Y) * s) - (FRAME_H - 1)
+    x0, y0 = window_origin()
     return (pt[0] * s - x0, pt[1] * s - y0)
 
 
@@ -552,13 +643,16 @@ def facing_dir(direction: str, angle_deg: float) -> tuple[float, float]:
     """측면 기준 각도를 방향별 단위벡터로 변환.
 
     정면·후면은 스윙이 시청자 쪽(화면 깊이 방향)으로 일어나므로 가로 성분을 0.55배로
-    압축해 **원근 단축**을 흉내낸다. 후면은 좌우가 뒤집힌다.
+    압축해 **원근 단축**을 흉내낸다.
+
+    2026-07-30: 정면도 후면과 같이 **가로 성분을 뒤집는다.** 정면 프레임의 무기 손은
+    화면 좌측(`hand_xy`)인데 각도를 뒤집지 않으면 무기가 몸 중심을 향해 뻗어 **긴 대검이
+    얼굴·몸통을 가로지른다**(20px 시절 짧은 검에서는 문제가 아니었다). 뒤집으면 무기가
+    항상 몸 바깥으로 뻗어 실루엣이 몸에서 분리된다.
     """
     a = math.radians(angle_deg)
     x, y = math.cos(a), math.sin(a)
-    if direction == "front":
-        x *= 0.55
-    elif direction == "back":
+    if direction in ("front", "back"):
         x *= -0.55
     n = math.hypot(x, y) or 1.0
     return (x / n, y / n)
@@ -588,12 +682,16 @@ def _bezier(
     return pts
 
 
-def _max_len(hand: tuple[float, float], d: tuple[float, float], want: float) -> float:
-    """아웃라인 1px 여유를 두고 프레임 안에 들어오는 최대 길이. 잘린 무기를 원천 차단한다."""
+def _max_len(hand: tuple[float, float], d: tuple[float, float], want: float, margin: int = 1) -> float:
+    """프레임 안에 들어오는 최대 길이. 잘린 무기를 원천 차단한다.
+
+    `margin` = 프레임 경계에서 확보할 여유(px). 대검은 칼날 폭 2px + 아웃라인 1px 이라
+    2를 쓴다 — 1로 두면 칼날의 두께쪽 1px 이 경계에서 잘린다.
+    """
     lo, hi = 1.0, 1.0
     while hi <= want:
         tx, ty = hand[0] + d[0] * hi, hand[1] + d[1] * hi
-        if not (1 <= tx <= FRAME_W - 2 and 1 <= ty <= FRAME_H - 2):
+        if not (margin <= tx <= FRAME_W - 1 - margin and margin <= ty <= FRAME_H - 1 - margin):
             break
         lo = hi
         hi += 0.5
@@ -618,44 +716,136 @@ def _stamp(frame: Image.Image, strokes: list[tuple[list[tuple[int, int]], tuple[
         px[x, y] = (*color, 255)
 
 
-def draw_sword(frame: Image.Image, hand: tuple[float, float], d: tuple[float, float], want: float) -> None:
-    """손잡이에서 방향 `d` 로 뻗은 검 1자루. 칼날 1px + 칼끝 하이라이트 + 가드 + 손잡이."""
-    length = _max_len(hand, d, want)
-    if length < 3:
-        return
-    perp = (-d[1], d[0])
-    tip = (hand[0] + d[0] * length, hand[1] + d[1] * length)
-    guard_c = (hand[0] + d[0] * 1.5, hand[1] + d[1] * 1.5)
-    blade0 = (hand[0] + d[0] * 2.5, hand[1] + d[1] * 2.5)
-    _stamp(
-        frame,
-        [
-            # 손잡이 — 손에서 반대 방향으로 2px
-            (_line(hand, (hand[0] - d[0] * 2, hand[1] - d[1] * 2)), GRIP_C),
-            # 가드 — 날에 수직으로 3px
+Strokes = list[tuple[list[tuple[int, int]], tuple[int, int, int]]]
+
+
+def _place(
+    frame: Image.Image,
+    make: "callable[[tuple[float, float]], Strokes]",
+    hand: tuple[float, float],
+    forbid: set[tuple[int, int]] | None,
+) -> bool:
+    """`forbid`(머리 픽셀)를 침범하지 않는 첫 배치를 찍는다. 반환값 = 회피 성공.
+
+    계획서 14-4-4: "무기는 머리 아웃라인과 겹치지 않는다. 손 위치를 어깨선 아래로
+    내리거나 무기 중심을 몸 바깥으로 3px 이상 밀어낸다." 얼굴이 6~7px 인 해상도에서
+    무기가 얼굴을 덮으면 앞/뒤 판별 신호(3-2-2절 눈 점)까지 무효가 된다.
+    이동량이 작은 순으로 시도하므로 자세가 필요 이상으로 흐트러지지 않는다.
+    """
+    base = make(hand)
+    if not forbid or not _covers(base, forbid):
+        _stamp(frame, base)
+        return True
+    outward = 1.0 if hand[0] >= FRAME_W / 2 else -1.0
+    for dx, dy in sorted(
+        ((x, y) for x in range(6) for y in range(5)), key=lambda t: t[0] + t[1] * 1.5
+    ):
+        if dx == 0 and dy == 0:
+            continue
+        cand = (hand[0] + outward * dx, hand[1] + dy)
+        if not (1 <= cand[0] <= FRAME_W - 2 and 1 <= cand[1] <= FRAME_H - 2):
+            continue
+        strokes = make(cand)
+        if not _in_frame(strokes):
+            continue
+        if not _covers(strokes, forbid):
+            _stamp(frame, strokes)
+            return True
+    _stamp(frame, base)
+    return False
+
+
+def draw_sword(
+    frame: Image.Image, hand: tuple[float, float], d: tuple[float, float], want: float,
+    forbid: set[tuple[int, int]] | None = None,
+) -> tuple[float, bool]:
+    """손잡이에서 방향 `d` 로 뻗은 **대검** 1자루. 반환값 = 실제로 그린 칼날 길이(px).
+
+    2026-07-30 재작화 (계획서 14-4-3 처방 ① — "칼날 >=20px · 폭 2px · 십자 가드 3px"):
+    구 버전은 LPC `arming`(한손검) 기반의 **1px 폭 직선**이라 대검으로 읽히지 않았고,
+    6-3 실루엣 매트릭스가 전사의 1차 신호로 지정한 "긴 직선 대검"이 가장 약한 신호였다.
+    28px 캔버스 개정이 길이·두께를 동시에 확보할 여유를 준다.
+
+    구성: 자루 3px(끝 1px 황금 폼멜) + 십자 가드 3px + 칼날 2px 폭(밝은쪽/그림자쪽) +
+    칼끝 2px 백색. 칼날은 `_max_len` 으로 프레임 안에 clamp 되므로 잘리지 않는다 —
+    **길이는 각도에 따라 결정된다**: 28x36 창에서 세로로 세운 칼은 20px 이상,
+    가로로 누운 칼은 창 폭(중심에서 13px)에 묶여 짧아진다(스윙의 원근 단축과 같은 방향).
+    """
+    base_len = _max_len(hand, d, want, margin=2)
+    if base_len < 4:
+        return 0.0, True
+
+    def build(h: tuple[float, float], dd: tuple[float, float], length: float) -> Strokes:
+        perp = (-dd[1], dd[0])
+        # 칼날 두께는 **몸 바깥쪽**으로 붙인다 — 안쪽이면 두께 1px 이 몸·얼굴을 덮는다.
+        if (perp[0] > 0) != (h[0] >= FRAME_W / 2):
+            perp = (-perp[0], -perp[1])
+        tip = (h[0] + dd[0] * length, h[1] + dd[1] * length)
+        guard_c = (h[0] + dd[0] * 2.0, h[1] + dd[1] * 2.0)
+        blade0 = (h[0] + dd[0] * 3.0, h[1] + dd[1] * 3.0)
+        butt = (h[0] - dd[0] * 3, h[1] - dd[1] * 3)
+        thick0 = (blade0[0] + perp[0], blade0[1] + perp[1])
+        thick1 = (tip[0] + perp[0] * 0.6, tip[1] + perp[1] * 0.6)  # 칼끝으로 갈수록 좁아짐
+        return [
+            # 자루 — 손에서 반대 방향으로 3px (양손 대검이라 구 2px 보다 길게)
+            (_line(h, butt), GRIP_C),
+            (_line(butt, butt), POMMEL),
+            # 십자 가드 — 날에 수직으로 5px. 계획서 지시값은 3px 이었으나 **칼날이 2px 폭 +
+            # 아웃라인 1px 씩**이라 3px 가드는 칼날 실루엣 안에 묻혀 보이지 않는다(실측).
+            # 가드는 "긴 직선 대검"의 십자 신호이므로 칼날보다 확실히 넓어야 한다.
             (
                 _line(
-                    (guard_c[0] - perp[0] * 1.5, guard_c[1] - perp[1] * 1.5),
-                    (guard_c[0] + perp[0] * 1.5, guard_c[1] + perp[1] * 1.5),
+                    (guard_c[0] - perp[0] * 2.5, guard_c[1] - perp[1] * 2.5),
+                    (guard_c[0] + perp[0] * 2.5, guard_c[1] + perp[1] * 2.5),
                 ),
                 GUARD,
             ),
+            (_line(thick0, thick1), BLADE_DARK),  # 폭 2px 중 그림자쪽
             (_line(blade0, tip), BLADE),
-            # 칼끝 2px 만 흰색 — 20px 안에서 "베는 방향"이 읽히게 하는 최소 단서
+            # 칼끝 2px 만 흰색 — "베는 방향"이 읽히게 하는 최소 단서
             (_line((tip[0] - d[0] * 1.5, tip[1] - d[1] * 1.5), tip), BLADE_TIP),
-        ],
+        ]
+
+    # 머리 회피 탐색: 손을 몸 바깥·아래로 밀고 **각도도 최대 24도까지** 틀어 본다
+    # (계획서 14-4-4). 각도까지 허용하는 이유 — 세워 든 대검은 정면 프레임에서 머리 위를
+    # 지나가는데, 평행 이동만으로는 폭 28px 안에서 머리를 피할 수 없는 각도가 있다.
+    # 대검 길이가 원래의 70% 아래로 떨어지는 후보는 버린다(대검이 단검처럼 보이면 안 된다).
+    outward = 1.0 if hand[0] >= FRAME_W / 2 else -1.0
+    cands = [(0, 0, 0.0)] + sorted(
+        (
+            (dx, dy, dg)
+            for dx in range(6)
+            for dy in range(4)
+            for dg in (0.0, 10.0, -10.0, 20.0, -20.0, 30.0, -30.0)
+            if not (dx == 0 and dy == 0 and dg == 0.0)
+        ),
+        key=lambda t: t[0] + t[1] * 1.2 + abs(t[2]) * 0.2,
     )
+    fallback: tuple[Strokes, float] | None = None
+    for dx, dy, dg in cands:
+        h = (hand[0] + outward * dx, hand[1] + dy)
+        a = math.radians(dg)
+        dd = (d[0] * math.cos(a) - d[1] * math.sin(a), d[0] * math.sin(a) + d[1] * math.cos(a))
+        length = _max_len(h, dd, want, margin=2)
+        if length < max(4.0, base_len * 0.7):
+            continue
+        strokes = build(h, dd, length)
+        if not _in_frame(strokes):
+            continue
+        if fallback is None:
+            fallback = (strokes, length)
+        if not forbid or not _covers(strokes, forbid):
+            _stamp(frame, strokes)
+            return length, True
+    if fallback is None:
+        return 0.0, True
+    _stamp(frame, fallback[0])
+    return fallback[1], False
 
 
-def draw_bow(
-    frame: Image.Image, hand: tuple[float, float], bulge: float, size: float,
-    draw_amt: float, arrow: bool,
-) -> None:
-    """수직 활. `bulge` = 활배가 향하는 화면 x 방향(+1/-1), `draw_amt` = 당김 정도 0~1.
-
-    림(限)을 세로로 두는 이유: 20px 폭 안에서 활을 가로로 놓으면 몸통에 겹쳐 형체가
-    사라진다. 세로 배치는 36px 세로 여유를 쓰므로 3방향 모두 활 실루엣이 남는다.
-    """
+def _bow_strokes(
+    hand: tuple[float, float], bulge: float, size: float, draw_amt: float, arrow: bool
+) -> list[tuple[list[tuple[int, int]], tuple[int, int, int]]]:
     top = (hand[0], hand[1] - size)
     bot = (hand[0], hand[1] + size)
     ctrl = (hand[0] + bulge * size * 1.5, hand[1])
@@ -674,7 +864,125 @@ def draw_bow(
         atip = (nock[0] + d[0] * alen, nock[1])
         strokes.append((_line(nock, atip), ARROW_SHAFT))
         strokes.append((_line((atip[0] - d[0], atip[1]), atip), BLADE))
-    _stamp(frame, strokes)
+    return strokes
+
+
+def head_mask(frame: Image.Image) -> set[tuple[int, int]]:
+    """머리의 **내용** 픽셀 집합 (얼굴·머리카락). 실루엣 최상단부터 10행 = 두상 규격.
+
+    아웃라인색 픽셀은 제외한다 — 무기가 머리 아웃라인을 스쳐 지나가는 것은 손실이 없다
+    (무기 자신의 아웃라인이 같은 `#181425` 로 경계를 대신 유지한다). 금지 대상은
+    **얼굴·머리카락 픽셀을 덮는 것**이다. 아웃라인까지 금지로 잡으면 머리 옆을 1px
+    간격으로 지나는 정상 자세까지 위반으로 잡힌다(실측 — 전사 cast 측면).
+    """
+    px = frame.load()
+    top = next(
+        (y for y in range(FRAME_H) if any(px[x, y][3] for x in range(FRAME_W))), None
+    )
+    if top is None:
+        return set()
+    return {
+        (x, y)
+        for y in range(top, min(FRAME_H, top + 10))
+        for x in range(FRAME_W)
+        if px[x, y][3] and px[x, y][:3] != OUTLINE
+    }
+
+
+def _in_frame(strokes: "Strokes", margin: int = 1) -> bool:
+    """획이 프레임 안(아웃라인 여유 `margin` 포함)에 완전히 들어오는지.
+
+    머리 회피 탐색이 무기를 프레임 밖으로 밀어내면 클리핑 게이트를 깨므로,
+    후보를 채택하기 전에 반드시 검사한다.
+    """
+    return all(
+        margin <= x <= FRAME_W - 1 - margin and margin <= y <= FRAME_H - 1 - margin
+        for pts, _ in strokes
+        for x, y in pts
+    )
+
+
+def _covers(
+    strokes: list[tuple[list[tuple[int, int]], tuple[int, int, int]]],
+    forbid: set[tuple[int, int]],
+) -> bool:
+    """획(과 그 아웃라인 1px)이 금지 영역을 침범하는지."""
+    for pts, _ in strokes:
+        for x, y in pts:
+            for nx, ny in ((x, y), (x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)):
+                if (nx, ny) in forbid:
+                    return True
+    return False
+
+
+def draw_bow(
+    frame: Image.Image, hand: tuple[float, float], bulge: float, size: float,
+    draw_amt: float, arrow: bool, forbid: set[tuple[int, int]] | None = None,
+) -> bool:
+    """수직 활. `bulge` = 활배가 향하는 화면 x 방향(+1/-1), `draw_amt` = 당김 정도 0~1.
+
+    림(限)을 세로로 두는 이유: 좁은 폭 안에서 활을 가로로 놓으면 몸통에 겹쳐 형체가
+    사라진다. 세로 배치는 36px 세로 여유를 쓰므로 3방향 모두 활 실루엣이 남는다.
+
+    `forbid` (2026-07-30 신설 — 계획서 14-4-4 "활은 머리 아웃라인과 겹치지 않는다"):
+    머리 픽셀 집합을 주면 `_place` 가 활을 몸 바깥·아래로 밀어 겹침을 피한다.
+    반환값 = 겹침 없이 그렸는지.
+    """
+    return _place(
+        frame, lambda h: _bow_strokes(h, bulge, size, draw_amt, arrow), hand, forbid
+    )
+
+
+# ------------------------------------------------------------------ 어깨 견갑 작화
+# 계획서 14-4-3 처방 ② — "중장 인상은 판금 레이어 추가가 아니라 **어깨 폭**으로 만든다".
+# LPC 판금 다리·투구 레이어 추가는 금지(기사 직업 실루엣 침범 + 투구가 눈 점을 지운다)라,
+# 무기와 같은 방식으로 **최종 해상도에서 직접** 어깨만 넓힌다.
+PAULDRON = hx("#c0cbdc")  # 밝은 금속 (광원 위쪽 — 3-2)
+PAULDRON_SEAM = hx("#5a6988")  # 견갑과 가슴판의 경계선 — 아웃라인색(#181425) 남용 금지(3-1)
+_PLATE_MARK = {hx("#c0cbdc"), hx("#8b9bb4")}  # `steel_plate` 램프 전용색 = 가슴판 지표
+# 견갑 단면(행별 돌출 px). 위아래를 1px 로 좁혀 **가운데 행의 밝은 픽셀이 살아남게** 한다 —
+# `ensure_outline` 은 투명과 인접한 픽셀을 전부 아웃라인으로 덮으므로, 사각 블록으로 내밀면
+# 견갑 전체가 검게 칠해진다(실측). 위아래를 좁히면 가운데 행의 안쪽 픽셀만 사방이 불투명해져
+# 금속색으로 남는다.
+PAULDRON_PROFILE = (1, 2, 2, 1)
+
+
+def shoulder_row(frame: Image.Image) -> int | None:
+    """가슴판(steel_plate 전용색)이 처음 나타나는 행 = 어깨선."""
+    px = frame.load()
+    for y in range(FRAME_H):
+        for x in range(FRAME_W):
+            if px[x, y][3] == 255 and px[x, y][:3] in _PLATE_MARK:
+                return y
+    return None
+
+
+def draw_pauldrons(frame: Image.Image) -> bool:
+    """어깨선부터 4행을 좌우로 넓혀 견갑을 만든다(`PAULDRON_PROFILE`). 반환값 = 작화 성공.
+
+    프레임 경계에 닿는 쪽은 건너뛴다 — 견갑이 클리핑 게이트를 깨면 안 된다.
+    최종 색은 호출자의 `ensure_outline` 이 결정한다(바깥 테두리는 아웃라인이 된다).
+    """
+    sy = shoulder_row(frame)
+    if sy is None:
+        return False
+    px = frame.load()
+    drawn = False
+    for i, grow in enumerate(PAULDRON_PROFILE):
+        y = sy + i
+        if y >= FRAME_H:
+            break
+        xs = [x for x in range(FRAME_W) if px[x, y][3]]
+        if not xs:
+            continue
+        for edge, step in ((min(xs), -1), (max(xs), 1)):
+            if not 1 <= edge + step * grow < FRAME_W - 1:
+                continue
+            px[edge, y] = (*PAULDRON_SEAM, 255)  # 기존 아웃라인 -> 견갑/가슴판 경계선
+            for j in range(1, grow + 1):
+                px[edge + step * j, y] = (*PAULDRON, 255)
+            drawn = True
+    return drawn
 
 
 EYE = hx("#3e2731")

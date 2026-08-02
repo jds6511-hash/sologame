@@ -23,6 +23,7 @@ from PIL import Image
 sys.path.insert(0, str(Path(__file__).parent))
 from lpc_common import (  # noqa: E402
     ASSETS_DIR,
+    CLAMP_TOL,
     DIRECTIONS,
     FRAME_H,
     FRAME_W,
@@ -33,6 +34,7 @@ from lpc_common import (  # noqa: E402
     build_sheet,
     draw_bow,
     draw_eyes,
+    draw_pauldrons,
     draw_sword,
     facing_dir,
     collect_luminance,
@@ -41,7 +43,9 @@ from lpc_common import (  # noqa: E402
     downscale,
     ensure_outline,
     foot_row_check,
+    head_mask,
     material_ids,
+    narrow_to_frame,
     palette_violations,
     recolor,
     rotate_pair,
@@ -86,8 +90,11 @@ ARCHER_LAYERS = char_layers(SLEEVE, "torso", quiver=True)
 WARRIOR_RAMPS = {
     "skin": "skin",
     "hair": "hair_dark",  # 피부와 붙어 있으므로 확실히 어두운 계열
-    "sleeve": "cloth_blue",  # 판금 아래 받침옷 — 팔이 맨살로 안 보이게, 부츠·머리와 다른 계열
-    "torso": "steel",  # 판금 가슴판 — 밝은 회청으로 상체를 눈에 띄게
+    # 아래 두 줄이 계획서 14-4-3 처방 ③(금속/천 명도 대비 강화)의 실체다 —
+    # 가슴판 하이라이트를 #c0cbdc 까지 올리고 받침옷을 #3a4466~#3e2731 로 낮춰
+    # "천 위에 얹힌 금속"이 아니라 "금속이 주인"으로 읽히게 한다.
+    "sleeve": "cloth_navy_dark",  # 판금 아래 받침옷 (구 cloth_blue)
+    "torso": "steel_plate",  # 판금 가슴판 (구 steel)
     "pants": "trouser_dark",  # 하체는 어둡게 -> 발밑이 무거워 보이고 상체가 도드라진다
     "boots": "leather",
     "steel": "steel_bright",  # 검 — 상의보다 더 밝게 해서 무기가 분리돼 보이게
@@ -179,8 +186,10 @@ WARRIOR_STATES = [
               note="도약1+공중1+착지1. jump 전용 검 시트가 없어 idle 검을 손 위치로 보정"),
     StateSpec("charge", "backslash", [2, 3], sword_attack("attack_backslash"),
               note="차지 홀드 — 상체를 젖히고 검을 뒤로 당겨 버틴 정지(슈퍼아머가 자세로 읽힘)"),
-    StateSpec("cast", "backslash", [7, 8], sword_attack("attack_backslash"),
-              note="포효/함성 — 검을 앞으로 뻗어 든 2프레임 루프. charge(뒤로 젖힘)와 정반대 실루엣"),
+    StateSpec("cast", "spellcast", [2, 3], sword_attack("attack_backslash"),
+              note="포효/함성 — 양팔을 올려 외치는 2프레임 루프. charge(뒤로 젖힘)와 정반대 실루엣. "
+                   "구 backslash[7,8]은 몸이 오른쪽으로 기울어 머리가 x14~22를 차지해 "
+                   "치켜든 칼날이 머리를 피할 자리가 없었다(14-4-4 규칙 위반) -> 자세 교체"),
 ]
 
 ARCHER_STATES = [
@@ -193,15 +202,19 @@ ARCHER_STATES = [
     StateSpec("aim", "shoot", [4, 5], BOW_SHOOT, hide_fg_dirs=("front",),
               note="반쯤 당긴 무방비 조준 스탠스 2프레임 루프 (전사 charge 와 정반대로 몸을 세움)"),
     StateSpec("hit", "hurt", [0], BOW_HURT, note="LPC hurt 원본은 front 1행뿐 -> 3방향 공유"),
-    StateSpec("death", "hurt", [1, 2, 3, 5], BOW_HURT),
+    StateSpec("death", "hurt", [1, 2, 3, 4], BOW_HURT,
+              note="붕괴 — 마지막을 f5(측면으로 완전히 뻗은 쓰러짐, 화살통이 28px 창을 3px 초과)"
+                   "에서 f4(주저앉아 접힘)로 교체했다(계획서 14-3절 '세로 주저앉음')"),
     StateSpec("dodge", "jump", [1, 2, 3], BOW_WALK, weapon_frames=[0, 0, 0],
               weapon_offset=DODGE_BOW_OFFSET, airborne=True,
               note="후방 점프 — 도약1+공중1+착지1. 뒤로 뛰는 방향감은 이동·vfx 가 보조"),
     StateSpec("rollshot", "shoot", [5, 7, 9, 11], BOW_SHOOT, hide_fg_dirs=("front",),
-              tilt=[-16.0, -7.0, 6.0, 0.0],
-              note="곡예 사격 — 사격 자세에 프레임별 기울기를 넣어 구르는 중 상체 비틀림을 근사"),
-    StateSpec("cast", "spellcast", [4, 5], BOW_WALK, weapon_frames=[0, 0],
-              note="매의 눈 자가 버프 — 활은 반대 손에 들려 있어 walk 활 프레임이 그대로 맞는다"),
+              tilt=[-10.0, -4.0, 4.0, 0.0],
+              note="곡예 사격 — 사격 자세에 프레임별 기울기를 넣어 구르는 중 상체 비틀림을 근사. "
+                   "기울기는 14-3절 지시대로 회전 반경을 줄인 값(구 -16/-7/6)"),
+    StateSpec("cast", "shoot", [0, 1], BOW_WALK, weapon_frames=[0, 0],
+              note="매의 눈 자가 버프 — 활을 세워 들며 시선을 모으는 짧은 정지. 구 LPC spellcast"
+                   "(양팔 벌림)는 계획서 6장 자세 지시와 불일치하고 폭이 35px였다(14-3절 판정)"),
 ]
 
 JOBS = {
@@ -223,26 +236,39 @@ JOBS = {
 # 방향 변환: side/back 은 화면 오른쪽(+), front 는 화면 왼쪽(-) — 캐릭터의 무기 손이
 # 정면에서는 화면 좌측에 오기 때문이다(LPC 원본과 동일).
 
-# 검: (각도, 칼 길이, hx, hy)
+# 검: (각도, 칼 길이 요청값, hx, hy)
+#
+# 2026-07-30 대검 재작화 (계획서 14-4-3 처방 ①). 길이 요청값은 전부 **22**로 두고
+# `_max_len` 이 프레임 안에서 가능한 최대 길이로 clamp 하게 한다 — 28x36 창에서는
+# **각도가 길이를 결정**하기 때문이다(세로로 세우면 20px 내외, 가로로 누우면 중심에서
+# 13px 까지). 그래서 각도대를 "세로에 가깝게" 재설계해 대검 길이를 확보했다:
+#   - 대기·이동: 칼끝을 지면 쪽으로 **거의 수직**으로 내려 짚은 자세 (구 52도 -> 84도)
+#   - 1타: 치켜듦(위) -> **급경사 내려베기**(76도) -> 수직 마무리
+#   - 2타: 뒤(160도)에서 앞(50도)까지 **110도 횡회전** — 가로 도달이 아니라 각도로 무게
+#   - 죽음 마지막: 지면에 **누운 대검**(178도)이 17px 로 뻗는다
 SWORD_POSE: dict[str, list[tuple[float, float, float, float]]] = {
-    # 대기 — 칼끝을 앞아래로 내린 전투 준비. 호흡에 맞춰 3도·1px만 흔든다
-    "idle": [(52, 11, 4, 15), (49, 11, 4, 16), (52, 11, 4, 15), (49, 11, 4, 16)],
-    "walk": [(58, 10, 4, 15), (54, 10, 4, 16), (50, 10, 4, 16),
-             (58, 10, 4, 15), (54, 10, 4, 16), (50, 10, 4, 16)],
-    # 1타 = 머리 위 내려베기. 선딜(치켜듦) -> 타격(앞으로) -> 후딜 2.
+    # 대기 — **대검을 세워 든** 전투 준비(칼끝이 머리 위로 올라간다). 손을 허리 높이에 두면
+    # 위로 20px 여유가 생겨 대검 길이를 확보할 수 있다 — 가슴 높이에서 아래로 내리 꽂으면
+    # 지면까지 13px 밖에 없어 대검이 단검처럼 보인다(실측). 호흡에 맞춰 2도·1px만 흔든다
+    "idle": [(-78, 22, 5, 14), (-80, 22, 5, 15), (-78, 22, 5, 14), (-80, 22, 5, 15)],
+    "walk": [(-78, 22, 5, 14), (-82, 22, 5, 15), (-75, 22, 5, 15),
+             (-78, 22, 5, 14), (-82, 22, 5, 15), (-75, 22, 5, 15)],
+    # 1타 = 머리 위 내려베기. 선딜(치켜듦) -> 타격(급경사) -> 후딜 2.
     # 타격 프레임의 각도를 수평보다 아래로 잡는 게 중요하다 — 위로 잡으면 칼날이
-    # **자기 얼굴을 가로지른다**(실측 확인).
-    "attack": [(-118, 13, 2, 23), (10, 14, 6, 20), (55, 12, 5, 16), (45, 11, 4, 15)],
+    # **자기 얼굴을 가로지른다**(실측 확인). 타격 프레임은 손을 머리 높이(hy=22)에 둬서
+    # 아래로 20px 를 확보한다 = 대검이 가장 길게 보이는 순간이 곧 타격 순간이다.
+    "attack": [(-115, 22, 3, 19), (70, 22, 4, 22), (84, 22, 5, 18), (80, 22, 5, 15)],
     # 2타 = 낮은 횡베기. 1타가 "칼날이 머리 위"라면 2타는 **전 프레임 칼날이 허리 아래**로
     # 지나가게 각도대를 분리한다 — 이 대비가 콤보 2타의 무게를 만든다(계획서 5-1 신규 사유).
-    "attack2": [(150, 12, 1, 18), (104, 13, 3, 17), (46, 13, 5, 16), (22, 11, 5, 15)],
-    "hit": [(80, 8, 4, 13)],
-    "death": [(88, 10, 4, 12), (108, 9, 4, 9), (128, 8, 5, 6), (142, 7, 5, 3)],
-    "dodge": [(62, 9, 4, 14), (80, 9, 4, 17), (56, 9, 4, 13)],
+    "attack2": [(160, 22, 2, 17), (120, 22, 3, 17), (65, 22, 4, 17), (50, 22, 1, 16)],
+    "hit": [(92, 22, 4, 18)],
+    "death": [(100, 22, 4, 14), (120, 22, 4, 10), (150, 22, 5, 6), (178, 22, 5, 3)],
+    "dodge": [(75, 22, 4, 14), (60, 22, 4, 18), (80, 22, 4, 13)],
     # 차지 홀드 — 뒤로 완전히 당겨 버틴 정지(슈퍼아머). 검이 뒤를 향해 "아직 안 쳤다"가 읽힘
-    "charge": [(-155, 13, 0, 22), (-150, 13, 0, 23)],
+    # 손을 중심선(hx=0)에 두면 정면 프레임에서 칼날이 머리 위를 지나 얼굴을 지운다 -> hx=4
+    "charge": [(-125, 22, 4, 18), (-121, 22, 4, 18)],
     # 포효 — 검을 위로 치켜든 함성. charge(뒤) 와 정반대 방향이라 실루엣이 안 겹친다
-    "cast": [(-82, 14, 3, 22), (-76, 14, 3, 23)],
+    "cast": [(-70, 22, 5, 18), (-76, 22, 5, 18)],
 }
 
 # 활: (활 크기, 당김 0~1, 화살 표시, hx, hy). 활 손은 표적을 향해 뻗은 앞손이다.
@@ -260,7 +286,9 @@ BOW_POSE: dict[str, list[tuple[float, float, bool, float, float]]] = {
     "dodge": [(5, 0.0, False, 4, 15), (5, 0.0, False, 4, 18), (5, 0.0, False, 4, 14)],
     "rollshot": [(6, 0.6, True, 5, 18), (6, 1.0, True, 6, 18),
                  (6, 0.0, False, 6, 18), (5, 0.0, False, 4, 16)],
-    "cast": [(5, 0.0, False, 4, 20), (5, 0.0, False, 4, 21)],
+    # 활을 세워 든 짧은 정지. 손을 어깨선 아래로 내리고 몸 바깥으로 밀어 활이 얼굴을
+    # 덮지 않게 한다(계획서 14-4-4). 구 (4,20)/(4,21) 은 활 림이 머리 행을 관통했다.
+    "cast": [(5, 0.0, False, 5, 16), (5, 0.0, False, 5, 17)],
 }
 
 
@@ -284,28 +312,34 @@ def hand_on_body_check(frame: Image.Image, hand: tuple[float, float]) -> bool:
 
 def draw_weapon(
     job: str, spec: StateSpec, direction: str, order: int, frame: Image.Image
-) -> bool:
-    """최종 프레임에 무기를 직접 그린다. 반환값 = 손이 몸 위에 있었는지(검사용)."""
+) -> tuple[bool, bool, float]:
+    """최종 프레임에 무기를 직접 그린다.
+
+    반환값 = (손이 몸 위에 있었는지, 머리 겹침을 피했는지, 칼날 길이 px).
+    머리 픽셀은 무기를 그리기 **전에** 재야 한다 — 무기를 얹은 뒤에는 머리 실루엣이
+    무기에 오염돼 판정이 무의미해진다(계획서 14-4-4).
+    """
+    head = head_mask(frame)
     if job == "warrior":
         pose = SWORD_POSE.get(spec.state)
         if not pose:
-            return True
+            return True, True, 0.0
         angle, want, hx, hy = pose[min(order, len(pose) - 1)]
         hand = hand_xy(direction, hx, hy)
         ok = hand_on_body_check(frame, hand)
-        draw_sword(frame, hand, facing_dir(direction, angle), want)
-        return ok
+        blade, clear = draw_sword(frame, hand, facing_dir(direction, angle), want, head)
+        return ok, clear, blade
     pose_b = BOW_POSE.get(spec.state)
     if not pose_b:
-        return True
+        return True, True, 0.0
     size, amt, arrow, hx, hy = pose_b[min(order, len(pose_b) - 1)]
     hand = hand_xy(direction, hx, hy)
     ok = hand_on_body_check(frame, hand)
     # 활배는 항상 몸 바깥쪽을 향한다
     bulge = 1.0 if hand[0] >= FRAME_W / 2 else -1.0
     # 정면·후면은 화살이 화면 깊이 방향이라 그리지 않는다(가로로 그리면 방향이 거짓말)
-    draw_bow(frame, hand, bulge, size, amt, arrow and direction == "side")
-    return ok
+    clear = draw_bow(frame, hand, bulge, size, amt, arrow and direction == "side", head)
+    return ok, clear, 0.0
 
 
 def build_job(job: str, report_only: bool) -> tuple[int, list[str]]:
@@ -315,6 +349,7 @@ def build_job(job: str, report_only: bool) -> tuple[int, list[str]]:
 
     # 1패스: 전 상태·전 방향 몸 합성 + 축소 (재질별 휘도 표본 수집 + 손잡이 좌표 실측)
     composed: dict[str, dict[str, list[tuple[Image.Image, Image.Image]]]] = {}
+    narrowed: list[str] = []
     for spec in states:
         composed[spec.state] = {}
         for d in DIRECTIONS:
@@ -323,6 +358,10 @@ def build_job(job: str, report_only: bool) -> tuple[int, list[str]]:
                 rgba, idm, _ = compose_frame(layers, spec, d, i, mats, weapon_mode="probe")
                 if spec.tilt:
                     rgba, idm = rotate_pair(rgba, idm, spec.tilt[i])
+                # 28px 창을 넘는 자세는 캔버스가 아니라 자세를 좁힌다(계획서 14-3절)
+                rgba, idm, k = narrow_to_frame(rgba, idm)
+                if k < 1.0:
+                    narrowed.append(f"{spec.state}/{d}{i}={k:.2f}")
                 seq.append(downscale(rgba, idm, mats))
             composed[spec.state][d] = seq
 
@@ -333,21 +372,33 @@ def build_job(job: str, report_only: bool) -> tuple[int, list[str]]:
     total = 0
     issues: list[str] = []
     eyeless: list[str] = []
+    blades: list[float] = []
     for spec in states:
         by_dir: dict[str, list[Image.Image]] = {}
-        clipped_max = 0
+        clips: list[str] = []
         for d in DIRECTIONS:
             out = []
             for i, (rgba, idm) in enumerate(composed[spec.state][d]):
                 colored = recolor(rgba, idm, mats, bands, ramp_of)
                 colored = ensure_outline(colored)
-                frame, clipped = crop_to_frame(colored)
-                clipped_max = max(clipped_max, clipped)
+                frame, (cl, cr) = crop_to_frame(colored)
+                if max(cl, cr) > CLAMP_TOL:
+                    clips.append(f"{d}{i}(좌{cl}/우{cr})")
+                # 크롭으로 1px 잘린 단면을 다시 아웃라인으로 닫는다 (STYLE_GUIDE 3-1 폐곡선,
+                # 7장 5-1 클리핑 게이트). 이 한 줄이 없으면 잘린 팔이 살색 단면으로 남는다.
+                if job == "warrior" and not draw_pauldrons(frame):
+                    issues.append(f"{prefix}_{spec.state}: {d} 프레임{i} 견갑 작화 실패(가슴판 미검출)")
+                frame = ensure_outline(frame)
                 # death 후반(붕괴·지면) 프레임은 얼굴이 안 보이는 게 정상이라 면제한다
                 if not draw_eyes(frame, d) and not (spec.state == "death" and i >= 2):
                     eyeless.append(f"{spec.state}/{d}{i}")
-                if not draw_weapon(job, spec, d, i, frame):
+                on_body, head_clear, blade = draw_weapon(job, spec, d, i, frame)
+                if not on_body:
                     issues.append(f"{prefix}_{spec.state}: {d} 프레임{i} 손 좌표가 몸 밖 (무기 부유)")
+                if not head_clear:
+                    issues.append(f"{prefix}_{spec.state}: {d} 프레임{i} 무기가 머리와 겹친다(14-4-4)")
+                if blade:
+                    blades.append(blade)
                 out.append(frame)
             by_dir[d] = out
         sheet = build_sheet(by_dir)
@@ -359,10 +410,9 @@ def build_job(job: str, report_only: bool) -> tuple[int, list[str]]:
         if bad:
             issues.append(f"{prefix}_{spec.state}: 팔레트 위반 {sum(bad.values())}px {list(bad)[:3]}")
         issues += [f"{prefix}_{spec.state}: {p}" for p in foot_row_check(sheet, cols, spec.airborne)]
-        if clipped_max:
+        if clips:
             issues.append(
-                f"{prefix}_{spec.state}: 실체 가로 돌출 {clipped_max}px — LPC 원본 팔/발 스윙이 "
-                f"20px 창을 넘는다(무기는 프레임 안에 맞춰 그려지므로 무기 잘림 아님)"
+                f"{prefix}_{spec.state}: 실체 가로 돌출이 clamp 허용치({CLAMP_TOL}px)를 넘음 {clips}"
             )
         total += cols * 3
         if not report_only:
@@ -375,6 +425,14 @@ def build_job(job: str, report_only: bool) -> tuple[int, list[str]]:
         print(f"  {prefix}_{spec.state}.png  {sheet.size[0]}x{sheet.size[1]}  {cols}프레임x3방향={cols * 3}")
     if eyeless:
         issues.append(f"{prefix}: 눈 점 배치 실패 {len(eyeless)}프레임 {eyeless[:6]}")
+    if narrowed:
+        print(f"  [자세 가로 클램프 {len(narrowed)}프레임] {' '.join(narrowed)}")
+    if blades:
+        long_ratio = sum(1 for b in blades if b >= 16) / len(blades)
+        print(
+            f"  [대검 칼날 길이] 최소 {min(blades):.0f}px / 최대 {max(blades):.0f}px / "
+            f"평균 {sum(blades) / len(blades):.1f}px / 16px 이상 {long_ratio * 100:.0f}%"
+        )
     return total, issues
 
 
