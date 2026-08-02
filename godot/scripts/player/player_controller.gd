@@ -105,13 +105,13 @@ var _current_action_step = null
 ## 자동 조준 후보 캐시(스윙 시작 시 1회 수집, 스윙 동안 재사용) — 스냅/재조준 공용.
 var _aim_candidates: Array = []
 
-var _skill_phase_timer: float = 0.0
-var _skill_dash_direction := Vector2.ZERO
-var _skill_cooldowns: Dictionary = {}  ## key: String(슬롯 이름) -> 남은 쿨다운(초)
+## 스킬 슬롯 시전(입력·MP/쿨다운 게이트·선딜/판정/후딜 상태머신·쿨다운 장부) 담당 모듈
+## (scripts/player/player_skill_module.gd). 공개 상태인 skill_state·active_skill은 컨트롤러에
+## 남겨 두고 이 모듈이 갱신한다.
+var _skills := PlayerSkillModule.new()
 
 var _is_charging_secondary: bool = false
 var _charge_hold_timer: float = 0.0
-var _cooldown_secondary: float = 0.0
 
 ## 궁수 원거리 사격(조준 스탠스·화살 발사·매의 눈 가산) 담당 모듈 — 원거리 전용 상태를
 ## 이 컨트롤러에서 분리했다(scripts/player/archer_shot_module.gd).
@@ -145,6 +145,7 @@ func _ready() -> void:
 	_shots.setup(self, movement_data.tile_size_px)
 	_shots.arrow_hit_landed.connect(_on_arrow_hit_landed)
 	_shots.refresh_stance(skill_charge)
+	_skills.setup(self)
 	visual.setup(self, _sprite, _shots)
 
 
@@ -184,7 +185,7 @@ func _physics_process(delta: float) -> void:
 		_process_charge_hold(delta)
 	else:
 		_process_secondary_charge_start_input()
-		_process_skill_slot_input()
+		_skills.process_slot_input()
 		_process_potion_input()
 		_process_attack_input()
 		_process_attack_state(delta)
@@ -429,113 +430,18 @@ func _on_attack_hitbox_body_entered(body: Node) -> void:
 	attack_hit.emit(_current_action_step, body)
 
 
-# --- 스킬 슬롯 (CB-2, m2-warrior-skills.md) ---
+# --- 스킬 슬롯 (CB-2 — 상세는 player_skill_module.gd) ---
+#
+# 슬롯 입력·사용 게이트(쿨다운/MP)·시전 상태머신·쿨다운 장부는 모듈이 담당하고, 아래
+# 함수들은 다른 도메인(테스트·디버그 HUD)이 쓰는 종전 진입점을 그대로 유지하는 위임이다.
 
 
-func _process_skill_slot_input() -> void:
-	if Input.is_action_just_pressed("skill_slot_1"):
-		_try_use_skill("slot1", skill_slot_1)
-	elif Input.is_action_just_pressed("skill_slot_2"):
-		_try_use_skill("slot2", skill_slot_2)
-	elif Input.is_action_just_pressed("skill_slot_3"):
-		_try_use_skill("slot3", skill_slot_3)
-	elif Input.is_action_just_pressed("skill_slot_4"):
-		_try_use_skill("slot4", skill_slot_4)
-	elif Input.is_action_just_pressed("skill_slot_5"):  ## Q(돌격) — ux-foundation 슬롯5 매핑
-		_try_use_skill("slot_q", skill_slot_q)
-	elif Input.is_action_just_pressed("skill_slot_6"):  ## E(결의의 외침) — 슬롯6 매핑
-		_try_use_skill("slot_e", skill_slot_e)
-	elif Input.is_action_just_pressed("ultimate"):
-		_try_use_skill("ultimate", skill_ultimate)
-
-
-## 쿨다운·MP를 확인해 스킬 사용을 시도한다. 성공 시 true.
 func _try_use_skill(key: String, skill: WarriorSkillData) -> bool:
-	if skill == null:
-		return false
-	if float(_skill_cooldowns.get(key, 0.0)) > 0.0:
-		return false
-	var mp_cost := _skill_mp_cost(skill)
-	if _stats and not _stats.has_mp(mp_cost):
-		return false
-	if _stats:
-		_stats.spend_mp(mp_cost)
-	_skill_cooldowns[key] = skill.cooldown_sec
-	_start_skill(skill)
-	return true
-
-
-func _skill_mp_cost(skill: WarriorSkillData) -> float:
-	if _stats == null or _stats.stats == null:
-		return 0.0
-	return _stats.stats.max_mp * skill.mp_cost_percent
-
-
-func _start_skill(skill: WarriorSkillData) -> void:
-	active_skill = skill
-	skill_state = AttackState.STARTUP
-	_skill_phase_timer = 0.0
-	skill_used.emit(skill.skill_name)
-
-
-## 차지 강타처럼 홀드 단계가 이미 시전(startup)을 대신한 경우, ACTIVE부터 바로 시작한다.
-func _begin_skill_active(skill: WarriorSkillData) -> void:
-	active_skill = skill
-	skill_state = AttackState.ACTIVE
-	_skill_phase_timer = 0.0
-	skill_used.emit(skill.skill_name)
-	_activate_skill_effect(skill)
+	return _skills.try_use(key, skill)
 
 
 func _process_skill_state(delta: float) -> void:
-	_skill_phase_timer += delta
-	match skill_state:
-		AttackState.STARTUP:
-			velocity = Vector2.ZERO
-			if _skill_phase_timer >= active_skill.startup_sec:
-				skill_state = AttackState.ACTIVE
-				_skill_phase_timer = 0.0
-				_activate_skill_effect(active_skill)
-		AttackState.ACTIVE:
-			if active_skill.skill_type == WarriorSkillData.SkillType.DASH:
-				## max()는 인자 타입에 따라 가변 반환 타입을 갖는 엔진 내장 함수라 :=로는
-				## 정적 타입을 추론할 수 없다 — 명시적으로 float 타입을 지정한다.
-				var safe_duration_sec: float = maxf(active_skill.dash_duration_sec, 0.0001)
-				var speed_px: float = (
-					movement_data.tile_size_px
-					* active_skill.dash_distance_tiles
-					/ safe_duration_sec
-				)
-				velocity = _skill_dash_direction * speed_px
-			else:
-				velocity = Vector2.ZERO
-			if _skill_phase_timer >= active_skill.get_active_duration_sec():
-				skill_state = AttackState.RECOVERY
-				_skill_phase_timer = 0.0
-				_deactivate_skill_effect(active_skill)
-		AttackState.RECOVERY:
-			velocity = Vector2.ZERO
-			if _skill_phase_timer >= active_skill.recovery_sec:
-				_end_skill()
-
-
-## 스킬 판정 발동. 궁수 스킬(arrow 보유)은 근접 히트박스 대신 화살을 발사한다 — 곡예 사격은
-## 이동 방향(입력)과 사격 방향(조준)이 독립이므로 DASH 분기에서 둘을 함께 처리한다(4-2장).
-func _activate_skill_effect(skill: WarriorSkillData) -> void:
-	match skill.skill_type:
-		WarriorSkillData.SkillType.DASH:
-			_skill_dash_direction = _last_move_direction
-			if not _try_fire_arrows(skill) and skill.hitbox_range_tiles > 0.0:
-				_enable_attack_hitbox(skill)
-		WarriorSkillData.SkillType.BUFF_HEAL:
-			_apply_self_buff(skill)
-		_:  ## INSTANT · CHARGE · ULTIMATE
-			if not _try_fire_arrows(skill) and skill.hitbox_range_tiles > 0.0:
-				_enable_attack_hitbox(skill)
-
-
-func _deactivate_skill_effect(_skill: WarriorSkillData) -> void:
-	_disable_attack_hitbox()
+	_skills.process_state(delta)
 
 
 func _apply_self_buff(skill: WarriorSkillData) -> void:
@@ -561,27 +467,19 @@ func _apply_self_buff(skill: WarriorSkillData) -> void:
 
 
 func _cancel_skill() -> void:
-	_disable_attack_hitbox()
-	_shots.cancel_burst()
-	skill_state = AttackState.NONE
-	active_skill = null
+	_skills.cancel()
 
 
 func _end_skill() -> void:
-	skill_state = AttackState.NONE
-	active_skill = null
+	_skills.finish()
 
 
 func _update_skill_cooldowns(delta: float) -> void:
-	for key in _skill_cooldowns.keys():
-		if _skill_cooldowns[key] > 0.0:
-			_skill_cooldowns[key] = max(_skill_cooldowns[key] - delta, 0.0)
-	if _cooldown_secondary > 0.0:
-		_cooldown_secondary = max(_cooldown_secondary - delta, 0.0)
+	_skills.advance_cooldowns(delta)
 
 
 func get_skill_cooldown_remaining(key: String) -> float:
-	return float(_skill_cooldowns.get(key, 0.0))
+	return _skills.remaining(key)
 
 
 # --- 궁수 원거리 사격 연결 (M3 C-4/C-5 — 상세는 archer_shot_module.gd) ---
@@ -654,8 +552,7 @@ func _reset_action_state() -> void:
 	if _is_charging_secondary:
 		_cancel_charge()
 	_shots.cancel_burst()
-	_skill_cooldowns.clear()
-	_cooldown_secondary = 0.0
+	_skills.clear_cooldowns()
 
 
 # --- 차지 강타 (우클릭 홀드, m2-warrior-skills.md 3장) ---
@@ -671,9 +568,9 @@ func _process_secondary_charge_start_input() -> void:
 	if rage.can_use_finisher():
 		_use_rage_finisher()
 		return
-	if skill_charge == null or _cooldown_secondary > 0.0:
+	if skill_charge == null or not _skills.secondary_ready():
 		return
-	if _stats and not _stats.has_mp(_skill_mp_cost(skill_charge)):
+	if _stats and not _stats.has_mp(_skills.mp_cost(skill_charge)):
 		return
 	_is_charging_secondary = true
 	_charge_hold_timer = 0.0
@@ -713,12 +610,12 @@ func _release_charge() -> void:
 		0.0,
 		1.0
 	)
-	var mp_cost := _skill_mp_cost(skill_charge)
+	var mp_cost := _skills.mp_cost(skill_charge)
 	if _stats and not _stats.has_mp(mp_cost):
 		return
 	if _stats:
 		_stats.spend_mp(mp_cost)
-	_cooldown_secondary = skill_charge.cooldown_sec
+	_skills.set_secondary_cooldown(skill_charge.cooldown_sec)
 	## 차지 강타는 홀드 비율에 따라 계수·후딜이 달라진다(m2-warrior-skills.md 3장) — 공용
 	## 리소스 필드를 이번 사용 값으로 덮어써 재사용한다(항상 사용 직전에 다시 계산되므로
 	## 이전 값이 남는 부작용 없음).
@@ -728,7 +625,7 @@ func _release_charge() -> void:
 	skill_charge.recovery_sec = lerp(
 		skill_charge.charge_min_recovery_sec, skill_charge.charge_max_recovery_sec, ratio
 	)
-	_begin_skill_active(skill_charge)
+	_skills.begin_active(skill_charge)
 
 
 # --- 분노 게이지 연결 (M3 C-1 — 상세는 player_rage_module.gd) ---
@@ -744,7 +641,7 @@ func _use_rage_finisher() -> bool:
 	if consumed <= 0.0:
 		return false
 	finisher.damage_coefficient = rage.finisher_coefficient(consumed)
-	_start_skill(finisher)
+	_skills.start(finisher)
 	return true
 
 
