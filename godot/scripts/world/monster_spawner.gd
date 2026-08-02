@@ -20,6 +20,26 @@
 ##
 ## 스폰된 모든 몬스터의 target은 player_path로 지정된 플레이어 노드를 그대로 주입한다
 ## (monster_base.gd가 문서화한 "외부 주입" 결합 지점 — MP-4가 이 결합을 맡는다).
+##
+## 재스폰 규칙 (D-3 — Phase D가 "재스폰이 없어 Lv10 도달 불가"로 지적한 G3-1 차단 요인 해소):
+## **마커(무리) 단위 재스폰 = 전멸 쿨다운 + 플레이어 거리 게이트.**
+## - 단위는 **개체가 아니라 마커**다. 마커의 모든 개체가 죽으면(= 무리 전멸) 쿨다운이 시작되고,
+##   만료 시 그 마커의 무리를 규격대로 다시 스폰한다(무리 크기는 재추첨). 개체 단위로 1마리씩
+##   리필하면 ① 임프장 균열 포인트가 "호위만 재생"·"임프장만 재생"으로 spec 7-4 지휘관 셋업을
+##   깨고 ② 마커를 떠나지 않고 제자리에서 무한 사냥이 성립한다.
+## - 쿨다운: 일반 마커 `NORMAL_RESPAWN_SEC`, 정예(임프장 균열 포인트) `ELITE_RESPAWN_SEC`.
+##   정예의 긴 쿨다운은 EXP 효율 상 정예 캠핑이 일반 사냥보다 불리해지게 만드는 억제 장치다
+##   (`docs\design\levels\m3-respawn-spec.md` 4장 실측).
+## - 거리 게이트: 그 마커 서식종의 **인지 범위 + 1타일** 안에 플레이어가 있으면 재스폰을
+##   미룬다. 눈앞에서 갑자기 나타나 즉시 어그로가 붙는 상황을 막기 위한 것이며, 쿨다운은 이미
+##   만료 상태로 남으므로 플레이어가 벗어나는 즉시(다음 틱) 재스폰된다 — 취소가 아니라 지연이다.
+## - 성능: M2에서 진입 시 동기 스폰 스톨(FPS 1~4)이 있었으므로, 재스폰도 `RESPAWN_TICK_SEC`
+##   주기로만 판정하고 **한 틱에 마커 1개까지만** 스폰한다(`MAX_RESPAWNS_PER_TICK`).
+##   여러 마커의 쿨다운이 동시에 만료돼도 초당 1마커로 자동 분산된다.
+## - 야간 전용 종(그림자 숲거미)은 이 슬롯 체계에 **넣지 않는다** — GameClock 낮/밤 신호가
+##   스폰·소멸을 전담하고, 낮 소멸은 `died`를 발신하지 않아 쿨다운 트리거와 무관하다.
+## - 재스폰도 `_spawn_monster()`를 거치므로 `monster_spawned`가 발신되고, 월드 루트가 그 시그널로
+##   `DropSystem`·`PlayerProgression`에 재등록한다(드랍·처치 EXP 유지).
 class_name MonsterSpawner
 extends Node2D
 
@@ -27,6 +47,9 @@ extends Node2D
 ## 프레임에 걸쳐 분산되고 야간 전용 종은 밤이 될 때마다 새로 스폰되므로, 부모 노드가
 ## 스폰된 몬스터를 빠짐없이 받으려면 get_children() 일괄 조회 대신 이 시그널을 구독해야 한다.
 signal monster_spawned(monster: MonsterBase)
+
+## 마커 종류별 스폰·재스폰 방식.
+enum SpawnKind { SOLO, RING_PACK, IMP_LORD_CAMP }
 
 const RABBIT_SCENE: PackedScene = preload("res://scenes/monsters/rabbit.tscn")
 const WOLF_SCENE: PackedScene = preload("res://scenes/monsters/wolf.tscn")
@@ -59,6 +82,13 @@ const PACK_SCATTER_RADIUS_TILES := 1.25
 const PACK_ANGLE_JITTER_DEG := 20.0
 const TILE_SIZE_PX := 16.0  ## STYLE_GUIDE.md 1장 — 월드 타일 크기
 
+## 재스폰 파라미터 — 근거는 `docs\design\levels\m3-respawn-spec.md` 2·3·4장.
+const RESPAWN_TICK_SEC := 1.0  ## 판정 주기. 쿨다운이 30초 단위라 1초 해상도로 충분하다.
+const NORMAL_RESPAWN_SEC := 30.0  ## 일반 마커 — 배치 밀도상 공급이 플레이어 사냥 속도를 넘는다
+const ELITE_RESPAWN_SEC := 180.0  ## 정예 캠프 — 정예 캠핑 효율을 일반 사냥 아래로 떨어뜨린다
+const RESPAWN_GATE_MARGIN_TILES := 1.0  ## 거리 게이트 = 서식종 인지 범위 + 이 여유
+const MAX_RESPAWNS_PER_TICK := 1  ## 한 틱에 스폰할 마커 수 상한 (스폰 스톨 방지)
+
 @export var player_path: NodePath
 
 @export_group("M2 3종 스폰 마커 그룹")
@@ -80,6 +110,27 @@ const TILE_SIZE_PX := 16.0  ## STYLE_GUIDE.md 1장 — 월드 타일 크기
 var _rng := RandomNumberGenerator.new()
 var _player: Node2D = null
 var _night_only_monsters: Array[MonsterBase] = []
+var _respawn_slots: Array = []
+var _respawn_tick_accum := 0.0
+
+
+## 마커 1개 = 재스폰 슬롯 1개. 슬롯은 자기 마커에서 스폰할 무리 규격과 현재 생존 개체를 들고
+## 있고, 생존 개체가 0이 되면 쿨다운을 걸었다가 만료 시 같은 규격으로 다시 스폰한다.
+class RespawnSlot:
+	extends RefCounted
+
+	var kind: int = MonsterSpawner.SpawnKind.SOLO
+	var scene: PackedScene = null
+	var spawn_position := Vector2.ZERO
+	var marker_name := ""
+	var pack_size_range := Vector2i.ONE
+	var pack_prefix := ""
+	var delay_sec := MonsterSpawner.NORMAL_RESPAWN_SEC
+	## 재스폰 최소 거리(타일) = 이 마커에 스폰된 종의 인지 범위 최대값 + 여유. 첫 스폰 때 정해진다.
+	var gate_tiles := 0.0
+	var alive: Array[MonsterBase] = []
+	var awaiting_respawn := false
+	var remaining_sec := 0.0
 
 
 ## 뿔토끼(마커당 1마리, 최대 3마리)는 온보딩 튜토리얼(eastern_frontier_starting_area.gd
@@ -110,13 +161,13 @@ func _ready() -> void:
 
 func _spawn_rabbits() -> void:
 	for marker in _spawn_markers(rabbit_spawn_root_path):
-		_spawn_monster(RABBIT_SCENE, marker.global_position)
+		_populate_slot(_add_slot(SpawnKind.SOLO, RABBIT_SCENE, marker))
 
 
 ## 마커당 1마리(솔로 또는 개별 급습). 마커 하나를 스폰할 때마다 한 프레임을 양보한다.
 func _spawn_solo_markers(scene: PackedScene, root_path: NodePath) -> void:
 	for marker in _spawn_markers(root_path):
-		_spawn_monster(scene, marker.global_position)
+		_populate_slot(_add_slot(SpawnKind.SOLO, scene, marker))
 		await get_tree().process_frame
 
 
@@ -125,33 +176,154 @@ func _spawn_ring_packs(
 	scene: PackedScene, root_path: NodePath, size_range: Vector2i, pack_prefix: String
 ) -> void:
 	for marker in _spawn_markers(root_path):
-		var pack_id := "%s_%s" % [pack_prefix, marker.name]
-		var pack_size := _rng.randi_range(size_range.x, size_range.y)
-		_spawn_ring(scene, marker.global_position, pack_size, pack_id)
+		var slot := _add_slot(SpawnKind.RING_PACK, scene, marker)
+		slot.pack_size_range = size_range
+		slot.pack_prefix = pack_prefix
+		_populate_slot(slot)
 		await get_tree().process_frame
 
 
 ## 균열 포인트 — 임프장(정예)을 마커 중심에, 호위 일반 임프를 그 주변 원 둘레에 스폰하고
 ## 같은 pack_id로 묶는다(m3 spec 7-4 지휘관 셋업 — 포효 버프 대상 아군이 반드시 동반).
+## 재스폰도 캠프 단위이므로 임프장 없이 호위만 남거나 그 반대가 되는 상태는 생기지 않는다.
 func _spawn_imp_lord_camps() -> void:
 	for marker in _spawn_markers(imp_lord_camp_spawn_root_path):
-		var pack_id := "implordcamp_%s" % marker.name
-		_spawn_monster(IMP_LORD_SCENE, marker.global_position, pack_id)
-		var escorts := _rng.randi_range(IMP_LORD_ESCORT_SIZE.x, IMP_LORD_ESCORT_SIZE.y)
-		_spawn_ring(IMP_SCENE, marker.global_position, escorts, pack_id)
+		var slot := _add_slot(SpawnKind.IMP_LORD_CAMP, IMP_LORD_SCENE, marker)
+		slot.delay_sec = ELITE_RESPAWN_SEC
+		_populate_slot(slot)
 		await get_tree().process_frame
 
 
 ## 무리원을 중심 주변 원 둘레에 균등 배치(각도 = 360°/무리 크기)한 뒤 각도만 소폭 흔든다.
-func _spawn_ring(scene: PackedScene, center: Vector2, count: int, pack_id: String) -> void:
+func _spawn_ring(
+	scene: PackedScene, center: Vector2, count: int, pack_id: String
+) -> Array[MonsterBase]:
+	var spawned: Array[MonsterBase] = []
 	if count <= 0:
-		return
+		return spawned
 	var base_angle := _rng.randf_range(0.0, TAU)
 	for i in range(count):
 		var jitter := deg_to_rad(_rng.randf_range(-PACK_ANGLE_JITTER_DEG, PACK_ANGLE_JITTER_DEG))
 		var angle := base_angle + (TAU / count) * i + jitter
 		var offset := Vector2.RIGHT.rotated(angle) * PACK_SCATTER_RADIUS_TILES * TILE_SIZE_PX
-		_spawn_monster(scene, center + offset, pack_id)
+		var monster := _spawn_monster(scene, center + offset, pack_id)
+		if monster != null:
+			spawned.append(monster)
+	return spawned
+
+
+# --- 재스폰 (D-3 — 헤더 "재스폰 규칙" 참고) ---
+
+
+func _add_slot(kind: SpawnKind, scene: PackedScene, marker: Marker2D) -> RespawnSlot:
+	var slot := RespawnSlot.new()
+	slot.kind = kind
+	slot.scene = scene
+	slot.spawn_position = marker.global_position
+	slot.marker_name = marker.name
+	_respawn_slots.append(slot)
+	return slot
+
+
+## 슬롯의 무리를 규격대로 스폰한다(첫 스폰·재스폰 공용). 무리 크기·산개 각도·pack_id는
+## 매번 새로 만들어지므로 재스폰할 때마다 구성이 조금씩 달라진다.
+func _populate_slot(slot: RespawnSlot) -> void:
+	var spawned: Array[MonsterBase] = []
+	match slot.kind:
+		SpawnKind.SOLO:
+			var solo := _spawn_monster(slot.scene, slot.spawn_position)
+			if solo != null:
+				spawned.append(solo)
+		SpawnKind.RING_PACK:
+			var pack_size := _rng.randi_range(slot.pack_size_range.x, slot.pack_size_range.y)
+			spawned = _spawn_ring(
+				slot.scene,
+				slot.spawn_position,
+				pack_size,
+				"%s_%s" % [slot.pack_prefix, slot.marker_name]
+			)
+		SpawnKind.IMP_LORD_CAMP:
+			var camp_id := "implordcamp_%s" % slot.marker_name
+			var lord := _spawn_monster(IMP_LORD_SCENE, slot.spawn_position, camp_id)
+			if lord != null:
+				spawned.append(lord)
+			var escorts := _rng.randi_range(IMP_LORD_ESCORT_SIZE.x, IMP_LORD_ESCORT_SIZE.y)
+			spawned.append_array(_spawn_ring(IMP_SCENE, slot.spawn_position, escorts, camp_id))
+	slot.alive = spawned
+	slot.awaiting_respawn = false
+	slot.remaining_sec = 0.0
+	for monster in spawned:
+		monster.died.connect(_on_slot_monster_died.bind(slot, monster))
+		if monster.stats != null:
+			slot.gate_tiles = maxf(
+				slot.gate_tiles, monster.stats.perception_range_tiles + RESPAWN_GATE_MARGIN_TILES
+			)
+	if spawned.is_empty():
+		_arm_slot(slot)
+
+
+## 무리 전멸 시점에만 쿨다운을 건다 — 개체가 1마리라도 남아 있으면 재스폰하지 않는다.
+func _on_slot_monster_died(slot: RespawnSlot, monster: MonsterBase) -> void:
+	slot.alive.erase(monster)
+	if slot.alive.is_empty():
+		_arm_slot(slot)
+
+
+func _arm_slot(slot: RespawnSlot) -> void:
+	if slot.awaiting_respawn:
+		return
+	slot.awaiting_respawn = true
+	slot.remaining_sec = slot.delay_sec
+
+
+## died를 거치지 않고 사라진 개체(씬 해제 등)를 생존 목록에서 제거한다.
+func _prune_slot(slot: RespawnSlot) -> void:
+	var index := slot.alive.size() - 1
+	while index >= 0:
+		if not is_instance_valid(slot.alive[index]):
+			slot.alive.remove_at(index)
+		index -= 1
+	if slot.alive.is_empty():
+		_arm_slot(slot)
+
+
+## 플레이어가 서식종 인지 범위 + 여유 안에 있으면 false — 재스폰을 다음 틱으로 미룬다.
+## 쿨다운은 이미 만료 상태로 남으므로 벗어나는 즉시 재스폰된다(취소가 아니라 지연).
+func _respawn_gate_clear(slot: RespawnSlot) -> bool:
+	if slot.gate_tiles <= 0.0 or not is_instance_valid(_player):
+		return true
+	var gap_tiles := _player.global_position.distance_to(slot.spawn_position) / TILE_SIZE_PX
+	return gap_tiles > slot.gate_tiles
+
+
+func _process(delta: float) -> void:
+	if _respawn_slots.is_empty():
+		return
+	_respawn_tick_accum += delta
+	if _respawn_tick_accum < RESPAWN_TICK_SEC:
+		return
+	_respawn_tick_accum = 0.0
+	advance_respawn_tick(RESPAWN_TICK_SEC)
+
+
+## 재스폰 판정 1회. `_process`가 RESPAWN_TICK_SEC 주기로 호출하며, 테스트는 실시간을 기다리지
+## 않고 이 함수를 직접 호출해 시간 경과를 주입한다.
+## 한 호출에서 스폰하는 마커는 MAX_RESPAWNS_PER_TICK개까지다 — 쿨다운이 동시에 만료돼도
+## 스폰이 초당 1마커로 분산돼 M2의 진입 스톨 같은 프레임 낙하가 생기지 않는다.
+func advance_respawn_tick(elapsed_sec: float) -> void:
+	var spawned_markers := 0
+	for entry in _respawn_slots:
+		var slot: RespawnSlot = entry
+		_prune_slot(slot)
+		if not slot.awaiting_respawn:
+			continue
+		slot.remaining_sec -= elapsed_sec
+		if slot.remaining_sec > 0.0:
+			continue
+		if spawned_markers >= MAX_RESPAWNS_PER_TICK or not _respawn_gate_clear(slot):
+			continue
+		_populate_slot(slot)
+		spawned_markers += 1
 
 
 # --- 야간 전용 스폰 (그림자 숲거미 — m3 spec 7-1) ---
