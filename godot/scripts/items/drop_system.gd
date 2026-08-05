@@ -12,8 +12,9 @@
 ##      `drop_system.register_monster(monster, rabbit_drop_table)`처럼 종별 DropTableData를
 ##      골라 등록한다(뿔토끼=data/drops/rabbit_drop_table.tres 등).
 ##   3. 골드는 world 오브젝트를 만들지 않고 즉시 지급한다는 가정으로 gold_dropped 시그널만
-##      내보낸다 — 플레이어 쪽에서 `drop_system.gold_dropped.connect(inventory.add_gold)`로
-##      연결하면 된다(인벤토리 쪽 add_gold(amount:int)는 IT-3 InventoryComponent 참고).
+##      내보낸다 — 플레이어 쪽에서 `gold_dropped.connect(inventory.add_gold.unbind(1))`로
+##      연결한다. gold_dropped는 (amount, world_position) 2인자이고 add_gold는 amount만
+##      받으므로 unbind(1)이 필수다(빠뜨리면 처치마다 인자 수 불일치 에러 + 골드 미지급).
 ##
 ## 테스트 용이성을 위해 확률 판정·슬롯 롤·아이템 티어 해석은 전부 정적 순수 함수로 뺐다
 ## (DamageCalculator의 rng 주입 관행과 동일한 방향 — combat.md 6장 CB-3 스타일 참고).

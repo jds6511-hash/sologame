@@ -79,7 +79,8 @@ var _capture_index: int = 0
 
 func _ready() -> void:
 	_hud.bind_player(_player, _player.get_node("PlayerStats"))
-	_drop_system.gold_dropped.connect(_inventory.add_gold)
+	## unbind(1) 이유는 eastern_frontier_starting_area.gd 동일 배선 주석 참조.
+	_drop_system.gold_dropped.connect(_inventory.add_gold.unbind(1))
 	_monster_spawner.monster_spawned.connect(_register_monster)
 	for monster in _monster_spawner.get_children():
 		_register_monster(monster)

@@ -44,7 +44,10 @@ func _ready() -> void:
 	_hud.bind_player(_player, _player.get_node("PlayerStats"))
 	_integrated_menu.bind_player(_player)
 	print("[통합] HUD 바인딩 완료")
-	_drop_system.gold_dropped.connect(_inventory.add_gold)
+	## gold_dropped는 (amount, world_position) 2인자이고 add_gold는 amount만 받으므로
+	## unbind(1)로 위치 인자를 떼어 낸다 — 없으면 처치마다 인자 수 불일치 에러가 나고
+	## 골드가 인벤토리에 들어가지 않는다.
+	_drop_system.gold_dropped.connect(_inventory.add_gold.unbind(1))
 	_monster_spawner.monster_spawned.connect(_on_monster_spawned)
 	_register_spawned_monsters()
 	_start_tutorial()
