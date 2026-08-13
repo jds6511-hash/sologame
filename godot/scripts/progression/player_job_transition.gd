@@ -111,7 +111,10 @@ func _update_availability(level: int) -> void:
 ## 지금 전직할 수 있는 직업 후보. 미전직(모험가)이면 1차 목록 그대로이고(직업 선택 화면의
 ## 카드 순서와 인덱스가 일치해야 한다), 전직 후에는 required_job_id가 현재 직업과 일치하는
 ## 상위 계통만 남는다.
-func _candidate_jobs() -> Array[JobDefinition]:
+## 직업 선택 화면(ui: job_selection_screen.gd)이 카드를 만들 때 이 목록을 그대로 써야 하므로
+## (UI가 후보 규칙을 다시 구현하면 request_transition_by_index의 인덱스와 어긋난다) 공개
+## API다 — 구 이름 `_candidate_jobs()`에서 개명(M3, 유일한 외부 호출부와 동시 반영).
+func candidate_jobs() -> Array[JobDefinition]:
 	if not is_transitioned:
 		return available_jobs
 	var candidates: Array[JobDefinition] = []
@@ -123,7 +126,7 @@ func _candidate_jobs() -> Array[JobDefinition]:
 
 ## 다음 전직의 임계 레벨(첫 후보의 임계 — 계통 내 임계는 동일하다). 후보가 없으면 -1.
 func _next_transition_level() -> int:
-	for job_def in _candidate_jobs():
+	for job_def in candidate_jobs():
 		if job_def != null:
 			return job_def.transition_level()
 	return -1
@@ -145,7 +148,7 @@ func _find_job(job_id: StringName) -> JobDefinition:
 func can_transition(job_id: StringName) -> bool:
 	if not transition_available:
 		return false
-	for job_def in _candidate_jobs():
+	for job_def in candidate_jobs():
 		if job_def != null and job_def.job_id == job_id:
 			return true
 	return false
@@ -200,7 +203,7 @@ func _apply_loadout(job_def: JobDefinition) -> void:
 ## 공용). 미전직 상태에서는 후보 목록이 available_jobs 그대로이므로 화면의 카드 번호와
 ## 인덱스가 일치한다. 범위를 벗어나거나 조건 미충족이면 false.
 func request_transition_by_index(index: int) -> bool:
-	var candidates := _candidate_jobs()
+	var candidates := candidate_jobs()
 	if index < 0 or index >= candidates.size():
 		return false
 	var job_def := candidates[index]
@@ -217,14 +220,14 @@ func _unhandled_key_input(event: InputEvent) -> void:
 	if key_event == null or not key_event.is_pressed() or key_event.is_echo():
 		return
 	var index: int = key_event.keycode - DEBUG_TRANSITION_FIRST_KEYCODE
-	if index >= 0 and index < _candidate_jobs().size():
+	if index >= 0 and index < candidate_jobs().size():
 		request_transition_by_index(index)
 
 
 ## 전직 가능해진 순간의 콘솔 안내 — 정식 전직 UI가 없는 동안 플레이어(디렉터)가 전직을
 ## 실제로 실행할 수 있게 선택 키를 함께 알린다.
 func _print_transition_guide(level: int) -> void:
-	var candidates := _candidate_jobs()
+	var candidates := candidate_jobs()
 	var tier_name := "2차" if is_transitioned else "1차"
 	var text := "[전직] Lv%d 도달 — %s 전직이 가능합니다." % [level, tier_name]
 	if debug_transition_keys_enabled:

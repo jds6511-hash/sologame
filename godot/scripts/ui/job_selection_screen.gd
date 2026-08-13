@@ -127,11 +127,10 @@ func _build_cards() -> void:
 ## 지금 전직할 수 있는 직업 후보 — **B-5의 판정을 그대로 쓴다**. 카드 인덱스가 그대로
 ## `request_transition_by_index`의 인덱스이므로 목록 산출을 UI에서 다시 구현하면 안 된다
 ## (미전직이면 available_jobs 그대로, 전직 후에는 required_job_id가 맞는 상위 계통만).
-## 공개 접근자가 없어 B-5의 내부 함수를 호출한다 — 공개 API 승격 요청은 결과 보고에 남겼다.
 func _candidate_jobs() -> Array[JobDefinition]:
 	if _transition == null:
 		return []
-	return _transition._candidate_jobs()
+	return _transition.candidate_jobs()
 
 
 ## 제목·안내문을 현재 전직 단계에 맞춘다(1차 Lv10 / 2차 Lv40). 임계 레벨은 후보 직업의
