@@ -70,6 +70,8 @@ func bind_player(player: PlayerController, stats: PlayerStatsComponent) -> void:
 	_job_transition = player.get_node_or_null("PlayerJobTransition") as PlayerJobTransition
 	_bind_progression(player)
 	_bind_job_transition()
+	## 디버그 직행 시작(initial_job_id)은 job_changed를 발신하지 않으므로 바인드 시점에도 맞춘다.
+	_refresh_portrait()
 
 
 ## 레벨·경험치 바를 PlayerProgression(B-1)에 연결한다(m3-leveling-spec 7-5). 노드가 없는
@@ -103,6 +105,22 @@ func _on_job_changed(_job_id: StringName) -> void:
 	_job_name = _resolve_job_name(_bound_player)
 	var level: int = _progression.current_level if _progression else 1
 	_status_panel.set_level_and_job(level, _job_name)
+	_refresh_portrait()
+
+
+## HUD 초상을 현재 직업의 스프라이트 시트로 맞춘다(M3 3-A). 시트는 **PlayerJobTransition이
+## 아는 JobDefinition.sprite_frames를 그대로** 읽는다 — 인게임 스프라이트를 갈아 끼우는 것과
+## 같은 데이터 출처이므로(PlayerVisualModule.set_job_sprite_frames) 직업->시트 매핑을 UI가 다시
+## 만들지 않아 어긋날 수 없다. 시트를 못 찾는 두 경우는 모두 "현재 초상 유지"가 정답이다:
+##   · 모험가 — 등록된 JobDefinition이 없다. 씬 기본 초상이 player.tscn 기본 시트(전사 신판)와
+##     같은 시트라 화면의 플레이어 스프라이트와 일치한다.
+##   · 검투사 — 정의는 있으나 sprite_frames가 비어 있다(= 전사 시트 유지가 데이터로 표현된
+##     상태). 전직 전 전사 초상이 그대로 남아 인게임 스프라이트와 일치한다.
+func _refresh_portrait() -> void:
+	var job_def := _current_job_definition()
+	if job_def == null:
+		return
+	_status_panel.set_portrait_frames(job_def.sprite_frames)
 
 
 ## 직업명은 **전직 노드가 아는 JobDefinition.display_name을 먼저** 쓴다(M3 C-1). 성장 데이터
@@ -120,22 +138,27 @@ func _resolve_job_name(player: PlayerController) -> String:
 	return "전사"
 
 
-## 현재 직업 id와 일치하는 JobDefinition의 표시명(1차 목록 -> 상위 계통 순서로 찾는다).
-## 등록된 정의가 없으면 빈 문자열.
+## 현재 직업 id와 일치하는 JobDefinition의 표시명. 등록된 정의가 없으면 빈 문자열.
 func _job_definition_name() -> String:
+	var job_def := _current_job_definition()
+	return job_def.display_name if job_def != null else ""
+
+
+## 현재 직업 id와 일치하는 JobDefinition(1차 목록 -> 상위 계통 순서로 찾는다). 직업명과 초상
+## 시트가 같은 정의에서 나와야 둘이 어긋나지 않으므로 조회를 한 곳으로 모았다. 전직 노드가
+## 없는 씬(구버전·테스트)이나 모험가(등록된 정의가 없다)면 null.
+func _current_job_definition() -> JobDefinition:
 	if _job_transition == null:
-		return ""
-	var job_name := _find_job_display_name(_job_transition.available_jobs)
-	if job_name.is_empty():
-		job_name = _find_job_display_name(_job_transition.tier2_jobs)
-	return job_name
+		return null
+	var job_def := _find_job(_job_transition.available_jobs)
+	return job_def if job_def != null else _find_job(_job_transition.tier2_jobs)
 
 
-func _find_job_display_name(definitions: Array[JobDefinition]) -> String:
+func _find_job(definitions: Array[JobDefinition]) -> JobDefinition:
 	for job_def in definitions:
 		if job_def != null and job_def.job_id == _job_transition.current_job_id:
-			return job_def.display_name
-	return ""
+			return job_def
+	return null
 
 
 ## 현재 레벨 내 경험치 변동 반영. exp_to_next<=0 이면 만렙 — 바를 만충하고 MAX를 표기한다
