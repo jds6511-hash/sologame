@@ -106,6 +106,18 @@ func add_gold(amount: int) -> void:
 	gold_changed.emit(gold)
 
 
+## 사망 패널티(M3 D3-2) 등 "대가 없이 잃는" 골드 차감. spend_gold와 달리 보유액이 부족해도
+## 실패하지 않고 남은 만큼만 잃으며, 실제로 잃은 액수를 돌려준다(골드는 음수가 되지 않는다).
+## 상실액 산정(비율·상한)은 호출자 몫이다 — 사망 규격은 PlayerDeathRules에 있다.
+func lose_gold(amount: int) -> int:
+	if amount <= 0 or gold <= 0:
+		return 0
+	var lost := mini(amount, gold)
+	gold -= lost
+	gold_changed.emit(gold)
+	return lost
+
+
 func spend_gold(amount: int) -> bool:
 	if amount <= 0 or gold < amount:
 		return false

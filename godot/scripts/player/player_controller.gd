@@ -69,6 +69,9 @@ var is_dash_invincible: bool = false
 var dash_charges: int = 0
 var is_hit_stunned: bool = false  ## CB-4: 피격 경직 중
 var is_hit_invincible: bool = false  ## CB-4: 피격 후 무적 중
+## 사망 흐름 중 조작 차단(M3 D3-2) — PlayerDeathSequence가 사망 시점에 켜고 부활 페이드인이
+## 끝나면 끈다. 사망 모션·암전·부활 구간 전체에서 입력을 아예 읽지 않는다.
+var is_input_locked: bool = false
 
 var active_skill: WarriorSkillData = null
 
@@ -154,6 +157,12 @@ func _physics_process(delta: float) -> void:
 	## 프레임에서는 갱신하지 않아 직전 정상값을 보존한다.
 	if global_position.is_finite():
 		_last_finite_position = global_position
+
+	## 사망~부활 구간(M3 D3-2)은 입력을 읽기 전에 갈라 나간다 — 아래 어떤 처리도 돌지 않아야
+	## 사망 모션이 다른 상태에 덮이지 않는다.
+	if is_input_locked or is_dead():
+		_process_death_lock()
+		return
 
 	_move_input = Input.get_vector("move_left", "move_right", "move_up", "move_down")
 	if _move_input.length_squared() > 0.0:
@@ -677,6 +686,8 @@ func _process_potion_input() -> void:
 ## 분리). 슈퍼아머는 "경직 무시, 피해는 그대로"이므로 데미지(take_damage)는 별도로 계속
 ## 정상 적용된다 — 여기서 무시하는 것은 경직·넉백 반응뿐이다.
 func take_hit(is_heavy: bool, knockback_direction: Vector2 = Vector2.ZERO) -> void:
+	if is_dead() or is_input_locked:
+		return  ## 사망~부활 구간(M3 D3-2)에는 경직·넉백 반응이 없다
 	if is_invincible():
 		return
 	if is_superarmor():
@@ -737,9 +748,36 @@ func is_dead() -> bool:
 	return _stats.is_dead() if _stats else false
 
 
+## 사망~부활 구간(M3 D3-2) 처리 — 입력을 읽지 않고, 진행 중이던 행동만 정리한 뒤 애니메이션을
+## 갱신한다. PlayerVisualModule이 is_dead()를 최우선으로 보므로 이 구간에 `death_*`(방향별
+## 4프레임)가 재생되고, 부활 후 페이드인 동안에는 대기 자세로 서 있는다.
+##
+## move_and_slide()는 부르지 않는다 — 속도를 0으로 눌러 두므로 이동이 없고, 시체가 지형에
+## 밀려 미끄러지는 잔여 이동도 생기지 않는다.
+func _process_death_lock() -> void:
+	_move_input = Vector2.ZERO
+	velocity = Vector2.ZERO
+	_knockback_velocity = Vector2.ZERO
+	is_hit_stunned = false
+	_hit_stun_timer = 0.0
+	if attack_state != AttackState.NONE:
+		_disable_attack_hitbox()
+		_end_combo()
+	if skill_state != AttackState.NONE:
+		_cancel_skill()
+	if _is_charging_secondary:
+		_cancel_charge()
+	if is_dashing:
+		is_dashing = false
+		is_dash_invincible = false
+	_update_visual()
+
+
 ## 회피 무적(대시)과 피격 후 무적을 합친 통합 판정 — 공격자 쪽이 데미지 적용 전 확인용.
+## 사망~부활 구간(is_input_locked)도 무적으로 취급한다: 부활 지점에 적이 있어도 조작이 막힌
+## 채로 다시 죽는 루프가 생기지 않게 하는 안전장치다.
 func is_invincible() -> bool:
-	return is_dash_invincible or is_hit_invincible
+	return is_dash_invincible or is_hit_invincible or is_input_locked
 
 
 ## 슈퍼아머 — 경직은 무시하지만 무적은 아니다(피해는 그대로 받는다, combat.md 5-1장).
