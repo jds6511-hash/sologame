@@ -9,9 +9,12 @@
 ## MonsterBase.take_damage()와 동일하게 "최종 데미지 값을 그대로 HP에서 빼는" 결과 처리만
 ## 담당한다.
 ##
-## 사망 처리는 "임시: 리스폰"이다 — combat.md 5-4장이 "사망 페널티(부활 위치·비용)는
-## 세이브/로드·경제와 얽히므로 추후 별도 규정한다"고 명시적으로 미룬 항목이라, 여기서는
-## 최소 동작(즉시 전체 회복 + 최초 스폰 위치로 복귀)만 구현한다.
+## 사망 처리(M3 D3-2, 디렉터 확정 "시작 지점 부활 + 경미 패널티")는 이 컴포넌트가 HP만
+## 책임진다: `_die()`는 HP를 0으로 두고 `died`만 알린다 — 즉 **사망 상태가 실제로 유지된다**
+## (종전의 "그 자리에서 즉시 전액 부활"을 대체). 사망 모션 대기·암전·골드 패널티·부활 호출
+## 순서는 PlayerDeathSequence(scripts/player/player_death_sequence.gd)가 진행하며, 그쪽이
+## 암전 구간에서 respawn()을 호출한다. combat.md 5-4장이 미뤄 둔 "사망 페널티" 규격의 실수치는
+## PlayerDeathRules(.tres)에 있다.
 class_name PlayerStatsComponent
 extends Node
 
@@ -121,17 +124,42 @@ func apply_defense_buff(percent: float, duration_sec: float) -> void:
 	_defense_buff_timer = duration_sec
 
 
-# --- 사망 처리 (임시: 즉시 리스폰) ---
+# --- 사망·부활 (M3 D3-2 — 진행은 PlayerDeathSequence) ---
 
 
+## HP가 0이 된 순간의 처리. 여기서는 사망 상태를 "유지"하는 것이 전부다 — 사망 모션이
+## 재생될 시간(is_dead() == true인 관측 가능한 구간)을 만드는 것이 이 변경의 핵심이다.
 func _die() -> void:
+	current_hp = 0.0
 	died.emit()
-	current_hp = stats.max_hp
-	current_mp = stats.max_mp
+
+
+## 부활 — PlayerDeathSequence가 암전 구간에서 호출한다. HP/MP를 최대치의 지정 비율로 되살리고
+## 리스폰 지점으로 옮긴다. hp_percent가 0에 가깝게 설정돼도 HP 1은 남겨(재사망 루프 방지),
+## 부활 직후 다시 is_dead()가 되는 상태로는 절대 돌아가지 않는다.
+## 전투 이탈 타이머도 초기화해 부활 직후 자연 회복이 5초 뒤부터 시작되게 한다.
+func respawn(hp_percent: float, mp_percent: float) -> void:
+	current_hp = maxf(stats.max_hp * clampf(hp_percent, 0.0, 1.0), 1.0)
+	current_mp = stats.max_mp * clampf(mp_percent, 0.0, 1.0)
 	_player.global_position = _respawn_position
+	_time_since_combat_action_sec = 0.0
 	hp_changed.emit(current_hp, stats.max_hp)
 	mp_changed.emit(current_mp, stats.max_mp)
 	respawned.emit()
+
+
+## 리스폰 지점 갱신 — 기본값은 씬에 배치된 플레이어의 초기 위치(시작 지역 씬에서는
+## Markers/PlayerStart와 같은 좌표)이며, 그래서 씬 쪽 배선이 따로 필요하지 않다.
+##
+## 도시·부락·모닥불 같은 거점이 생기면 그 오브젝트가 이 함수를 호출하는 것만으로 "최근 거점
+## 부활"로 확장된다(combat.md 5-4장 "거점 휴식"과 같은 자리). 지역(씬) 간 이동을 넘나드는
+## 부활은 씬 전환 자체가 아직 없어 범위 밖이다.
+func set_respawn_position(world_position: Vector2) -> void:
+	_respawn_position = world_position
+
+
+func get_respawn_position() -> Vector2:
+	return _respawn_position
 
 
 # --- 포션 (CB-5, combat.md 5-4장 — 구조만: 쿨다운·회복량·보스전 캡) ---

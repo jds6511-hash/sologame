@@ -1,6 +1,11 @@
-## M2 Phase3 검증 — PlayerStatsComponent의 HP/MP 실체(growth.md 1~3장), HP 차감·사망
-## (임시 리스폰), 포션(쿨다운 8초·회복 30%·보스전 5회 캡), 자연 회복(전투 이탈 5초 후
-## 초당 2%)이 combat.md 5-4장 수치대로 동작하는지 확인한다.
+## M2 Phase3 검증 — PlayerStatsComponent의 HP/MP 실체(growth.md 1~3장), HP 차감·사망,
+## 포션(쿨다운 8초·회복 30%·보스전 5회 캡), 자연 회복(전투 이탈 5초 후 초당 2%)이
+## combat.md 5-4장 수치대로 동작하는지 확인한다.
+##
+## 사망은 M3 D3-2에서 "즉시 임시 리스폰"에서 **"HP 0 유지 + died 통보"**로 바뀌었다 — 실제
+## 부활은 PlayerDeathSequence가 암전 구간에서 respawn()을 호출해 일으킨다. 이 파일은 그
+## 계약의 스탯 쪽(사망 상태 유지·respawn 수치)만 보고, 단계 진행·연출은
+## `test_player_death_sequence.gd`가 본다.
 extends GutTest
 
 var _player: PlayerController
@@ -25,30 +30,44 @@ func test_take_damage_reduces_hp() -> void:
 
 
 func test_take_damage_exceeding_hp_triggers_death_instead_of_negative_hp() -> void:
-	## 사망 시 임시 리스폰(전체 회복)이 즉시 발동하므로, 초과 데미지를 받아도 HP가 음수로
-	## 남지 않고 최대치로 돌아온다(test_death_triggers_temp_respawn... 에서 리스폰 자체는
-	## 별도로 상세 검증한다 — 여기서는 "음수로 떨어지지 않는다"는 계약만 확인).
+	## 초과 데미지를 받아도 HP는 음수가 아니라 정확히 0에서 멈추고, 그 상태가 **유지**된다 —
+	## 사망 모션이 재생될 구간(is_dead() == true인 관측 가능한 시간)을 만드는 것이 목적이다.
+	watch_signals(_stats)
+
 	_stats.take_damage(9999.0)
-	assert_eq(_stats.current_hp, _stats.stats.max_hp)
+
+	assert_eq(_stats.current_hp, 0.0)
+	assert_true(_stats.is_dead(), "부활은 PlayerDeathSequence가 암전 구간에서 일으킨다")
+	assert_signal_emitted(_stats, "died")
 
 
 func test_get_combat_defense_matches_stats_defense_without_buff() -> void:
 	assert_eq(_stats.get_combat_defense(), 14.0)
 
 
-func test_death_triggers_temp_respawn_full_heal_and_teleport() -> void:
+func test_respawn_restores_percent_and_teleports() -> void:
+	_stats.set_respawn_position(Vector2(320, 192))
 	_player.global_position = Vector2(500, 500)
-	_stats._respawn_position = Vector2(320, 192)
+	_stats.take_damage(9999.0)
 	watch_signals(_stats)
 
+	_stats.respawn(0.5, 0.5)
+
+	assert_false(_stats.is_dead())
+	assert_eq(_stats.current_hp, _stats.stats.max_hp * 0.5)
+	assert_eq(_stats.current_mp, _stats.stats.max_mp * 0.5)
+	assert_eq(_player.global_position, Vector2(320, 192))
+	assert_signal_emitted(_stats, "respawned")
+
+
+## hp_percent가 0이어도 HP 1은 남는다 — 부활 직후 다시 is_dead()가 되는 재사망 루프 방지.
+func test_respawn_with_zero_percent_still_leaves_one_hp() -> void:
 	_stats.take_damage(9999.0)
 
-	assert_true(_stats.is_dead() == false, "사망 즉시 임시 리스폰되어 다시 생존 상태여야 함")
-	assert_eq(_stats.current_hp, _stats.stats.max_hp)
-	assert_eq(_stats.current_mp, _stats.stats.max_mp)
-	assert_eq(_player.global_position, Vector2(320, 192))
-	assert_signal_emitted(_stats, "died")
-	assert_signal_emitted(_stats, "respawned")
+	_stats.respawn(0.0, 0.0)
+
+	assert_eq(_stats.current_hp, 1.0)
+	assert_false(_stats.is_dead())
 
 
 func test_heal_does_not_exceed_max_hp() -> void:
