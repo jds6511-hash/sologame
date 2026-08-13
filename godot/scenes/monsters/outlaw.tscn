@@ -1,83 +1,92 @@
-[gd_scene load_steps=30 format=3]
+[gd_scene load_steps=33 format=3]
 
 [ext_resource type="Script" path="res://scripts/ai/outlaw_monster.gd" id="1"]
 [ext_resource type="Resource" path="res://data/monsters/outlaw_stats.tres" id="2"]
-[ext_resource type="Texture2D" path="res://assets/sprites/monsters/mob_rabbit_horned_idle.png" id="3"]
-[ext_resource type="Texture2D" path="res://assets/sprites/monsters/mob_rabbit_horned_walk.png" id="4"]
-[ext_resource type="Texture2D" path="res://assets/sprites/monsters/mob_rabbit_horned_attack.png" id="5"]
-[ext_resource type="Texture2D" path="res://assets/sprites/monsters/mob_rabbit_horned_death.png" id="6"]
+[ext_resource type="Texture2D" path="res://assets/sprites/monsters/mob_outlaw_thug_idle.png" id="3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/monsters/mob_outlaw_thug_walk.png" id="4"]
+[ext_resource type="Texture2D" path="res://assets/sprites/monsters/mob_outlaw_thug_attack.png" id="5"]
+[ext_resource type="Texture2D" path="res://assets/sprites/monsters/mob_outlaw_thug_death.png" id="6"]
 [ext_resource type="Script" path="res://scripts/combat/mob_stagger_component.gd" id="7"]
 [ext_resource type="Resource" path="res://data/combat/mob_stagger_rules.tres" id="8"]
 [ext_resource type="Script" path="res://scripts/combat/monster_attack_resolver.gd" id="9"]
 [ext_resource type="Resource" path="res://data/combat/damage_formula.tres" id="10"]
+[ext_resource type="Texture2D" path="res://assets/sprites/monsters/mob_outlaw_thug_guard.png" id="11"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_idle0"]
 atlas = ExtResource("3")
-region = Rect2(0, 20, 20, 20)
+region = Rect2(0, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_idle1"]
 atlas = ExtResource("3")
-region = Rect2(20, 20, 20, 20)
+region = Rect2(28, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_idle2"]
 atlas = ExtResource("3")
-region = Rect2(40, 20, 20, 20)
+region = Rect2(56, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_idle3"]
 atlas = ExtResource("3")
-region = Rect2(60, 20, 20, 20)
+region = Rect2(84, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_walk0"]
 atlas = ExtResource("4")
-region = Rect2(0, 20, 20, 20)
+region = Rect2(0, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_walk1"]
 atlas = ExtResource("4")
-region = Rect2(20, 20, 20, 20)
+region = Rect2(28, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_walk2"]
 atlas = ExtResource("4")
-region = Rect2(40, 20, 20, 20)
+region = Rect2(56, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_walk3"]
 atlas = ExtResource("4")
-region = Rect2(60, 20, 20, 20)
+region = Rect2(84, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_atk0"]
 atlas = ExtResource("5")
-region = Rect2(0, 20, 20, 20)
+region = Rect2(0, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_atk1"]
 atlas = ExtResource("5")
-region = Rect2(20, 20, 20, 20)
+region = Rect2(28, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_atk2"]
 atlas = ExtResource("5")
-region = Rect2(40, 20, 20, 20)
+region = Rect2(56, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_atk3"]
 atlas = ExtResource("5")
-region = Rect2(60, 20, 20, 20)
+region = Rect2(84, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_atk4"]
 atlas = ExtResource("5")
-region = Rect2(80, 20, 20, 20)
+region = Rect2(112, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_death0"]
 atlas = ExtResource("6")
-region = Rect2(0, 20, 20, 20)
+region = Rect2(0, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_death1"]
 atlas = ExtResource("6")
-region = Rect2(20, 20, 20, 20)
+region = Rect2(28, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_death2"]
 atlas = ExtResource("6")
-region = Rect2(40, 20, 20, 20)
+region = Rect2(56, 36, 28, 36)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_death3"]
 atlas = ExtResource("6")
-region = Rect2(60, 20, 20, 20)
+region = Rect2(84, 36, 28, 36)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_guard0"]
+atlas = ExtResource("11")
+region = Rect2(0, 36, 28, 36)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_guard1"]
+atlas = ExtResource("11")
+region = Rect2(28, 36, 28, 36)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_1"]
 animations = [{
@@ -100,6 +109,11 @@ animations = [{
 "speed": 6.0,
 "loop": false,
 "frames": [SubResource("AtlasTexture_death0"), SubResource("AtlasTexture_death1"), SubResource("AtlasTexture_death2"), SubResource("AtlasTexture_death3")]
+}, {
+"name": "guard",
+"speed": 4.0,
+"loop": true,
+"frames": [SubResource("AtlasTexture_guard0"), SubResource("AtlasTexture_guard1")]
 }]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_1"]
@@ -107,7 +121,6 @@ radius = 5.0
 height = 14.0
 
 [node name="OutlawMonster" type="CharacterBody2D"]
-modulate = Color(0.88, 0.8, 0.62, 1)
 collision_layer = 4
 collision_mask = 7
 script = ExtResource("1")
@@ -119,7 +132,7 @@ position = Vector2(0, -8)
 shape = SubResource("CapsuleShape2D_1")
 
 [node name="Sprite" type="AnimatedSprite2D" parent="."]
-offset = Vector2(0, -10)
+offset = Vector2(0, -18)
 sprite_frames = SubResource("SpriteFrames_1")
 animation = &"idle"
 autoplay = "idle"
