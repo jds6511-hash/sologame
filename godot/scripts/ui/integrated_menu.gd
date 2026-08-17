@@ -75,13 +75,31 @@ func _on_tab_shortcut(tab: int) -> void:
 	if _is_open and _tabs.current_tab == tab:
 		close_menu()
 		return
+	## 열 수 없는 상황이면 탭도 바꾸지 않는다 — 안 열리는데 탭만 조용히 바뀌면 다음에 열었을 때
+	## 엉뚱한 탭이 나온다.
+	if not _is_open and is_menu_blocked():
+		return
 	_tabs.current_tab = tab
 	if not _is_open:
 		open_menu()
 
 
+## 사망 연출 중에는 메뉴를 열지 않는다 (디렉터 확정, D-3 리포트 비차단 이슈 3).
+## 두 가지가 동시에 깨지기 때문이다: ① `open_menu`의 `get_tree().paused = true`가
+## `PlayerDeathSequence._process()`를 멈춰 연출이 그 자리에 정지한다 ② 암전 CanvasLayer(20)가
+## 메뉴(10)보다 위라, 암전 구간에 열면 메뉴가 검은 화면 **아래** 깔려 보이지도 않는다.
+## 플레이어를 바인드하지 않은 씬(메뉴 단독 테스트 등)에서는 막을 근거가 없으므로 통과시킨다.
+func is_menu_blocked() -> bool:
+	if _bound_player == null:
+		return false
+	var death_sequence := (
+		_bound_player.get_node_or_null("PlayerDeathSequence") as PlayerDeathSequence
+	)
+	return death_sequence != null and death_sequence.is_active()
+
+
 func open_menu() -> void:
-	if _is_open:
+	if _is_open or is_menu_blocked():
 		return
 	_is_open = true
 	visible = true
