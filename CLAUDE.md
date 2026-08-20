@@ -7,6 +7,7 @@ Godot 4.x로 만드는 한국어 싱글플레이 2D 판타지 RPG. 개인 프로
 - **스포일러 금지**: 스토리 반전 관련 내용은 `docs\design\spoilers\`에만 기록한다.
   사용자(디렉터) 보고에는 "반전 요소 작업 완료" 수준으로만 언급하고 내용은 절대 쓰지 않는다.
 - 싱글플레이/PC 전용. 멀티플레이, 서버, PvP, 수익 모델 관련 작업 금지.
+- **서브에이전트 모델 고정 금지**: `.claude\agents\*.md`에 `model:` 프론트매터를 넣지 않는다. 전원 디렉터가 설정한 세션 모델을 상속한다 (디렉터 확정 2026-08-20).
 
 ## 환경
 - Godot 실행 파일: `godot` (별칭: `C:\Users\UserK\AppData\Local\Microsoft\WinGet\Links\godot.exe`, 버전 **4.7.1.stable** 고정)
