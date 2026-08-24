@@ -8,20 +8,31 @@
 = 잘린 단면)은 **색이 팔레트 안에 있는지만 보고 그 색들이 얼마나 벌어져 있는지는 보지
 않았기 때문에** 전부 통과했다. 이 스크립트가 그 빈칸을 메운다.
 
-판정 규칙 (STYLE_GUIDE 7장 5-2, 하드 실패 3종):
-    (1) 면적가중 명도 표준편차 σ_L > 10  (river_water 만 > 12)
+판정 규칙 (STYLE_GUIDE 7장 5-2, 하드 실패 4종):
+    (1) 면적가중 명도 표준편차 σ_L > 10  (예외·완화 없음)
         σ_L = √( Σ pᵢ (Lᵢ − L̄)² ),  L = Rec.601 luma,  pᵢ = 불투명 픽셀 면적비
         예산식 `Σ p·Δ² ≤ 100` 과 동치이므로 예산 합계도 함께 출력한다.
     (2) 단일 색의 Δ 절대값 > 40  (하드 상한. 정수 배율 스크롤 시 반짝임)
-        예외 = grass_flower 의 꽃 `#f6757a` 가 면적 1.5% 이하일 때만
+        예외 = grass_flower 의 꽃 `#f6757a` 가 면적 **0.8% 이하**일 때만
     (3) 대면적 지면에 `#ffffff` 가 1픽셀이라도 사용됨
+    (4) **초원 2종의 허용 색 목록 위반** (2026-08-24 신설) — grass_base·grass_flower 에
+        `#3e8948`·`#265c42`(+꽃 `#f6757a`) 외의 색이 1픽셀이라도 있으면 실패.
+        신설 근거: 이 두 타일의 결함은 **σ_L 로 검출되지 않는다.** 등명도 교차 색조
+        배합(`#5a6988` 30% + `#be4a2f` 10%)은 σ_L 1.35 로 10종 최우수였으면서도
+        초원이 초록으로 읽히지 않는 반점밭이었다 — 지표는 명도만 보고 색조는 보지
+        않기 때문이다. **색조 회귀는 색 목록으로만 잡힌다**(3-2-3-4 D).
 
 명도 폭 span 은 **게이트가 아니다** — 1픽셀로 값이 결정돼 회귀 검출에 쓸 수 없으므로
 측정해서 병기 기록만 한다(3-2-3-1절).
 
 **프롭·구조물 7종은 이 게이트의 대상이 아니다** — 대비 유지가 규정이다(3-2-3-6절).
-검사 대상은 3-2-3-6절이 정의한 대면적 지면 10종이며, 타일 키는 타일셋 매니페스트
+검사 대상은 3-2-3-6절이 정의한 대면적 지면 **9종**이며, 타일 키는 타일셋 매니페스트
 (`<시트명>.json`)에서 읽는다.
+
+**river_water 는 2026-08-24 정정으로 게이트 대상에서 빠졌다**(3-2-3-6 예외 1 — 좁은 띠라
+정의에 들지 않고 EDG32 청색 계열로는 상한 달성이 불가능하다). σ_L·span·색 구성은
+**계속 측정·출력**하되 판정과 종료 코드에서 제외한다 — 회귀 추적용이며 수치가 상한을
+넘어도 실패가 아니다.
 
 부가 측정(게이트 아님): 2x2 체커 패턴 비율. 3-2 표가 대면적 지면의 규칙적 체커를
 금지한 근거(정수 배율 스크롤 시 패턴 크롤링)를 수치로 추적하기 위한 참고값이다.
@@ -49,25 +60,40 @@ DEFAULT_TARGETS = [str(ASSETS_DIR / "tiles" / "eastern_frontier_tileset.png")]
 
 # STYLE_GUIDE 3-2-3-6: 적용 대상 = 지형 레이어에 4타일 이상 연속으로 깔릴 수 있는 타일.
 # 키 -> σ_L 상한. 신규 타일이 이 정의에 들면 여기에 1행 등록한다.
-GROUND_SIGMA_LIMIT: dict[str, float] = {
-    "grass_base": 10.0,
-    "grass_flower": 10.0,
-    "dirt_path": 10.0,
-    "dirt_pebble": 10.0,
-    "tilled_soil": 10.0,
-    "cracked_ground": 10.0,
-    "riverbank_sand": 10.0,
-    "stone_floor": 10.0,
-    "wood_plank": 10.0,
-    "river_water": 12.0,  # 수면 반짝임이 물의 정체성이라 축 1개의 여유를 준다
-}
+SIGMA_LIMIT = 10.0
+GROUND_TILES: tuple[str, ...] = (
+    "grass_base",
+    "grass_flower",
+    "dirt_path",
+    "dirt_pebble",
+    "tilled_soil",
+    "cracked_ground",
+    "riverbank_sand",
+    "stone_floor",
+    "wood_plank",
+)
+
+# 측정만 하고 판정하지 않는 타일(3-2-3-6 예외 1). 프롭 취급이라 상한이 없다.
+MEASURE_ONLY: tuple[str, ...] = ("river_water",)
 
 DELTA_HARD_CAP = 40.0
 WHITE = (0xFF, 0xFF, 0xFF)
 
+GREEN = (0x3E, 0x89, 0x48)
+DEEP_GREEN = (0x26, 0x5C, 0x42)
+FLOWER_PINK = (0xF6, 0x75, 0x7A)
+
+# 3-2-3-4 (D) 단색조 처방 대상의 허용 색 목록. 지정 색 외 1픽셀도 실패다.
+# 대상 확대·축소는 art-director 소관이므로 여기서 임의로 늘리지 않는다.
+MONOCHROME_ALLOWED: dict[str, set[tuple[int, int, int]]] = {
+    "grass_base": {GREEN, DEEP_GREEN},
+    "grass_flower": {GREEN, DEEP_GREEN, FLOWER_PINK},
+}
+
 # 3-2-3-5 비고: 꽃은 지면 질감이 아니라 지면 위 미세 프롭이므로 Δ 하드 상한의 예외.
-# **면적 1.5% 캡이 반짝임을 막는 조건**이라 캡을 넘으면 예외가 소멸한다.
-DELTA_EXEMPT = {("grass_flower", (0xF6, 0x75, 0x7A)): 1.5}
+# **면적 0.8% 캡이 반짝임을 막는 유일한 조건**이라 캡을 넘으면 예외가 소멸한다
+# (2026-08-24 정정: (D) 배합 위에서는 1.5% 를 쓰면 σ_L 이 상한을 넘는다).
+DELTA_EXEMPT = {("grass_flower", FLOWER_PINK): 0.8}
 
 
 def luma(rgb: tuple[int, int, int]) -> float:
@@ -129,12 +155,26 @@ def hex_of(rgb: tuple[int, int, int]) -> str:
 
 
 def check_tile(key: str, hist: dict[tuple[int, int, int], int]) -> tuple[dict, list[str]]:
+    """측정값과 위반 목록을 반환. `MEASURE_ONLY` 타일은 위반 목록이 항상 비어 있다."""
     m = measure(hist)
-    limit = GROUND_SIGMA_LIMIT[key]
+    if key in MEASURE_ONLY:
+        return m, []
+
     problems: list[str] = []
 
-    if m["sigma"] > limit:
-        problems.append(f"σ_L {m['sigma']:.2f} > 상한 {limit:.0f} (예산 Σp·Δ² {m['budget']:.1f})")
+    if m["sigma"] > SIGMA_LIMIT:
+        problems.append(
+            f"σ_L {m['sigma']:.2f} > 상한 {SIGMA_LIMIT:.0f} (예산 Σp·Δ² {m['budget']:.1f})"
+        )
+
+    allowed = MONOCHROME_ALLOWED.get(key)
+    if allowed is not None:
+        for rgb, n, p, _lum in m["colors"]:
+            if rgb not in allowed:
+                problems.append(
+                    f"단색조 처방 허용 색 목록 위반: {hex_of(rgb)} {n}px ({p * 100:.2f}%)"
+                    f" — 허용 = {', '.join(sorted(hex_of(c) for c in allowed))}"
+                )
 
     for rgb, n, p, lum in m["colors"]:
         delta = lum - m["mean"]
@@ -167,20 +207,23 @@ def check_sheet(path: Path) -> tuple[int, int, list[str]]:
     lines: list[str] = []
     for entry in manifest["tiles"]:
         key = entry["key"]
-        if key not in GROUND_SIGMA_LIMIT:
+        if key not in GROUND_TILES and key not in MEASURE_ONLY:
             continue  # 프롭·구조물은 게이트 대상이 아니다 (3-2-3-6)
         hist = histogram(img, entry["col"] * size, entry["row"] * size, size)
         if not hist:
             print(f"[SKIP] {key} — 불투명 픽셀 없음")
             continue
         m, problems = check_tile(key, hist)
-        checked += 1
-        status = "FAIL" if problems else "PASS"
-        if problems:
-            failed += 1
-        limit = GROUND_SIGMA_LIMIT[key]
+        if key in MEASURE_ONLY:
+            status, limit_txt = "측정", "게이트 아님"
+        else:
+            checked += 1
+            status = "FAIL" if problems else "PASS"
+            if problems:
+                failed += 1
+            limit_txt = f"상한 {SIGMA_LIMIT:>4.1f}"
         print(
-            f"[{status}] {key:<16} σ_L {m['sigma']:>5.2f} (상한 {limit:>4.1f})"
+            f"[{status}] {key:<16} σ_L {m['sigma']:>5.2f} ({limit_txt})"
             f"  span {m['span']:>6.1f}  Σp·Δ² {m['budget']:>6.1f}  L̄ {m['mean']:>6.1f}"
         )
         for rgb, n, p, lum in m["colors"]:
