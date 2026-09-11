@@ -85,7 +85,9 @@ func _on_attack_hit(step, target: Node) -> void:
 	## 몬스터 died 시그널은 take_damage() 안에서 동기(synchronous)로 발신되므로(scripts/ai/
 	## monster_base.gd), take_damage 호출 전에 미리 연결해 둬야 사망 SFX를 놓치지 않는다.
 	if target.has_signal("died"):
-		target.died.connect(_on_target_died.bind(target_position), CONNECT_ONE_SHOT)
+		var on_died := _on_target_died.bind(target)
+		if not target.died.is_connected(on_died):
+			target.died.connect(on_died, CONNECT_ONE_SHOT)
 	if target.has_method("take_damage"):
 		target.take_damage(damage, hit_grade, _player)
 
@@ -130,7 +132,10 @@ func _is_boss(target: Node) -> bool:
 	return bool(target_stats.get("is_boss"))
 
 
-func _on_target_died(at_position: Vector2) -> void:
+func _on_target_died(target: Node) -> void:
+	var at_position: Vector2 = (
+		target.global_position if target is Node2D else _player.global_position
+	)
 	HitFeedback.play_sfx(MONSTER_DEATH_SFX, at_position)
 
 

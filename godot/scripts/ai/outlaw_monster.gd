@@ -123,8 +123,8 @@ func _physics_process(delta: float) -> void:
 	if is_staggered():
 		_cancel_patterns()
 		velocity = stagger_velocity()
-		_guard_finite_before_move()
-		move_and_slide()
+		if _guard_finite_before_move():
+			move_and_slide()
 		return
 	_guard.update(delta)
 	if _charge:
@@ -149,8 +149,8 @@ func _physics_process(delta: float) -> void:
 		State.RETURN:
 			if _return_to_home():
 				state = State.WANDER
-	_guard_finite_before_move()
-	move_and_slide()
+	if _guard_finite_before_move():
+		move_and_slide()
 
 
 func _process_wander(delta: float) -> void:

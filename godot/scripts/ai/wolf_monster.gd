@@ -46,8 +46,8 @@ func _physics_process(delta: float) -> void:
 		return
 	if is_staggered():
 		velocity = stagger_velocity()
-		_guard_finite_before_move()
-		move_and_slide()
+		if _guard_finite_before_move():
+			move_and_slide()
 		return
 	match state:
 		State.WANDER:
@@ -61,8 +61,8 @@ func _physics_process(delta: float) -> void:
 			_swing.update(delta)
 		State.RETURN:
 			_process_return()
-	_guard_finite_before_move()
-	move_and_slide()
+	if _guard_finite_before_move():
+		move_and_slide()
 
 
 func _process_wander(delta: float) -> void:

@@ -134,9 +134,22 @@ func spend_gold(amount: int) -> bool:
 func equip(item: ItemData, ring_index: int = 0) -> bool:
 	if item == null or item.equip_slot == ItemData.EquipSlot.NONE:
 		return false
+	var previous := get_equipped(item.equip_slot, ring_index)
+	var quantity := get_bag_quantity(item.item_id)
+	if quantity <= 0:
+		return false
+	# 교체품 한 개를 꺼낸 뒤 기존 장비를 넣을 칸이 생기는지 먼저 검사한다.
+	if (
+		previous
+		and get_bag_quantity(previous.item_id) == 0
+		and quantity > 1
+		and bag.size() >= bag_capacity
+	):
+		inventory_full.emit()
+		return false
 	if not _remove_from_bag(item.item_id, 1):
 		return false
-	var previous := _swap_equipped(item, ring_index)
+	_swap_equipped(item, ring_index)
 	if previous:
 		add_to_bag(previous, 1)
 	_recompute_equipment_stats()
@@ -145,17 +158,14 @@ func equip(item: ItemData, ring_index: int = 0) -> bool:
 
 
 func unequip(slot: ItemData.EquipSlot, ring_index: int = 0) -> ItemData:
-	var removed: ItemData = null
+	var removed := get_equipped(slot, ring_index)
+	if removed == null or not add_to_bag(removed, 1):
+		return null
 	if slot == ItemData.EquipSlot.RING:
 		ring_index = clampi(ring_index, 0, RING_COUNT - 1)
-		removed = equipped_rings[ring_index]
 		equipped_rings[ring_index] = null
 	else:
-		removed = equipped_items.get(slot)
 		equipped_items.erase(slot)
-	if removed == null:
-		return null
-	add_to_bag(removed, 1)
 	_recompute_equipment_stats()
 	unequipped.emit(slot, removed, ring_index)
 	return removed
@@ -248,6 +258,8 @@ func get_total_attack_speed_bonus_percent() -> float:
 
 
 func drop_item(item_id: String, quantity: int = 1) -> ItemData:
+	if quantity <= 0:
+		return null
 	var entry := _find_bag_entry(item_id)
 	if entry.is_empty() or entry.quantity < quantity:
 		return null
@@ -269,7 +281,12 @@ func drop_item(item_id: String, quantity: int = 1) -> ItemData:
 ## 덕분에 저레벨이 상급 포션으로 30% 규격을 넘겨 회복하는 구멍이 막힌다.
 func use_potion(item_id: String, player_stats: PlayerStatsComponent) -> bool:
 	var entry := _find_bag_entry(item_id)
-	if entry.is_empty():
+	if (
+		entry.is_empty()
+		or entry.quantity <= 0
+		or player_stats == null
+		or not _is_usable_potion(entry.item)
+	):
 		return false
 	if not player_stats.use_potion(entry.item.heal_amount):
 		return false
@@ -278,6 +295,33 @@ func use_potion(item_id: String, player_stats: PlayerStatsComponent) -> bool:
 		bag.erase(entry)
 	item_removed.emit(entry.item, 1)
 	return true
+
+
+## 5번 퀵슬롯은 사용 가능한 하급 포션부터 소비한다. 같은 회복량이면 ID 순서로 고정한다.
+func get_quickslot_potion() -> ItemData:
+	var selected: ItemData = null
+	for entry in bag:
+		var item: ItemData = entry.item
+		if entry.quantity <= 0 or not _is_usable_potion(item):
+			continue
+		if (
+			selected == null
+			or item.heal_amount < selected.heal_amount
+			or (item.heal_amount == selected.heal_amount and item.item_id < selected.item_id)
+		):
+			selected = item
+	return selected
+
+
+func _is_usable_potion(item: ItemData) -> bool:
+	var progression := get_node_or_null("../PlayerProgression") as PlayerProgression
+	var level := progression.current_level if progression else 1
+	return (
+		item != null
+		and item.item_type == ItemData.ItemType.POTION
+		and item.heal_amount > 0.0
+		and level >= item.level_limit
+	)
 
 
 func _remove_from_bag(item_id: String, quantity: int) -> bool:

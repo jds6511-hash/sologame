@@ -8,8 +8,8 @@
 ## Player 씬의 자식 노드("PlayerSkillPoints")로 배치하며, 형제 PlayerProgression을 노드 경로로
 ## 참조한다(PlayerStatGrowth와 동일 구독 패턴).
 ##
-## 책임 경계(B-3 범위): 포인트/강화 상태·API·시그널까지만 담당한다. 스킬 습득(전직 시 자동)·
-## 승계형 슬롯 교체는 B-5 소관이며, 전직 포인트 지급은 grant_transition_points() API만 노출한다.
+## 책임 경계: 포인트/강화 상태·실제 지출 장부·API·시그널을 담당한다. B-5가 새 로드아웃의
+## 스킬 목록으로 교체 스킬 환급을 요청하고 전직 보너스를 지급한 뒤 슬롯을 교체한다.
 ## 리스펙(상시 유료 초기화, spec 6-3)은 M3 범위 밖이라 구현하지 않는다.
 ##
 ## 스킬 식별(spec 6-3 Dictionary { skill_id: level }): skill_id는 상위 계약이며, 현재 전사
@@ -33,6 +33,8 @@ var spent_points: int = 0  ## 강화에 쓴 누적 포인트
 ## 스킬별 현재 강화 레벨 { StringName skill_id: int(1~max) }. 미등록 스킬은 Lv1로 간주한다
 ## (계수 배율 1.0). 강화된 스킬만 항목이 생긴다.
 var _skill_levels: Dictionary = {}
+## 현재 규칙에서 비용을 재계산하지 않고 실제 지출액을 환급한다.
+var _skill_costs: Dictionary = {}
 
 @onready var _progression: PlayerProgression = get_node_or_null("../PlayerProgression")
 
@@ -92,9 +94,25 @@ func try_upgrade_skill(skill_id: StringName, is_ultimate: bool) -> bool:
 	_skill_levels[skill_id] = new_level
 	available_points -= cost
 	spent_points += cost
+	_skill_costs[skill_id] = int(_skill_costs.get(skill_id, 0)) + cost
 	skill_upgraded.emit(skill_id, new_level)
 	points_changed.emit(available_points, spent_points)
 	return true
+
+
+## 전직으로 사라지는 스킬만 초기화·환급한다. 공통 스킬 강화와 총 획득량은 유지한다.
+func refund_unavailable_skills(available_ids: Array[StringName]) -> void:
+	var refund := 0
+	for skill_id in _skill_levels.keys():
+		if skill_id in available_ids:
+			continue
+		refund += int(_skill_costs.get(skill_id, 0))
+		_skill_levels.erase(skill_id)
+		_skill_costs.erase(skill_id)
+	if refund > 0:
+		available_points += refund
+		spent_points -= refund
+		points_changed.emit(available_points, spent_points)
 
 
 # --- 계수 적용 (spec 6-2) — 전투/버프 실행 경로가 참조 ---

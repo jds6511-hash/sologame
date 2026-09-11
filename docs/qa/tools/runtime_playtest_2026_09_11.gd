@@ -2,7 +2,7 @@ extends SceneTree
 ## 실제 월드 씬 입력 주입 QA. 전투 배치는 순간이동, 사망은 피해 API로 준비한다.
 ## 게임 파일을 바꾸지 않는다. 실패 시 종료 코드 1, 120초 제한 초과 시 2.
 
-const OUTPUT := "res://../docs/qa/screenshots/playtest-2026-09-11/"
+const OUTPUT := "res://../docs/qa/screenshots/playtest-fixed-2026-09-11/"
 var failures := 0
 var checks := 0
 var started := 0
@@ -190,7 +190,8 @@ func _potion_and_death() -> void:
 	_check("사망 골드 패널티", inventory.gold == 950, "잔액 %d" % inventory.gold)
 	await _capture("04-respawn")
 	var item: Node2D = load("res://scenes/items/world_item.tscn").instantiate()
-	item.item_data = load("res://data/items/pot_hp_1.tres")
+	var potion_data: Resource = load("res://data/items/pot_hp_1.tres")
+	item.item_data = potion_data
 	world.add_child(item)
 	item.global_position = player.global_position
 	await _delay(0.2)
@@ -200,39 +201,17 @@ func _potion_and_death() -> void:
 		not is_instance_valid(item) and inventory.bag.size() == 1,
 		"테스트 도구가 플레이어 위치에 물약 1개 생성"
 	)
-	if is_instance_valid(item):
-		print(
-			(
-				"[줍기 원인] 아이템 mask=%d, 플레이어 layer=%d, 감지=%d"
-				% [
-					item.collision_mask,
-					player.collision_layer,
-					item.get_overlapping_bodies().size()
-				]
-			)
-		)
-		item.collision_mask = player.collision_layer
-		item.global_position += Vector2(64, 0)
-		await _delay(0.2)
-		item.global_position = player.global_position
-		await _delay(0.2)
-		print(
-			(
-				"[줍기 대조군 준비] 감지=%d, 인벤토리 연결=%s"
-				% [item.get_overlapping_bodies().size(), item.get("_nearby_inventory") != null]
-			)
-		)
-		await _tap(KEY_F)
-		print(
-			(
-				"[줍기 대조군 결과] 월드 아이템 잔존=%s, 보유수량=%d"
-				% [is_instance_valid(item), inventory.get_bag_quantity("POT-HP-1")]
-			)
-		)
-		_check(
-			"줍기 대조군: 테스트 인스턴스 감지 마스크만 수정",
-			not is_instance_valid(item) and inventory.get_bag_quantity("POT-HP-1") == 1
-		)
+	var hp_before_potion: float = stats.current_hp
+	await _tap(KEY_5)
+	_check(
+		"주운 포션의 데이터 회복량 적용",
+		is_equal_approx(stats.current_hp, minf(hp_before_potion + 100.0, stats.stats.max_hp))
+	)
+	_check("포션 성공 시 1개 차감", inventory.get_bag_quantity("POT-HP-1") == 0 and potion_count == 1)
+	inventory.pickup(potion_data)
+	await _tap(KEY_5)
+	_check("쿨다운 중 재고 보존", inventory.get_bag_quantity("POT-HP-1") == 1 and potion_count == 1)
+	await _capture("07-potion")
 
 
 func _job_checks() -> void:

@@ -168,6 +168,11 @@ func perform_transition(job_id: StringName) -> bool:
 
 	## ② 전직 보너스 스킬 포인트 +2(spec 6-1).
 	if _skill_points:
+		var available_ids: Array[StringName] = []
+		for skill in job_def.skill_loadout().values():
+			if skill != null:
+				available_ids.append(StringName(skill.skill_name))
+		_skill_points.refund_unavailable_skills(available_ids)
 		_skill_points.grant_transition_points()
 
 	## ③ 승계형 스킬 슬롯 개방 + ④ 직업 무기(기본 공격 콤보) 교체.

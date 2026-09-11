@@ -108,3 +108,9 @@ func _process(_delta: float) -> void:
 		_quickslot_5.set_cooldown(
 			_stats.get_potion_cooldown_remaining_sec(), _stats.recovery_rules.potion_cooldown_sec
 		)
+	var inventory := _player.get_node_or_null("Inventory") as InventoryComponent
+	var potion := inventory.get_quickslot_potion() if inventory else null
+	_quickslot_5.set_quantity(inventory.get_bag_quantity(potion.item_id) if potion else 0)
+	_quickslot_5.tooltip_text = (
+		"%s · HP %d 회복" % [potion.item_name, potion.heal_amount] if potion else "사용 가능한 회복 포션 없음"
+	)

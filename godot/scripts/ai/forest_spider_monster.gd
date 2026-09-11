@@ -90,8 +90,8 @@ func _physics_process(delta: float) -> void:
 	if is_staggered():
 		_cancel_patterns()
 		velocity = stagger_velocity()
-		_guard_finite_before_move()
-		move_and_slide()
+		if _guard_finite_before_move():
+			move_and_slide()
 		return
 	## 쿨다운은 다른 상태에서도 계속 흐른다(도약 중에도 거미줄 쿨다운 진행 — spec 3-2
 	## "도약 쿨다운과 어긋나게 두어 2단 압박이 간헐적으로만 성립").
@@ -113,8 +113,8 @@ func _physics_process(delta: float) -> void:
 		State.RETURN:
 			if _return_to_home():
 				state = State.WANDER
-	_guard_finite_before_move()
-	move_and_slide()
+	if _guard_finite_before_move():
+		move_and_slide()
 
 
 func _process_wander(delta: float) -> void:

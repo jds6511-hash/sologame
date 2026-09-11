@@ -63,8 +63,8 @@ func test_heal_is_clamped_to_max_hp() -> void:
 	assert_eq(player_stats.current_hp, 2000.0, "최대 HP를 넘지 않음")
 
 
-func test_potion_without_heal_amount_falls_back_to_percent_rule() -> void:
-	## heal_amount 미지정(0) 아이템은 종전 규칙(PlayerRecoveryRules 최대 HP 30%)을 그대로 쓴다.
+func test_potion_without_heal_amount_is_rejected() -> void:
+	## 회복량 없는 아이템이 비율 회복으로 우회되지 않도록 거절한다.
 	var potion := ItemData.new()
 	potion.item_id = "POT-HP-TEST"
 	potion.item_type = ItemData.ItemType.POTION
@@ -72,8 +72,9 @@ func test_potion_without_heal_amount_falls_back_to_percent_rule() -> void:
 	player_stats.current_hp = 500.0
 	var inv := _make_inventory_with(potion)
 
-	assert_true(inv.use_potion("POT-HP-TEST", player_stats))
-	assert_eq(player_stats.current_hp, 1100.0, "500 + 최대 HP 2000의 30%")
+	assert_false(inv.use_potion("POT-HP-TEST", player_stats))
+	assert_eq(player_stats.current_hp, 500.0)
+	assert_eq(inv.get_bag_quantity("POT-HP-TEST"), 1)
 
 
 func _make_player_stats() -> PlayerStatsComponent:
@@ -87,7 +88,13 @@ func _make_player_stats() -> PlayerStatsComponent:
 
 
 func _make_inventory_with(potion: ItemData) -> InventoryComponent:
+	var parent := Node.new()
+	add_child_autofree(parent)
+	var progression := PlayerProgression.new()
+	progression.name = "PlayerProgression"
+	progression.current_level = 30
+	parent.add_child(progression)
 	var inv := InventoryComponent.new()
-	add_child_autofree(inv)
+	parent.add_child(inv)
 	inv.pickup(potion)
 	return inv

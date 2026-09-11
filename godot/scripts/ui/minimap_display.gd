@@ -5,9 +5,8 @@
 ##
 ## M2 범위의 "단순 구현" — 지형 렌더링은 하지 않는다(맵 텍스처 파이프라인은 ux-foundation
 ## 8장 M2 이후 과제). 플레이어는 항상 중앙 고정 화살표(씬에 정적 배치)로 표시하고, 몬스터/
-## NPC는 "monsters"/"npcs" 그룹에 속한 Node2D를 조회해 점으로 찍는다. 현재 어떤 몬스터/
-## NPC 씬도 이 그룹에 가입돼 있지 않다(월드·몬스터 씬 수정은 이 태스크 범위 밖) — 그룹이
-## 부여되면 자동으로 동작한다. 퀘스트 목표(별)는 퀘스트 시스템이 M2 범위 밖이라 미구현.
+## NPC는 "monsters"/"npcs" 그룹에 속한 Node2D를 조회해 점으로 찍는다. 몬스터는
+## MonsterBase에서 등록한다. NPC·퀘스트 목표 표시는 후속 구현 범위다.
 class_name MinimapDisplay
 extends Panel
 
@@ -43,6 +42,8 @@ func _draw_group_dots(nodes: Array, color: Color) -> void:
 	var center := Vector2(RADIUS_PX, RADIUS_PX)
 	for node in nodes:
 		if not (node is Node2D):
+			continue
+		if node.is_queued_for_deletion() or (node is MonsterBase and node.is_dead()):
 			continue
 		var offset: Vector2 = (
 			(node.global_position - _player.global_position) * WORLD_TO_MINIMAP_SCALE

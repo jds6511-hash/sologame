@@ -179,8 +179,8 @@ func _physics_process(delta: float) -> void:
 
 	if is_hit_stunned:
 		velocity = _knockback_velocity
-		_guard_finite_before_move()
-		move_and_slide()
+		if _guard_finite_before_move():
+			move_and_slide()
 		_update_visual()
 		return
 
@@ -211,8 +211,8 @@ func _physics_process(delta: float) -> void:
 			if attack_state == AttackState.STARTUP:
 				_apply_attack_aim()
 
-	_guard_finite_before_move()
-	move_and_slide()
+	if _guard_finite_before_move():
+		move_and_slide()
 	_update_visual()
 
 
@@ -311,7 +311,7 @@ func _find_auto_aim_target(aim_dir: Vector2, range_tiles: float = AUTO_AIM_RANGE
 
 
 ## 자동 조준 후보 수집 — "monsters" 그룹을 우선 사용하고, 그룹이 비어 있으면 씬 트리에서
-## MonsterBase를 직접 탐색한다(현재 스포너는 그룹 등록을 하지 않으므로 실동작 경로는 후자).
+## MonsterBase를 직접 탐색한다(그룹 등록을 생략한 단독 테스트 등의 호환 경로).
 func _gather_aim_candidates() -> void:
 	_aim_candidates = get_tree().get_nodes_in_group(MONSTER_GROUP)
 	if _aim_candidates.is_empty():
@@ -673,7 +673,12 @@ func on_attack_landed(action: Resource, damage: float, is_critical: bool) -> voi
 
 func _process_potion_input() -> void:
 	if Input.is_action_just_pressed("quickslot_1") and _stats:
-		_stats.use_potion()
+		var inventory := get_node_or_null("Inventory") as InventoryComponent
+		if inventory == null:
+			return
+		var potion := inventory.get_quickslot_potion()
+		if potion:
+			inventory.use_potion(potion.item_id, _stats)
 
 
 # --- 피격 반응 (CB-4, combat.md 5-1장) ---
@@ -805,7 +810,7 @@ func _update_superarmor_state(delta: float) -> void:
 ## velocity만 ZERO로 눌러선 잡히지 않는다. 따라서 velocity뿐 아니라 global_position
 ## 자체의 유한성을 확인해, 오염 시 마지막 유한 좌표로 복구한다(플레이어는 home이 없어
 ## _last_finite_position을 기준점으로 쓴다).
-func _guard_finite_before_move() -> void:
+func _guard_finite_before_move() -> bool:
 	if not velocity.is_finite():
 		velocity = Vector2.ZERO
 	if not global_position.is_finite():
@@ -813,6 +818,8 @@ func _guard_finite_before_move() -> void:
 			_last_finite_position if _last_finite_position.is_finite() else Vector2.ZERO
 		)
 		velocity = Vector2.ZERO
+	# 히트스톱 중에는 0초 물리 이동을 실행하지 않는다.
+	return Engine.time_scale > 0.0 and get_physics_process_delta_time() > 0.0
 
 
 func _update_hit_reaction(delta: float) -> void:

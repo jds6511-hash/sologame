@@ -196,6 +196,8 @@ func test_spend_gold_fails_when_insufficient() -> void:
 func test_use_potion_decrements_bag_on_success() -> void:
 	var potion := ItemData.new()
 	potion.item_id = "POT-HP-1"
+	potion.item_type = ItemData.ItemType.POTION
+	potion.heal_amount = 100.0
 	_inv.pickup(potion)
 
 	var parent := Node2D.new()

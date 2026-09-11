@@ -105,6 +105,7 @@ var _attack_hitbox_shape: CollisionShape2D = get_node_or_null("AttackHitbox/Coll
 
 
 func _ready() -> void:
+	add_to_group("monsters")
 	_night_multiplier = GameClock.get_monster_stat_multiplier(stats.is_boss)
 	hp = effective_max_hp()
 	home_position = global_position
@@ -292,7 +293,7 @@ func _register_stagger_hit(hit_grade: String, attacker: Node2D) -> void:
 
 
 ## move_and_slide() 직전 트랜스폼·속도 유한성 가드 (2026-07-26 경고 스팸 근본 수정).
-## 각 하위 클래스는 move_and_slide() 호출 앞에 반드시 이 함수를 붙인다.
+## 각 하위 클래스는 이 함수가 true를 반환할 때만 move_and_slide()를 호출한다.
 ##
 ## 근본 증상(재현 테스트로 확인): CharacterBody2D.global_position(트랜스폼)이 한번
 ## non-finite(NaN/Inf)가 되면, 그 이후 move_and_slide()는 velocity가 (0,0)이어도 매 물리
@@ -304,12 +305,14 @@ func _register_stagger_hit(hit_grade: String, attacker: Node2D) -> void:
 ## 따라서 velocity뿐 아니라 global_position 자체의 유한성을 확인해, 오염 시 유한한
 ## 기준점(home_position, 그마저 오염됐으면 원점)으로 복구한다 — 어떤 경로로 오염됐든
 ## 개체가 스스로 1프레임 내 회복해 경고 스팸이 지속되지 않게 한다.
-func _guard_finite_before_move() -> void:
+func _guard_finite_before_move() -> bool:
 	if not velocity.is_finite():
 		velocity = Vector2.ZERO
 	if not global_position.is_finite():
 		global_position = home_position if home_position.is_finite() else Vector2.ZERO
 		velocity = Vector2.ZERO
+	# 히트스톱 중 0초 물리 이동은 엔진 내부 속도/충돌 법선 계산을 오염시킨다.
+	return Engine.time_scale > 0.0 and get_physics_process_delta_time() > 0.0
 
 
 func _die() -> void:
