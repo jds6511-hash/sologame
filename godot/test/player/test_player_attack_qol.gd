@@ -213,17 +213,17 @@ func test_attack_step_replays_animation_from_frame0() -> void:
 	_player._start_attack_step(1)
 	_player._update_visual()
 	assert_eq(sprite.frame, 0, "새 스윙에서 공격 애니메이션이 프레임0부터 재생되어야 한다")
-	assert_true(sprite.is_playing(), "새 스윙에서 공격 애니메이션이 재생 상태여야 한다")
+	assert_false(sprite.is_playing(), "공격 자세는 자동 FPS 대신 판정 시계가 진행한다")
 	assert_false(_player._attack_anim_restart_requested, "재시작 요청은 1회성으로 소비되어야 한다")
 
 
 func test_visual_does_not_restart_attack_without_request() -> void:
-	## 재시작 요청이 없으면(같은 상태 지속) 프레임을 매 프레임 0으로 되감지 않아야 한다
-	## (기존 재시작 가드 유지 — 불필요한 재시작 방지).
+	## 같은 후딜 단계에서는 반복 갱신해도 선딜 자세로 되감지 않는다.
 	var sprite: AnimatedSprite2D = _player._sprite
 	_player._start_attack_step(0)
 	_player._update_visual()
-	sprite.set_frame_and_progress(2, 0.0)
+	_player.attack_state = PlayerController.AttackState.RECOVERY
+	_player._attack_phase_timer = 0.0
 	_player._attack_anim_restart_requested = false
 	_player._update_visual()
 	assert_eq(sprite.frame, 2, "재시작 요청이 없으면 진행 중인 공격 프레임을 되감지 않아야 한다")

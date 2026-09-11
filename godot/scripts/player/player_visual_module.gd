@@ -26,6 +26,7 @@ var _shots: ArcherShotModule = null
 var _job_sprite_frames: SpriteFrames = null
 ## 이번 프레임의 콤보 스텝 인덱스(update 인자로 받아 후보 판정 중에만 쓴다).
 var _attack_step_index: int = -1
+var _attack_pose_synced: bool = false
 
 
 func setup(player: PlayerController, sprite: AnimatedSprite2D, shots: ArcherShotModule) -> void:
@@ -87,6 +88,42 @@ func update(
 		## 재시작 가드(animation != anim_name)로는 막히므로 프레임을 명시적으로 0으로 되감는다.
 		_sprite.play(anim_name)
 		_sprite.set_frame_and_progress(0, 0.0)
+	var was_synced := _attack_pose_synced
+	_attack_pose_synced = _sync_attack_pose(anim_name)
+	if was_synced and not _attack_pose_synced and not _sprite.is_playing():
+		_sprite.play(anim_name)
+
+
+## 현재 4프레임 시트 계약: 검 0/1/2~3, 활 0~1/2/3 = 선딜/판정/후딜.
+## 고정 FPS 대신 판정 시계를 사용해 재조준·공속·히트스톱에도 같은 자세를 유지한다.
+func _sync_attack_pose(anim_name: String) -> bool:
+	if not (anim_name.begins_with("attack") or anim_name.begins_with("rollshot")):
+		return false
+	var phase := _player.attack_state
+	var ranged := false
+	if _player.skill_state != PlayerController.AttackState.NONE:
+		phase = _player.skill_state
+		ranged = _player.active_skill is ArcherSkillData
+	elif _player.combo_data != null and _attack_step_index >= 0:
+		if _attack_step_index >= _player.combo_data.steps.size():
+			return false
+		ranged = _player.combo_data.steps[_attack_step_index] is ArcherAttackStep
+	if phase == PlayerController.AttackState.NONE:
+		return false
+	if _sprite.sprite_frames.get_frame_count(anim_name) != 4:
+		return false
+	var progress := _player.get_action_phase_progress()
+	var pose := 0
+	match phase:
+		PlayerController.AttackState.STARTUP:
+			pose = 1 if ranged and progress >= 0.5 else 0
+		PlayerController.AttackState.ACTIVE:
+			pose = 2 if ranged else 1
+		PlayerController.AttackState.RECOVERY:
+			pose = 3 if ranged or progress >= 0.5 else 2
+	_sprite.pause()
+	_sprite.set_frame_and_progress(pose, 0.0)
+	return true
 
 
 ## 후보 목록을 앞에서부터 훑어 현재 시트에 실제로 있는 첫 애니메이션 이름을 고른다.

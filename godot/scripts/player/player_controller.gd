@@ -900,6 +900,29 @@ func _update_dash_recharge(delta: float) -> void:
 # --- 비주얼(애니메이션) 갱신 — 상세는 player_visual_module.gd ---
 
 
+## 판정과 동일한 시계. 공격 속도 배율은 이미 타이머에 반영되어 있다.
+func get_action_phase_progress() -> float:
+	var phase := attack_state
+	var elapsed := _attack_phase_timer
+	var durations := Vector3.ZERO
+	if skill_state != AttackState.NONE and active_skill != null:
+		phase = skill_state
+		elapsed = _skills.get_phase_elapsed()
+		durations = Vector3(
+			active_skill.startup_sec,
+			active_skill.get_active_duration_sec(),
+			active_skill.recovery_sec
+		)
+	elif combo_data != null and _attack_step_index >= 0:
+		if _attack_step_index >= combo_data.steps.size():
+			return 0.0
+		var step := combo_data.steps[_attack_step_index]
+		durations = Vector3(step.startup_sec, step.active_sec, step.recovery_sec)
+	if phase == AttackState.NONE:
+		return 0.0
+	return clampf(elapsed / maxf(durations[int(phase) - 1], 0.0001), 0.0, 1.0)
+
+
 func _update_visual() -> void:
 	visual.update(
 		_attack_anim_restart_requested,

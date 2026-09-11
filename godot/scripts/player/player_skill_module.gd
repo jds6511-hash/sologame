@@ -23,6 +23,10 @@ var _cooldowns: Dictionary = {}  ## key: String(슬롯 이름) -> 남은 쿨다�
 var _secondary_cooldown: float = 0.0
 
 
+func get_phase_elapsed() -> float:
+	return _phase_timer
+
+
 func setup(player: PlayerController) -> void:
 	_player = player
 
