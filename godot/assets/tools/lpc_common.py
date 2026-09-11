@@ -724,6 +724,7 @@ def _place(
     make: "callable[[tuple[float, float]], Strokes]",
     hand: tuple[float, float],
     forbid: set[tuple[int, int]] | None,
+    placed_hand: list[tuple[float, float]] | None = None,
 ) -> bool:
     """`forbid`(머리 픽셀)를 침범하지 않는 첫 배치를 찍는다. 반환값 = 회피 성공.
 
@@ -735,6 +736,8 @@ def _place(
     base = make(hand)
     if not forbid or not _covers(base, forbid):
         _stamp(frame, base)
+        if placed_hand is not None:
+            placed_hand.append(hand)
         return True
     outward = 1.0 if hand[0] >= FRAME_W / 2 else -1.0
     for dx, dy in sorted(
@@ -750,14 +753,19 @@ def _place(
             continue
         if not _covers(strokes, forbid):
             _stamp(frame, strokes)
+            if placed_hand is not None:
+                placed_hand.append(cand)
             return True
     _stamp(frame, base)
+    if placed_hand is not None:
+        placed_hand.append(hand)
     return False
 
 
 def draw_sword(
     frame: Image.Image, hand: tuple[float, float], d: tuple[float, float], want: float,
     forbid: set[tuple[int, int]] | None = None,
+    placed_hand: list[tuple[float, float]] | None = None,
 ) -> tuple[float, bool]:
     """손잡이에서 방향 `d` 로 뻗은 **대검** 1자루. 반환값 = 실제로 그린 칼날 길이(px).
 
@@ -821,7 +829,7 @@ def draw_sword(
         ),
         key=lambda t: t[0] + t[1] * 1.2 + abs(t[2]) * 0.2,
     )
-    fallback: tuple[Strokes, float] | None = None
+    fallback: tuple[Strokes, float, tuple[float, float]] | None = None
     for dx, dy, dg in cands:
         h = (hand[0] + outward * dx, hand[1] + dy)
         a = math.radians(dg)
@@ -833,23 +841,29 @@ def draw_sword(
         if not _in_frame(strokes):
             continue
         if fallback is None:
-            fallback = (strokes, length)
+            fallback = (strokes, length, h)
         if not forbid or not _covers(strokes, forbid):
             _stamp(frame, strokes)
+            if placed_hand is not None:
+                placed_hand.append(h)
             return length, True
     if fallback is None:
         return 0.0, True
     _stamp(frame, fallback[0])
+    if placed_hand is not None:
+        placed_hand.append(fallback[2])
     return fallback[1], False
 
 
 def _bow_strokes(
     hand: tuple[float, float], bulge: float, size: float, draw_amt: float, arrow: bool
 ) -> list[tuple[list[tuple[int, int]], tuple[int, int, int]]]:
-    top = (hand[0], hand[1] - size)
-    bot = (hand[0], hand[1] + size)
-    ctrl = (hand[0] + bulge * size * 1.5, hand[1])
-    nock = (hand[0] - bulge * (1.0 + draw_amt * 3.5), hand[1])
+    # hand는 시위의 중심이 아니라 활대의 손잡이. 곡선 중점이 정확히 hand에 놓인다.
+    limb_x = hand[0] - bulge * size * 0.75
+    top = (limb_x, hand[1] - size)
+    bot = (limb_x, hand[1] + size)
+    ctrl = (hand[0] + bulge * size * 0.75, hand[1])
+    nock = (limb_x - bulge * (1.0 + draw_amt * 3.5), hand[1])
     strokes = [
         (_bezier(top, ctrl, bot), BOW_LIMB),
         (_bezier((top[0], top[1] + 1), (ctrl[0] - bulge, ctrl[1]), (bot[0], bot[1] - 1)), BOW_LIMB_HI),
@@ -918,6 +932,7 @@ def _covers(
 def draw_bow(
     frame: Image.Image, hand: tuple[float, float], bulge: float, size: float,
     draw_amt: float, arrow: bool, forbid: set[tuple[int, int]] | None = None,
+    placed_hand: list[tuple[float, float]] | None = None,
 ) -> bool:
     """수직 활. `bulge` = 활배가 향하는 화면 x 방향(+1/-1), `draw_amt` = 당김 정도 0~1.
 
@@ -929,7 +944,8 @@ def draw_bow(
     반환값 = 겹침 없이 그렸는지.
     """
     return _place(
-        frame, lambda h: _bow_strokes(h, bulge, size, draw_amt, arrow), hand, forbid
+        frame, lambda h: _bow_strokes(h, bulge, size, draw_amt, arrow), hand, forbid,
+        placed_hand,
     )
 
 

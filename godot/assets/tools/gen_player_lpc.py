@@ -319,26 +319,33 @@ def draw_weapon(
     머리 픽셀은 무기를 그리기 **전에** 재야 한다 — 무기를 얹은 뒤에는 머리 실루엣이
     무기에 오염돼 판정이 무의미해진다(계획서 14-4-4).
     """
-    head = head_mask(frame)
+    # 배치 중 머리 회피가 손잡이를 이동시킨다. 무기를 그리기 전 몸과 최종 좌표로 검사한다.
+    body = frame.copy()
+    head = head_mask(body)
+    placed_hand: list[tuple[float, float]] = []
     if job == "warrior":
         pose = SWORD_POSE.get(spec.state)
         if not pose:
             return True, True, 0.0
         angle, want, hx, hy = pose[min(order, len(pose) - 1)]
         hand = hand_xy(direction, hx, hy)
-        ok = hand_on_body_check(frame, hand)
-        blade, clear = draw_sword(frame, hand, facing_dir(direction, angle), want, head)
+        blade, clear = draw_sword(
+            frame, hand, facing_dir(direction, angle), want, head, placed_hand
+        )
+        ok = bool(placed_hand) and hand_on_body_check(body, placed_hand[0])
         return ok, clear, blade
     pose_b = BOW_POSE.get(spec.state)
     if not pose_b:
         return True, True, 0.0
     size, amt, arrow, hx, hy = pose_b[min(order, len(pose_b) - 1)]
     hand = hand_xy(direction, hx, hy)
-    ok = hand_on_body_check(frame, hand)
     # 활배는 항상 몸 바깥쪽을 향한다
     bulge = 1.0 if hand[0] >= FRAME_W / 2 else -1.0
     # 정면·후면은 화살이 화면 깊이 방향이라 그리지 않는다(가로로 그리면 방향이 거짓말)
-    clear = draw_bow(frame, hand, bulge, size, amt, arrow and direction == "side", head)
+    clear = draw_bow(
+        frame, hand, bulge, size, amt, arrow and direction == "side", head, placed_hand
+    )
+    ok = bool(placed_hand) and hand_on_body_check(body, placed_hand[0])
     return ok, clear, 0.0
 
 
