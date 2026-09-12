@@ -92,11 +92,18 @@ func update(
 	_attack_pose_synced = _sync_attack_pose(anim_name)
 	if was_synced and not _attack_pose_synced and not _sprite.is_playing():
 		_sprite.play(anim_name)
+		if _player.is_dashing:
+			_sprite.set_frame_and_progress(0, 0.0)
 
 
 ## 현재 4프레임 시트 계약: 검 0/1/2~3, 활 0~1/2/3 = 선딜/판정/후딜.
 ## 고정 FPS 대신 판정 시계를 사용해 재조준·공속·히트스톱에도 같은 자세를 유지한다.
 func _sync_attack_pose(anim_name: String) -> bool:
+	if anim_name.begins_with("dodge") and _is_travel_skill() and not _player.is_dashing:
+		if _sprite.sprite_frames.get_frame_count(anim_name) == 3:
+			_sprite.pause()
+			_sprite.set_frame_and_progress(int(_player.skill_state) - 1, 0.0)
+			return true
 	if not (anim_name.begins_with("attack") or anim_name.begins_with("rollshot")):
 		return false
 	var phase := _player.attack_state
@@ -170,7 +177,8 @@ func _neutral_candidates(move_input: Vector2) -> PackedStringArray:
 ## 스킬 시전 중 후보. 스킬 종류(데이터)로만 갈라 스킬 이름을 코드에 넣지 않는다.
 ##   BUFF_HEAL(응급 처치·결의의 외침·매의 눈) -> cast(포효/자가 버프 자세)
 ##   궁수 DASH(곡예 사격) -> rollshot(구르며 사격)
-##   그 외(강타·분쇄 베기·돌격·궁극기 등) -> 종전대로 attack
+##   근접 DASH(질주·돌격·난입 강타) -> dodge(기존 아트 계획의 몸 낮춤 재사용)
+##   그 외(강타·분쇄 베기·궁극기 등) -> attack
 func _skill_candidates() -> PackedStringArray:
 	var skill := _player.active_skill
 	if skill == null:
@@ -179,7 +187,18 @@ func _skill_candidates() -> PackedStringArray:
 		return PackedStringArray(["cast", "idle"])
 	if skill is ArcherSkillData and skill.skill_type == WarriorSkillData.SkillType.DASH:
 		return PackedStringArray(["rollshot", "attack"])
+	if skill.skill_type == WarriorSkillData.SkillType.DASH:
+		return PackedStringArray(["dodge", "walk", "idle"])
 	return PackedStringArray(["attack"])
+
+
+func _is_travel_skill() -> bool:
+	return (
+		_player.skill_state != PlayerController.AttackState.NONE
+		and _player.active_skill != null
+		and not _player.active_skill is ArcherSkillData
+		and _player.active_skill.skill_type == WarriorSkillData.SkillType.DASH
+	)
 
 
 ## 기본 공격 콤보 중 후보. N타는 "attackN"을 먼저 찾고 없으면 attack으로 접는다 —
@@ -202,6 +221,8 @@ func _is_aiming() -> bool:
 func _facing_vector(
 	is_charging: bool, move_input: Vector2, last_move_direction: Vector2, aim_rotation: float
 ) -> Vector2:
+	if _is_travel_skill() and not _player.is_dashing:
+		return _player.get_skill_travel_direction()
 	if _uses_aim_facing(is_charging):
 		return Vector2.RIGHT.rotated(aim_rotation)
 	if move_input.length_squared() > 0.0:

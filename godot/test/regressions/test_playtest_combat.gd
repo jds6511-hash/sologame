@@ -73,7 +73,8 @@ func test_charge_release_and_gladiator_skills_follow_actual_phase() -> void:
 		assert_eq(sprite.frame, 2, "%s: 판정 종료 후 회수" % skill.skill_name)
 		player._skills.process_state(skill.recovery_sec * 0.75)
 		player._update_visual()
-		assert_eq(sprite.frame, 3, "%s: 후딜 후반 마지막 자세" % skill.skill_name)
+		var last_pose := 2 if skill.skill_type == WarriorSkillData.SkillType.DASH else 3
+		assert_eq(sprite.frame, last_pose, "%s: 후딜 후반 마지막 자세" % skill.skill_name)
 		player._skills.finish()
 
 

@@ -27,6 +27,10 @@ func get_phase_elapsed() -> float:
 	return _phase_timer
 
 
+func get_dash_direction() -> Vector2:
+	return _dash_direction
+
+
 func setup(player: PlayerController) -> void:
 	_player = player
 

@@ -923,6 +923,12 @@ func get_action_phase_progress() -> float:
 	return clampf(elapsed / maxf(durations[int(phase) - 1], 0.0001), 0.0, 1.0)
 
 
+func get_skill_travel_direction() -> Vector2:
+	if skill_state == AttackState.STARTUP:
+		return _last_move_direction
+	return _skills.get_dash_direction()
+
+
 func _update_visual() -> void:
 	visual.update(
 		_attack_anim_restart_requested,

@@ -100,3 +100,39 @@ func test_empty_sprite_frames_does_not_crash() -> void:
 	_player._update_visual()  ## 후보가 전부 없는 경우 — 아무것도 재생하지 않고 조용히 넘어간다
 
 	assert_eq(_sprite.sprite_frames.get_animation_names().size(), 0, "애니메이션이 하나도 없는 시트")
+
+
+func test_gladiator_charge_uses_dodge_pose_facing_travel_direction() -> void:
+	_player.set_physics_process(false)
+	_player._last_move_direction = Vector2.UP
+	_player._skills.start(GLADIATOR_DEF.skill_slot_q)
+	assert_eq(_played_anim(), "dodge_back", "아트 계획 5-2: 난입 강타는 이동 방향으로 몸을 낮춤")
+	assert_eq(_sprite.frame, 0)
+	_player._skills.process_state(GLADIATOR_DEF.skill_slot_q.startup_sec)
+	assert_eq(_played_anim(), "dodge_back")
+	assert_eq(_sprite.frame, 1, "돌진 판정 동안 전진 자세")
+	_player._last_move_direction = Vector2.DOWN
+	assert_eq(_played_anim(), "dodge_back", "돌진 도중 다른 이동 입력이 들어와도 몸은 진행 방향 유지")
+	_player._skills.process_state(GLADIATOR_DEF.skill_slot_q.get_active_duration_sec())
+	assert_eq(_played_anim(), "dodge_back")
+	assert_eq(_sprite.frame, 2, "돌진 종료 후 착지 자세")
+
+
+func test_shared_sprint_uses_dodge_on_warrior_and_archer_sheets() -> void:
+	_player.set_physics_process(false)
+	for definition in [WARRIOR_DEF, ARCHER_DEF]:
+		_player.visual.set_job_sprite_frames(definition.sprite_frames)
+		_player._skills.begin_active(definition.skill_slot_2)
+		assert_eq(_played_anim(), "dodge_side", "공용 질주는 활 사격이나 검 휘두르기가 아님")
+
+
+func test_dodge_cancel_restarts_same_direction_travel_animation() -> void:
+	_player.set_physics_process(false)
+	_player._skills.begin_active(GLADIATOR_DEF.skill_slot_q)
+	_player._skills.process_state(GLADIATOR_DEF.skill_slot_q.get_active_duration_sec())
+	assert_eq(_played_anim(), "dodge_side")
+	assert_eq(_sprite.frame, 2, "돌진 후딜 착지 자세")
+	_player._start_dash()
+	assert_eq(_played_anim(), "dodge_side")
+	assert_eq(_sprite.frame, 0, "같은 방향 회피로 취소해도 새 도약을 처음부터 재생")
+	assert_true(_sprite.is_playing())
