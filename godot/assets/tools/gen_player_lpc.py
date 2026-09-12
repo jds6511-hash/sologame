@@ -1,4 +1,4 @@
-"""전사·궁수 정식 스프라이트 생성 (M3 3-A, LPC 손그림 베이스 -> 20x36 EDG32).
+"""전사·궁수 정식 스프라이트 생성 (M3 3-A, LPC 손그림 베이스 -> 28x36 EDG32).
 
 - 계획서: `docs\\art\\m3-character-art-plan.md` 5장(전사 90프레임)·6장(궁수 90프레임)·10장(파일명 규약)
 - 규격: `docs\\art\\STYLE_GUIDE.md` 1-2(20x36)·3-1(아웃라인)·3-2-1(4단 램프)·3-3(프레임 수)·7-1(시트 규약)
@@ -10,6 +10,8 @@
     python gen_player_lpc.py                # 전사 + 궁수 전체
     python gen_player_lpc.py --job warrior  # 한 직업만
     python gen_player_lpc.py --report       # 생성 없이 프레임 수·클리핑만 점검
+
+검증 오류 시 종료 코드 1. 모든 선택 직업이 통과한 뒤에만 PNG를 저장한다.
 """
 
 from __future__ import annotations
@@ -349,7 +351,9 @@ def draw_weapon(
     return ok, clear, 0.0
 
 
-def build_job(job: str, report_only: bool) -> tuple[int, list[str]]:
+def build_job(
+    job: str, report_only: bool, pending: dict[Path, Image.Image]
+) -> tuple[int, list[str]]:
     prefix, layers, ramp_of, states = JOBS[job]
     weapons = [s.weapon for s in states if s.weapon]
     mats = material_ids(layers, weapons)
@@ -423,12 +427,8 @@ def build_job(job: str, report_only: bool) -> tuple[int, list[str]]:
             )
         total += cols * 3
         if not report_only:
-            OUT_DIR.mkdir(parents=True, exist_ok=True)
             path = OUT_DIR / f"{prefix}_{spec.state}.png"
-            sheet.save(path)
-            sheet.resize((sheet.width * 4, sheet.height * 4), Image.NEAREST).save(
-                path.with_name(f"_preview_{path.name}")
-            )
+            pending[path] = sheet
         print(f"  {prefix}_{spec.state}.png  {sheet.size[0]}x{sheet.size[1]}  {cols}프레임x3방향={cols * 3}")
     if eyeless:
         issues.append(f"{prefix}: 눈 점 배치 실패 {len(eyeless)}프레임 {eyeless[:6]}")
@@ -452,9 +452,10 @@ def main() -> int:
     jobs = list(JOBS) if args.job == "all" else [args.job]
     grand = 0
     all_issues: list[str] = []
+    pending: dict[Path, Image.Image] = {}
     for job in jobs:
         print(f"[{job}]")
-        total, issues = build_job(job, args.report)
+        total, issues = build_job(job, args.report, pending=pending)
         print(f"  -> 합계 {total}프레임")
         grand += total
         all_issues += issues
@@ -463,6 +464,16 @@ def main() -> int:
         print(f"\n점검 사항 {len(all_issues)}건:")
         for msg in all_issues:
             print(f"  - {msg}")
+        print("\n출력 중단: 기존 PNG를 유지합니다.")
+        return 1
+    # 한 직업이라도 실패하면 다른 직업의 정상 PNG도 바꾸지 않는다.
+    if not args.report:
+        for path, sheet in pending.items():
+            path.parent.mkdir(parents=True, exist_ok=True)
+            sheet.save(path)
+            sheet.resize((sheet.width * 4, sheet.height * 4), Image.NEAREST).save(
+                path.with_name(f"_preview_{path.name}")
+            )
     return 0
 
 

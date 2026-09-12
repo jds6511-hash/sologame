@@ -479,6 +479,28 @@ def downscale(rgba: Image.Image, idmap: Image.Image, mats: dict[str, int]) -> tu
     return small, best
 
 
+def project_grip(
+    grip: tuple[float, float], tilt_deg: float = 0.0, narrow: float = 1.0
+) -> tuple[float, float]:
+    """LPC 손잡이 추정점을 몸과 같은 회전→가로 압축→축소→크롭 좌표로 옮긴다.
+
+    픽셀 중심 좌표를 사용한다. 원본 추정점 자체의 정확도는 별도 시각 검수가 필요하다.
+    """
+    if not 0.0 < narrow <= 1.0:
+        raise ValueError("가로 압축률은 0 초과 1 이하")
+    off = (CANVAS - CELL) // 2
+    cx, cy = off + SRC_CENTER_X, off + SRC_FOOT_Y - 12
+    # Pillow의 회전 중심·아핀 행렬은 픽셀 경계 좌표를 사용한다.
+    dx, dy = grip[0] + 0.5 - cx, grip[1] + 0.5 - cy
+    angle = math.radians(tilt_deg)
+    x = cx + dx * math.cos(angle) + dy * math.sin(angle)
+    y = cy - dx * math.sin(angle) + dy * math.cos(angle)
+    x = cx + (x - cx) * narrow
+    scale = round(CANVAS * SCALE_NUM / SCALE_DEN) / CANVAS
+    x0, y0 = window_origin()
+    return (x * scale - 0.5 - x0, y * scale - 0.5 - y0)
+
+
 def luminance(r: int, g: int, b: int) -> float:
     return (0.299 * r + 0.587 * g + 0.114 * b) / 255.0
 
