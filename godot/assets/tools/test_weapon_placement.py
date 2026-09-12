@@ -9,6 +9,15 @@ import lpc_common as lpc
 
 
 class WeaponPlacementTest(unittest.TestCase):
+    def test_locked_sword_grip_does_not_move_even_if_face_cannot_be_avoided(self):
+        placed = []
+        with patch.object(lpc, "_stamp"), patch.object(lpc, "_covers", return_value=True):
+            _, clear = lpc.draw_sword(
+                None, (10.0, 20.0), (0, -1), 12, {(0, 0)}, placed, lock_grip=True
+            )
+        self.assertFalse(clear, "손을 옮겨 검사를 통과시키지 않고 자세 충돌을 보고")
+        self.assertEqual(placed, [(10.0, 20.0)])
+
     def test_grip_projection_matches_pillow_rotation_of_a_single_pixel(self):
         marker = Image.new("RGBA", (128, 128))
         marker.putpixel((74, 81), (255, 255, 255, 255))

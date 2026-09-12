@@ -67,7 +67,38 @@ func _run() -> void:
 	var error := root.get_texture().get_image().save_png(directory.path_join("phases.png"))
 	print("[모션 완료] 4직업 × 3방향 × 5시점, 캡처 결과: %s" % error)
 	var travel_ok := await _capture_travel_skills()
-	quit(0 if error == OK and travel_ok else 1)
+	var charge_ok := await _capture_charge_pose()
+	quit(0 if error == OK and travel_ok and charge_ok else 1)
+
+
+func _capture_charge_pose() -> bool:
+	for child in stage.get_children():
+		child.queue_free()
+	await process_frame
+	var player = player_scene.instantiate()
+	stage.add_child(player)
+	player.set_physics_process(false)
+	player.hide()
+	player._is_charging_secondary = true
+	for row in range(3):
+		player.get_node("Facing").rotation = [PI / 2.0, 0.0, -PI / 2.0][row]
+		player._update_visual()
+		var source: AnimatedSprite2D = player.get_node("Sprite")
+		_label(["정면", "측면", "후면"][row], Vector2(30, 40 + row * 230))
+		for column in range(2):
+			var pose := Sprite2D.new()
+			pose.texture = source.sprite_frames.get_frame_texture(source.animation, column)
+			pose.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+			pose.scale = Vector2(4, 4)
+			pose.position = Vector2(300 + column * 200, 110 + row * 230)
+			stage.add_child(pose)
+	player.queue_free()
+	await process_frame
+	await RenderingServer.frame_post_draw
+	var path := ProjectSettings.globalize_path(OUTPUT).path_join("charge-fixed.png")
+	var error := root.get_texture().get_image().save_png(path)
+	print("[차지 캡처] 3방향 × 2프레임, 결과=%s" % error)
+	return error == OK
 
 
 func _capture_travel_skills() -> bool:

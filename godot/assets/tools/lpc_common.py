@@ -126,6 +126,7 @@ class StateSpec:
     hide_fg_dirs: tuple[str, ...] = ()
     airborne: bool = False  # 공중 프레임이 있는 상태(점프 회피) — 발밑 하단 접촉 검사 면제
     note: str = ""
+    direction_frames: dict[str, list[int]] = field(default_factory=dict)
 
 
 def load_cached(rel: str, _cache: dict[str, Image.Image] = {}) -> Image.Image:  # noqa: B006
@@ -399,8 +400,9 @@ def compose_frame(
     부가정보 = `{"k": 단축률, "grip": (x, y) 캔버스 좌표 or None}`.
     """
     row = LPC_ROW[direction]
-    bframe = spec.frames[order]
-    wf = spec.weapon_frames if spec.weapon_frames is not None else spec.frames
+    body_frames = spec.direction_frames.get(direction, spec.frames)
+    bframe = body_frames[order]
+    wf = spec.weapon_frames if spec.weapon_frames is not None else body_frames
     wframe = wf[order] if order < len(wf) else wf[-1]
     dx, dy = spec.weapon_offset.get((direction, order), (0, 0))
     w = spec.weapon
@@ -788,6 +790,8 @@ def draw_sword(
     frame: Image.Image, hand: tuple[float, float], d: tuple[float, float], want: float,
     forbid: set[tuple[int, int]] | None = None,
     placed_hand: list[tuple[float, float]] | None = None,
+    lock_grip: bool = False,
+    guard_half_width: float = 2.5,
 ) -> tuple[float, bool]:
     """손잡이에서 방향 `d` 로 뻗은 **대검** 1자루. 반환값 = 실제로 그린 칼날 길이(px).
 
@@ -825,8 +829,8 @@ def draw_sword(
             # 가드는 "긴 직선 대검"의 십자 신호이므로 칼날보다 확실히 넓어야 한다.
             (
                 _line(
-                    (guard_c[0] - perp[0] * 2.5, guard_c[1] - perp[1] * 2.5),
-                    (guard_c[0] + perp[0] * 2.5, guard_c[1] + perp[1] * 2.5),
+                    (guard_c[0] - perp[0] * guard_half_width, guard_c[1] - perp[1] * guard_half_width),
+                    (guard_c[0] + perp[0] * guard_half_width, guard_c[1] + perp[1] * guard_half_width),
                 ),
                 GUARD,
             ),
@@ -853,6 +857,8 @@ def draw_sword(
     )
     fallback: tuple[Strokes, float, tuple[float, float]] | None = None
     for dx, dy, dg in cands:
+        if lock_grip and (dx != 0 or dy != 0):
+            continue
         h = (hand[0] + outward * dx, hand[1] + dy)
         a = math.radians(dg)
         dd = (d[0] * math.cos(a) - d[1] * math.sin(a), d[0] * math.sin(a) + d[1] * math.cos(a))

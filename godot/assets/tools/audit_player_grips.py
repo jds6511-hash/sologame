@@ -6,7 +6,7 @@
 
 import math
 
-from gen_player_lpc import BOW_POSE, JOBS, SWORD_POSE, hand_xy
+from gen_player_lpc import BOW_POSE, CHARGE_FRONT_POSE, JOBS, SWORD_POSE, hand_xy
 from lpc_common import (
     DIRECTIONS, compose_frame, material_ids, narrow_to_frame, project_grip, rotate_pair,
 )
@@ -35,6 +35,8 @@ def main() -> None:
                     source = project_grip(metadata["grip"], tilt, narrow)
                     poses = SWORD_POSE if job == "warrior" else BOW_POSE
                     pose = poses[state.state][index]
+                    if job == "warrior" and state.state == "charge" and direction == "front":
+                        pose = CHARGE_FRONT_POSE[index]
                     configured = hand_xy(direction, pose[-2], pose[-1])
                     distance = math.dist(source, configured)
                     differences.append((distance, label, source, configured))

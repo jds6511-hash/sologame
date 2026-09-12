@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import argparse
 import sys
+from dataclasses import replace
 from pathlib import Path
 
 from PIL import Image
@@ -187,7 +188,8 @@ WARRIOR_STATES = [
               weapon_frames=[0, 0, 0], weapon_offset=DODGE_SWORD_OFFSET, airborne=True,
               note="도약1+공중1+착지1. jump 전용 검 시트가 없어 idle 검을 손 위치로 보정"),
     StateSpec("charge", "backslash", [2, 3], sword_attack("attack_backslash"),
-              note="차지 홀드 — 상체를 젖히고 검을 뒤로 당겨 버틴 정지(슈퍼아머가 자세로 읽힘)"),
+              direction_frames={"front": [0, 0]},
+              note="차지 홀드 — 정면은 손을 든 원본0을 유지. 측면/후면은 기존2·3 유지"),
     StateSpec("cast", "spellcast", [2, 3], sword_attack("attack_backslash"),
               note="포효/함성 — 양팔을 올려 외치는 2프레임 루프. charge(뒤로 젖힘)와 정반대 실루엣. "
                    "구 backslash[7,8]은 몸이 오른쪽으로 기울어 머리가 x14~22를 차지해 "
@@ -293,6 +295,9 @@ BOW_POSE: dict[str, list[tuple[float, float, bool, float, float]]] = {
     "cast": [(5, 0.0, False, 5, 16), (5, 0.0, False, 5, 17)],
 }
 
+# 외부 LPC backslash/front/0의 손 내부 접점(3,15). 고정 자세에서 검 각도만 미세하게 바뀐다.
+CHARGE_FRONT_POSE = [(-90, 22, 11, 20), (-94, 22, 11, 20)]
+
 
 def hand_xy(direction: str, hx: float, hy: float) -> tuple[float, float]:
     """(hx, hy) 를 프레임 좌표로. 정면은 무기 손이 화면 좌측(LPC 원본과 동일)."""
@@ -330,9 +335,14 @@ def draw_weapon(
         if not pose:
             return True, True, 0.0
         angle, want, hx, hy = pose[min(order, len(pose) - 1)]
+        locked = spec.state == "charge" and direction == "front"
+        if locked:
+            angle, want, hx, hy = CHARGE_FRONT_POSE[min(order, 1)]
         hand = hand_xy(direction, hx, hy)
         blade, clear = draw_sword(
-            frame, hand, facing_dir(direction, angle), want, head, placed_hand
+            frame, hand, facing_dir(direction, angle), want, head, placed_hand,
+            lock_grip=locked,
+            guard_half_width=1.0 if locked else 2.5,
         )
         ok = bool(placed_hand) and hand_on_body_check(body, placed_hand[0])
         return ok, clear, blade
@@ -361,6 +371,7 @@ def build_job(
     # 1패스: 전 상태·전 방향 몸 합성 + 축소 (재질별 휘도 표본 수집 + 손잡이 좌표 실측)
     composed: dict[str, dict[str, list[tuple[Image.Image, Image.Image]]]] = {}
     narrowed: list[str] = []
+    palette_reference: list[tuple[Image.Image, Image.Image]] = []
     for spec in states:
         composed[spec.state] = {}
         for d in DIRECTIONS:
@@ -374,10 +385,21 @@ def build_job(
                 if k < 1.0:
                     narrowed.append(f"{spec.state}/{d}{i}={k:.2f}")
                 seq.append(downscale(rgba, idm, mats))
+                if d in spec.direction_frames:
+                    # 한 방향의 자세 교체가 다른 88프레임의 색 밴드를 바꾸지 않게 한다.
+                    reference, ref_ids, _ = compose_frame(
+                        layers, replace(spec, direction_frames={}), d, i, mats,
+                        weapon_mode="probe",
+                    )
+                    if spec.tilt:
+                        reference, ref_ids = rotate_pair(reference, ref_ids, spec.tilt[i])
+                    reference, ref_ids, _ = narrow_to_frame(reference, ref_ids)
+                    palette_reference.append(downscale(reference, ref_ids, mats))
+                else:
+                    palette_reference.append(seq[-1])
             composed[spec.state][d] = seq
 
-    flat = [f for st in composed.values() for seq in st.values() for f in seq]
-    bands = {mid: bands_from(l) for mid, l in collect_luminance(flat, mats).items()}
+    bands = {mid: bands_from(l) for mid, l in collect_luminance(palette_reference, mats).items()}
 
     # 2패스: 재색상 -> 아웃라인 -> 크롭 -> 시트
     total = 0
