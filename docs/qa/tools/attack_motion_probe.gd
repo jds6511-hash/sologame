@@ -68,7 +68,32 @@ func _run() -> void:
 	print("[모션 완료] 4직업 × 3방향 × 5시점, 캡처 결과: %s" % error)
 	var travel_ok := await _capture_travel_skills()
 	var charge_ok := await _capture_charge_pose()
-	quit(0 if error == OK and travel_ok and charge_ok else 1)
+	var archer_ok := await _capture_archer_poses()
+	quit(0 if error == OK and travel_ok and charge_ok and archer_ok else 1)
+
+
+func _capture_archer_poses() -> bool:
+	for child in stage.get_children():
+		child.queue_free()
+	await process_frame
+	var definition = load("res://data/jobs/job_def_archer.tres")
+	var frames: SpriteFrames = definition.sprite_frames
+	var animations := ["attack_front", "attack_side", "attack_back", "rollshot_back"]
+	for row in range(animations.size()):
+		_label(animations[row], Vector2(30, 30 + row * 240))
+		for column in range(frames.get_frame_count(animations[row])):
+			var pose := Sprite2D.new()
+			pose.texture = frames.get_frame_texture(animations[row], column)
+			pose.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+			pose.scale = Vector2(4, 4)
+			pose.position = Vector2(300 + column * 200, 110 + row * 240)
+			stage.add_child(pose)
+	await process_frame
+	await RenderingServer.frame_post_draw
+	var path := ProjectSettings.globalize_path(OUTPUT).path_join("archer-fixed.png")
+	var error := root.get_texture().get_image().save_png(path)
+	print("[궁수 캡처] 공격 3방향 + 곡예 사격 후면, 결과=%s" % error)
+	return error == OK
 
 
 func _capture_charge_pose() -> bool:

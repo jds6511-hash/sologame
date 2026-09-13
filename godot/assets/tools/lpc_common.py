@@ -961,6 +961,9 @@ def draw_bow(
     frame: Image.Image, hand: tuple[float, float], bulge: float, size: float,
     draw_amt: float, arrow: bool, forbid: set[tuple[int, int]] | None = None,
     placed_hand: list[tuple[float, float]] | None = None,
+    lock_grip: bool = False,
+    width_scale: float = 1.0,
+    angle_deg: float = 0.0,
 ) -> bool:
     """수직 활. `bulge` = 활배가 향하는 화면 x 방향(+1/-1), `draw_amt` = 당김 정도 0~1.
 
@@ -969,12 +972,32 @@ def draw_bow(
 
     `forbid` (2026-07-30 신설 — 계획서 14-4-4 "활은 머리 아웃라인과 겹치지 않는다"):
     머리 픽셀 집합을 주면 `_place` 가 활을 몸 바깥·아래로 밀어 겹침을 피한다.
-    반환값 = 겹침 없이 그렸는지.
+    `lock_grip`는 이 이동을 금지하고, `width_scale`/`angle_deg`는 손을 축으로
+    후면 원근·기울기를 표현한다. 고정 모드는 머리 겹침과 프레임 이탈 모두 실패로 반환한다.
     """
-    return _place(
-        frame, lambda h: _bow_strokes(h, bulge, size, draw_amt, arrow), hand, forbid,
-        placed_hand,
-    )
+    def make(h):
+        strokes = _bow_strokes(h, bulge, size, draw_amt, arrow)
+        if width_scale == 1.0 and angle_deg == 0.0:
+            return strokes
+        # 손 접점을 축으로 원근 폭과 기울기를 함께 바꾼다. 변환한 점 사이를 다시
+        # 연결해 픽셀 회전 때문에 활대나 시위가 끊기지 않게 한다.
+        a = math.radians(angle_deg)
+        def point(p):
+            x, y = (p[0] - h[0]) * width_scale, p[1] - h[1]
+            return (h[0] + x * math.cos(a) - y * math.sin(a),
+                    h[1] + x * math.sin(a) + y * math.cos(a))
+        return [([q for start, end in zip(pts, pts[1:])
+                  for q in _line(point(start), point(end))], color)
+                for pts, color in strokes]
+
+    if lock_grip:
+        strokes = make(hand)
+        clear = _in_frame(strokes) and not _covers(strokes, forbid or set())
+        _stamp(frame, strokes)
+        if placed_hand is not None:
+            placed_hand.append(hand)
+        return clear
+    return _place(frame, make, hand, forbid, placed_hand)
 
 
 # ------------------------------------------------------------------ 어깨 견갑 작화

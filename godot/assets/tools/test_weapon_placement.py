@@ -9,6 +9,20 @@ import lpc_common as lpc
 
 
 class WeaponPlacementTest(unittest.TestCase):
+    def test_locked_bow_reports_collision_without_moving_hand(self):
+        placed = []
+        with patch.object(lpc, "_stamp"), patch.object(lpc, "_covers", return_value=True):
+            clear = lpc.draw_bow(None, (19, 20), 1, 6, 1, False, {(0, 0)}, placed,
+                                 lock_grip=True, width_scale=0.5, angle_deg=60)
+        self.assertFalse(clear)
+        self.assertEqual(placed, [(19, 20)])
+
+    def test_foreshortened_bow_limb_still_passes_through_hand(self):
+        with patch.object(lpc, "_stamp") as stamp:
+            lpc.draw_bow(None, (19, 20), 1, 6, 1, False,
+                         lock_grip=True, width_scale=0.5, angle_deg=60)
+        self.assertIn((19, 20), stamp.call_args.args[1][0][0])
+
     def test_locked_sword_grip_does_not_move_even_if_face_cannot_be_avoided(self):
         placed = []
         with patch.object(lpc, "_stamp"), patch.object(lpc, "_covers", return_value=True):

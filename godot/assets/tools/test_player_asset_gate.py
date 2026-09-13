@@ -7,9 +7,28 @@ import unittest
 from unittest.mock import Mock, patch
 
 import gen_player_lpc as generator
+from PIL import Image
 
 
 class PlayerAssetGateTest(unittest.TestCase):
+    def test_rear_patch_preserves_other_cells_and_sheets(self):
+        paths = [Path(f"player_archer_{state}.png") for state in ("attack", "rollshot", "idle")]
+        old = Image.new("RGBA", (112, 108), (20, 30, 40, 255))
+        new = Image.new("RGBA", old.size, (50, 60, 70, 255))
+        with patch.object(generator.Image, "open", side_effect=lambda _: old.copy()):
+            pending = generator.rear_shot_patches(dict.fromkeys(paths, new))
+        self.assertEqual(set(pending), set(paths[:2]))
+        for result in pending.values():
+            self.assertEqual(result.crop((0, 0, 112, 72)).tobytes(), old.crop((0, 0, 112, 72)).tobytes())
+            self.assertEqual(result.crop((0, 72, 112, 108)).tobytes(), new.crop((0, 72, 112, 108)).tobytes())
+
+    def test_rear_patch_rejects_wrong_baseline_size_before_saving(self):
+        pending = {Path(f"player_archer_{state}.png"): Image.new("RGBA", (112, 108))
+                   for state in ("attack", "rollshot")}
+        with patch.object(generator.Image, "open", side_effect=[Image.new("RGBA", (112, 108)), Image.new("RGBA", (28, 36))]):
+            with self.assertRaises(ValueError):
+                generator.rear_shot_patches(pending)
+
     def run_generator(self, problems, report=False):
         image = Mock()
         image.width = 112
