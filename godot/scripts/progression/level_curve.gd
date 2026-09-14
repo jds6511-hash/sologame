@@ -6,7 +6,8 @@
 ## (CLAUDE.md 공통 규칙 "기획 수치를 코드에 하드코딩하지 않는다").
 ##
 ## 수식(spec 2-1, growth.md 5-1 그대로):
-##   REQ(L) = round(req_coefficient x L^req_exponent)       (L = 1..max_level-1)
+##   REQ(L) = round(req_coefficient x L^req_exponent x early_multiplier)
+##   early_multiplier = pre_transition_req_multiplier when L < first_transition_level, otherwise 1
 ##   EXP(L) = round(mob_exp_coefficient x L^mob_exp_exponent)
 ## 정예 x6 / 보스 x40, 야간 x1.2(보스 제외)는 각 배율 필드로 분리했다.
 ##
@@ -20,6 +21,8 @@ extends Resource
 @export_group("필요 경험치 REQ(L) (spec 7-1 — D-2 페이스 레버)")
 @export var req_coefficient: float = 55.0
 @export var req_exponent: float = 2.5
+@export var first_transition_level: int = 10
+@export_range(0.01, 1.0, 0.01) var pre_transition_req_multiplier: float = 1.0
 
 @export_group("몬스터 경험치 EXP(L) (spec 7-1)")
 @export var mob_exp_coefficient: float = 5.0
@@ -36,7 +39,8 @@ extends Resource
 ## L -> L+1 필요 경험치. 유효 범위는 L = 1..max_level-1이며, max_level(만렙)은 다음 레벨이
 ## 없어 레벨업에 쓰지 않는다(호출자가 만렙에서 이 값을 참조하지 않도록 관리).
 func req(level: int) -> int:
-	return roundi(req_coefficient * pow(float(level), req_exponent))
+	var multiplier := pre_transition_req_multiplier if level < first_transition_level else 1.0
+	return roundi(req_coefficient * pow(float(level), req_exponent) * multiplier)
 
 
 ## 동렙 일반 몬스터가 주는 기본 경험치 EXP(L) (등급·레벨 차·야간 배율 적용 전).

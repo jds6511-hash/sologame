@@ -29,19 +29,20 @@ func test_starts_at_level_1_zero_exp() -> void:
 
 
 func test_exp_below_threshold_does_not_level_up() -> void:
-	_prog.add_exp(LEVEL_CURVE.req(1) - 1)  ## 54
+	var below_threshold := LEVEL_CURVE.req(1) - 1
+	_prog.add_exp(below_threshold)
 	assert_eq(_prog.current_level, 1)
-	assert_eq(_prog.current_exp, 54)
+	assert_eq(_prog.current_exp, below_threshold)
 
 
 func test_exp_exactly_threshold_levels_up_to_2() -> void:
-	_prog.add_exp(LEVEL_CURVE.req(1))  ## 55
+	_prog.add_exp(LEVEL_CURVE.req(1))
 	assert_eq(_prog.current_level, 2)
 	assert_eq(_prog.current_exp, 0)
 
 
 func test_carryover_exp_after_level_up() -> void:
-	_prog.add_exp(LEVEL_CURVE.req(1) + 10)  ## 65 -> Lv2, 이월 10
+	_prog.add_exp(LEVEL_CURVE.req(1) + 10)
 	assert_eq(_prog.current_level, 2)
 	assert_eq(_prog.current_exp, 10)
 
@@ -119,10 +120,10 @@ func test_grant_kill_exp_normal_same_level() -> void:
 
 
 func test_grant_kill_exp_elite_multiplier() -> void:
-	## Lv1 플레이어가 Lv1 정예 몹: 5 x 6 = 30 (Lv2 임계 55 미만 → 레벨 유지)
+	## Lv1 플레이어가 Lv1 정예 몹: 5 x 6 = 30 (Lv2 임계 25 통과, 5 이월)
 	_prog.grant_kill_exp(1, DropTableData.MonsterTier.ELITE)
-	assert_eq(_prog.current_level, 1)
-	assert_eq(_prog.current_exp, 30)
+	assert_eq(_prog.current_level, 2)
+	assert_eq(_prog.current_exp, 5)
 
 
 func test_grant_kill_exp_applies_level_diff_penalty() -> void:

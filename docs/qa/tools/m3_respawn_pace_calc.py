@@ -8,7 +8,7 @@
 리소스를 파싱하며, 파싱 헬퍼·성장 공식 재현부는 그 스크립트에서 그대로 가져왔다. Phase D와
 다른 점은 하나다: **재스폰 공급 상한을 모델에 넣는다.**
 
-Phase D 3-5장은 "재스폰이 없다"는 전제로 빌드 전체 EXP 재고(10,688 = Lv10 요구량의 25.8%)를
+Phase D 3-5장은 "재스폰이 없다"는 전제로 빌드 전체 EXP 재고(10,688)를
 계산해 "정상 플레이로 Lv10 도달 불가"를 판정했다. 재스폰이 들어오면 재고는 유한하지 않고
 **시간당 공급률**이 되므로, 판정 기준도 "재고 총량"에서 "공급률이 플레이어 사냥 속도를
 가로막는가"로 바뀐다. 본 스크립트는 그 공급률을 마커 실측 × 쿨다운으로 산출한다.
@@ -30,6 +30,7 @@ import re
 ROOT = r"C:\Users\UserK\Desktop\game\godot"
 SPAWNER = "scripts/world/monster_spawner.gd"
 START_AREA = "scenes/world/eastern_frontier_starting_area.tscn"
+INITIAL_STOCK_EXP = 10688
 
 
 # ---------- 파싱 (Phase D 스크립트와 동일 방식) ----------
@@ -147,7 +148,9 @@ for name, (sf, df) in MON_FILES.items():
 
 # ---------- 구현 공식 재현 (Phase D와 동일) ----------
 def req(L):
-    return round(LC["req_coefficient"] * L ** LC["req_exponent"])
+    multiplier = (LC.get("pre_transition_req_multiplier", 1.0)
+                  if L < LC.get("first_transition_level", 0.0) else 1.0)
+    return round(LC["req_coefficient"] * L ** LC["req_exponent"] * multiplier)
 
 
 def mob_exp(L):
@@ -395,7 +398,11 @@ for L in (1, 2, 5, 8, 10):
 hr("6. 판정 요약")
 need10 = sum(req(L) for L in range(1, 10))
 print(f"  Lv10 도달 필요 누적 EXP = {need10:,}")
-print(f"  Phase D(재스폰 없음) 빌드 전체 EXP 재고 = 10,688 (충족률 25.8%) → 도달 불가")
+stock_ratio = INITIAL_STOCK_EXP / need10 * 100.0
+print(
+    f"  Phase D(재스폰 없음) 빌드 전체 EXP 재고 = {INITIAL_STOCK_EXP:,} "
+    f"(충족률 {stock_ratio:.1f}%) → 도달 불가"
+)
 supply_exp_per_hour = sum(
     POOL[n]["supply"] * exp_gain(MONS[n], 5, False) for n in POOL) * 3600
 print(f"  재스폰 적용 후 시작 지역 EXP 공급 상한 = 약 {supply_exp_per_hour:,.0f} EXP/시간 "

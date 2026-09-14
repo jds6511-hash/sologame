@@ -5,14 +5,28 @@ extends GutTest
 
 const LEVEL_CURVE: LevelCurveData = preload("res://data/progression/level_curve.tres")
 
-# --- REQ(L) = round(55 x L^2.5), spec 2-2 표 ---
+# --- REQ(L) = round(55 x L^2.5 x 초반 배율), spec 2-2 표 ---
 
 
 func test_req_representative_levels_match_spec() -> void:
 	## {레벨: spec 2-2 REQ 값}
-	var expected := {1: 55, 2: 311, 3: 857, 10: 17393, 20: 98387}
+	var expected := {1: 25, 2: 140, 3: 386, 9: 6014, 10: 17393, 20: 98387}
 	for level: int in expected:
 		assert_eq(LEVEL_CURVE.req(level), expected[level], "REQ(%d)" % level)
+
+
+func test_first_transition_uses_early_curve_only_before_level_10() -> void:
+	assert_eq(LEVEL_CURVE.first_transition_level, 10)
+	assert_almost_eq(LEVEL_CURVE.pre_transition_req_multiplier, 0.45, 0.001)
+	assert_eq(LEVEL_CURVE.req(9), 6014, "Lv9 -> Lv10은 초반 배율 적용")
+	assert_eq(LEVEL_CURVE.req(10), 17393, "Lv10 이후는 기존 곡선 복귀")
+
+
+func test_cumulative_exp_to_first_transition_matches_spec() -> void:
+	var total := 0
+	for level in range(1, LEVEL_CURVE.first_transition_level):
+		total += LEVEL_CURVE.req(level)
+	assert_eq(total, 18612, "Lv10 도달 누적 경험치")
 
 
 func test_req_band_levels_match_spec() -> void:
@@ -38,7 +52,7 @@ func test_cumulative_exp_to_max_level_matches_spec() -> void:
 	var total := 0
 	for level in range(1, LEVEL_CURVE.max_level):  ## 1..99 합
 		total += LEVEL_CURVE.req(level)
-	assert_eq(total, 154404320, "Lv100 도달 누적 경험치")
+	assert_eq(total, 154381573, "Lv100 도달 누적 경험치")
 
 
 # --- 계수/지수 데이터 구동 확인(D-2 페이스 레버가 코드 수정 없이 먹히는지) ---

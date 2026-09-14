@@ -96,8 +96,8 @@ func test_leveled_up_updates_level_label_and_shows_flash() -> void:
 	var progression: PlayerProgression = player.get_node("PlayerProgression")
 	_hud.bind_player(player, player.get_node("PlayerStats"))
 
-	## REQ(1)=55 정확히 투입 → Lv2 도달.
-	progression.add_exp(55)
+	## REQ(1) 정확히 투입 → Lv2 도달.
+	progression.add_exp(progression.level_curve.req(1))
 
 	var label: Label = _hud.get_node("PlayerStatusPanel/LevelJobLabel")
 	assert_eq(label.text, "Lv.2 모험가")
@@ -111,12 +111,13 @@ func test_exp_changed_updates_fill_ratio() -> void:
 	var progression: PlayerProgression = player.get_node("PlayerProgression")
 	_hud.bind_player(player, player.get_node("PlayerStats"))
 
-	## REQ(1)=55의 절반 → 바 50%.
-	progression.add_exp(27)
+	var req_level_1 := progression.level_curve.req(1)
+	var partial_exp := req_level_1 / 2
+	progression.add_exp(partial_exp)
 
 	var exp_bar_width: float = _hud.get_node("ExpBar").size.x
 	var fill: ColorRect = _hud.get_node("ExpBar/Fill")
-	var ratio := 27.0 / 55.0
+	var ratio := float(partial_exp) / float(req_level_1)
 	assert_almost_eq(fill.size.x, exp_bar_width * ratio, 0.5)
 
 
