@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1")
 display_name = "들개 마수"
-max_hp = 325.0
-attack_power = 24.0
+max_hp = 244.0
+attack_power = 19.0
 defense = 2.0
 shares_pack_aggro = true
 perception_range_tiles = 5.0

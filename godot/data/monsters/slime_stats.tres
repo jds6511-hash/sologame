@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1")
 display_name = "균열 점액"
-max_hp = 474.0
-attack_power = 37.0
+max_hp = 356.0
+attack_power = 30.0
 defense = 4.0
 shares_pack_aggro = false
 perception_range_tiles = 4.0
