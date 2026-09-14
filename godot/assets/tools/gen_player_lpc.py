@@ -205,6 +205,7 @@ ARCHER_STATES = [
               note="draw 1 + full draw 1 + release 1 + recovery 1. 정면은 활 fg 가 얼굴을 "
                    "완전히 덮어(실측) bg 만 써서 활을 몸 뒤로 넘긴다"),
     StateSpec("aim", "shoot", [4, 5], BOW_SHOOT, hide_fg_dirs=("front",),
+              direction_frames={"back": [4, 4]},
               note="반쯤 당긴 무방비 조준 스탠스 2프레임 루프 (전사 charge 와 정반대로 몸을 세움)"),
     StateSpec("hit", "hurt", [0], BOW_HURT, note="LPC hurt 원본은 front 1행뿐 -> 3방향 공유"),
     StateSpec("death", "hurt", [1, 2, 3, 4], BOW_HURT,
@@ -300,10 +301,26 @@ BOW_POSE: dict[str, list[tuple[float, float, bool, float, float]]] = {
 # 외부 LPC backslash/front/0의 손 내부 접점(3,15). 고정 자세에서 검 각도만 미세하게 바뀐다.
 CHARGE_FRONT_POSE = [(-90, 22, 11, 20), (-94, 22, 11, 20)]
 
-# 원본 shoot 4/9번을 변환한 후면 손 내부 픽셀. 곡예 사격은 각 프레임 기울기를 반영한다.
-REAR_BOW_HANDS = {
-    "attack": [(19, 19), (19, 19), (19, 20), (19, 20)],
-    "rollshot": [(21, 20), (20, 20), (18, 20), (19, 20)],
+# 원본 shoot를 최종 변환한 뒤 확인한 피부 내부의 활 손 접점.
+# 대기·이동은 활을 옆에 들거나 등에 건 자세라 이 표에 포함하지 않는다.
+COMBAT_BOW_HANDS = {
+    ("attack", "front"): [(8, 15), (9, 16), (8, 15), (10, 20)],
+    ("attack", "side"): [(25, 17), (25, 14), (25, 17), (25, 17)],
+    ("attack", "back"): [(19, 19), (19, 19), (19, 20), (19, 20)],
+    ("aim", "front"): [(8, 15), (8, 18)],
+    ("aim", "side"): [(25, 17), (25, 15)],
+    ("aim", "back"): [(19, 19), (19, 19)],
+    ("rollshot", "front"): [(9, 18), (8, 17), (8, 17), (10, 20)],
+    ("rollshot", "side"): [(25, 18), (25, 15), (24, 16), (25, 17)],
+    ("rollshot", "back"): [(21, 20), (20, 20), (18, 20), (19, 20)],
+}
+
+# (가로 원근 배율, 손 중심 회전각). 앞은 얼굴 바깥으로 비스듬히, 측면은 수직,
+# 후면은 화면 깊이 방향을 짧게 표현한다.
+COMBAT_BOW_GEOMETRY = {
+    "front": (1.0, 45.0),
+    "side": (0.65, 0.0),
+    "back": (0.5, 60.0),
 }
 
 
@@ -359,18 +376,22 @@ def draw_weapon(
         return True, True, 0.0
     size, amt, arrow, hx, hy = pose_b[min(order, len(pose_b) - 1)]
     hand = hand_xy(direction, hx, hy)
-    # 후면 두 동작은 원본 변환 후 피부 내부 접점에 고정한다.
-    # 당김은 몸 자세를 유지하며 시위로 표현하고, 곡예 사격은 기울어진 손을 따른다.
-    locked = direction == "back" and spec.state in ("attack", "rollshot")
+    # 사격 동작은 원본 변환 후 피부 내부 접점에 고정한다. 당김은 몸 자세와 시위로
+    # 표현하며 머리 회피를 위해 활만 손에서 떼지 않는다.
+    bow_key = (spec.state, direction)
+    locked = bow_key in COMBAT_BOW_HANDS
     if locked:
-        hand = REAR_BOW_HANDS[spec.state][order]
+        hand = COMBAT_BOW_HANDS[bow_key][order]
+    width_scale, angle_deg = COMBAT_BOW_GEOMETRY.get(
+        bow_key, COMBAT_BOW_GEOMETRY.get(direction, (1.0, 0.0))
+    )
     # 활배는 항상 몸 바깥쪽을 향한다
     bulge = 1.0 if hand[0] >= FRAME_W / 2 else -1.0
     # 정면·후면은 화살이 화면 깊이 방향이라 그리지 않는다(가로로 그리면 방향이 거짓말)
     clear = draw_bow(
         frame, hand, bulge, size, amt, arrow and direction == "side", head, placed_hand,
-        lock_grip=locked, width_scale=0.5 if locked else 1.0,
-        angle_deg=60.0 if locked else 0.0,
+        lock_grip=locked, width_scale=width_scale if locked else 1.0,
+        angle_deg=angle_deg if locked else 0.0,
     )
     ok = bool(placed_hand) and hand_on_body_check(body, placed_hand[0])
     return ok, clear, 0.0
@@ -487,7 +508,7 @@ def rear_shot_patches(pending: dict[Path, Image.Image]) -> dict[Path, Image.Imag
     정면·측면 및 다른 동작에 공통 활 기하 보정을 적용하지 않는다.
     """
     patches = {}
-    names = {f"player_archer_{state}.png" for state in REAR_BOW_HANDS}
+    names = {"player_archer_attack.png", "player_archer_rollshot.png"}
     selected = {path: sheet for path, sheet in pending.items() if path.name in names}
     if len(selected) != 2:
         raise ValueError("궁수 공격·곡예 사격 후보 두 장이 필요합니다")
@@ -504,15 +525,34 @@ def rear_shot_patches(pending: dict[Path, Image.Image]) -> dict[Path, Image.Imag
     return patches
 
 
+def combat_bow_patches(pending: dict[Path, Image.Image]) -> dict[Path, Image.Image]:
+    """실제 손 접점을 확인한 공격·조준·곡예 사격 세 시트만 선택한다."""
+    expected = {
+        "player_archer_attack.png": (4 * FRAME_W, 3 * FRAME_H),
+        "player_archer_aim.png": (2 * FRAME_W, 3 * FRAME_H),
+        "player_archer_rollshot.png": (4 * FRAME_W, 3 * FRAME_H),
+    }
+    selected = {path: sheet for path, sheet in pending.items() if path.name in expected}
+    if {path.name for path in selected} != set(expected):
+        raise ValueError("궁수 공격·조준·곡예 사격 후보 세 장이 필요합니다")
+    for path, candidate in selected.items():
+        if candidate.mode != "RGBA" or candidate.size != expected[path.name]:
+            raise ValueError(f"후보 시트 규격 오류: {path}")
+    return selected
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--job", choices=list(JOBS) + ["all"], default="all")
     ap.add_argument("--report", action="store_true", help="파일을 쓰지 않고 검사만")
-    ap.add_argument("--rear-shots-only", action="store_true",
-                    help="궁수 후면 사격 8셀만 기존 PNG에 반영. --job archer와 함께 사용")
+    modes = ap.add_mutually_exclusive_group()
+    modes.add_argument("--rear-shots-only", action="store_true",
+                       help="궁수 후면 사격 8셀만 기존 PNG에 반영. --job archer와 함께 사용")
+    modes.add_argument("--combat-bow-only", action="store_true",
+                       help="손 접점을 확인한 공격·조준·곡예 사격만 반영")
     args = ap.parse_args()
-    if args.rear_shots_only and args.job != "archer":
-        ap.error("--rear-shots-only는 --job archer가 필요합니다")
+    if (args.rear_shots_only or args.combat_bow_only) and args.job != "archer":
+        ap.error("궁수 선택 반영 모드는 --job archer가 필요합니다")
 
     jobs = list(JOBS) if args.job == "all" else [args.job]
     grand = 0
@@ -520,7 +560,8 @@ def main() -> int:
     pending: dict[Path, Image.Image] = {}
     for job in jobs:
         print(f"[{job}]")
-        total, issues = build_job(job, args.report and not args.rear_shots_only, pending=pending)
+        selecting = args.rear_shots_only or args.combat_bow_only
+        total, issues = build_job(job, args.report and not selecting, pending=pending)
         print(f"  -> 합계 {total}프레임")
         grand += total
         all_issues += issues
@@ -539,6 +580,13 @@ def main() -> int:
             print(f"출력 중단: {error}")
             return 1
         print("적용 범위: 기존 궁수 공격·곡예 사격 시트의 후면 8셀")
+    elif args.combat_bow_only:
+        try:
+            pending = combat_bow_patches(pending)
+        except ValueError as error:
+            print(f"출력 중단: {error}")
+            return 1
+        print("적용 범위: 궁수 공격·조준·곡예 사격 30셀")
     if not args.report:
         for path, sheet in pending.items():
             path.parent.mkdir(parents=True, exist_ok=True)

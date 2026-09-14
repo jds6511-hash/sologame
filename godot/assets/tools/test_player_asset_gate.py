@@ -11,6 +11,20 @@ from PIL import Image
 
 
 class PlayerAssetGateTest(unittest.TestCase):
+    def test_combat_bow_patch_preserves_noncombat_sheets(self):
+        candidates = {
+            Path("player_archer_attack.png"): Image.new("RGBA", (112, 108), (50, 60, 70, 255)),
+            Path("player_archer_aim.png"): Image.new("RGBA", (56, 108), (50, 60, 70, 255)),
+            Path("player_archer_rollshot.png"): Image.new("RGBA", (112, 108), (50, 60, 70, 255)),
+            Path("player_archer_idle.png"): Image.new("RGBA", (112, 108), (20, 30, 40, 255)),
+            Path("player_archer_walk.png"): Image.new("RGBA", (168, 108), (20, 30, 40, 255)),
+        }
+        pending = generator.combat_bow_patches(candidates)
+        paths = list(candidates)
+        self.assertEqual(set(pending), set(paths[:3]))
+        for path, result in pending.items():
+            self.assertIs(result, candidates[path])
+
     def test_rear_patch_preserves_other_cells_and_sheets(self):
         paths = [Path(f"player_archer_{state}.png") for state in ("attack", "rollshot", "idle")]
         old = Image.new("RGBA", (112, 108), (20, 30, 40, 255))

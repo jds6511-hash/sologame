@@ -78,21 +78,29 @@ func _capture_archer_poses() -> bool:
 	await process_frame
 	var definition = load("res://data/jobs/job_def_archer.tres")
 	var frames: SpriteFrames = definition.sprite_frames
-	var animations := ["attack_front", "attack_side", "attack_back", "rollshot_back"]
+	var animations := [
+		"attack_front",
+		"attack_side",
+		"attack_back",
+		"aim_front",
+		"aim_side",
+		"aim_back",
+		"rollshot_back",
+	]
 	for row in range(animations.size()):
-		_label(animations[row], Vector2(30, 30 + row * 240))
+		_label(animations[row], Vector2(30, 20 + row * 140))
 		for column in range(frames.get_frame_count(animations[row])):
 			var pose := Sprite2D.new()
 			pose.texture = frames.get_frame_texture(animations[row], column)
 			pose.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-			pose.scale = Vector2(4, 4)
-			pose.position = Vector2(300 + column * 200, 110 + row * 240)
+			pose.scale = Vector2(3, 3)
+			pose.position = Vector2(260 + column * 160, 70 + row * 140)
 			stage.add_child(pose)
 	await process_frame
 	await RenderingServer.frame_post_draw
 	var path := ProjectSettings.globalize_path(OUTPUT).path_join("archer-fixed.png")
 	var error := root.get_texture().get_image().save_png(path)
-	print("[궁수 캡처] 공격 3방향 + 곡예 사격 후면, 결과=%s" % error)
+	print("[궁수 캡처] 공격·조준 3방향 + 곡예 사격 후면, 결과=%s" % error)
 	return error == OK
 
 

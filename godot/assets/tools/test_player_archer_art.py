@@ -1,6 +1,7 @@
 """외부 LPC 궁수의 후면 활 접점과 머리 보존 회귀 검사."""
 import contextlib
 import io
+import math
 import unittest
 from unittest.mock import patch
 
@@ -10,7 +11,16 @@ from lpc_common import LPC_DIR, head_mask
 
 @unittest.skipUnless((LPC_DIR / "body/bodies/male/shoot.png").exists(), "외부 LPC 원본 필요")
 class PlayerArcherArtTest(unittest.TestCase):
-    def test_rear_shots_keep_grip_on_hand_and_preserve_head(self):
+    def test_rear_aim_to_attack_keeps_bow_orientation_continuous(self):
+        geometry = generator.COMBAT_BOW_GEOMETRY
+        aim = geometry.get(("aim", "back"), geometry["back"])
+        attack = geometry.get(("attack", "back"), geometry["back"])
+        self.assertEqual(aim, attack)
+        aim_hand = generator.COMBAT_BOW_HANDS[("aim", "back")][-1]
+        attack_hand = generator.COMBAT_BOW_HANDS[("attack", "back")][0]
+        self.assertLessEqual(math.dist(aim_hand, attack_hand), 2.0)
+
+    def test_combat_bow_poses_keep_grip_on_hand_and_preserve_head(self):
         contacts = []
         original = generator.draw_bow
 
@@ -26,7 +36,7 @@ class PlayerArcherArtTest(unittest.TestCase):
             total, issues = generator.build_job("archer", True, pending={})
         self.assertEqual(total, 90)
         self.assertEqual(issues, [])
-        self.assertEqual(len(contacts), 8)
+        self.assertEqual(len(contacts), 30)
         skin = {(232, 183, 150), (228, 166, 114), (215, 118, 67), (184, 111, 80)}
         for contact, preserved, clear in contacts:
             self.assertEqual(contact[3], 255)

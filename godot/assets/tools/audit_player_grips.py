@@ -6,7 +6,7 @@
 
 import math
 
-from gen_player_lpc import BOW_POSE, CHARGE_FRONT_POSE, JOBS, REAR_BOW_HANDS, SWORD_POSE, hand_xy
+from gen_player_lpc import BOW_POSE, CHARGE_FRONT_POSE, COMBAT_BOW_HANDS, JOBS, SWORD_POSE, hand_xy
 from lpc_common import (
     DIRECTIONS, compose_frame, material_ids, narrow_to_frame, project_grip, rotate_pair,
 )
@@ -18,7 +18,7 @@ def main() -> None:
         differences = []
         missing = []
         for state in states:
-            if state.state not in ("attack", "attack2", "charge", "rollshot"):
+            if state.state not in ("attack", "attack2", "charge", "aim", "rollshot"):
                 continue
             for direction in DIRECTIONS:
                 for index in range(len(state.frames)):
@@ -38,8 +38,9 @@ def main() -> None:
                     if job == "warrior" and state.state == "charge" and direction == "front":
                         pose = CHARGE_FRONT_POSE[index]
                     configured = hand_xy(direction, pose[-2], pose[-1])
-                    if job == "archer" and direction == "back" and state.state in REAR_BOW_HANDS:
-                        configured = REAR_BOW_HANDS[state.state][index]
+                    bow_key = (state.state, direction)
+                    if job == "archer" and bow_key in COMBAT_BOW_HANDS:
+                        configured = COMBAT_BOW_HANDS[bow_key][index]
                     distance = math.dist(source, configured)
                     differences.append((distance, label, source, configured))
         print(f"[{job}] 추정 가능 {len(differences)}, 추정 불가 {len(missing)}")
