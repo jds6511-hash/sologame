@@ -1,4 +1,4 @@
-[gd_scene load_steps=31 format=3]
+[gd_scene load_steps=32 format=3]
 
 [ext_resource type="Script" path="res://scripts/player/player_controller.gd" id="1"]
 [ext_resource type="Resource" path="res://data/player/player_movement.tres" id="2"]
@@ -30,6 +30,7 @@
 [ext_resource type="Resource" path="res://data/jobs/job_def_gladiator.tres" id="37"]
 [ext_resource type="Script" path="res://scripts/player/player_death_sequence.gd" id="39"]
 [ext_resource type="Resource" path="res://data/player/player_death_rules.tres" id="40"]
+[ext_resource type="Script" path="res://scripts/player/player_melee_swing_vfx.gd" id="41"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_1"]
 radius = 6.0
@@ -93,6 +94,10 @@ offset = Vector2(0, -18)
 sprite_frames = ExtResource("38")
 animation = &"idle_front"
 autoplay = "idle_front"
+
+[node name="MeleeSwingVfx" type="Node2D" parent="."]
+z_index = 1
+script = ExtResource("41")
 
 [node name="Facing" type="Node2D" parent="."]
 
