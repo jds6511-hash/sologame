@@ -303,7 +303,7 @@ BOW_POSE: dict[str, list[tuple[float, float, bool, float, float]]] = {
     "walk": [(5, 0.0, False, 4, 16)] * 6,
     # draw -> full draw -> release(시위 직선·화살 없음) -> recovery
     "attack": [(6, 0.45, True, 6, 19), (6, 1.0, True, 6, 19),
-               (6, 0.0, False, 6, 19), (5, 0.0, False, 5, 17)],
+               (6, 0.0, False, 6, 19), (6, 0.0, False, 5, 17)],
     # 반쯤 당긴 무방비 스탠스 (계획서 6장) — 미세 흔들림 2프레임 루프
     "aim": [(6, 0.55, True, 6, 19), (6, 0.62, True, 6, 18)],
     "hit": [(4, 0.0, False, 4, 14)],
@@ -311,7 +311,7 @@ BOW_POSE: dict[str, list[tuple[float, float, bool, float, float]]] = {
               (3, 0.0, False, 5, 6), (3, 0.0, False, 5, 4)],
     "dodge": [(5, 0.0, False, 4, 15), (5, 0.0, False, 4, 18), (5, 0.0, False, 4, 14)],
     "rollshot": [(6, 0.6, True, 5, 18), (6, 1.0, True, 6, 18),
-                 (6, 0.0, False, 6, 18), (5, 0.0, False, 4, 16)],
+                 (6, 0.0, False, 6, 18), (6, 0.0, False, 4, 16)],
     # 활을 세워 든 짧은 정지. 손을 어깨선 아래로 내리고 몸 바깥으로 밀어 활이 얼굴을
     # 덮지 않게 한다(계획서 14-4-4). 구 (4,20)/(4,21) 은 활 림이 머리 행을 관통했다.
     "cast": [(5, 0.0, False, 5, 16), (5, 0.0, False, 5, 17)],

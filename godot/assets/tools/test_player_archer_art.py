@@ -11,6 +11,14 @@ from lpc_common import LPC_DIR, head_mask
 
 @unittest.skipUnless((LPC_DIR / "body/bodies/male/shoot.png").exists(), "외부 LPC 원본 필요")
 class PlayerArcherArtTest(unittest.TestCase):
+    def test_combat_bow_size_stays_constant_through_aim_release_and_recovery(self):
+        sizes = {
+            pose[0]
+            for state in ("aim", "attack", "rollshot")
+            for pose in generator.BOW_POSE[state]
+        }
+        self.assertEqual(sizes, {6})
+
     def test_rear_aim_to_attack_keeps_bow_orientation_continuous(self):
         geometry = generator.COMBAT_BOW_GEOMETRY
         aim = geometry.get(("aim", "back"), geometry["back"])
