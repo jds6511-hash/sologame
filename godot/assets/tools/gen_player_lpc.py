@@ -278,6 +278,25 @@ SWORD_POSE: dict[str, list[tuple[float, float, float, float]]] = {
     "cast": [(-70, 22, 5, 18), (-76, 22, 5, 18)],
 }
 
+# 걷기 몸은 팔이 크게 교차하므로 방향 공용 hx/hy로는 같은 손을 따라갈 수 없다. 기존 좌표는
+# 정면·측면에서 손이 아니라 가슴판 위에 손잡이를 찍었고, ±2px 불투명 허용 검사에 가려졌다.
+# 아래 좌표는 최종 28x36 몸 프레임의 **실제 피부 손 픽셀**을 방향·프레임별로 직접 지정한다.
+# 표기: (각도, 칼 길이 요청값, 최종 프레임 x, 최종 프레임 y).
+WALK_SWORD_POSE: dict[str, list[tuple[float, float, float, float]]] = {
+    "front": [
+        (-78, 22, 7, 23), (-82, 22, 7, 24), (-75, 22, 7, 24),
+        (-78, 22, 7, 23), (-82, 22, 7, 23), (-75, 22, 7, 23),
+    ],
+    "side": [
+        (-102, 22, 13, 24), (-98, 22, 13, 25), (-105, 22, 8, 25),
+        (-102, 22, 7, 25), (-98, 22, 8, 25), (-105, 22, 11, 24),
+    ],
+    "back": [
+        (-102, 22, 20, 23), (-98, 22, 20, 22), (-105, 22, 20, 22),
+        (-102, 22, 20, 23), (-98, 22, 20, 23), (-105, 22, 20, 23),
+    ],
+}
+
 # 활: (활 크기, 당김 0~1, 화살 표시, hx, hy). 활 손은 표적을 향해 뻗은 앞손이다.
 BOW_POSE: dict[str, list[tuple[float, float, bool, float, float]]] = {
     "idle": [(5, 0.0, False, 4, 16)] * 4,
@@ -330,6 +349,17 @@ def hand_xy(direction: str, hx: float, hy: float) -> tuple[float, float]:
     return (FRAME_W / 2 + sign * hx, FRAME_H - 1 - hy)
 
 
+def sword_pose_for(
+    state: str, direction: str, order: int
+) -> tuple[float, float, float, float]:
+    """검 포즈를 (각도, 길이, 최종 손 x, 최종 손 y)로 정규화한다."""
+    if state == "walk":
+        return WALK_SWORD_POSE[direction][order]
+    angle, want, hx, hy = SWORD_POSE[state][min(order, len(SWORD_POSE[state]) - 1)]
+    hand_x, hand_y = hand_xy(direction, hx, hy)
+    return angle, want, hand_x, hand_y
+
+
 def hand_on_body_check(frame: Image.Image, hand: tuple[float, float]) -> bool:
     """지정한 손 좌표가 실제로 몸 픽셀 위(또는 2px 이내)인지 — 무기가 공중에 뜨는 것 방지."""
     px = frame.load()
@@ -359,14 +389,15 @@ def draw_weapon(
         pose = SWORD_POSE.get(spec.state)
         if not pose:
             return True, True, 0.0
-        angle, want, hx, hy = pose[min(order, len(pose) - 1)]
+        angle, want, hand_x, hand_y = sword_pose_for(spec.state, direction, order)
         locked = spec.state == "charge" and direction == "front"
         if locked:
             angle, want, hx, hy = CHARGE_FRONT_POSE[min(order, 1)]
-        hand = hand_xy(direction, hx, hy)
+            hand_x, hand_y = hand_xy(direction, hx, hy)
+        hand = (hand_x, hand_y)
         blade, clear = draw_sword(
             frame, hand, facing_dir(direction, angle), want, head, placed_hand,
-            lock_grip=locked,
+            lock_grip=locked or spec.state == "walk",
             guard_half_width=1.0 if locked else 2.5,
         )
         ok = bool(placed_hand) and hand_on_body_check(body, placed_hand[0])
