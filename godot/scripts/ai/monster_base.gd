@@ -62,6 +62,9 @@ signal groggy_started  ## 게이지 만충 — 슈퍼아머 붕괴, 무방비 �
 signal groggy_ended  ## 그로기 종료 — 게이지 초기화 후 슈퍼아머 복귀
 
 const HOME_ARRIVAL_TOLERANCE_PX := 4.0  ## 귀환 도착 판정 허용 오차
+const MELEE_HITBOX_ANCHOR_Y := -14.0
+const MELEE_TELEGRAPH_SEGMENTS := 20
+const MELEE_TELEGRAPH_COLOR := Color(1.0, 0.0, 0.267, 0.34)  ## #ff0044, 역할 고정색
 
 @export var stats: MonsterStatsData
 
@@ -91,6 +94,7 @@ var single_hit_per_activation: bool = false
 var groggy_gauge: float = 0.0  ## 정예 그로기 게이지 누적치 (헤더 "정예 공용 프레임" 참고)
 
 var _swing: MeleeSwingBlock = null
+var _melee_telegraph: Polygon2D = null
 var _facing_left: bool = false
 var _knockback_velocity := Vector2.ZERO
 var _night_multiplier: float = 1.0
@@ -388,14 +392,16 @@ func _init_melee_swing() -> void:
 	_swing.became_active.connect(_enable_attack_hitbox)
 	_swing.ended.connect(_disable_attack_hitbox)
 	_setup_attack_hitbox(stats.melee_range_tiles)
+	_setup_directional_melee_hitbox(stats.melee_range_tiles)
 
 
 ## AttackHitbox의 판정 반경을 지정하고 body_entered를 연결한다. 근접 스윙(사거리)뿐 아니라
 ## M3 신규 블록(숲거미 도약 착지 반경·무법자 돌진 경로)도 같은 히트박스를 반경만 바꿔 쓴다.
 func _setup_attack_hitbox(radius_tiles: float) -> void:
+	var reach_px := stats.tiles_to_px(radius_tiles)
 	if _attack_hitbox_shape:
 		var circle := CircleShape2D.new()
-		circle.radius = stats.tiles_to_px(radius_tiles)
+		circle.radius = reach_px
 		_attack_hitbox_shape.shape = circle
 	if (
 		_attack_hitbox
@@ -404,14 +410,31 @@ func _setup_attack_hitbox(radius_tiles: float) -> void:
 		_attack_hitbox.body_entered.connect(_on_attack_hitbox_body_entered)
 
 
+## 공용 히트박스는 도약·돌진도 사용하므로, 전방 제한은 근접 스윙 초기화에서만 적용한다.
+func _setup_directional_melee_hitbox(radius_tiles: float) -> void:
+	var half_reach := stats.tiles_to_px(radius_tiles) * 0.5
+	if _attack_hitbox_shape:
+		var circle := CircleShape2D.new()
+		circle.radius = half_reach
+		_attack_hitbox_shape.shape = circle
+	_create_melee_telegraph(half_reach)
+
+
 func _on_swing_telegraph_started() -> void:
-	## 예고 모션 — 이펙트 없이 색 변조만 (vfx-artist 후속 작업 전까지 임시)
+	## 검은 몬스터는 색 변조만으로 준비 자세가 묻히므로 실제 판정 범위를 바닥에도 표시한다.
 	if _sprite:
 		_sprite.modulate = Color(1.0, 0.3, 0.3)
+	if _melee_telegraph:
+		_melee_telegraph.visible = true
 
 
 func _enable_attack_hitbox() -> void:
 	_activation_hit_landed = false  ## 새 판정 구간 — single_hit_per_activation 잠금 해제
+	## 예고와 판정을 같은 붉은 상태로 유지하면 공격 순간을 구분할 수 없다.
+	if _melee_telegraph:
+		_melee_telegraph.visible = false
+	if _sprite:
+		_sprite.modulate = Color.WHITE
 	if _attack_hitbox:
 		_attack_hitbox.monitoring = true
 
@@ -420,7 +443,10 @@ func _disable_attack_hitbox() -> void:
 	if _attack_hitbox:
 		_attack_hitbox.monitoring = false
 	if _sprite:
+		_sprite.speed_scale = 1.0
 		_sprite.modulate = Color(1.0, 1.0, 1.0)
+	if _melee_telegraph:
+		_melee_telegraph.visible = false
 
 
 ## body_entered 처리 중에 호출해야 하는 판정 종료 — Area2D는 in/out 시그널을 발신하는 동안
@@ -431,7 +457,53 @@ func _disable_attack_hitbox_deferred() -> void:
 	if _attack_hitbox:
 		_attack_hitbox.set_deferred("monitoring", false)
 	if _sprite:
+		_sprite.speed_scale = 1.0
 		_sprite.modulate = Color(1.0, 1.0, 1.0)
+	if _melee_telegraph:
+		_melee_telegraph.visible = false
+
+
+## 근접 공격 시작 시 목표 방향을 잠그고, 판정·예고·그림을 같은 방향과 시간축으로 맞춘다.
+func _begin_melee_swing(target_position: Vector2) -> void:
+	var direction := target_position - global_position
+	if direction.is_zero_approx() or not direction.is_finite():
+		direction = Vector2.LEFT if _facing_left else Vector2.RIGHT
+	direction = direction.normalized()
+	var half_reach := stats.tiles_to_px(stats.melee_range_tiles) * 0.5
+	if _attack_hitbox:
+		_attack_hitbox.position = Vector2(0.0, MELEE_HITBOX_ANCHOR_Y) + direction * half_reach
+	if _melee_telegraph:
+		_melee_telegraph.position = (Vector2(0.0, MELEE_HITBOX_ANCHOR_Y) + direction * half_reach)
+	_play_synced_melee_animation(direction)
+	_swing.start()
+
+
+func _create_melee_telegraph(radius_px: float) -> void:
+	_melee_telegraph = get_node_or_null("MeleeTelegraph") as Polygon2D
+	if _melee_telegraph == null:
+		_melee_telegraph = Polygon2D.new()
+		_melee_telegraph.name = "MeleeTelegraph"
+		_melee_telegraph.show_behind_parent = true
+		add_child(_melee_telegraph)
+	var points := PackedVector2Array()
+	for i in range(MELEE_TELEGRAPH_SEGMENTS):
+		points.append(Vector2.RIGHT.rotated(TAU * i / MELEE_TELEGRAPH_SEGMENTS) * radius_px)
+	_melee_telegraph.polygon = points
+	_melee_telegraph.color = MELEE_TELEGRAPH_COLOR
+	_melee_telegraph.visible = false
+
+
+func _play_synced_melee_animation(direction: Vector2) -> void:
+	_play_animation("attack", direction)
+	if _sprite == null or _sprite.sprite_frames == null:
+		return
+	var frames := _sprite.sprite_frames
+	frames.set_animation_loop("attack", false)
+	var full_duration := _swing.telegraph_sec + _swing.active_sec + _swing.recovery_sec
+	var frame_count := frames.get_frame_count("attack")
+	var base_fps := frames.get_animation_speed("attack")
+	if full_duration > 0.0 and frame_count > 0 and base_fps > 0.0:
+		_sprite.speed_scale = frame_count / (base_fps * full_duration)
 
 
 func _on_attack_hitbox_body_entered(body: Node) -> void:

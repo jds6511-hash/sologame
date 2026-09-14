@@ -36,6 +36,51 @@ func test_chase_enters_melee_swing_when_in_range_with_token() -> void:
 	assert_eq(_wolf.state, WolfMonster.State.MELEE_SWING)
 
 
+func test_melee_telegraph_shows_before_active_and_hides_on_contact() -> void:
+	_target.global_position = _wolf.global_position + Vector2(20, 0)
+	_wolf._start_melee_swing()
+	var telegraph := _wolf.get_node_or_null("MeleeTelegraph") as Polygon2D
+	assert_not_null(telegraph, "검은 실루엣 위 색 변조만 쓰지 않고 바닥 공격 범위를 보여야 함")
+	if telegraph == null:
+		return
+	assert_true(telegraph.visible, "0.5초 준비 중에는 공격 범위가 보여야 함")
+	_wolf._physics_process(_wolf.stats.melee_telegraph_sec)
+	assert_false(telegraph.visible, "판정이 시작되면 예고 표시는 사라져 단계가 구분돼야 함")
+
+
+func test_melee_hitbox_is_aimed_forward_instead_of_full_radius_around_body() -> void:
+	_target.global_position = _wolf.global_position + Vector2(20, 0)
+	_wolf._start_melee_swing()
+	var hitbox := _wolf.get_node("AttackHitbox") as Area2D
+	var shape_node := hitbox.get_node("CollisionShape2D") as CollisionShape2D
+	var circle := shape_node.shape as CircleShape2D
+	assert_gt(hitbox.position.x, 0.0, "오른쪽 목표를 물 때 판정 중심도 오른쪽에 있어야 함")
+	assert_almost_eq(
+		circle.radius,
+		_wolf.stats.tiles_to_px(_wolf.stats.melee_range_tiles) * 0.5,
+		0.01,
+		"판정은 전방 반지름 절반 원으로 제한해 몸 뒤의 플레이어를 맞히지 않아야 함"
+	)
+
+
+func test_attack_animation_is_non_looping_and_matches_full_swing_duration() -> void:
+	_target.global_position = _wolf.global_position + Vector2(20, 0)
+	_wolf._start_melee_swing()
+	var sprite := _wolf.get_node("Sprite") as AnimatedSprite2D
+	var frames := sprite.sprite_frames
+	assert_false(frames.get_animation_loop("attack"), "공격 그림이 예고 중 처음으로 되감기면 안 됨")
+	var duration := (
+		frames.get_frame_count("attack")
+		/ (frames.get_animation_speed("attack") * sprite.speed_scale)
+	)
+	var swing_duration := (
+		_wolf.stats.melee_telegraph_sec
+		+ _wolf.stats.melee_active_sec
+		+ _wolf.stats.melee_recovery_sec
+	)
+	assert_almost_eq(duration, swing_duration, 0.01, "공격 그림과 예고·판정·후딜 전체 시간이 맞아야 함")
+
+
 func test_chase_waits_when_no_attack_token_available() -> void:
 	_wolf.pack_id = "pack_a"
 	PackAggroCoordinator.try_acquire_attack_token("pack_a")

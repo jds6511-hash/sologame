@@ -122,7 +122,7 @@ func test_pack_marker_does_not_respawn_until_wiped() -> void:
 	add_child_autofree(root)
 	await wait_physics_frames(3)
 	var initial := _living(spawner)
-	assert_between(initial, 2, 4, "들개 마수는 마커당 2~4마리")
+	assert_between(initial, 1, 2, "시작 지역 들개 마수는 마커당 1~2마리")
 
 	_kill_all(spawner, 1)
 	assert_eq(_living(spawner), 1, "1마리를 남겨 둔 상태")
@@ -131,8 +131,12 @@ func test_pack_marker_does_not_respawn_until_wiped() -> void:
 
 	_kill_all(spawner)
 	_tick(spawner, int(MonsterSpawner.NORMAL_RESPAWN_SEC))
-	assert_between(_living(spawner), 2, 4, "전멸 후에는 무리 단위로 다시 스폰된다")
+	assert_between(_living(spawner), 1, 2, "전멸 후에도 초반 무리 규모로 다시 스폰된다")
 	GameClock.reset()
+
+
+func test_starting_area_wolf_pack_budget_is_one_or_two() -> void:
+	assert_eq(MonsterSpawner.WOLF_PACK_SIZE, Vector2i(1, 2), "초반에는 기본 1마리, 최대 2마리까지만 자연 조우해야 함")
 
 
 # --- 거리 게이트 ---

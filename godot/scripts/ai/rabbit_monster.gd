@@ -91,8 +91,7 @@ func _process_flee(delta: float) -> void:
 
 func _start_melee_swing() -> void:
 	state = State.MELEE_SWING
-	_swing.start()
-	_play_animation("attack")
+	_begin_melee_swing(target.global_position if target else global_position)
 
 
 func _on_swing_ended() -> void:

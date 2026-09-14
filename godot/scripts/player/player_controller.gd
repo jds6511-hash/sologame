@@ -733,6 +733,7 @@ func take_hit(is_heavy: bool, knockback_direction: Vector2 = Vector2.ZERO) -> vo
 
 	player_hit_taken.emit(is_heavy)
 	player_invincibility_started.emit()
+	HitFlash.play(_sprite, HitFlash.Preset.MEDIUM if is_heavy else HitFlash.Preset.WEAK)
 	HitFeedback.play_sfx(PLAYER_HIT_SFX, global_position)
 
 

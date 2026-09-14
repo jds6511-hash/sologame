@@ -17,6 +17,13 @@ func test_take_hit_starts_stun_and_invincibility() -> void:
 	assert_true(_player.is_invincible())
 
 
+func test_take_hit_flashes_player_sprite_for_clear_feedback() -> void:
+	var sprite := _player.get_node("Sprite") as AnimatedSprite2D
+	assert_null(sprite.material, "사전 조건: 피격 전에는 플래시 재질이 없어야 함")
+	_player.take_hit(false, Vector2.RIGHT)
+	assert_true(sprite.material is ShaderMaterial, "피격 순간 캐릭터에 화이트 플래시를 표시해야 함")
+
+
 func test_light_hit_stun_ends_after_0_25_sec() -> void:
 	_player.take_hit(false, Vector2.RIGHT)
 	_player._update_hit_reaction(0.24)

@@ -65,19 +65,16 @@ func _draw() -> void:
 func _current_melee_phase() -> PlayerController.AttackState:
 	if _player == null:
 		return PlayerController.AttackState.NONE
+	var phase := PlayerController.AttackState.NONE
 	if _player.skill_state != PlayerController.AttackState.NONE:
-		if _player.active_skill is ArcherSkillData:
-			return PlayerController.AttackState.NONE
-		return _player.skill_state
-	if _player.attack_state == PlayerController.AttackState.NONE:
-		return PlayerController.AttackState.NONE
-	if _player.combo_data == null or _player._attack_step_index < 0:
-		return PlayerController.AttackState.NONE
-	if _player._attack_step_index >= _player.combo_data.steps.size():
-		return PlayerController.AttackState.NONE
-	if _player.combo_data.steps[_player._attack_step_index] is ArcherAttackStep:
-		return PlayerController.AttackState.NONE
-	return _player.attack_state
+		if not _player.active_skill is ArcherSkillData:
+			phase = _player.skill_state
+	elif _player.attack_state != PlayerController.AttackState.NONE and _player.combo_data != null:
+		var step_index := _player._attack_step_index
+		var valid_step := step_index >= 0 and step_index < _player.combo_data.steps.size()
+		if valid_step and not _player.combo_data.steps[step_index] is ArcherAttackStep:
+			phase = _player.attack_state
+	return phase
 
 
 func _build_arc(reveal: float) -> void:

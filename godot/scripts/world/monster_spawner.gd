@@ -4,7 +4,7 @@
 ##
 ## 배치 규칙 (스폰 마커 그룹별, level-designer가 배치한 마커를 그대로 사용):
 ## - 뿔토끼: 마커 1개당 1마리 스폰(비어그로 공유 — m2 spec 3-1장).
-## - 들개 마수: 마커 1개당 2~4마리를 마커 주변에 흩뿌려 스폰하고, 같은 마커에서 나온
+## - 들개 마수: 시작 지역 마커 1개당 1~2마리를 마커 주변에 흩뿌려 스폰하고, 같은 마커에서 나온
 ##   개체들에 동일한 pack_id를 부여해 무리 어그로 공유(PackAggroCoordinator, CB-6)가
 ##   마커 단위로 작동하게 한다.
 ## - 균열 점액: 마커 1개당 1마리 스폰(솔로 — pack_id 없음).
@@ -65,7 +65,7 @@ const IMP_SCENE: PackedScene = preload("res://scenes/monsters/imp.tscn")
 const IMP_LORD_SCENE: PackedScene = preload("res://scenes/monsters/imp_lord.tscn")
 
 ## 무리 크기 범위 (x=최소, y=최대) — 각 spec 총괄표의 "무리 구성" 그대로.
-const WOLF_PACK_SIZE := Vector2i(2, 4)  ## m2 spec 6장
+const WOLF_PACK_SIZE := Vector2i(1, 2)  ## 2026-09-14 게이트 영상: 자연 조우 다수전 완화
 const OUTLAW_PACK_SIZE := Vector2i(2, 3)  ## m3 spec 4-2
 const HIGHWAYMAN_PACK_SIZE := Vector2i(3, 4)  ## m3 spec 7-2 (원본보다 1마리 많게)
 const POACHER_PACK_SIZE := Vector2i(1, 2)  ## m3 spec 7-3 (매복형이라 소수)
