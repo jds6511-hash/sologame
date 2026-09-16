@@ -15,13 +15,13 @@ func test_melee_pose_tracks_hitbox_phase_and_survives_facing_change() -> void:
 	assert_eq(sprite.frame, 0, "선딜 타이머가 멈추면 검도 치켜든 상태 유지")
 	player._process_attack_state(player.combo_data.steps[0].startup_sec)
 	player._update_visual()
-	assert_eq(sprite.frame, 1, "판정 시작과 타격 그림이 일치")
+	assert_eq(sprite.frame, 2, "판정 시작과 베기 첫 그림이 일치")
 	player.get_node("Facing").rotation = PI / 2.0
 	player._update_visual()
-	assert_eq(sprite.frame, 1, "방향 전환이 선딜 그림으로 되감기지 않음")
+	assert_eq(sprite.frame, 2, "방향 전환이 선딜 그림으로 되감기지 않음")
 	player._process_attack_state(player.combo_data.steps[0].active_sec)
 	player._update_visual()
-	assert_eq(sprite.frame, 2, "판정 종료와 회수 그림이 일치")
+	assert_eq(sprite.frame, 5, "판정 종료와 회수 그림이 일치")
 	player._end_combo()
 	player._update_visual()
 	assert_true(sprite.is_playing(), "공격 종료 후 대기 애니메이션 재생 복구")
@@ -67,13 +67,14 @@ func test_charge_release_and_gladiator_skills_follow_actual_phase() -> void:
 		var skill = load(path)
 		player._skills.begin_active(skill)
 		player._update_visual()
-		assert_eq(sprite.frame, 1, "%s: 즉시 판정은 선딜 그림 생략" % skill.skill_name)
+		var travel: bool = skill.skill_type == WarriorSkillData.SkillType.DASH
+		assert_eq(sprite.frame, 1 if travel else 2, "%s: 즉시 판정은 선딜 그림 생략" % skill.skill_name)
 		player._skills.process_state(skill.get_active_duration_sec())
 		player._update_visual()
-		assert_eq(sprite.frame, 2, "%s: 판정 종료 후 회수" % skill.skill_name)
+		assert_eq(sprite.frame, 2 if travel else 5, "%s: 판정 종료 후 회수" % skill.skill_name)
 		player._skills.process_state(skill.recovery_sec * 0.75)
 		player._update_visual()
-		var last_pose := 2 if skill.skill_type == WarriorSkillData.SkillType.DASH else 3
+		var last_pose := 2 if travel else 7
 		assert_eq(sprite.frame, last_pose, "%s: 후딜 후반 마지막 자세" % skill.skill_name)
 		player._skills.finish()
 

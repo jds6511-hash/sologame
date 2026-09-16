@@ -81,6 +81,10 @@ func _build_arc(reveal: float) -> void:
 	_trail_points.clear()
 	var facing_angle := _facing.rotation if _facing != null else 0.0
 	var sweep_sign := -1.0 if _player._attack_step_index % 2 == 1 else 1.0
+	var direction := Vector2.RIGHT.rotated(facing_angle)
+	if absf(direction.x) > absf(direction.y) and direction.x < 0.0:
+		# 측면 몸/검은 flip_h로 반전되므로 잔상의 회전 순서도 함께 반전한다.
+		sweep_sign *= -1.0
 	var start_angle := facing_angle - ARC_HALF_ANGLE * sweep_sign
 	var sweep_angle := ARC_HALF_ANGLE * 2.0 * reveal * sweep_sign
 	var point_count := maxi(2, ceili(ARC_SEGMENTS * reveal) + 1)

@@ -429,7 +429,8 @@ def draw_weapon(
 
 
 def build_job(
-    job: str, report_only: bool, pending: dict[Path, Image.Image]
+    job: str, report_only: bool, pending: dict[Path, Image.Image],
+    body_frames: dict | None = None,
 ) -> tuple[int, list[str]]:
     prefix, layers, ramp_of, states = JOBS[job]
     weapons = [s.weapon for s in states if s.weapon]
@@ -492,6 +493,8 @@ def build_job(
                 # death 후반(붕괴·지면) 프레임은 얼굴이 안 보이는 게 정상이라 면제한다
                 if not draw_eyes(frame, d) and not (spec.state == "death" and i >= 2):
                     eyeless.append(f"{spec.state}/{d}{i}")
+                if body_frames is not None:
+                    body_frames[(spec.state, d, i)] = frame.copy()
                 on_body, head_clear, blade = draw_weapon(job, spec, d, i, frame)
                 if not on_body:
                     issues.append(f"{prefix}_{spec.state}: {d} 프레임{i} 손 좌표가 몸 밖 (무기 부유)")

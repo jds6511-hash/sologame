@@ -1,6 +1,6 @@
 """전사·궁수 정식 스프라이트의 SpriteFrames 리소스(.tres) 생성 (M3 3-A).
 
-`gen_player_lpc.py` 가 만든 시트를 `STYLE_GUIDE` 7-1 아틀라스 리전 규약
+`gen_player_lpc.py` 및 `gen_sword_sweep.py`가 만든 시트를 아틀라스 리전 규약
 (`Rect2(c*W, r*H, W, H)`, 행 0 front / 1 side / 2 back)으로 잘라
 **AnimatedSprite2D 에 그대로 물릴 수 있는 SpriteFrames** 를 써낸다.
 
@@ -54,10 +54,15 @@ def build(prefix: str, states: list[str]) -> str:
 
     for si, state in enumerate(states):
         cols, fps, loop = STATES[state]
+        sweep = prefix == "player_warrior_v2" and state in ("attack", "attack2")
+        width, height = (64, 64) if sweep else (FRAME_W, FRAME_H)
+        if sweep:
+            cols = 8
+        filename = f"{prefix}_{state}" + ("_sweep" if sweep else "")
         ext_id = f"tex_{state}"
         ext.append(
             f'[ext_resource type="Texture2D" '
-            f'path="{RES_PREFIX}/{prefix}_{state}.png" id="{ext_id}"]'
+            f'path="{RES_PREFIX}/{filename}.png" id="{ext_id}"]'
         )
         for row, direction in enumerate(DIRECTIONS):
             frame_ids = []
@@ -66,7 +71,7 @@ def build(prefix: str, states: list[str]) -> str:
                 sub.append(
                     f'[sub_resource type="AtlasTexture" id="{aid}"]\n'
                     f'atlas = ExtResource("{ext_id}")\n'
-                    f"region = Rect2({col * FRAME_W}, {row * FRAME_H}, {FRAME_W}, {FRAME_H})\n"
+                    f"region = Rect2({col * width}, {row * height}, {width}, {height})\n"
                 )
                 frame_ids.append(f'SubResource("{aid}")')
             anims.append(
@@ -95,13 +100,17 @@ def build(prefix: str, states: list[str]) -> str:
 
 def main() -> int:
     for prefix, states in JOBS.items():
-        missing = [s for s in states if not (OUT_DIR / f"{prefix}_{s}.png").exists()]
+        missing = [s for s in states if not (OUT_DIR / (
+            f"{prefix}_{s}" + ("_sweep" if prefix == "player_warrior_v2"
+                              and s in ("attack", "attack2") else "") + ".png"
+        )).exists()]
         if missing:
-            print(f"[실패] {prefix}: 시트 없음 {missing} — 먼저 gen_player_lpc.py 실행")
+            print(f"[실패] {prefix}: 시트 없음 {missing} — gen_player_lpc.py와 gen_sword_sweep.py 실행 필요")
             return 1
         path = OUT_DIR / f"{prefix}_frames.tres"
         path.write_text(build(prefix, states), encoding="utf-8")
-        total = sum(STATES[s][0] for s in states) * len(DIRECTIONS)
+        total = sum(8 if prefix == "player_warrior_v2" and s in ("attack", "attack2")
+                    else STATES[s][0] for s in states) * len(DIRECTIONS)
         print(f"  {path.name}  애니메이션 {len(states) * 3}개 / 프레임 {total}개")
     return 0
 

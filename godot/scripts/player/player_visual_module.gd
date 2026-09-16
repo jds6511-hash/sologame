@@ -96,7 +96,7 @@ func update(
 			_sprite.set_frame_and_progress(0, 0.0)
 
 
-## 현재 4프레임 시트 계약: 검 0/1/2~3, 활 0~1/2/3 = 선딜/판정/후딜.
+## 검 8프레임: 0~1/2~4/5~7, 활 4프레임: 0~1/2/3 = 선딜/판정/후딜.
 ## 고정 FPS 대신 판정 시계를 사용해 재조준·공속·히트스톱에도 같은 자세를 유지한다.
 func _sync_attack_pose(anim_name: String) -> bool:
 	if anim_name.begins_with("dodge") and _is_travel_skill() and not _player.is_dashing:
@@ -115,10 +115,16 @@ func _sync_attack_pose(anim_name: String) -> bool:
 		if _attack_step_index >= _player.combo_data.steps.size():
 			return false
 		ranged = _player.combo_data.steps[_attack_step_index] is ArcherAttackStep
-	if phase == PlayerController.AttackState.NONE:
+	var frame_count := _sprite.sprite_frames.get_frame_count(anim_name)
+	if (
+		phase == PlayerController.AttackState.NONE
+		or frame_count not in [4, 8]
+		or (ranged and frame_count != 4)
+	):
 		return false
-	if _sprite.sprite_frames.get_frame_count(anim_name) != 4:
-		return false
+	if not ranged and frame_count == 8:
+		_sync_sword_sweep(phase, _player.get_action_phase_progress())
+		return true
 	var progress := _player.get_action_phase_progress()
 	var pose := 0
 	match phase:
@@ -131,6 +137,19 @@ func _sync_attack_pose(anim_name: String) -> bool:
 	_sprite.pause()
 	_sprite.set_frame_and_progress(pose, 0.0)
 	return true
+
+
+func _sync_sword_sweep(phase: PlayerController.AttackState, progress: float) -> void:
+	var pose := 0
+	match phase:
+		PlayerController.AttackState.STARTUP:
+			pose = mini(1, int(progress * 2.0))
+		PlayerController.AttackState.ACTIVE:
+			pose = 2 + mini(2, int(progress * 3.0))
+		PlayerController.AttackState.RECOVERY:
+			pose = 5 + mini(2, int(progress * 3.0))
+	_sprite.pause()
+	_sprite.set_frame_and_progress(pose, 0.0)
 
 
 ## 후보 목록을 앞에서부터 훑어 현재 시트에 실제로 있는 첫 애니메이션 이름을 고른다.

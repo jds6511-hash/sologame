@@ -1,9 +1,9 @@
-[gd_resource type="SpriteFrames" load_steps=101 format=3]
+[gd_resource type="SpriteFrames" load_steps=125 format=3]
 
 [ext_resource type="Texture2D" path="res://assets/sprites/player/player_warrior_v2_idle.png" id="tex_idle"]
 [ext_resource type="Texture2D" path="res://assets/sprites/player/player_warrior_v2_walk.png" id="tex_walk"]
-[ext_resource type="Texture2D" path="res://assets/sprites/player/player_warrior_v2_attack.png" id="tex_attack"]
-[ext_resource type="Texture2D" path="res://assets/sprites/player/player_warrior_v2_attack2.png" id="tex_attack2"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/player_warrior_v2_attack_sweep.png" id="tex_attack"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/player_warrior_v2_attack2_sweep.png" id="tex_attack2"]
 [ext_resource type="Texture2D" path="res://assets/sprites/player/player_warrior_v2_hit.png" id="tex_hit"]
 [ext_resource type="Texture2D" path="res://assets/sprites/player/player_warrior_v2_death.png" id="tex_death"]
 [ext_resource type="Texture2D" path="res://assets/sprites/player/player_warrior_v2_dodge.png" id="tex_dodge"]
@@ -132,99 +132,195 @@ region = Rect2(140, 72, 28, 36)
 
 [sub_resource type="AtlasTexture" id="Atlas_attack_front0"]
 atlas = ExtResource("tex_attack")
-region = Rect2(0, 0, 28, 36)
+region = Rect2(0, 0, 64, 64)
 
 [sub_resource type="AtlasTexture" id="Atlas_attack_front1"]
 atlas = ExtResource("tex_attack")
-region = Rect2(28, 0, 28, 36)
+region = Rect2(64, 0, 64, 64)
 
 [sub_resource type="AtlasTexture" id="Atlas_attack_front2"]
 atlas = ExtResource("tex_attack")
-region = Rect2(56, 0, 28, 36)
+region = Rect2(128, 0, 64, 64)
 
 [sub_resource type="AtlasTexture" id="Atlas_attack_front3"]
 atlas = ExtResource("tex_attack")
-region = Rect2(84, 0, 28, 36)
+region = Rect2(192, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="Atlas_attack_front4"]
+atlas = ExtResource("tex_attack")
+region = Rect2(256, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="Atlas_attack_front5"]
+atlas = ExtResource("tex_attack")
+region = Rect2(320, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="Atlas_attack_front6"]
+atlas = ExtResource("tex_attack")
+region = Rect2(384, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="Atlas_attack_front7"]
+atlas = ExtResource("tex_attack")
+region = Rect2(448, 0, 64, 64)
 
 [sub_resource type="AtlasTexture" id="Atlas_attack_side0"]
 atlas = ExtResource("tex_attack")
-region = Rect2(0, 36, 28, 36)
+region = Rect2(0, 64, 64, 64)
 
 [sub_resource type="AtlasTexture" id="Atlas_attack_side1"]
 atlas = ExtResource("tex_attack")
-region = Rect2(28, 36, 28, 36)
+region = Rect2(64, 64, 64, 64)
 
 [sub_resource type="AtlasTexture" id="Atlas_attack_side2"]
 atlas = ExtResource("tex_attack")
-region = Rect2(56, 36, 28, 36)
+region = Rect2(128, 64, 64, 64)
 
 [sub_resource type="AtlasTexture" id="Atlas_attack_side3"]
 atlas = ExtResource("tex_attack")
-region = Rect2(84, 36, 28, 36)
+region = Rect2(192, 64, 64, 64)
+
+[sub_resource type="AtlasTexture" id="Atlas_attack_side4"]
+atlas = ExtResource("tex_attack")
+region = Rect2(256, 64, 64, 64)
+
+[sub_resource type="AtlasTexture" id="Atlas_attack_side5"]
+atlas = ExtResource("tex_attack")
+region = Rect2(320, 64, 64, 64)
+
+[sub_resource type="AtlasTexture" id="Atlas_attack_side6"]
+atlas = ExtResource("tex_attack")
+region = Rect2(384, 64, 64, 64)
+
+[sub_resource type="AtlasTexture" id="Atlas_attack_side7"]
+atlas = ExtResource("tex_attack")
+region = Rect2(448, 64, 64, 64)
 
 [sub_resource type="AtlasTexture" id="Atlas_attack_back0"]
 atlas = ExtResource("tex_attack")
-region = Rect2(0, 72, 28, 36)
+region = Rect2(0, 128, 64, 64)
 
 [sub_resource type="AtlasTexture" id="Atlas_attack_back1"]
 atlas = ExtResource("tex_attack")
-region = Rect2(28, 72, 28, 36)
+region = Rect2(64, 128, 64, 64)
 
 [sub_resource type="AtlasTexture" id="Atlas_attack_back2"]
 atlas = ExtResource("tex_attack")
-region = Rect2(56, 72, 28, 36)
+region = Rect2(128, 128, 64, 64)
 
 [sub_resource type="AtlasTexture" id="Atlas_attack_back3"]
 atlas = ExtResource("tex_attack")
-region = Rect2(84, 72, 28, 36)
+region = Rect2(192, 128, 64, 64)
+
+[sub_resource type="AtlasTexture" id="Atlas_attack_back4"]
+atlas = ExtResource("tex_attack")
+region = Rect2(256, 128, 64, 64)
+
+[sub_resource type="AtlasTexture" id="Atlas_attack_back5"]
+atlas = ExtResource("tex_attack")
+region = Rect2(320, 128, 64, 64)
+
+[sub_resource type="AtlasTexture" id="Atlas_attack_back6"]
+atlas = ExtResource("tex_attack")
+region = Rect2(384, 128, 64, 64)
+
+[sub_resource type="AtlasTexture" id="Atlas_attack_back7"]
+atlas = ExtResource("tex_attack")
+region = Rect2(448, 128, 64, 64)
 
 [sub_resource type="AtlasTexture" id="Atlas_attack2_front0"]
 atlas = ExtResource("tex_attack2")
-region = Rect2(0, 0, 28, 36)
+region = Rect2(0, 0, 64, 64)
 
 [sub_resource type="AtlasTexture" id="Atlas_attack2_front1"]
 atlas = ExtResource("tex_attack2")
-region = Rect2(28, 0, 28, 36)
+region = Rect2(64, 0, 64, 64)
 
 [sub_resource type="AtlasTexture" id="Atlas_attack2_front2"]
 atlas = ExtResource("tex_attack2")
-region = Rect2(56, 0, 28, 36)
+region = Rect2(128, 0, 64, 64)
 
 [sub_resource type="AtlasTexture" id="Atlas_attack2_front3"]
 atlas = ExtResource("tex_attack2")
-region = Rect2(84, 0, 28, 36)
+region = Rect2(192, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="Atlas_attack2_front4"]
+atlas = ExtResource("tex_attack2")
+region = Rect2(256, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="Atlas_attack2_front5"]
+atlas = ExtResource("tex_attack2")
+region = Rect2(320, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="Atlas_attack2_front6"]
+atlas = ExtResource("tex_attack2")
+region = Rect2(384, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="Atlas_attack2_front7"]
+atlas = ExtResource("tex_attack2")
+region = Rect2(448, 0, 64, 64)
 
 [sub_resource type="AtlasTexture" id="Atlas_attack2_side0"]
 atlas = ExtResource("tex_attack2")
-region = Rect2(0, 36, 28, 36)
+region = Rect2(0, 64, 64, 64)
 
 [sub_resource type="AtlasTexture" id="Atlas_attack2_side1"]
 atlas = ExtResource("tex_attack2")
-region = Rect2(28, 36, 28, 36)
+region = Rect2(64, 64, 64, 64)
 
 [sub_resource type="AtlasTexture" id="Atlas_attack2_side2"]
 atlas = ExtResource("tex_attack2")
-region = Rect2(56, 36, 28, 36)
+region = Rect2(128, 64, 64, 64)
 
 [sub_resource type="AtlasTexture" id="Atlas_attack2_side3"]
 atlas = ExtResource("tex_attack2")
-region = Rect2(84, 36, 28, 36)
+region = Rect2(192, 64, 64, 64)
+
+[sub_resource type="AtlasTexture" id="Atlas_attack2_side4"]
+atlas = ExtResource("tex_attack2")
+region = Rect2(256, 64, 64, 64)
+
+[sub_resource type="AtlasTexture" id="Atlas_attack2_side5"]
+atlas = ExtResource("tex_attack2")
+region = Rect2(320, 64, 64, 64)
+
+[sub_resource type="AtlasTexture" id="Atlas_attack2_side6"]
+atlas = ExtResource("tex_attack2")
+region = Rect2(384, 64, 64, 64)
+
+[sub_resource type="AtlasTexture" id="Atlas_attack2_side7"]
+atlas = ExtResource("tex_attack2")
+region = Rect2(448, 64, 64, 64)
 
 [sub_resource type="AtlasTexture" id="Atlas_attack2_back0"]
 atlas = ExtResource("tex_attack2")
-region = Rect2(0, 72, 28, 36)
+region = Rect2(0, 128, 64, 64)
 
 [sub_resource type="AtlasTexture" id="Atlas_attack2_back1"]
 atlas = ExtResource("tex_attack2")
-region = Rect2(28, 72, 28, 36)
+region = Rect2(64, 128, 64, 64)
 
 [sub_resource type="AtlasTexture" id="Atlas_attack2_back2"]
 atlas = ExtResource("tex_attack2")
-region = Rect2(56, 72, 28, 36)
+region = Rect2(128, 128, 64, 64)
 
 [sub_resource type="AtlasTexture" id="Atlas_attack2_back3"]
 atlas = ExtResource("tex_attack2")
-region = Rect2(84, 72, 28, 36)
+region = Rect2(192, 128, 64, 64)
+
+[sub_resource type="AtlasTexture" id="Atlas_attack2_back4"]
+atlas = ExtResource("tex_attack2")
+region = Rect2(256, 128, 64, 64)
+
+[sub_resource type="AtlasTexture" id="Atlas_attack2_back5"]
+atlas = ExtResource("tex_attack2")
+region = Rect2(320, 128, 64, 64)
+
+[sub_resource type="AtlasTexture" id="Atlas_attack2_back6"]
+atlas = ExtResource("tex_attack2")
+region = Rect2(384, 128, 64, 64)
+
+[sub_resource type="AtlasTexture" id="Atlas_attack2_back7"]
+atlas = ExtResource("tex_attack2")
+region = Rect2(448, 128, 64, 64)
 
 [sub_resource type="AtlasTexture" id="Atlas_hit_front0"]
 atlas = ExtResource("tex_hit")
@@ -405,32 +501,32 @@ animations = [{
 "name": &"attack_front",
 "speed": 12.0,
 "loop": false,
-"frames": [SubResource("Atlas_attack_front0"), SubResource("Atlas_attack_front1"), SubResource("Atlas_attack_front2"), SubResource("Atlas_attack_front3")]
+"frames": [SubResource("Atlas_attack_front0"), SubResource("Atlas_attack_front1"), SubResource("Atlas_attack_front2"), SubResource("Atlas_attack_front3"), SubResource("Atlas_attack_front4"), SubResource("Atlas_attack_front5"), SubResource("Atlas_attack_front6"), SubResource("Atlas_attack_front7")]
 }, {
 "name": &"attack_side",
 "speed": 12.0,
 "loop": false,
-"frames": [SubResource("Atlas_attack_side0"), SubResource("Atlas_attack_side1"), SubResource("Atlas_attack_side2"), SubResource("Atlas_attack_side3")]
+"frames": [SubResource("Atlas_attack_side0"), SubResource("Atlas_attack_side1"), SubResource("Atlas_attack_side2"), SubResource("Atlas_attack_side3"), SubResource("Atlas_attack_side4"), SubResource("Atlas_attack_side5"), SubResource("Atlas_attack_side6"), SubResource("Atlas_attack_side7")]
 }, {
 "name": &"attack_back",
 "speed": 12.0,
 "loop": false,
-"frames": [SubResource("Atlas_attack_back0"), SubResource("Atlas_attack_back1"), SubResource("Atlas_attack_back2"), SubResource("Atlas_attack_back3")]
+"frames": [SubResource("Atlas_attack_back0"), SubResource("Atlas_attack_back1"), SubResource("Atlas_attack_back2"), SubResource("Atlas_attack_back3"), SubResource("Atlas_attack_back4"), SubResource("Atlas_attack_back5"), SubResource("Atlas_attack_back6"), SubResource("Atlas_attack_back7")]
 }, {
 "name": &"attack2_front",
 "speed": 12.0,
 "loop": false,
-"frames": [SubResource("Atlas_attack2_front0"), SubResource("Atlas_attack2_front1"), SubResource("Atlas_attack2_front2"), SubResource("Atlas_attack2_front3")]
+"frames": [SubResource("Atlas_attack2_front0"), SubResource("Atlas_attack2_front1"), SubResource("Atlas_attack2_front2"), SubResource("Atlas_attack2_front3"), SubResource("Atlas_attack2_front4"), SubResource("Atlas_attack2_front5"), SubResource("Atlas_attack2_front6"), SubResource("Atlas_attack2_front7")]
 }, {
 "name": &"attack2_side",
 "speed": 12.0,
 "loop": false,
-"frames": [SubResource("Atlas_attack2_side0"), SubResource("Atlas_attack2_side1"), SubResource("Atlas_attack2_side2"), SubResource("Atlas_attack2_side3")]
+"frames": [SubResource("Atlas_attack2_side0"), SubResource("Atlas_attack2_side1"), SubResource("Atlas_attack2_side2"), SubResource("Atlas_attack2_side3"), SubResource("Atlas_attack2_side4"), SubResource("Atlas_attack2_side5"), SubResource("Atlas_attack2_side6"), SubResource("Atlas_attack2_side7")]
 }, {
 "name": &"attack2_back",
 "speed": 12.0,
 "loop": false,
-"frames": [SubResource("Atlas_attack2_back0"), SubResource("Atlas_attack2_back1"), SubResource("Atlas_attack2_back2"), SubResource("Atlas_attack2_back3")]
+"frames": [SubResource("Atlas_attack2_back0"), SubResource("Atlas_attack2_back1"), SubResource("Atlas_attack2_back2"), SubResource("Atlas_attack2_back3"), SubResource("Atlas_attack2_back4"), SubResource("Atlas_attack2_back5"), SubResource("Atlas_attack2_back6"), SubResource("Atlas_attack2_back7")]
 }, {
 "name": &"hit_front",
 "speed": 4.0,

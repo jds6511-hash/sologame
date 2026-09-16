@@ -226,4 +226,4 @@ func test_visual_does_not_restart_attack_without_request() -> void:
 	_player._attack_phase_timer = 0.0
 	_player._attack_anim_restart_requested = false
 	_player._update_visual()
-	assert_eq(sprite.frame, 2, "재시작 요청이 없으면 진행 중인 공격 프레임을 되감지 않아야 한다")
+	assert_eq(sprite.frame, 5, "재시작 요청이 없으면 후딜 첫 자세를 유지해야 한다")
