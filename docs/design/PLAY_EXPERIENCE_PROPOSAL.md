@@ -9,8 +9,10 @@
   - [성장](systems/growth.md), [경제](economy/economy-foundation.md), [모험가 전투](systems/m3-adventurer-basic-combo.md)
   - [명성·영지·시간](systems/reputation-territory.md), [장비·성장 배선](systems/m3-gear-growth-wiring.md), [2026-09-11 정밀 점검](../qa/project-audit-2026-09-11.md)
   - [온보딩](../art/ux/onboarding.md), [아트 기준](../art/STYLE_GUIDE.md)
+  - [아트 제작·전환 파이프라인](../art/art-pipeline-candidates.md) — G3 이후 여울목 대표 샘플과 환경·캐릭터 레퍼런스 역할
   - [진행 현황](../PROJECT_STATUS.md) 11장, [M3 게이트 체크리스트](../qa/m3-gate-checklist.md)
 - **변경 이력**:
+  - 2026-09-16: 아트 전환 정본을 연결했다. 여울목 첫 경험의 생활 밀도는 G3 이후 환경 대표 샘플에서 검증하며, 현재 G3 전투 판정에는 현행 LPC·EDG32·zoom 4를 유지한다.
   - 2026-09-16: 소량 토벌·보고로 레벨업하는 [첫 전직 의뢰 경로](quests/early-leveling-route.md)를 추가하고, 완화된 경험치 곡선에 맞춰 첫 보상 해석과 이전 1.8시간 가설을 정정했다. 정식 퀘스트 구현은 M4 저장 이후 M5에서 진행한다.
   - 2026-09-14: 세계관 정리 반영 — 첫 30분의 정보 공개 한도를 정하고, 생계형 의뢰가 이름·공훈·책임으로 확장되는 경험 목표를 명시했다.
   - 2026-09-11: 정밀 재검토 반영 — 대화 중 시간 정지는 기존 확정으로 정정, 모험가의 강타 사용 가능 확인, 가방 정리 UI 선결·스킬 저장 ID·시간 상태 범위를 추가. 상세 감사 보고서 연결.
