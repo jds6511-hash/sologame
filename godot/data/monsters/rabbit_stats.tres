@@ -6,7 +6,7 @@
 script = ExtResource("1")
 display_name = "뿔토끼"
 max_hp = 165.0
-attack_power = 12.0
+attack_power = 9.0
 defense = 0.5
 shares_pack_aggro = false
 perception_range_tiles = 3.0
@@ -14,5 +14,6 @@ leash_range_tiles = -1.0
 wander_speed_tiles = 1.5
 combat_move_speed_tiles = 4.0
 melee_range_tiles = 1.5
-melee_telegraph_sec = 0.4
+melee_telegraph_sec = 0.7
+melee_recovery_sec = 0.55
 flee_duration_sec = 1.5

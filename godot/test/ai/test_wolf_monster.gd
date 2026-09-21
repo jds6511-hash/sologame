@@ -23,6 +23,27 @@ func test_initial_state_is_wander() -> void:
 	assert_eq(_wolf.state, WolfMonster.State.WANDER)
 
 
+func test_recovery_has_no_damage_hitbox() -> void:
+	_wolf._start_melee_swing()
+	_wolf._swing.update(_wolf.stats.melee_telegraph_sec)
+	var hitbox := _wolf.get_node("AttackHitbox") as Area2D
+	assert_true(hitbox.monitoring, "판정 구간만 피해 가능")
+	_wolf._swing.update(_wolf.stats.melee_active_sec)
+	assert_false(hitbox.monitoring, "후딜에 접근해 반격할 때 물리지 않아야 함")
+
+
+func test_telegraph_stops_movement_and_keeps_original_direction() -> void:
+	_target.position = Vector2(20, 0)
+	_wolf.velocity = Vector2(60, 0)
+	_wolf._start_melee_swing()
+	assert_eq(_wolf.velocity, Vector2.ZERO, "준비 시작 프레임부터 정지")
+	var hitbox := _wolf.get_node("AttackHitbox") as Area2D
+	var original_position := hitbox.position
+	_target.position = Vector2(-20, 0)
+	_wolf._physics_process(0.1)
+	assert_eq(hitbox.position, original_position, "피한 플레이어를 따라 회전하지 않음")
+
+
 func test_enters_chase_when_target_within_perception_range() -> void:
 	_target.global_position = _wolf.global_position + Vector2(4 * 16, 0)  ## 인지범위 5타일 이내
 	_wolf._physics_process(0.016)

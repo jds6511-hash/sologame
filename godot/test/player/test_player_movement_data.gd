@@ -21,10 +21,10 @@ func test_walk_speed_derived_from_dash_speed_and_multiplier() -> void:
 	assert_almost_eq(data.get_walk_speed_px_per_sec(), expected, 0.001)
 
 
-func test_dash_invincibility_window_is_0_25_sec_starting_at_0_05() -> void:
+func test_dash_invincibility_window_is_0_30_sec_starting_immediately() -> void:
 	var data: PlayerMovementData = load(DATA_PATH)
-	assert_eq(data.dash_invincibility_start_sec, 0.05)
-	assert_eq(data.dash_invincibility_duration_sec, 0.25)
+	assert_eq(data.dash_invincibility_start_sec, 0.0)
+	assert_eq(data.dash_invincibility_duration_sec, 0.30)
 	assert_almost_eq(data.get_dash_invincibility_end_sec(), 0.30, 0.0001)
 
 

@@ -64,7 +64,15 @@ func test_take_hit_cancels_ongoing_attack() -> void:
 	assert_eq(_player.attack_state, PlayerController.AttackState.NONE)
 
 
-func test_take_hit_cancels_ongoing_dash() -> void:
+func test_take_hit_is_ignored_at_dash_start() -> void:
 	_player._start_dash()
+	_player.take_hit(false, Vector2.RIGHT)
+	assert_true(_player.is_dashing)
+	assert_false(_player.is_hit_stunned)
+
+
+func test_take_hit_cancels_dash_after_invincibility_ends() -> void:
+	_player._start_dash()
+	_player._process_dash(0.31)
 	_player.take_hit(false, Vector2.RIGHT)
 	assert_false(_player.is_dashing)

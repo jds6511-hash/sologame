@@ -10,6 +10,7 @@ extends RefCounted
 
 signal telegraph_started
 signal became_active
+signal recovery_started
 signal ended
 
 enum Phase { TELEGRAPH, ACTIVE, RECOVERY, DONE }
@@ -42,6 +43,7 @@ func update(delta: float) -> void:
 			if _timer >= active_sec:
 				phase = Phase.RECOVERY
 				_timer = 0.0
+				recovery_started.emit()
 		Phase.RECOVERY:
 			if _timer >= recovery_sec:
 				phase = Phase.DONE

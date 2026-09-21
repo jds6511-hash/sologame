@@ -857,7 +857,10 @@ func _start_dash() -> void:
 	_dash_recharge_timers.append(movement_data.dash_recharge_sec)
 	_dash_direction = _resolve_dodge_direction()
 	is_dashing = true
-	is_dash_invincible = false
+	is_dash_invincible = (
+		movement_data.dash_invincibility_start_sec <= 0.0
+		and movement_data.get_dash_invincibility_end_sec() > 0.0
+	)
 	_dash_timer = 0.0
 	dash_started.emit()
 	HitFeedback.play_sfx(DODGE_SFX, global_position)

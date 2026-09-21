@@ -17,8 +17,8 @@ extends Resource
 @export var dash_duration_sec: float = 0.35
 @export var dash_distance_tiles: float = 3.0
 @export var dash_speed_multiplier: float = 2.6  ## 걷기 이동속도 대비 대시 속도 배율
-@export var dash_invincibility_start_sec: float = 0.05  ## 대시 시작 후 무적 시작 시점
-@export var dash_invincibility_duration_sec: float = 0.25  ## 무적 프레임 지속 시간
+@export var dash_invincibility_start_sec: float = 0.0  ## 입력 수락 즉시 무적
+@export var dash_invincibility_duration_sec: float = 0.30  ## 기존 종료 시점 유지
 @export var dash_charge_max: int = 2  ## 전사 계열 = 표준 2회 (jobs.md 3장)
 @export var dash_recharge_sec: float = 4.0  ## 충전 1회당 재충전 시간, 전 직업 공통
 

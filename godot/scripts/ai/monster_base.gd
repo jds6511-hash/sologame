@@ -390,6 +390,7 @@ func _init_melee_swing() -> void:
 	_swing.recovery_sec = stats.melee_recovery_sec
 	_swing.telegraph_started.connect(_on_swing_telegraph_started)
 	_swing.became_active.connect(_enable_attack_hitbox)
+	_swing.recovery_started.connect(_on_swing_recovery_started)
 	_swing.ended.connect(_disable_attack_hitbox)
 	_setup_attack_hitbox(stats.melee_range_tiles)
 	_setup_directional_melee_hitbox(stats.melee_range_tiles)
@@ -439,6 +440,12 @@ func _enable_attack_hitbox() -> void:
 		_attack_hitbox.monitoring = true
 
 
+func _on_swing_recovery_started() -> void:
+	## 후딜에는 반격 접근을 허용하되, 동기화된 공격 애니메이션 속도는 끝까지 유지한다.
+	if _attack_hitbox:
+		_attack_hitbox.monitoring = false
+
+
 func _disable_attack_hitbox() -> void:
 	if _attack_hitbox:
 		_attack_hitbox.monitoring = false
@@ -465,6 +472,7 @@ func _disable_attack_hitbox_deferred() -> void:
 
 ## 근접 공격 시작 시 목표 방향을 잠그고, 판정·예고·그림을 같은 방향과 시간축으로 맞춘다.
 func _begin_melee_swing(target_position: Vector2) -> void:
+	velocity = Vector2.ZERO
 	var direction := target_position - global_position
 	if direction.is_zero_approx() or not direction.is_finite():
 		direction = Vector2.LEFT if _facing_left else Vector2.RIGHT
