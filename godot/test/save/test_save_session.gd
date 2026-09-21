@@ -67,6 +67,30 @@ func test_death_cooldown_and_nearby_enemy_block_saving() -> void:
 	assert_false(session.save_slot(1).ok)
 
 
+func test_boss_encounter_blocks_manual_and_defers_due_autosave_until_safe() -> void:
+	assert_true(session.save_slot(1).ok)
+	var stats = world.get_node("Player/PlayerStats")
+	world.get_node("Player/Inventory").gold = 79
+	stats.start_boss_encounter()
+	assert_eq(session.save_slot(2).code, "boss_encounter")
+	assert_eq(session.store.read_save("character", 2).code, "missing")
+	session.advance(181.0)
+	assert_eq(int(session.store.read_save("character", 1).data.inventory.gold), 0)
+	assert_gte(session._auto_elapsed, session.AUTO_SECONDS)
+	# 거리/공격 동작과 무관하게 조우 종료 API가 호출될 때까지 잠금을 유지한다.
+	session.advance(180.0)
+	assert_eq(int(session.store.read_save("character", 1).data.inventory.gold), 0)
+	stats.end_boss_encounter()
+	stats._time_since_combat_action_sec = 0.0
+	session.advance(1.0)
+	assert_eq(int(session.store.read_save("character", 1).data.inventory.gold), 0)
+	stats._time_since_combat_action_sec = 5.0
+	session.advance(0.1)
+	assert_eq(int(session.store.read_save("character", 1).data.inventory.gold), 79)
+	assert_eq(session._auto_elapsed, 0.0)
+	assert_true(session.save_slot(2).ok)
+
+
 func test_menu_pause_ownership_and_confirmation() -> void:
 	var menu = world.get_node("SaveMenu")
 	menu.open_menu()

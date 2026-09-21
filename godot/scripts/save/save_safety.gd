@@ -10,6 +10,9 @@ static func blocked_reason(world: Node) -> String:
 	var stats = player.get_node("PlayerStats")
 	if stats.is_dead() or player.get_node("PlayerDeathSequence").is_active():
 		return "death_sequence"
+	# 조우 잠금은 적과의 거리나 선딜/페이즈 대기 여부와 무관하게 유지한다.
+	if stats.is_boss_encounter:
+		return "boss_encounter"
 	if player.is_input_locked or player.is_hit_stunned or player.is_hit_invincible:
 		return "player_locked"
 	if player.attack_state != 0 or player.skill_state != 0 or player.is_dashing:

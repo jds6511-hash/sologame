@@ -203,6 +203,7 @@ static func error_text(code: String) -> String:
 			"not_checked": "검사하지 않음",
 			"ok": "정상",
 			"death_sequence": "부활이 끝난 뒤 다시 시도하세요.",
+			"boss_encounter": "보스전 중에는 저장할 수 없습니다. 종료 후 안전한 곳에서 저장하세요.",
 			"player_locked": "행동 제한이 끝난 뒤 다시 시도하세요.",
 			"action_in_progress": "공격과 회피를 마친 뒤 저장하세요.",
 			"moving": "멈춘 뒤 다시 저장하세요.",
