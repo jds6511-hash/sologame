@@ -1,5 +1,5 @@
-# GUT은 각 검증 사례를 공개 test_* 메서드로 발견한다.
 # gdlint: disable=max-public-methods
+# GUT은 각 검증 사례를 공개 test_* 메서드로 발견한다.
 extends GutTest
 
 const Store = preload("res://scripts/save/save_file_store.gd")
