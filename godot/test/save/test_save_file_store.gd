@@ -1,3 +1,5 @@
+# GUT은 각 검증 사례를 공개 test_* 메서드로 발견한다.
+# gdlint: disable=max-public-methods
 extends GutTest
 
 const Store = preload("res://scripts/save/save_file_store.gd")
@@ -19,6 +21,11 @@ class FailingStore:
 		if fail_replace and destination.ends_with(".json"):
 			return ERR_FILE_CANT_WRITE
 		return super._replace_file(source, destination)
+
+	func _copy_file(source: String, destination: String) -> Error:
+		if not fail_suffix.is_empty() and destination.ends_with(fail_suffix):
+			return ERR_FILE_CANT_WRITE
+		return super._copy_file(source, destination)
 
 
 func before_each() -> void:
@@ -239,3 +246,41 @@ func test_envelope_limit_checked_before_writing() -> void:
 	assert_lt(JSON.stringify(data).to_utf8_buffer().size(), Store.MAX_BYTES)
 	assert_eq(store.write_save("character", 1, data).code, "too_large")
 	assert_false(FileAccess.file_exists(directory.path_join("character_01.json.tmp")))
+
+
+func test_oversized_future_files_are_preserved_before_repeated_saves() -> void:
+	DirAccess.make_dir_recursive_absolute(directory)
+	var path := directory.path_join("character_01.json")
+	var original := JSON.stringify({"version": 99, "padding": "x".repeat(8388608)})
+	store._write_text(path, original)
+	store._write_text(path + ".bak", original)
+	assert_true(store.write_save("character", 1, {"gold": 1}).ok)
+	assert_true(store.write_save("character", 1, {"gold": 2}).ok)
+	for source in [path, path + ".bak"]:
+		var preserved: String = source + ".preserved." + original.sha256_text()
+		assert_true(FileAccess.file_exists(preserved))
+		if FileAccess.file_exists(preserved):
+			assert_eq(FileAccess.get_sha256(preserved), original.sha256_text())
+
+
+func test_preservation_keeps_non_utf8_bytes() -> void:
+	DirAccess.make_dir_recursive_absolute(directory)
+	var path := directory.path_join("raw")
+	var bytes := PackedByteArray([255, 254, 0, 128, 13, 10])
+	var file := FileAccess.open(path, FileAccess.WRITE)
+	file.store_buffer(bytes)
+	file.close()
+	var digest := FileAccess.get_sha256(path)
+	assert_true(store._preserve_original(path))
+	assert_eq(FileAccess.get_file_as_bytes(path + ".preserved." + digest), bytes)
+
+
+func test_read_error_reports_both_sources() -> void:
+	store.write_save("character", 1, {"level": -1})
+	var path := directory.path_join("character_01.json")
+	store._write_text(path + ".bak", JSON.stringify({"kind": "character", "version": 99}))
+	store.validators["character"] = func(_data: Dictionary) -> String: return "bad_level"
+	var result: Dictionary = store.read_save("character", 1)
+	assert_eq(result.get("source"), "backup")
+	assert_eq(result.get("main_code"), "invalid_data")
+	assert_eq(result.get("backup_code"), "unsupported_version")

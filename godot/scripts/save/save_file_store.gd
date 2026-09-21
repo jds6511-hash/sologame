@@ -21,9 +21,12 @@ func read_save(kind: String, slot: int = 0) -> Dictionary:
 	if path.is_empty():
 		return _failure("invalid_slot")
 	var current := _read(path, kind)
+	current.merge({"source": "main", "main_code": current.code, "backup_code": "not_checked"})
 	if current.ok or current.code in ["unsupported_version", "invalid_validator"]:
 		return current
 	var backup := _read(path + ".bak", kind)
+	current.backup_code = backup.code
+	backup.merge({"source": "backup", "main_code": current.code, "backup_code": backup.code})
 	if backup.ok:
 		backup.recovered = true
 		return backup
@@ -58,11 +61,13 @@ func write_save(kind: String, slot: int, data: Dictionary) -> Dictionary:
 	if serialized.to_utf8_buffer().size() > MAX_ENVELOPE_BYTES:
 		return _failure("too_large")
 	# 검증 규칙 변경/미지원 백업은 유효한 복구본과 별도로 원본 바이트를 보존한다.
+	# 미지원 주 파일은 위에서 거부했다. 아래 unsupported_version은 백업에만 해당한다.
+	# too_large는 버전을 판정할 수 없으므로 주 파일/백업 모두 보존한다.
 	for candidate in [path, path + ".bak"]:
 		var previous := _read(candidate, kind)
 		if previous.code in ["invalid_validator", "io_error"]:
 			return previous
-		if previous.code in ["invalid_data", "unsupported_version"]:
+		if previous.code in ["invalid_data", "unsupported_version", "too_large"]:
 			if not _preserve_original(candidate):
 				return _failure("io_error")
 	var temp := path + ".tmp"
@@ -135,22 +140,26 @@ func _validate(kind: String, data: Dictionary) -> String:
 
 
 func _preserve_original(path: String) -> bool:
-	var original := FileAccess.get_file_as_string(path)
-	if FileAccess.get_open_error() != OK:
+	var digest := FileAccess.get_sha256(path)
+	if digest.is_empty():
 		return false
-	var preserved := path + ".preserved." + original.sha256_text()
+	var preserved := path + ".preserved." + digest
 	if FileAccess.file_exists(preserved):
-		if FileAccess.get_file_as_string(preserved) == original:
+		if FileAccess.get_sha256(preserved) == digest:
 			return true
 	# 보존 도중 중단돼도 불완전 보존본이 다음 재시도를 영구 차단하지 않는다.
 	var temp := preserved + ".tmp"
-	if _write_text(temp, original) != OK:
+	if _copy_file(path, temp) != OK:
 		return false
-	if FileAccess.get_file_as_string(temp) != original:
+	if FileAccess.get_sha256(temp) != digest:
 		return false
 	if _replace_file(temp, preserved) != OK:
 		return false
-	return FileAccess.get_file_as_string(preserved) == original
+	return FileAccess.get_sha256(preserved) == digest
+
+
+func _copy_file(source: String, destination: String) -> Error:
+	return DirAccess.copy_absolute(source, destination)
 
 
 func _write_text(path: String, text: String) -> Error:
