@@ -60,6 +60,7 @@ godot --path godot --rendering-method gl_compatibility -s ../docs/qa/tools/runti
 
 ## 후속 — 보스전 저장 잠금
 
+- 구현 커밋: `2e6eb90` (기준 `ee810b6`).
 - 사용자 요청에 따라 기존 PlayerStats의 보스 조우 상태를 `save_safety.gd`에 연결했다. `save_menu.gd`에는 보스전 저장 거부 안내를 추가했다. 세션 타이머·저장 스키마·보스 AI는 변경하지 않았다.
 - `test_save_session.gd`에서 보스전 수동 저장 거부/슬롯 미생성, 3분 만료 후 요청 유지, 장시간 대기에도 저장 금지, 조우 종료 후 최근 전투 조건이 남으면 대기, 안전해진 다음 갱신에 저장 및 수동 저장 재허용을 검사했다.
 - 수정 전 새 테스트 실패(12개 중 1개 실패)를 확인했다. 수정 후 **전체 GUT 945/945·3236 assertions·102 scripts**, 변경 GDScript 3개 형식/린트 및 diff check 통과. 파일 계층의 의도적 디렉터리 실패 외 새 스크립트 오류·종료 잔존 경고 없음.
