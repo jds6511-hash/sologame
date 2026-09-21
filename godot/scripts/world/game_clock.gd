@@ -106,3 +106,10 @@ func restore_saved_time(day: int, elapsed: float) -> void:
 	day_number = day
 	_elapsed_real_sec_in_day = elapsed
 	_refresh_phase()
+
+
+## 월드 교체 준비/실패 롤백 전용. 기존 월드의 야간 스폰 시그널을 발생시키지 않는다.
+func prepare_scene_time(day: int, elapsed: float) -> void:
+	day_number = day
+	_elapsed_real_sec_in_day = elapsed
+	is_day = elapsed < time_data.real_seconds_day_phase

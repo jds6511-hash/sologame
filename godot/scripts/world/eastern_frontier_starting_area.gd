@@ -24,6 +24,8 @@ const NIGHT_COLOR := Color("6d7ab5")
 ## 중간색 경유)은 M2 범위 밖 — 이번에는 낮/밤 대표색 사이를 수 초간 직선 보간하는 단순
 ## 페이드만 구현한다(G2-4 요구 "전환 페이드(수 초)").
 const DAY_NIGHT_FADE_SEC := 3.0
+const SaveSessionScript = preload("res://scripts/save/save_session.gd")
+const SaveMenuScript = preload("res://scripts/save/save_menu.gd")
 
 @onready var _player: PlayerController = $Player
 ## Inventory의 combat_stats는 의도적으로 비배선이다(골드만 사용). M3에서는 성장 계층
@@ -41,6 +43,12 @@ const DAY_NIGHT_FADE_SEC := 3.0
 
 
 func _ready() -> void:
+	var save_session := SaveSessionScript.new()
+	save_session.name = "SaveSession"
+	add_child(save_session)
+	set_meta("save_boot_error", save_session.setup(self))
+	if has_meta("save_boot") and not String(get_meta("save_boot_error")).is_empty():
+		return
 	_hud.bind_player(_player, _player.get_node("PlayerStats"))
 	_integrated_menu.bind_player(_player)
 	print("[통합] HUD 바인딩 완료")
@@ -53,6 +61,10 @@ func _ready() -> void:
 	_start_tutorial()
 	_init_day_night_modulate()
 	_init_bgm()
+	var save_menu := SaveMenuScript.new()
+	save_menu.name = "SaveMenu"
+	add_child(save_menu)
+	save_menu.setup(save_session)
 
 
 # --- 주야간 시각 연출 (G2-4) ---
