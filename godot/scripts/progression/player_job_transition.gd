@@ -174,6 +174,13 @@ func perform_transition(job_id: StringName) -> bool:
 	if _stat_growth and job_def.growth:
 		_stat_growth.job = job_def.growth
 		_stat_growth.recompute_stats(_current_level())
+		# 직업 변경으로 최대치가 낮아지면 초과분만 제거한다. 전직으로 회복하지 않는다.
+		var vitals := get_node_or_null("../PlayerStats") as PlayerStatsComponent
+		if vitals != null:
+			vitals.current_hp = minf(vitals.current_hp, vitals.stats.max_hp)
+			vitals.current_mp = minf(vitals.current_mp, vitals.stats.max_mp)
+			vitals.hp_changed.emit(vitals.current_hp, vitals.stats.max_hp)
+			vitals.mp_changed.emit(vitals.current_mp, vitals.stats.max_mp)
 
 	## ② 전직 보너스 스킬 포인트 +2(spec 6-1).
 	if _skill_points:

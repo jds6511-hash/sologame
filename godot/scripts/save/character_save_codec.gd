@@ -21,7 +21,7 @@ func new_account() -> Dictionary:
 		"seen_content": [],
 		"tutorial_completed": false,
 		"legacy": {},
-		"storage": [],
+		"storage": {},
 		"pending_transfer": null,
 		"applied_transfer_ids": []
 	}

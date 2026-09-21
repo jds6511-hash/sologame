@@ -2,16 +2,17 @@
 extends RefCounted
 
 const Registry = preload("res://scripts/save/save_content_registry.gd")
+const Codes = preload("res://scripts/save/save_validation_codes.gd")
 const MAX_INT := 2147483647
 var registry = Registry.new()
 
 
-func number(value: Variant, minimum: float, maximum: float) -> bool:
+func number(value: Variant, minimum: float, maximum: float, inclusive: bool = true) -> bool:
 	return (
 		(value is int or value is float)
 		and is_finite(value)
 		and value >= minimum
-		and value <= maximum
+		and (value <= maximum if inclusive else value < maximum)
 	)
 
 
@@ -37,8 +38,10 @@ func fields(data: Variant, names: Array) -> bool:
 func transfer_error(data: Dictionary) -> String:
 	if not data.has_all(["pending_transfer", "applied_transfer_ids"]):
 		return "missing_transfer_fields"
-	if data.pending_transfer != null or data.applied_transfer_ids != []:
-		return "pending_transfer"
+	if data.pending_transfer != null:
+		return Codes.PENDING_TRANSFER
+	if data.applied_transfer_ids != []:
+		return Codes.UNSUPPORTED_TRANSFER_HISTORY
 	return ""
 
 
@@ -73,10 +76,10 @@ func account_error(data: Dictionary) -> String:
 	):
 		return "account_progress"
 	# 후속 마일스톤 콘텐츠를 조용히 버리지 않도록 M4에서는 빈 예약 영역만 수용한다.
-	for key in ["discoveries", "achievements", "cosmetics", "seen_content", "storage"]:
+	for key in ["discoveries", "achievements", "cosmetics", "seen_content"]:
 		if data[key] != []:
 			return "reserved_account_content"
-	if data.legacy != {}:
+	if data.legacy != {} or data.storage != {}:
 		return "reserved_account_content"
 	return ""
 
@@ -262,9 +265,7 @@ func world_error(data: Variant) -> String:
 			return "position"
 	if not integer(data.day_number, 1):
 		return "day_number"
-	if not number(data.elapsed_real_sec_in_day, 0, Registry.TIME.real_seconds_per_game_day):
-		return "time"
-	if data.elapsed_real_sec_in_day >= Registry.TIME.real_seconds_per_game_day:
+	if not number(data.elapsed_real_sec_in_day, 0, Registry.TIME.real_seconds_per_game_day, false):
 		return "time"
 	if data.flags != {} or data.discovered_regions != []:
 		return "reserved_world_content"

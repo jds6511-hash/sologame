@@ -1,5 +1,6 @@
 extends GutTest
 
+const Store = preload("res://scripts/save/save_file_store.gd")
 const Codec = preload("res://scripts/save/character_save_codec.gd")
 const PLAYER = preload("res://scenes/player/player.tscn")
 var codec: RefCounted
@@ -137,9 +138,7 @@ func test_restore_clock_derives_night_and_does_not_alias_metadata() -> void:
 
 
 func test_store_pending_cannot_fallback_or_overwrite() -> void:
-	var store = preload("res://scripts/save/save_file_store.gd").new(
-		"user://m4_codec_%d" % Time.get_ticks_usec()
-	)
+	var store = Store.new("user://m4_codec_%d" % Time.get_ticks_usec())
 	var data: Dictionary = codec.capture(_player(), account.account_id)
 	assert_true(store.write_save("character", 1, data).ok)
 	data.pending_transfer = {"transfer_id": "unfinished"}
@@ -194,3 +193,57 @@ func test_capture_refreshes_clock_in_existing_character_metadata() -> void:
 	assert_eq(next.character_id, data.character_id)
 	assert_eq(next.world.elapsed_real_sec_in_day, 1320.5)
 	assert_eq(data.world.elapsed_real_sec_in_day, 0.0)
+
+
+func test_delayed_transition_clamps_vitals_and_remains_saveable() -> void:
+	for job in [&"warrior", &"archer"]:
+		var player := _player()
+		var progression = player.get_node("PlayerProgression")
+		while progression.current_level < 40:
+			progression.add_exp(progression.exp_to_next())
+		var stats = player.get_node("PlayerStats")
+		var hp_before: float = stats.current_hp
+		var mp_before: float = stats.current_mp
+		assert_true(player.get_node("PlayerJobTransition").perform_transition(job))
+		assert_eq(stats.current_hp, minf(hp_before, stats.stats.max_hp))
+		assert_eq(stats.current_mp, minf(mp_before, stats.stats.max_mp))
+		assert_eq(
+			codec.schema.character_error(codec.capture(player, account.account_id), account), ""
+		)
+
+
+func test_transition_does_not_heal_wounded_player() -> void:
+	var player := _player()
+	var progression = player.get_node("PlayerProgression")
+	while progression.current_level < 10:
+		progression.add_exp(progression.exp_to_next())
+	var stats = player.get_node("PlayerStats")
+	stats.current_hp = 10.0
+	stats.current_mp = 5.0
+	player.get_node("PlayerJobTransition").perform_transition(&"warrior")
+	assert_eq(stats.current_hp, 10.0)
+	assert_eq(stats.current_mp, 5.0)
+
+
+func test_storage_shape_and_transfer_history_code() -> void:
+	assert_eq(account.storage, {})
+	account.applied_transfer_ids = ["old_transfer"]
+	assert_eq(codec.schema.account_error(account), "unsupported_transfer_history")
+
+
+func test_transfer_history_blocks_main_backup_and_overwrite() -> void:
+	var store = Store.new("user://m4_history_%d" % Time.get_ticks_usec())
+	var data: Dictionary = codec.capture(_player(), account.account_id)
+	data.applied_transfer_ids = ["already_applied"]
+	store.write_save("character", 1, data)
+	store.write_save("character", 1, data)
+	codec.bind_store(store, account)
+	assert_eq(store.read_save("character", 1).code, "unsupported_transfer_history")
+	data.applied_transfer_ids = []
+	assert_eq(store.write_save("character", 1, data).code, "unsupported_transfer_history")
+	store._write_text(store.root.path_join("character_01.json"), "broken")
+	assert_eq(store.read_save("character", 1).code, "unsupported_transfer_history")
+	assert_eq(store.write_save("character", 1, data).code, "unsupported_transfer_history")
+	for file in DirAccess.get_files_at(store.root):
+		DirAccess.remove_absolute(store.root.path_join(file))
+	DirAccess.remove_absolute(store.root)
