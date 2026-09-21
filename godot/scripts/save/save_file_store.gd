@@ -6,7 +6,9 @@ extends RefCounted
 
 const VERSIONS := {"account": 1, "character": 1}
 const MAX_BYTES := 4 * 1024 * 1024
+const MAX_ENVELOPE_BYTES := 8 * 1024 * 1024
 var root: String
+## kind -> Callable(Dictionary) -> String: 빈 문자열은 성공, 나머지는 오류 설명.
 var validators: Dictionary = {}
 
 
@@ -19,7 +21,7 @@ func read_save(kind: String, slot: int = 0) -> Dictionary:
 	if path.is_empty():
 		return _failure("invalid_slot")
 	var current := _read(path, kind)
-	if current.ok or current.code == "unsupported_version":
+	if current.ok or current.code in ["unsupported_version", "invalid_validator"]:
 		return current
 	var backup := _read(path + ".bak", kind)
 	if backup.ok:
@@ -34,11 +36,13 @@ func write_save(kind: String, slot: int, data: Dictionary) -> Dictionary:
 	var path := _path(kind, slot)
 	if path.is_empty():
 		return _failure("invalid_slot")
-	if validators.has(kind) and not validators[kind].call(data).is_empty():
-		return _failure("invalid_data")
+	var validation := _validate(kind, data)
+	if validation != "ok":
+		return _failure(validation)
 	# 상위 버전은 현재 세션의 데이터로 덮어쓰면 돌이킬 수 없으므로 명시 거부한다.
-	if read_save(kind, slot).code == "unsupported_version":
-		return _failure("unsupported_version")
+	var current := _read(path, kind)
+	if current.code in ["unsupported_version", "io_error", "invalid_validator"]:
+		return current
 	if DirAccess.make_dir_recursive_absolute(root) != OK:
 		return _failure("io_error")
 	var payload := JSON.stringify(data)
@@ -50,8 +54,19 @@ func write_save(kind: String, slot: int, data: Dictionary) -> Dictionary:
 		"payload": payload,
 		"checksum": payload.sha256_text()
 	}
+	var serialized := JSON.stringify(envelope)
+	if serialized.to_utf8_buffer().size() > MAX_ENVELOPE_BYTES:
+		return _failure("too_large")
+	# 검증 규칙 변경/미지원 백업은 유효한 복구본과 별도로 원본 바이트를 보존한다.
+	for candidate in [path, path + ".bak"]:
+		var previous := _read(candidate, kind)
+		if previous.code in ["invalid_validator", "io_error"]:
+			return previous
+		if previous.code in ["invalid_data", "unsupported_version"]:
+			if not _preserve_original(candidate):
+				return _failure("io_error")
 	var temp := path + ".tmp"
-	var error := _write_text(temp, JSON.stringify(envelope))
+	var error := _write_text(temp, serialized)
 	if error != OK or not _read(temp, kind).ok:
 		return _failure("io_error")
 	# 정상 주 파일만 백업한다. 손상 파일로 마지막 정상 백업을 오염시키지 않는다.
@@ -80,7 +95,7 @@ func _read(path: String, kind: String) -> Dictionary:
 	var file := FileAccess.open(path, FileAccess.READ)
 	if file == null:
 		return _failure("io_error")
-	if file.get_length() > MAX_BYTES * 2:
+	if file.get_length() > MAX_ENVELOPE_BYTES:
 		file.close()
 		return _failure("too_large")
 	var text := file.get_as_text()
@@ -101,9 +116,41 @@ func _read(path: String, kind: String) -> Dictionary:
 		return _failure("corrupt")
 	if json.parse(payload) != OK or not json.data is Dictionary:
 		return _failure("corrupt")
-	if validators.has(kind) and not validators[kind].call(json.data).is_empty():
-		return _failure("invalid_data")
+	var validation := _validate(kind, json.data)
+	if validation != "ok":
+		return _failure(validation)
 	return {"ok": true, "code": "ok", "data": json.data, "recovered": false}
+
+
+func _validate(kind: String, data: Dictionary) -> String:
+	if not validators.has(kind):
+		return "ok"
+	var validator: Variant = validators[kind]
+	if not validator is Callable or not validator.is_valid():
+		return "invalid_validator"
+	var result: Variant = validator.call(data)
+	if not result is String:
+		return "invalid_validator"
+	return "ok" if result.is_empty() else "invalid_data"
+
+
+func _preserve_original(path: String) -> bool:
+	var original := FileAccess.get_file_as_string(path)
+	if FileAccess.get_open_error() != OK:
+		return false
+	var preserved := path + ".preserved." + original.sha256_text()
+	if FileAccess.file_exists(preserved):
+		if FileAccess.get_file_as_string(preserved) == original:
+			return true
+	# 보존 도중 중단돼도 불완전 보존본이 다음 재시도를 영구 차단하지 않는다.
+	var temp := preserved + ".tmp"
+	if _write_text(temp, original) != OK:
+		return false
+	if FileAccess.get_file_as_string(temp) != original:
+		return false
+	if _replace_file(temp, preserved) != OK:
+		return false
+	return FileAccess.get_file_as_string(preserved) == original
 
 
 func _write_text(path: String, text: String) -> Error:

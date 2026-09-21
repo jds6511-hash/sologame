@@ -161,3 +161,81 @@ func test_older_version_is_rejected_too() -> void:
 	file.close()
 	assert_eq(store.read_save("account").code, "unsupported_version")
 	assert_eq(store.write_save("account", 0, {}).code, "unsupported_version")
+
+
+func test_missing_main_recovers_backup() -> void:
+	store.write_save("character", 1, {"gold": 10})
+	store.write_save("character", 1, {"gold": 20})
+	DirAccess.remove_absolute(directory.path_join("character_01.json"))
+	var result: Dictionary = store.read_save("character", 1)
+	assert_true(result.ok)
+	assert_true(result.recovered)
+	assert_eq(int(result.data.gold), 10)
+
+
+func test_unsupported_backup_is_preserved_and_slot_reusable() -> void:
+	store.write_save("character", 1, {"gold": 10})
+	var path := directory.path_join("character_01.json")
+	var envelope: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(path))
+	envelope.version = 99
+	var original := JSON.stringify(envelope)
+	store._write_text(path + ".bak", original)
+	DirAccess.remove_absolute(path)
+	assert_true(store.write_save("character", 1, {"gold": 20}).ok)
+	assert_true(store.write_save("character", 1, {"gold": 30}).ok)
+	assert_eq(
+		FileAccess.get_file_as_string(path + ".bak.preserved." + original.sha256_text()), original
+	)
+	assert_eq(int(store.read_save("character", 1).data.gold), 30)
+
+
+func test_stricter_validator_preserves_both_original_generations() -> void:
+	store.write_save("character", 1, {"level": 1})
+	store.write_save("character", 1, {"level": 2})
+	var path := directory.path_join("character_01.json")
+	var original := FileAccess.get_file_as_string(path)
+	var backup := FileAccess.get_file_as_string(path + ".bak")
+	store.validators["character"] = func(data: Dictionary) -> String:
+		return "" if data.level >= 3 else "old_rules"
+	assert_true(store.write_save("character", 1, {"level": 3}).ok)
+	assert_true(store.write_save("character", 1, {"level": 4}).ok)
+	assert_eq(
+		FileAccess.get_file_as_string(path + ".preserved." + original.sha256_text()), original
+	)
+	assert_eq(
+		FileAccess.get_file_as_string(path + ".bak.preserved." + backup.sha256_text()), backup
+	)
+
+
+func test_failed_preservation_prevents_overwrite() -> void:
+	store.write_save("character", 1, {"level": 1})
+	var path := directory.path_join("character_01.json")
+	var original := FileAccess.get_file_as_string(path)
+	var failing := FailingStore.new(directory)
+	failing.validators["character"] = func(data: Dictionary) -> String:
+		return "" if data.level >= 2 else "old_rules"
+	failing.fail_suffix = original.sha256_text() + ".tmp"
+	assert_eq(failing.write_save("character", 1, {"level": 2}).code, "io_error")
+	assert_eq(FileAccess.get_file_as_string(path), original)
+
+
+func test_wrong_kind_is_rejected() -> void:
+	store.write_save("account", 0, {})
+	DirAccess.copy_absolute(
+		directory.path_join("account.json"), directory.path_join("character_01.json")
+	)
+	assert_eq(store.read_save("character", 1).code, "corrupt")
+
+
+func test_invalid_validator_return_is_reported() -> void:
+	store.write_save("character", 1, {})
+	store.validators["character"] = func(_data: Dictionary) -> bool: return true
+	assert_eq(store.read_save("character", 1).code, "invalid_validator")
+	assert_eq(store.write_save("character", 1, {}).code, "invalid_validator")
+
+
+func test_envelope_limit_checked_before_writing() -> void:
+	var data := {"text": "\\".repeat(2097125)}
+	assert_lt(JSON.stringify(data).to_utf8_buffer().size(), Store.MAX_BYTES)
+	assert_eq(store.write_save("character", 1, data).code, "too_large")
+	assert_false(FileAccess.file_exists(directory.path_join("character_01.json.tmp")))

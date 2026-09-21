@@ -6,7 +6,7 @@ Claude 설계 리뷰 후 작업 단위 1만 검사했다. 실제 캐릭터 복�
 
 **검토 대상 커밋: `8461823`**. 선행 아트 문서 정정은 별도 커밋 `e10f7ed`다. 이번 작업 기록 갱신은 구현 커밋 이후 별도 문서 커밋으로 남긴다.
 
-## 검증 결과
+## 최초 검증 결과 (`8461823`)
 
 - Godot 4.7.1, GUT: `test/save/test_save_file_store.gd` **11/11**, **68 assertions**.
 - 변경 GDScript 3개 `gdformat --check`, `gdlint` 통과.
@@ -39,3 +39,22 @@ godot --headless --path godot -s res://test/save/save_store_process_probe.gd -- 
 ## Claude 재검토 범위
 
 상세 기준은 [저장 계약](../design/systems/save-load.md), 작업 순서는 [실행 계획](../superpowers/plans/2026-09-21-m4-save-load.md)을 따른다. 이번 리뷰에서는 H1~H4의 정책과 파일 계층을 검토할 수 있다. 실제 값 범위·ID·스킬 예산 검증, 미완 거래 차단과 UI는 후속 구현 뒤 별도로 검토해야 한다.
+
+## 구현 리뷰 후 보완 — 2026-09-21
+
+- **GUT 18/18, 87 assertions**, 변경 GDScript 3개 형식·린트 통과. 새 테스트를 먼저 실행해 5건 실패를 확인한 뒤 수정했다.
+- 1번: 미지원 주 파일 보호는 유지한다. 미지원 백업은 해시 이름 보존본을 확보한 뒤 슬롯 재사용을 허용한다. 반복 저장 후에도 원문 유지 확인. 단순히 백업 버전 검사만 제거하자는 제안은 이후 백업 회전에 원문이 사라지므로 보완했다.
+- 2번: 주 파일 삭제 후 정상 백업 복구 GUT 추가. `interrupt_mid`는 대상 제거 후 실제 프로세스를 종료하고 `verify_mid`가 다음 프로세스에서 주 파일 부재·recovered·직전 값을 확인한다. 기존 중단 검사와 함께 PASS. 이는 최악 상태 주입이며 Windows rename 내부의 실제 중단이나 원자성 측정은 아니다.
+- 3번: 현재 검증에서 거부된 두 세대 모두 별도 보존한다. 정상 백업은 거부된 데이터로 교체하지 않는다. 보존 쓰기 실패 시 주 파일 불변 확인.
+- 4번: payload와 봉투 크기를 각각 검사한다. payload는 한도 내지만 봉투가 초과하는 입력에서 임시 파일 생성 없이 `too_large` 반환 확인.
+- 낮은 중요도: 검증기 String 반환 계약과 오류 처리, 잘못된 kind 거부 테스트 추가. 임시 파일은 슬롯에서 제외하는 정책을 명시하고 쓰기의 슬롯 필수 인자는 유지했다.
+- 파일 계층 밖 게임플레이는 변경하지 않았으며 이번 검증은 저장 테스트에 한정한다. 전체 게임 회귀·G4 완료로 확대 해석하지 않는다.
+
+추가 프로세스 재현 순서:
+
+```powershell
+godot --headless --path godot -s res://test/save/save_store_process_probe.gd -- seed
+godot --headless --path godot -s res://test/save/save_store_process_probe.gd -- interrupt_mid
+godot --headless --path godot -s res://test/save/save_store_process_probe.gd -- verify_mid
+godot --headless --path godot -s res://test/save/save_store_process_probe.gd -- cleanup
+```
