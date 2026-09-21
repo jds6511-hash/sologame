@@ -22,7 +22,10 @@ func read_save(kind: String, slot: int = 0) -> Dictionary:
 		return _failure("invalid_slot")
 	var current := _read(path, kind)
 	current.merge({"source": "main", "main_code": current.code, "backup_code": "not_checked"})
-	if current.ok or current.code in ["unsupported_version", "invalid_validator"]:
+	if (
+		current.ok
+		or current.code in ["unsupported_version", "invalid_validator", "pending_transfer"]
+	):
 		return current
 	var backup := _read(path + ".bak", kind)
 	current.backup_code = backup.code
@@ -30,7 +33,7 @@ func read_save(kind: String, slot: int = 0) -> Dictionary:
 	if backup.ok:
 		backup.recovered = true
 		return backup
-	if backup.code == "unsupported_version":
+	if backup.code in ["unsupported_version", "pending_transfer"]:
 		return backup
 	return current
 
@@ -44,7 +47,7 @@ func write_save(kind: String, slot: int, data: Dictionary) -> Dictionary:
 		return _failure(validation)
 	# 상위 버전은 현재 세션의 데이터로 덮어쓰면 돌이킬 수 없으므로 명시 거부한다.
 	var current := _read(path, kind)
-	if current.code in ["unsupported_version", "io_error", "invalid_validator"]:
+	if current.code in ["unsupported_version", "io_error", "invalid_validator", "pending_transfer"]:
 		return current
 	if DirAccess.make_dir_recursive_absolute(root) != OK:
 		return _failure("io_error")
@@ -65,7 +68,7 @@ func write_save(kind: String, slot: int, data: Dictionary) -> Dictionary:
 	# too_large는 버전을 판정할 수 없으므로 주 파일/백업 모두 보존한다.
 	for candidate in [path, path + ".bak"]:
 		var previous := _read(candidate, kind)
-		if previous.code in ["invalid_validator", "io_error"]:
+		if previous.code in ["invalid_validator", "io_error", "pending_transfer"]:
 			return previous
 		if previous.code in ["invalid_data", "unsupported_version", "too_large"]:
 			if not _preserve_original(candidate):
@@ -136,6 +139,8 @@ func _validate(kind: String, data: Dictionary) -> String:
 	var result: Variant = validator.call(data)
 	if not result is String:
 		return "invalid_validator"
+	if result == "pending_transfer":
+		return result
 	return "ok" if result.is_empty() else "invalid_data"
 
 

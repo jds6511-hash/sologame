@@ -70,6 +70,16 @@ func earned_points() -> int:
 	return available_points + spent_points
 
 
+## 저장 codec에서 전체 검증 후 호출한다. 강화/보상 시그널 없이 장부만 복원한다.
+func restore_saved_points(
+	available: int, spent: int, levels: Dictionary, costs: Dictionary
+) -> void:
+	available_points = available
+	spent_points = spent
+	_skill_levels = levels.duplicate(true)
+	_skill_costs = costs.duplicate(true)
+
+
 # --- 스킬 강화 (spec 6-2, 6-3) ---
 
 

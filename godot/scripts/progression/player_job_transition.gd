@@ -88,6 +88,15 @@ func _start_as_job(job_def: JobDefinition) -> void:
 	is_transitioned = true
 
 
+## codec가 검증한 신규 모험가 인스턴스 전용. 전직 보상/환급 없이 직업만 복원한다.
+func restore_saved_job(job_id: StringName) -> void:
+	if job_id != ADVENTURER_JOB_ID:
+		_start_as_job(_find_job(job_id))
+	transition_available = (
+		_next_transition_level() > 0 and _current_level() >= _next_transition_level()
+	)
+
+
 func _on_leveled_up(new_level: int) -> void:
 	_update_availability(new_level)
 

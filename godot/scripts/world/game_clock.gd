@@ -99,3 +99,10 @@ func reset() -> void:
 	_elapsed_real_sec_in_day = 0.0
 	day_number = 1
 	is_day = true
+
+
+## 저장 codec에서 범위 검증 후 호출. 저장한 경과 시각에서 낮/밤을 파생한다.
+func restore_saved_time(day: int, elapsed: float) -> void:
+	day_number = day
+	_elapsed_real_sec_in_day = elapsed
+	_refresh_phase()
