@@ -68,7 +68,7 @@ godot --path godot --rendering-method gl_compatibility -s ../docs/qa/tools/runti
 
 ## 2026-09-25 Claude 리뷰 보완
 
-기준 `50d47c0`. Claude는 `bc06619` 단위 3을 통과로 판정했다. 이후 추가한 보스 잠금도 유지하며 아래 지적을 대조했다.
+기준 `50d47c0`, 보완 검토 대상 **`35ae0fd`**. Claude는 `bc06619` 단위 3을 통과로 판정했다. 이후 추가한 보스 잠금도 유지하며 아래 지적을 대조했다.
 
 | 지적 | 처리 |
 |---|---|
