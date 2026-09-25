@@ -945,7 +945,31 @@ func _update_visual() -> void:
 	_attack_anim_restart_requested = false
 
 
-# --- 디버그 HUD 연동용 상태 조회 ---
+## 저장 계층은 전투 모듈의 사설 상태 대신 이 조회 API를 사용한다.
+func save_block_reason() -> String:
+	if is_input_locked or is_hit_stunned or is_hit_invincible:
+		return "player_locked"
+	if (
+		attack_state != AttackState.NONE
+		or skill_state != AttackState.NONE
+		or is_dashing
+		or _is_charging_secondary
+	):
+		return "action_in_progress"
+	if velocity.length_squared() > 1.0:
+		return "moving"
+	for reason in [
+		_shots.save_block_reason(), _skills.save_block_reason(), rage.save_block_reason()
+	]:
+		if not reason.is_empty():
+			return reason
+	if (
+		_move_slow_timer > 0.0
+		or _buff_superarmor_timer > 0.0
+		or not _dash_recharge_timers.is_empty()
+	):
+		return "cooldown_or_buff"
+	return ""
 
 
 func get_debug_state_text() -> String:

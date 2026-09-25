@@ -23,6 +23,15 @@ var _cooldowns: Dictionary = {}  ## key: String(슬롯 이름) -> 남은 쿨다�
 var _secondary_cooldown: float = 0.0
 
 
+func save_block_reason() -> String:
+	if _secondary_cooldown > 0.0:
+		return "cooldown_or_buff"
+	for remaining in _cooldowns.values():
+		if remaining > 0.0:
+			return "cooldown_or_buff"
+	return ""
+
+
 func get_phase_elapsed() -> float:
 	return _phase_timer
 

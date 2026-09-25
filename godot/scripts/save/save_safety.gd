@@ -6,44 +6,23 @@ const ENEMY_DISTANCE := 160.0
 
 
 static func blocked_reason(world: Node) -> String:
-	var player = world.get_node("Player")
-	var stats = player.get_node("PlayerStats")
-	if stats.is_dead() or player.get_node("PlayerDeathSequence").is_active():
+	var player := world.get_node_or_null("Player") as PlayerController
+	var spawner := world.get_node_or_null("MonsterSpawner")
+	if player == null or spawner == null:
+		return "unsupported_world"
+	var stats := player.get_node_or_null("PlayerStats") as PlayerStatsComponent
+	var death := player.get_node_or_null("PlayerDeathSequence") as PlayerDeathSequence
+	if stats == null or death == null:
+		return "unsupported_world"
+	if death.is_active():
 		return "death_sequence"
-	# 조우 잠금은 적과의 거리나 선딜/페이즈 대기 여부와 무관하게 유지한다.
-	if stats.is_boss_encounter:
-		return "boss_encounter"
-	if player.is_input_locked or player.is_hit_stunned or player.is_hit_invincible:
-		return "player_locked"
-	if player.attack_state != 0 or player.skill_state != 0 or player.is_dashing:
-		return "action_in_progress"
-	if (
-		player._is_charging_secondary
-		or player._shots.is_aiming
-		or player._shots._burst_remaining > 0
-	):
-		return "action_in_progress"
-	if player.velocity.length_squared() > 1.0:
-		return "moving"
-	if stats._time_since_combat_action_sec < QUIET_SECONDS:
-		return "recent_combat"
-	for timer in [
-		stats._potion_cooldown_timer,
-		stats._defense_buff_timer,
-		player._skills._secondary_cooldown,
-		player._shots._buff_timer,
-		player._move_slow_timer,
-		player._buff_superarmor_timer,
-		player.rage._buff_timer
-	]:
-		if timer > 0.0:
-			return "cooldown_or_buff"
-	if not player._dash_recharge_timers.is_empty():
-		return "cooldown_or_buff"
-	for remaining in player._skills._cooldowns.values():
-		if remaining > 0.0:
-			return "cooldown_or_buff"
-	for enemy in world.get_node("MonsterSpawner").get_children():
+	var reason := stats.save_block_reason(QUIET_SECONDS)
+	if not reason.is_empty():
+		return reason
+	reason = player.save_block_reason()
+	if not reason.is_empty():
+		return reason
+	for enemy in spawner.get_children():
 		if (
 			enemy is Node2D
 			and enemy.global_position.distance_to(player.global_position) < ENEMY_DISTANCE

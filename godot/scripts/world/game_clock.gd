@@ -49,7 +49,7 @@ func advance_time(delta_real_sec: float) -> void:
 
 func _refresh_phase() -> void:
 	var was_day := is_day
-	is_day = _elapsed_real_sec_in_day < time_data.real_seconds_day_phase
+	is_day = _compute_is_day(_elapsed_real_sec_in_day)
 	if is_day == was_day:
 		return
 	if is_day:
@@ -112,4 +112,8 @@ func restore_saved_time(day: int, elapsed: float) -> void:
 func prepare_scene_time(day: int, elapsed: float) -> void:
 	day_number = day
 	_elapsed_real_sec_in_day = elapsed
-	is_day = elapsed < time_data.real_seconds_day_phase
+	is_day = _compute_is_day(elapsed)
+
+
+func _compute_is_day(elapsed: float) -> bool:
+	return elapsed < time_data.real_seconds_day_phase

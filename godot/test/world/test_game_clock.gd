@@ -36,6 +36,20 @@ func after_each() -> void:
 	GameClock.time_data = _orig_time_data
 
 
+func test_scene_time_preparation_matches_restore_without_emitting_phase_signals() -> void:
+	watch_signals(GameClock)
+	for boundary in [300.0, 1200.0]:
+		GameClock.time_data.real_seconds_day_phase = boundary
+		for elapsed in [boundary - 0.1, boundary, boundary + 0.1]:
+			GameClock.prepare_scene_time(3, elapsed)
+			assert_eq(GameClock.is_day, elapsed < boundary)
+			assert_signal_not_emitted(GameClock, "day_started")
+			assert_signal_not_emitted(GameClock, "night_started")
+			var prepared: bool = GameClock.is_day
+			GameClock.restore_saved_time(3, elapsed)
+			assert_eq(GameClock.is_day, prepared)
+
+
 # --- 파생 계산 헬퍼 (주입한 리소스 값에서 기대값을 계산 — 하드코딩 금지) ---
 
 

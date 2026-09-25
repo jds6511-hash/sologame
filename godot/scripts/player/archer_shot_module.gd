@@ -39,6 +39,12 @@ var _shooter: Node2D = null
 var _tile_size_px: float = 16.0
 
 
+func save_block_reason() -> String:
+	if is_aiming or _burst_remaining > 0:
+		return "action_in_progress"
+	return "cooldown_or_buff" if _buff_timer > 0.0 else ""
+
+
 func setup(shooter: Node2D, tile_size_px: float) -> void:
 	_shooter = shooter
 	_tile_size_px = tile_size_px

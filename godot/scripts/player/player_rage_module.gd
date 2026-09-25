@@ -42,6 +42,10 @@ var _lifesteal_budget: float = 0.0  ## 이번 발동에서 남은 흡혈 회복 
 
 ## 전직 로드아웃 교체 시 호출된다(우클릭 격노 파생 슬롯을 그대로 넘긴다). 직업이 바뀌면
 ## 게이지는 0에서 다시 시작한다(2-1장 "시작치 0").
+func save_block_reason() -> String:
+	return "cooldown_or_buff" if _buff_timer > 0.0 else ""
+
+
 func refresh_job(rage_finisher: WarriorSkillData) -> void:
 	finisher = rage_finisher as GladiatorSkillData
 	reset()

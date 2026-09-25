@@ -56,6 +56,14 @@ func setup(owner_world: Node) -> String:
 
 
 func _no_existing_saves() -> bool:
+	if not DirAccess.dir_exists_absolute(store.root):
+		return true
+	for file in DirAccess.get_files_at(store.root):
+		if (
+			(file.begins_with("account.json.") or file.begins_with("character_"))
+			and ".preserved." in file
+		):
+			return false
 	if FileAccess.file_exists(store.root.path_join("account.json.bak")):
 		return false
 	for slot in range(1, 11):
@@ -81,8 +89,11 @@ func advance(delta: float) -> void:
 	_auto_elapsed = 0.0
 	var existing: Dictionary = store.read_save("character", active_slot)
 	var disk_account: Dictionary = store.read_save("account")
-	if not existing.ok or existing.recovered or not disk_account.ok or disk_account.recovered:
-		_report("자동 저장 중단: 활성 슬롯을 읽을 수 없습니다.")
+	if not existing.ok or not disk_account.ok:
+		_report("자동 저장 중단: 계정 또는 활성 슬롯을 읽을 수 없습니다.")
+		return
+	if existing.recovered or disk_account.recovered:
+		_report("자동 저장 중단: 백업 복구 상태입니다. 확인 후 수동 저장이 필요합니다.")
 		return
 	if existing.data.character_id != character.character_id:
 		_report("자동 저장 중단: 슬롯의 캐릭터가 바뀌었습니다.")

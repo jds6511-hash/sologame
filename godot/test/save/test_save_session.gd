@@ -206,3 +206,63 @@ func test_account_failure_keeps_main_and_backup_causes() -> void:
 	assert_eq(result.file_kind, "account")
 	assert_eq(result.main_code, "corrupt")
 	assert_eq(result.backup_code, "missing")
+
+
+func test_safety_rejects_world_without_required_spawner() -> void:
+	var spawner := world.get_node("MonsterSpawner")
+	spawner.name = "UnavailableSpawner"
+	assert_eq(session.save_slot(1).code, "unsupported_world")
+
+
+func test_preserved_only_account_is_not_silently_replaced() -> void:
+	assert_true(session.save_slot(1).ok)
+	var original := directory.path_join("account.json")
+	var preserved := original + ".preserved." + "a".repeat(64)
+	DirAccess.rename_absolute(original, preserved)
+	DirAccess.remove_absolute(directory.path_join("character_01.json"))
+	assert_false(session.save_slot(2).ok)
+	assert_false(session.new_character().ok)
+	assert_false(FileAccess.file_exists(original))
+	assert_true(FileAccess.file_exists(preserved))
+
+
+func test_recovered_autosave_explains_manual_save_requirement() -> void:
+	assert_true(session.save_slot(1).ok)
+	assert_true(session.save_slot(1).ok)
+	session.store._write_text(directory.path_join("character_01.json"), "broken")
+	session.advance(181.0)
+	assert_true(session.last_message.contains("백업"))
+	assert_true(session.last_message.contains("수동 저장"))
+
+
+func test_public_save_guards_cover_each_owned_transient_state() -> void:
+	var player = world.get_node("Player")
+	var stats = player.get_node("PlayerStats")
+	var cases := [
+		[player, "_is_charging_secondary", true, false],
+		[player, "_move_slow_timer", 1.0, 0.0],
+		[player, "_buff_superarmor_timer", 1.0, 0.0],
+		[player._shots, "is_aiming", true, false],
+		[player._shots, "_burst_remaining", 1, 0],
+		[player._shots, "_buff_timer", 1.0, 0.0],
+		[player._skills, "_secondary_cooldown", 1.0, 0.0],
+		[player.rage, "_buff_timer", 1.0, 0.0],
+		[stats, "_potion_cooldown_timer", 1.0, 0.0],
+		[stats, "_defense_buff_timer", 1.0, 0.0],
+		[stats, "_time_since_combat_action_sec", 0.0, 10.0]
+	]
+	for entry in cases:
+		entry[0].set(entry[1], entry[2])
+		assert_false(
+			player.save_block_reason().is_empty() and stats.save_block_reason(5.0).is_empty(),
+			entry[1]
+		)
+		entry[0].set(entry[1], entry[3])
+	player._dash_recharge_timers.append(1.0)
+	assert_false(player.save_block_reason().is_empty())
+	player._dash_recharge_timers.clear()
+	player._skills._cooldowns["test"] = 1.0
+	assert_false(player.save_block_reason().is_empty())
+	player._skills._cooldowns.clear()
+	assert_eq(player.save_block_reason(), "")
+	assert_eq(stats.save_block_reason(5.0), "")

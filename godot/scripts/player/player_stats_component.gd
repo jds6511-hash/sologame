@@ -206,6 +206,19 @@ func end_boss_encounter() -> void:
 	_boss_potion_used_count = 0
 
 
+## 상태의 소유자가 저장 제외 판정을 제공한다. 호출자는 대기 시간 정책만 전달한다.
+func save_block_reason(quiet_seconds: float) -> String:
+	if is_dead():
+		return "death_sequence"
+	if is_boss_encounter:
+		return "boss_encounter"
+	if _time_since_combat_action_sec < quiet_seconds:
+		return "recent_combat"
+	if _potion_cooldown_timer > 0.0 or _defense_buff_timer > 0.0:
+		return "cooldown_or_buff"
+	return ""
+
+
 func get_potion_cooldown_remaining_sec() -> float:
 	return _potion_cooldown_timer
 

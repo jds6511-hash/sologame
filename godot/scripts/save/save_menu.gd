@@ -219,6 +219,7 @@ static func error_text(code: String) -> String:
 			"pending_transfer": "미완료 창고 거래가 있습니다.",
 			"unsupported_transfer_history": "지원하지 않는 거래 기록입니다.",
 			"position_outside_map": "저장 위치가 현재 지도 밖입니다.",
+			"unsupported_world": "이 지역의 저장 연결을 확인할 수 없습니다.",
 			"session_blocked": "현재 상태에서는 캐릭터를 바꿀 수 없습니다."
 		}
 		. get(code, "저장 처리 실패 (%s)" % code)
