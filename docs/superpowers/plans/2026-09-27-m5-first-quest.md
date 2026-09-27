@@ -86,12 +86,14 @@ godot --headless --path godot -s addons/gut/gut_cmdln.gd -gdir=res://test/quests
 
 신규 `godot/test/quests/first_quest_process_probe.gd`는 `user://m5_first_quest_probe`만 사용한다. `docs/qa/m5-first-quest-report.md`와 현황/인수인계를 갱신한다.
 
-- [ ] active 1/2·ready 2/2·completed 상태를 각각 저장하고 새 프로세스에서 상태·레벨/EXP·골드·포션을 비교한다. completed 재보고 시 변화가 없어야 한다.
-- [ ] V1 기존 캐릭터를 로드하고 레벨/장비를 유지한 채 NPC 의뢰를 시작한다. 다른 슬롯의 상태와 원본 해시가 변하지 않는지 확인한다.
+- [x] active 1/2·ready 2/2·completed 상태를 각각 저장하고 새 프로세스에서 상태·레벨/EXP·골드·포션을 비교한다. completed 재보고 시 변화가 없어야 한다.
+- [x] V1 기존 캐릭터 fixture를 로드하고 레벨/장비를 유지한 채 NPC 의뢰를 시작한다. 슬롯 5 저장 후 다른 슬롯의 상태와 원본 해시가 변하지 않는지 확인한다.
 - [ ] 실제 창에서 이동→NPC→수락→처치→보고→저장→종료→재실행한다. 입력 도구가 물리 키를 전달하지 못하면 자동 이벤트 주입으로 실제 조작 통과를 대신하지 않는다.
 - [ ] 이동한 위치 복원 확인을 M4 미완료 항목에도 연결한다. 기존 종료 경고 6/2의 재현 여부는 별도 기록한다.
 - [ ] 디버그 레벨업 없이 첫 두 의뢰 전후 레벨·시간·포션·사망을 기록한다. 9개 의뢰/Lv10 검증은 아직 주장하지 않는다.
 - [ ] Claude에게 구현 커밋·보고서·재현 명령을 전달할 자료를 준비한다. 최종 문서와 커밋·푸시는 Codex가 담당한다.
+
+2026-09-27 진행: 자동 7단계 PASS, [보고서](../../qa/m5-quest-persistence-report.md)·[검토 요청](../../qa/m5-quest-persistence-review-request.md) 작성. 실제 창 시도는 F/W의 물리 키 코드 전달 오류로 중단했으며 게임 매핑을 바꾸지 않았다. 위 직접 플레이 항목은 미완료로 유지한다.
 
 ## 이번 설계 단위 검증
 

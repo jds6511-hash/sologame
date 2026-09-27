@@ -69,3 +69,6 @@
 단위 3에서 active 1/2·ready·completed 각각의 별도 프로세스 저장/복원, 완료 후 재보고 무지급, 직접 이동→NPC→사냥→보고→재실행을 검증한다. 이번 단위의 같은 프로세스 새 월드 복원과 기존 V1/4직업 probe를 그 검증의 대체로 주장하지 않는다.
 
 신규 네이티브 사람 조작 QA와 디렉터 G4/G5 승인은 없다. M4 직접 이동 후 위치 복원도 그대로 남는다. V1 probe의 seed 종료 4 objects/2 resources·upgrade/verify 6/2, 기존 4직업 seed 16/4 경고는 기존 제한이며 이번에 해결하지 않았다. 전체 GUT/렌더 PASS와 분리한다.
+# 후속 검증
+
+단위 2 독립 검토 통과 및 줍기 안내 보완은 [리뷰 대응](m5-first-quest-review-response.md), 단위 3 별도 프로세스 결과와 실제 창 입력 제한은 [재실행 보고서](m5-quest-persistence-report.md)를 따른다. 위 본문은 단위 2 당시 기록이다.

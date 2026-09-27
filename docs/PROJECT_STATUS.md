@@ -15,6 +15,7 @@
   - `docs\interim-review-2026-08-20.md` (2026-08-20 중간 검수 — 실측 스냅샷, 3장·9-5절·11장 근거)
   - `docs\claude-code-review-2026-08-20.md` (외부 개발 리뷰 — 디렉터 입수 입력 문서, 11장 채택분 근거)
 - **변경 이력**:
+  - 2026-09-27: M5 단위 3 의뢰 active/ready/completed·V1 캐릭터 별도 프로세스 7단계 PASS. 슬롯 5 저장 후 원본 1~4 해시 보호 확인. 신규 GDScript 2개 형식/린트 통과. 실제 창 F/W는 도구의 physical_keycode 불일치로 액션 미성립, 관통 플레이 미완료. [보고서](qa/m5-quest-persistence-report.md)·[검토 요청](qa/m5-quest-persistence-review-request.md). seed 4/2·active 6/2 종료 경고와 G4/G5 이월 유지.
   - 2026-09-27: Claude가 M5 단위 2 `5df3099` 구현 통과. 비차단 줍기 안내 불일치를 수정하고 전체 GUT 992/992·3574 assertions·108 scripts, 변경 GDScript 2개 형식/린트 통과. 토큰 최적화는 수락 전 처치 재반영 방지 계약 때문에 보류, 패 수령 후 재대화 체감은 단위 3으로 이월. [리뷰 대응](qa/m5-first-quest-review-response.md). 단위 3·G4/G5 미완료.
   - 2026-09-27: M5 단위 2 NPC·대화·첫 의뢰 보상/Journal 저장 연결 구현. 공유 아이템 인덱스·NPC ID 검사, 명시적 스폰 시작·단일 등록, 월드 소유 UI pause 중재 포함. GUT 989/989·3564 assertions·107 scripts, 변경 GDScript 35개 형식/린트·기존 렌더 입력 40/40·신규 대화 렌더 PASS. [보고서](qa/m5-first-quest-report.md)·[Claude 검토 요청](qa/m5-first-quest-review-request.md). 단위 3 및 G4/G5 직접 플레이 판정은 미완료다.
   - 2026-09-27: Claude가 `08af954` 보완 통과. 전체 GUT 970/970·3417 assertions·104 scripts 및 형식/린트·마이그레이션 5단계 재현 확인. [결과 기록](qa/m5-save-compatibility-review-response.md). 단위 1 리뷰 종료, 비차단 아이템 인덱스 통합은 단위 2에 포함한다. 이번 반영은 문서만 변경했으며 G4/G5는 미판정이다.
