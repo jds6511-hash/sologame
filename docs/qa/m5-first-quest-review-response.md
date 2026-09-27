@@ -1,6 +1,7 @@
 # M5 단위 2 독립 검토 대응
 
 - 날짜: 2026-09-27. Claude 검토 대상 `0e7e261..5df3099`, 보완 기준 `a3aba60`.
+- 보완 구현·검증 커밋: **`406d4d0`**. 소규모 재검토 범위: `a3aba60..406d4d0`의 WorldItem 및 테스트 두 파일.
 - 판정: **단위 2 구현 통과**. 단위 3 실제 플레이 및 G4/G5 승인을 뜻하지 않는다.
 - 연결: [기존 요청](m5-first-quest-review-request.md), [구현 보고서](m5-first-quest-report.md), [실행 계획](../superpowers/plans/2026-09-27-m5-first-quest.md).
 
