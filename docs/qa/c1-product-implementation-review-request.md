@@ -1,6 +1,6 @@
 # Claude 통합 구현 검토 — C1 런타임·V3 저장 제품 전환(D)
 
-- 2026-09-27~28 / Codex 구현·통합. 기준 `af4df6f`. 구현 해시는 커밋 후 아래에 고정한다.
+- 2026-09-27~28 / Codex 구현·통합. 기준 `af4df6f`, **구현·검증 커밋 `d424a6d`**. 후속 인계 커밋은 해시 고정만 하며 별도 검토 단위가 아니다.
 - 디렉터가 권고안대로 구현 승인했다. **C1·공급 정책 채택, 기본 V3 전환, 보스 기준 우선95 유지**. 이는 G4/G5 플레이 통과나 100h 완주 확인이 아니다.
 - [전환 계약](../design/systems/c1-product-rollout.md) · [저장 계약](../design/systems/c1-save-migration.md). 작은 보완별 인계 없이 이 묶음 전체를 검토한다.
 
@@ -50,7 +50,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File docs/qa/tools/verify_100_hou
 
 ## 확정 커밋·변경 파일
 
-구현 커밋은 후속 인계에서 해시를 고정한다. 변경 파일은 아래와 같다. 게임플레이/저장 전환, 테스트/계산기, 현행 문서 동기화만 포함하며 기존 스크린샷9개와 비관련 미추적 파일은 제외했다.
+`d424a6d`의 변경40파일은 아래와 같다. 게임플레이/저장 전환, 테스트/계산기, 현행 문서 동기화만 포함하며 기존 스크린샷9개와 비관련 미추적 파일은 제외했다.
 
 - `docs/design/100-hour-exp-margin.md`
 - `docs/design/100-hour-progression-budget.md`
