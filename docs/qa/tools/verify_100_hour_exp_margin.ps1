@@ -49,10 +49,12 @@ foreach ($line in $gateRows) {
     Check ((Number $c[5]) -eq $aSupply -and (Number $c[6]) -eq $bSupply) 'Gate omission mismatch'
     Check ((Number $c[7]) -eq $bSupply - $required) 'Gate surplus mismatch'
     Check ($aSupply -ge $required -and $bSupply -ge $required) 'Gate cannot be reached'
-    if ($gate -eq 95) { Check ($bSupply - $required -ge $required * 0.01) 'Final margin below 1% after post-boss exclusion' }
+    Check ($bSupply - $required -ge $required * 0.01) "Gate G$gate margin below 1%"
 }
 $postgame = (Cumulative 100) - (Cumulative 96) - $priorBonus
 Check ($postgame -eq 2902526) 'Postgame residual mismatch'
 Check ((RoundPositive ($postgame * 0.7)) -eq 2031768) 'Postgame report split mismatch'
-Write-Output 'EXP_MARGIN_MODEL_PASS: G40 B+521943; G80 B+222608; G95 B+578104; guaranteed bonus5359780; postgame2902526'
+Check ((ReachedLevel $supply) -eq 98 -and (ReachedLevel $aSupply) -eq 96 -and (ReachedLevel $bSupply) -eq 95) 'Final entry levels mismatch'
+Check ($bonuses[7] -eq 500000 -and $bonuses[11] -eq 2060000 -and $bonuses[12] -eq 2799780) 'Reward schedule mismatch'
+Write-Output 'EXP_MARGIN_MODEL_PASS: all gates B margin >=1%; G40 B+521943; G80 B+282608; G95 B+578104; final entry98/96/95; guaranteed bonus5359780; postgame2902526'
 Write-Output 'CONTENT_TIMING_UNVERIFIED: mandatory quest slots, pre-boss allocation, engine rounding and real playtime remain untested'

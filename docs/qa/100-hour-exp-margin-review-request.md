@@ -1,5 +1,7 @@
 # Claude 검토 요청 — EXP 여유 계약
 
+> **검토 종료**: 정본 EXP 공급 목표에 반영 가능 판정. [대응](100-hour-exp-margin-review-response.md)에 세 관문1%·Lv98와 S7→S11 제안의 누적 오류/S12→S11 정정을 기록했다. 아래는 제출 당시 이력이며 같은 리뷰를 기다리지 않는다.
+
 - 기준 `efe530e`. 이전 `8ca006b`의4건은 보완 통과로 종료. 이번은 새 정책·지급 순서 검토다.
 - 설계 커밋 **`ff86d89`**와 후속 인계 커밋을 함께 검토한다. 후속은 이 해시 기록과 설계 문서 EOF 빈 줄 정리뿐이다. 최종 diff 공백 검사·신규 문서 상대 링크4개 확인, 새 모델 도구 exit0. 제품 diff0.
 - [EXP 여유 계약](../design/100-hour-exp-margin.md), [기초 예산](../design/100-hour-progression-budget.md), `tools/verify_100_hour_exp_margin.ps1`.
