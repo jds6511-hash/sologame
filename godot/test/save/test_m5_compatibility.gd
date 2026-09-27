@@ -50,6 +50,7 @@ func test_previous_catalog_recovers_backup_and_preserves_unknown_third_quest_on_
 	var path := directory.path_join("character_01.json")
 	var original_hash := FileAccess.get_sha256(path)
 	codec.schema.quest_catalog.definitions.erase("MQ-01-03")
+	codec.schema.quest_catalog.definitions.erase("MQ-01-04")
 	assert_eq(codec.schema.character_error(future, account), "quest_fields")
 	var recovered: Dictionary = store.read_save("character", 1)
 	assert_true(recovered.ok)

@@ -22,6 +22,7 @@ var _exp_bar_width := 0.0
 var _pending_levels: Array[int] = []
 var _notice_delay := 0.0
 var _job_name := "전사"
+var _interaction_owner: Node
 ## M3 전직 UI 배선용 참조(bind_player가 채운다).
 var _bound_player: PlayerController = null
 var _progression: PlayerProgression = null
@@ -221,10 +222,18 @@ func set_game_time(day_number: int, hour: int, minute: int, is_day: bool) -> voi
 ## 상호작용 판정 시스템(M2 미구현) 연동 지점 — 근접 대상 판정이 생기면 이 함수를 호출.
 ## key_label: 안내할 입력 키(기본 F) — interaction_prompt.gd 참고.
 func show_interaction_prompt(
-	verb: String, world_position: Vector2, key_label: String = "F"
+	verb: String, world_position: Vector2, key_label: String = "F", owner: Node = null
 ) -> void:
+	if is_instance_valid(_interaction_owner) and owner != _interaction_owner:
+		return
+	_interaction_owner = owner
 	_interaction_prompt.show_prompt(verb, world_position, key_label)
 
 
-func hide_interaction_prompt() -> void:
+func hide_interaction_prompt(owner: Node = null) -> void:
+	if is_instance_valid(_interaction_owner) and owner != _interaction_owner:
+		return
+	if owner != null and _interaction_owner != owner:
+		return
+	_interaction_owner = null
 	_interaction_prompt.hide_prompt()

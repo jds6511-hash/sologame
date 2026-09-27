@@ -15,6 +15,7 @@
   - `docs\interim-review-2026-08-20.md` (2026-08-20 중간 검수 — 실측 스냅샷, 3장·9-5절·11장 근거)
   - `docs\claude-code-review-2026-08-20.md` (외부 개발 리뷰 — 디렉터 입수 입력 문서, 11장 채택분 근거)
 - **변경 이력**:
+  - 2026-09-28: MQ04 조사·복수 목표 표시·상호작용 단일 선택·보상·저장 재실행 구현. GUT1044/1044·GD17파일 검사·새 process8/8·기존 의뢰11/11·C1 7/7·렌더 PASS. [구현 검토](qa/m5-fourth-quest-review-request.md). V3 유지, 질주 힌트/영속화는 별도 저장 단위로 미완료 유지. 실제 동선/G4/G5 미판정.
   - 2026-09-28: Claude가 토끼 3668bd4 및 C1 보완 통과(지적0). 다음 M5 [MQ04 설계](design/systems/m5-fourth-quest.md)와 [통합 설계 검토 요청](qa/m5-fourth-quest-design-review-request.md) 작성. REACH→INTERACT·복수 목표 표시·입력 우선순위·V3 호환을 묶음. 이번은 문서 변경, 테스트 재실행 없음. G4/G5 미판정.
   - 2026-09-28: 디렉터 이동·전투·퀘스트 플레이에서 토끼 지속 도주 불편 접수. 1.5초 도주 후 0.8초 휴식 추가, C1 리뷰 낮음 3건 처리. 전체 GUT 1034/1034·C1 process 7/7 통과. [통합 검토](qa/rabbit-rest-review-request.md). 수정 후 체감·G4/G5 미판정.
   - 2026-09-28: 디렉터 권고안 구현 승인 후 C1 런타임·V3 기본 저장 전환 D 적용. 구 저장 원본 검증→정수 비율 변환→V3 재검증, 직접 복원 우회 차단, Legacy fixture 보존, 계산기 프로필 및 엔진 대조 완료. GUT1,032/1,032, Python6 tests, GD19개 형식/린트, 제품7단계·V1 5단계·4직업4단계·의뢰11단계 프로세스 PASS. [통합 검토 요청](qa/c1-product-implementation-review-request.md). 공급은 미래 콘텐츠 제작 정책·보스 기준 우선95, G4/G5와 실제100h 미판정.

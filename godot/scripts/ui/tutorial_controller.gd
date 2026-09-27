@@ -243,7 +243,7 @@ func _nearest_rabbit_in_range() -> RabbitMonster:
 
 
 func _update_attack_world_prompt() -> void:
-	if _player.get_meta("npc_interaction_available", false):
+	if _player.get_meta("world_interaction_available", false):
 		return
 	if _base_attack_landed:
 		_hud.hide_interaction_prompt()
@@ -342,9 +342,9 @@ func _on_item_added(_item: ItemData, _quantity: int) -> void:
 
 
 # --- 지연 노출: 응급 처치 (4장, HP 50% 이하 최초 1회) ---
-# 질주(4장) 힌트는 "15타일 이상 REACH 퀘스트 목표 수령"이 트리거인데 퀘스트 시스템이 아직
-# 없어 구현할 수 없다 — quest-designer/systems-dev의 퀘스트 저널 구현 이후 연동 필요
-# (onboarding.md 4장 각주와 동일한 공백, 결과 보고에도 명시).
+# 질주 힌트의 퀘스트 저널은 구현됐으나 hint_dash_done 영속화가 미구현이다.
+# MQ04는 V3를 유지한다. 별도 저장 변경 단위에서 버전/변환과 함께 연동한다.
+# 과거 MQ04 수락 저장의 소급 노출 정책도 그 단위에서 정한다(onboarding.md 4장).
 
 
 func _on_hp_changed(current_hp: float, max_hp: float) -> void:

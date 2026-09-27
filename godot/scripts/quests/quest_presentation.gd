@@ -21,8 +21,8 @@ static func select(catalog: QuestCatalog, states: Dictionary, npc_id: String) ->
 		"quest_id": "",
 		"action": "",
 		"button": "",
-		"message": "공훈부에 기록했습니다.\n균열 조사 의뢰 준비 중입니다.",
-		"tracker": "균열 조사 의뢰 준비 중"
+		"message": "공훈부에 기록했습니다.\n여울목 출발 의뢰는 아직 준비 중입니다.",
+		"tracker": "여울목 출발 의뢰 준비 중"
 	}
 
 
@@ -30,7 +30,8 @@ static func _view(definition: QuestData, state: Dictionary, catalog: QuestCatalo
 	var action := ""
 	var button := ""
 	var message := definition.offer_text
-	var tracker := definition.objective_label
+	var objective := current_objective(definition, state)
+	var tracker: String = objective.get("label", "")
 	if state.is_empty():
 		action = "accept"
 		button = definition.title + " 수락"
@@ -44,12 +45,7 @@ static func _view(definition: QuestData, state: Dictionary, catalog: QuestCatalo
 	elif not definition.grants_adventurer_pass:
 		tracker = (
 			"%s %d/%d · %s"
-			% [
-				definition.objective_label,
-				state.counts[0],
-				definition.objective_counts[0],
-				definition.location_hint
-			]
+			% [objective.label, objective.current, objective.required, objective.location]
 		)
 		message = tracker + "\n목표를 마친 뒤 접수원에게 돌아와 주세요."
 	if action != "":
@@ -61,6 +57,21 @@ static func _view(definition: QuestData, state: Dictionary, catalog: QuestCatalo
 		"message": definition.title + "\n" + message,
 		"tracker": definition.title + "\n" + tracker
 	}
+
+
+static func current_objective(definition: QuestData, state: Dictionary) -> Dictionary:
+	var counts: Array = state.get("counts", [])
+	for index in definition.objective_counts.size():
+		var value: int = counts[index] if index < counts.size() else 0
+		if value < definition.objective_counts[index]:
+			return {
+				"kind": definition.objective_kinds[index],
+				"label": definition.objective_labels[index],
+				"location": definition.objective_location_hints[index],
+				"current": value,
+				"required": definition.objective_counts[index]
+			}
+	return {}
 
 
 static func reward_text(definition: QuestData, catalog: QuestCatalog) -> String:

@@ -6,8 +6,8 @@
 script = ExtResource("1")
 quest_id = "MQ-01-02"
 offer_text = "동쪽 서식지의 뿔토끼 2마리를 잡고 돌아와 주세요."
-objective_label = "뿔토끼 처치"
-location_hint = "동쪽 서식지"
+objective_labels = Array[String](["뿔토끼 처치"])
+objective_location_hints = Array[String](["동쪽 서식지"])
 title = "토끼몰이"
 prerequisite = "MQ-01-01"
 objective_kinds = Array[String](["KILL"])

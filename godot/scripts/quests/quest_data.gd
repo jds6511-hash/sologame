@@ -5,8 +5,8 @@ extends Resource
 @export var quest_id: String = ""
 @export var title: String = ""
 @export_multiline var offer_text: String = ""
-@export var objective_label: String = ""
-@export var location_hint: String = ""
+@export var objective_labels: Array[String] = []
+@export var objective_location_hints: Array[String] = []
 @export var prerequisite: String = ""
 @export var npc_id: String = "yeoulmok_receptionist"
 @export var objective_kinds: Array[String] = []
@@ -28,13 +28,27 @@ func definition_error() -> String:
 		return "quest_definition"
 	if objective_sources.size() != count:
 		return "quest_definition"
+	if title.strip_edges().is_empty() or offer_text.strip_edges().is_empty():
+		return "quest_presentation"
+	if objective_labels.size() != count or objective_location_hints.size() != count:
+		return "quest_presentation"
 	if reward_exp < 0 or reward_gold < 0 or reward_item_count < 0:
 		return "quest_reward"
 	if reward_item_id.is_empty() != (reward_item_count == 0):
 		return "quest_reward"
 	for index in count:
-		if objective_kinds[index] not in ["REACH", "TALK", "KILL"]:
+		if objective_kinds[index] not in ["REACH", "TALK", "KILL", "INTERACT"]:
 			return "unsupported_objective"
 		if objective_counts[index] <= 0 or objective_targets[index].is_empty():
 			return "quest_definition"
+		if objective_labels[index].strip_edges().is_empty():
+			return "quest_presentation"
+		var pass_location := (
+			quest_id == "MQ-01-01"
+			and grants_adventurer_pass
+			and objective_kinds[index] in ["REACH", "TALK"]
+			and objective_targets[index] == "yeoulmok_receptionist"
+		)
+		if not pass_location and objective_location_hints[index].strip_edges().is_empty():
+			return "quest_presentation"
 	return ""

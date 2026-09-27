@@ -46,7 +46,11 @@ func _on_body_entered(body: Node) -> void:
 func _pickup_available() -> bool:
 	return (
 		is_instance_valid(_nearby_inventory)
-		and not _nearby_inventory.get_parent().get_meta("npc_interaction_available", false)
+		and not _nearby_inventory.get_parent().get_meta("world_interaction_available", false)
+		and (
+			int(_nearby_inventory.get_parent().get_meta("world_interaction_consumed_frame", -2))
+			< Engine.get_process_frames() - 1
+		)
 	)
 
 

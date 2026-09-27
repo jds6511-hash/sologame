@@ -61,13 +61,14 @@ func test_followup_offer_then_progress_report_and_end() -> void:
 	assert_eq(_view(states).get("action"), "report")
 	assert_string_contains(_view(states).get("message", ""), "490")
 	states["MQ-01-03"].state = "completed"
-	assert_eq(_view(states).get("action"), "")
-	assert_string_contains(_view(states).get("tracker", ""), "준비 중")
+	assert_eq(_view(states).get("action"), "accept")
+	assert_eq(_view(states).get("quest_id"), "MQ-01-04")
 
 
 func test_old_catalog_rejects_three_entries_before_unknown_id_check() -> void:
 	var old := Catalog.new()
 	old.definitions.erase("MQ-01-03")
+	old.definitions.erase("MQ-01-04")  # 과거 2의뢰 카탈로그를 유지한다.
 	var states := _completed_first_two()
 	states["MQ-01-03"] = {"state": "active", "counts": [1]}
 	assert_eq(Schema.validate(states, old), "quest_fields")

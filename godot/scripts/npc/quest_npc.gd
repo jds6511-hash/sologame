@@ -18,19 +18,10 @@ func setup(
 	process_priority = 10
 
 
-func _process(_delta: float) -> void:
-	update_target()
-
-
 func update_target() -> void:
-	var was_available := _available
 	_available = _can_interact()
-	_player.set_meta("npc_interaction_available", _available)
 	if _available:
 		_controller.journal.record_event("REACH", npc_id, "", 0)
-		_hud.show_interaction_prompt("대화", global_position - Vector2(0, 24))
-	elif was_available:
-		_hud.hide_interaction_prompt()
 
 
 func _can_interact() -> bool:
@@ -55,11 +46,20 @@ func interact() -> bool:
 	if not _available:
 		return false
 	var opened := _dialog.open_dialog(npc_id)
-	if opened:
-		_hud.hide_interaction_prompt()
 	return opened
 
 
-func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("interact") and not event.is_echo() and interact():
-		get_viewport().set_input_as_handled()
+func can_interact() -> bool:
+	return _can_interact()
+
+
+func interaction_id() -> String:
+	return npc_id
+
+
+func interaction_priority() -> int:
+	return 0
+
+
+func interaction_verb() -> String:
+	return "대화"

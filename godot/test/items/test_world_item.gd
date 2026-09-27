@@ -26,7 +26,7 @@ func after_each() -> void:
 
 
 func test_npc_priority_hides_prompt_and_blocks_pickup_on_entry() -> void:
-	_player.set_meta("npc_interaction_available", true)
+	_player.set_meta("world_interaction_available", true)
 	_item._on_body_entered(_player)
 	assert_false(_item.get_node("PickupPrompt").visible)
 	Input.action_press("interact")
@@ -39,10 +39,10 @@ func test_npc_priority_hides_prompt_and_blocks_pickup_on_entry() -> void:
 func test_prompt_tracks_npc_priority_without_overlap_reentry() -> void:
 	_item._on_body_entered(_player)
 	assert_true(_item.get_node("PickupPrompt").visible)
-	_player.set_meta("npc_interaction_available", true)
+	_player.set_meta("world_interaction_available", true)
 	_item._process(0.0)
 	assert_false(_item.get_node("PickupPrompt").visible)
-	_player.set_meta("npc_interaction_available", false)
+	_player.set_meta("world_interaction_available", false)
 	_item._process(0.0)
 	assert_true(_item.get_node("PickupPrompt").visible)
 	Input.action_press("interact")
@@ -53,9 +53,9 @@ func test_prompt_tracks_npc_priority_without_overlap_reentry() -> void:
 
 func test_leaving_overlap_keeps_prompt_hidden_after_npc_priority_ends() -> void:
 	_item._on_body_entered(_player)
-	_player.set_meta("npc_interaction_available", true)
+	_player.set_meta("world_interaction_available", true)
 	_item._process(0.0)
 	_item._on_body_exited(_player)
-	_player.set_meta("npc_interaction_available", false)
+	_player.set_meta("world_interaction_available", false)
 	_item._process(0.0)
 	assert_false(_item.get_node("PickupPrompt").visible)

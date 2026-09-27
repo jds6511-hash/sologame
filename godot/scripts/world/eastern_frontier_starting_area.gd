@@ -167,3 +167,13 @@ func _setup_quest_ui(quests: QuestController) -> void:
 	npc.position = get_node("Markers/NPCs/NPC_조합순회접수원").position
 	add_child(npc)
 	npc.setup(_player, quests, dialog, _hud)
+	var site = load("res://scripts/quests/rift_investigation.gd").new()
+	site.name = "RiftInvestigation"
+	site.position = get_node("Markers/QuestPoints/INTERACT_균열표식_MQ0104").position
+	add_child(site)
+	site.setup(_player, quests, get_node("Markers/QuestPoints/REACH_균열굴어귀_MQ0104").global_position)
+	var interaction = load("res://scripts/quests/world_interaction.gd").new()
+	interaction.name = "WorldInteraction"
+	add_child(interaction)
+	interaction.setup(_player, _hud)
+	interaction.candidates.assign([npc, site])
