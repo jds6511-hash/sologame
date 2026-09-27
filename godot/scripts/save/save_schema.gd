@@ -6,6 +6,7 @@ const Codes = preload("res://scripts/save/save_validation_codes.gd")
 const MAX_INT := 2147483647
 const QuestSchema = preload("res://scripts/quests/quest_state_schema.gd")
 const Catalog = preload("res://scripts/quests/quest_catalog.gd")
+const ProgressionRules = preload("res://scripts/save/save_progression_rules.gd")
 var registry = Registry.new()
 var quest_catalog = Catalog.new(registry)
 
@@ -88,6 +89,15 @@ func account_error(data: Dictionary) -> String:
 
 
 func character_error(data: Dictionary, account: Dictionary) -> String:
+	return _character_error(data, account, false)
+
+
+## 단위 A 검증 전용. 실제 codec/store는 V3를 계속 거부한다.
+func candidate_character_error(data: Dictionary, account: Dictionary) -> String:
+	return _character_error(data, account, true)
+
+
+func _character_error(data: Dictionary, account: Dictionary, candidate: bool) -> String:
 	if not quest_catalog.definition_errors().is_empty():
 		return Codes.QUEST_CONTENT_ERROR
 	var error := account_error(account)
@@ -121,8 +131,10 @@ func character_error(data: Dictionary, account: Dictionary) -> String:
 		return "character_identity"
 	if not is_finite(version) or version != floor(version):
 		return "character_identity"
-	if int(data.character_save_version) not in [1, 2]:
+	# JSON은 정수 값도 float로 읽는다. int 변환 전에 범위를 확인한다.
+	if version < 1 or version > (3 if candidate else 2):
 		return "unsupported_version"
+	var rules = ProgressionRules.for_version(int(version))
 	if data.account_id != account.account_id:
 		return "account_mismatch"
 	if not data.name is String or data.name.is_empty() or data.name.length() > 40:
@@ -130,7 +142,7 @@ func character_error(data: Dictionary, account: Dictionary) -> String:
 	if not number(data.play_seconds, 0, MAX_INT):
 		return "play_seconds"
 	for result in [
-		player_error(data.player), inventory_error(data.inventory), world_error(data.world)
+		player_error(data.player, rules), inventory_error(data.inventory), world_error(data.world)
 	]:
 		if not result.is_empty():
 			return result
@@ -150,7 +162,7 @@ func character_error(data: Dictionary, account: Dictionary) -> String:
 		or data.progress.story_flags != {}
 	):
 		return "reserved_progress"
-	if data.character_save_version == 2:
+	if version >= 2:
 		var quest_error: String = QuestSchema.validate(data.progress.quests, quest_catalog)
 		if not quest_error.is_empty():
 			return quest_error
@@ -161,7 +173,7 @@ func character_error(data: Dictionary, account: Dictionary) -> String:
 	return ""
 
 
-func player_error(data: Variant) -> String:
+func player_error(data: Variant, rules: RefCounted) -> String:
 	if not fields(
 		data,
 		[
@@ -177,11 +189,9 @@ func player_error(data: Variant) -> String:
 		]
 	):
 		return "player_fields"
-	if not integer(data.level, 1, Registry.CURVE.max_level) or not integer(data.exp):
+	if not integer(data.level, 1, rules.max_level()) or not integer(data.exp):
 		return "level_exp"
-	var limit: int = (
-		1 if data.level == Registry.CURVE.max_level else Registry.CURVE.req(int(data.level))
-	)
+	var limit: int = 1 if data.level == rules.max_level() else rules.req(int(data.level))
 	if data.exp >= limit:
 		return "exp_overflow"
 	if (
@@ -189,15 +199,15 @@ func player_error(data: Variant) -> String:
 		or (data.job_id != "adventurer" and not Registry.JOBS.has(data.job_id))
 	):
 		return "unknown_job"
-	if data.job_id != "adventurer" and data.level < Registry.JOBS[data.job_id].transition_level():
+	if data.job_id != "adventurer" and data.level < rules.transition_level(data.job_id):
 		return "job_level"
 	var stats := registry.max_stats(int(data.level), data.job_id)
 	if not number(data.hp, 0.000001, stats.max_hp) or not number(data.mp, 0, stats.max_mp):
 		return "vitals"
-	return skills_error(data)
+	return skills_error(data, rules)
 
 
-func skills_error(data: Dictionary) -> String:
+func skills_error(data: Dictionary, rules: RefCounted) -> String:
 	if not integer(data.skill_points) or not integer(data.spent_points):
 		return "skill_points"
 	if not data.skill_levels is Dictionary or not data.skill_costs is Dictionary:
@@ -216,19 +226,19 @@ func skills_error(data: Dictionary) -> String:
 			if data.job_id != "adventurer"
 			else false
 		)
-		if not integer(data.skill_levels[id], 2, Registry.RULE.max_skill_level(ultimate)):
+		if not integer(data.skill_levels[id], 2, rules.max_skill_level(ultimate)):
 			return "skill_level"
 		if not integer(data.skill_costs[id], 1):
 			return "skill_cost"
 		var expected_cost := 0
 		for step in range(1, int(data.skill_levels[id])):
-			expected_cost += Registry.RULE.upgrade_cost(step, ultimate)
+			expected_cost += rules.upgrade_cost(step, ultimate)
 		if data.skill_costs[id] != expected_cost:
 			return "skill_cost"
 		# 검증만 한다. 복원/환급에는 저장된 실제 지출 장부를 그대로 사용한다.
 		total += int(data.skill_costs[id])
-	var earned: int = (int(data.level) - 1) * Registry.RULE.points_per_level
-	earned += registry.tier(data.job_id) * Registry.RULE.points_per_transition
+	var earned: int = (int(data.level) - 1) * rules.points_per_level()
+	earned += registry.tier(data.job_id) * rules.points_per_transition()
 	if total != data.spent_points or total + data.skill_points != earned:
 		return "skill_budget"
 	return ""

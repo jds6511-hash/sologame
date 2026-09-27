@@ -1,8 +1,9 @@
 # C1 성장 곡선 저장 호환 — 설계 계약
 
-- 2026-09-27, 코드 대조 `a7606fa`. **설계 검토 단계, 구현/제품 적용 없음.**
+- 2026-09-27, 설계 코드 대조 `a7606fa`, 단위 A 구현 기준 `4b02332`. **단위 A 규칙·후보 검증 구현, 독립 리뷰 대기. C1 런타임/V3 읽기·쓰기 적용 없음.**
 - [저장 정본](save-load.md) · [C1 후보](../100-hour-progression-budget.md) · [공급 목표](../100-hour-exp-margin.md) · [검토 요청](../../qa/c1-save-migration-review-request.md).
 - 적용 전제: C1 제품 곡선 승인 및 명시적 의뢰 보상/지급 순서 계약. 이 문서가 이를 승인하지 않는다.
+- 변경 이력 2026-09-27: `14373e2` 리뷰 대조. 의뢰 버전 분기·호출별 규칙 전달·단위 C fixture 목록을 보완했다. 단위 A는 후보 검증 전용 진입점을 사용하고 실제 codec/store의 V3 거부는 유지한다.
 
 ## 1. 버전과 규칙 소유권
 
@@ -14,7 +15,9 @@
 
 1. `SaveFileStore._read/_version_error`: 봉투/본문 버전 일치·크기·checksum·지원 버전 검사 유지. 캐릭터 읽기 허용1/2/3, 미래 버전 차단 유지.
 2. `CharacterSaveCodec.bind_store` callback→`SaveSchema.character_error`: **본문 버전별 규칙**으로 계정 연결·예약 필드·의뢰·플레이어 검증. 주/백업 모두 같은 경로다.
+   의뢰 검증은 지원 버전 중 V2/V3 모두 실행한다. 현행 `== 2` 분기를 그대로 남기지 않는다. V1 의뢰 빈 객체 예약은 유지한다. 단위 A의 V3는 `candidate_character_error`에서만 검사하고 제품 진입점은 계속 거부한다.
 3. `player_error`는 선택된 REQ/max_level을 사용한다. 전직 관문/스킬은 이번에 바꾸지 않지만 `skills_error`까지 선택 규칙을 일관되게 전달한다. 레벨 기반 HP/MP 산식은 유지한다.
+   규칙 객체는 각 payload 버전에서 선택해 함수 인자로 전달한다. 스키마·레지스트리의 가변 필드에 선택 버전을 저장하지 않는다. 같은 인스턴스의 V3→V2→V1→V3 호출을 교차 검사한다.
 4. `prepare_loaded`: 원본 검증→`CharacterSaveMigrations.upgrade` 복사 변환→V3 재검증. 직접 codec 호출도 store 검증을 가정하지 않는다.
 
 콘텐츠 오류는 전용 차단 코드로 유지한다. 구 EXP 오류를 비율 변환으로 정상화하지 않는다. 미완 거래·다른 계정·미지원 ID도 기존 보호를 유지한다.
@@ -45,12 +48,14 @@
 
 | 단위 | 대상 | 완료 조건 |
 | --- | --- | --- |
-| A 규칙 | 저장 규칙 정의·save_schema | 버전별 원본 검증, 구 저장 오판 방지, 직업/스킬/vitals 불변 |
+| A 규칙 | 저장 규칙 정의·save_schema | 버전별 원본 검증, V2/V3 의뢰 검증, 규칙 인자 전달, 구 저장 오판 방지, 직업/스킬/vitals 불변 |
 | B 순수 변환 | migrations·codec | 정수 비율·입력 불변·멱등·V1/V2→V3 및V3 재검증 |
 | C 파일/세션 | store·capture·session | 출력/허용 버전, 원본 보호, 수동 성공 전 자동 저장 보류 |
 | D 제품 연결 | 승인된 C1 런타임 | 런타임/V3 일치, 저장·종료·재실행. 승인 전 배포 금지 |
 
 필수 사례:
+
+단위 C 버전 리터럴 점검 대상: `test_save_file_store.gd`의 V2 payload 38곳, `save_store_process_probe.gd` 2곳, `test_m5_compatibility.gd`의 버전 단언과 `test_new_capture_uses_version_two` 함수명, `m5_migration_process_probe.gd`의 `v2`/`v2_boot` 라벨. 이는 현행 코드 검색 기준이며 구현 때 재검색한다. 무조건 2→3 치환하지 않고 현재 출력 검증과 구 버전 fixture를 구분한다. `first_quest_process_probe.gd`의 V1 fixture 및 구 곡선 회귀·Lv10 누적18,612는 보존한다. 단위 A에서는 이 파일들을 변경하지 않는다.
 
 - 전 레벨1~99 REQ 엔진 대조; EXP0/1/REQ−1, 경계9/10/11/19/20/39/40/79/80/99/100.
 - 구Lv20/EXP50,000은 유효→비율 변환→V3 유효. 동일 payload를 처음부터V3로 표기하면 새REQ 초과로 거부.
@@ -60,4 +65,4 @@
 - 읽기→종료→재실행 원본 유지, 수동 성공→재실행 멱등,180초가 지나도 migration_pending이면 미쓰기.
 - 기존GUT/저장·의뢰 프로세스 probe 회귀, 신규 변환 별도 프로세스. 신REQ로 구 fixture까지 재생성하지 않는다.
 
-이번 단위는 설계·소스 대조만이다. 위 테스트 실행이나V3 저장 생성은 하지 않았다. 문서 EXP 관문 통과와 저장 구현 통과는 별개다.
+단위 A 검증 결과는 [구현 보고서](../../qa/c1-save-rules-report.md)에 기록했다. 전체 구현 행렬의 완료를 뜻하지 않는다. V3 변환·파일 생성·혼합 세대 복구·자동 저장 보류 변경은 B/C 단위이며 아직 실행하지 않았다. 문서 EXP 관문 통과와 저장 구현 통과는 별개다.

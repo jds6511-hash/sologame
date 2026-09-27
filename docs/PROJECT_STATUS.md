@@ -15,6 +15,7 @@
   - `docs\interim-review-2026-08-20.md` (2026-08-20 중간 검수 — 실측 스냅샷, 3장·9-5절·11장 근거)
   - `docs\claude-code-review-2026-08-20.md` (외부 개발 리뷰 — 디렉터 입수 입력 문서, 11장 채택분 근거)
 - **변경 이력**:
+  - 2026-09-27: `14373e2` 설계 리뷰 반영 후 C1 저장 호환 단위 A 구현. 불변 구/후보 규칙·호출별 인자 전달·V2/V3 의뢰 검증, 실제 제품의 V3 거부 유지. 전체 GUT 1,009/1,009·4,968 assertions, 기존 V1→V2 probe5단계, GD3개 형식/린트 통과. [보고서](qa/c1-save-rules-report.md) · [새 구현 검토 요청](qa/c1-save-rules-review-request.md). B/C/D·G4/G5 이월.
   - 2026-09-27: EXP 반영 후 자동 진행해 [C1/V3 저장 호환 계약](design/systems/c1-save-migration.md) 작성. 구/신 규칙 원본 검증·레벨 내 비율 보존·수동 성공 전 자동 저장 보류·런타임 동시 전환을 설계했다. [새 설계 검토 요청](qa/c1-save-migration-review-request.md). 제품 구현/테스트 미실행, V3 미생성.
   - 2026-09-27: EXP 여유 리뷰 반영 가능 판정 수신. S7→S11은G80 누적 불변임을 확인해 S12→S11로60,000 이동. 세 관문1% 조건에서 먼저G80 실패 재현 후 모델PASS, 최종전98/96/95 확인. [대응](qa/100-hour-exp-margin-review-response.md). 성장·퀘스트 정본 공급 목표 반영, 제품 미적용/G4/G5 이월 유지.
   - 2026-09-27: `8ca006b` 보완 통과를 수신하고 [EXP 여유 계약](design/100-hour-exp-margin.md)을 작성했다. 엔딩 전 공통 메인+10%, 전직 첫 보고 지급, 최종전 후 보상 제외, 포스트스토리 잔여 조정. 문서 모델 G40/G80/G95 A/B 통과(EXP_MARGIN_MODEL_PASS), 실제 콘텐츠 시점은 미검증. [새 검토 요청](qa/100-hour-exp-margin-review-request.md). 제품/C1/저장 미적용, G4/G5 유지.
