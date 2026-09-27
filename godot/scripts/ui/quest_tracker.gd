@@ -1,5 +1,7 @@
 extends CanvasLayer
 
+const Presentation = preload("res://scripts/quests/quest_presentation.gd")
+
 var journal: QuestJournal
 var _label: Label
 var _notification: Label
@@ -28,17 +30,11 @@ func setup(controller: QuestController) -> void:
 
 
 func _refresh() -> void:
-	var states := journal.export_state()
-	if states.get("MQ-01-01", {}).get("state") != "completed":
-		_label.text = "눈을 뜨다\n접수원과 대화 [F] · 모험가 패 받기"
-	elif not states.has("MQ-01-02"):
-		_label.text = "모험가 패 보유\n접수원에게 토끼몰이 수락 [F]"
-	elif states["MQ-01-02"].state == "active":
-		_label.text = "토끼몰이\n뿔토끼 처치 %d/2 · 동쪽 서식지" % states["MQ-01-02"].counts[0]
-	elif states["MQ-01-02"].state == "ready":
-		_label.text = "토끼몰이\n접수원에게 보고 [F]"
-	else:
-		_label.text = "토끼몰이 보고 완료\n모험가 패 보유"
+	_label.text = (
+		Presentation
+		. select(journal.catalog, journal.export_state(), "yeoulmok_receptionist")
+		. tracker
+	)
 	var menu = get_parent().get_node_or_null("IntegratedMenu")
 	if menu:
 		menu.get_node("Tabs/JournalTab").set_message(_label.text)

@@ -35,6 +35,48 @@ func test_new_capture_uses_version_two() -> void:
 	assert_eq(data.character_save_version, 2)
 
 
+func test_previous_catalog_recovers_backup_and_preserves_unknown_third_quest_on_write() -> void:
+	var store = Store.new(directory)
+	codec.bind_store(store, account)
+	var previous: Dictionary = data.duplicate(true)
+	previous.progress.quests = {
+		"MQ-01-01": {"state": "completed", "counts": [1, 1]},
+		"MQ-01-02": {"state": "completed", "counts": [2]}
+	}
+	assert_true(store.write_save("character", 1, previous).ok)
+	var future := previous.duplicate(true)
+	future.progress.quests["MQ-01-03"] = {"state": "active", "counts": [1]}
+	assert_true(store.write_save("character", 1, future).ok)
+	var path := directory.path_join("character_01.json")
+	var original_hash := FileAccess.get_sha256(path)
+	codec.schema.quest_catalog.definitions.erase("MQ-01-03")
+	assert_eq(codec.schema.character_error(future, account), "quest_fields")
+	var recovered: Dictionary = store.read_save("character", 1)
+	assert_true(recovered.ok)
+	assert_true(recovered.recovered)
+	assert_eq(recovered.main_code, "invalid_data")
+	assert_eq(FileAccess.get_sha256(path), original_hash, "read never rewrites original")
+	assert_true(store.write_save("character", 1, previous).ok)
+	assert_eq(FileAccess.get_sha256(path + ".preserved." + original_hash), original_hash)
+
+
+func test_third_quest_all_states_remain_version_two_and_restore_to_independent_journal() -> void:
+	for state in ["active", "ready", "completed"]:
+		data.progress.quests = {
+			"MQ-01-01": {"state": "completed", "counts": [1, 1]},
+			"MQ-01-02": {"state": "completed", "counts": [2]},
+			"MQ-01-03": {"state": state, "counts": [1 if state == "active" else 2]}
+		}
+		assert_eq(codec.schema.character_error(data, account), "")
+		var journal := QuestJournal.new(codec.schema.quest_catalog)
+		assert_eq(
+			journal.restore_state(JSON.parse_string(JSON.stringify(data.progress.quests))), ""
+		)
+		assert_eq(journal.export_state(), data.progress.quests)
+		data.progress.quests["MQ-01-03"].counts[0] = 0
+		assert_ne(journal.export_state(), data.progress.quests)
+
+
 func test_direct_codec_unsupported_integer_versions_match_store() -> void:
 	for version in [0, -1, 3, 0.0]:
 		data.character_save_version = version

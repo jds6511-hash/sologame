@@ -15,7 +15,21 @@ func _run() -> void:
 	var args := OS.get_cmdline_user_args()
 	if (
 		args.size() != 1
-		or args[0] not in ["cleanup", "seed", "active", "ready", "completed", "legacy"]
+		or (
+			args[0]
+			not in [
+				"cleanup",
+				"seed",
+				"active",
+				"ready",
+				"completed",
+				"legacy",
+				"third_seed",
+				"third_active",
+				"third_ready",
+				"third_completed"
+			]
+		)
 	):
 		quit(2)
 		return
@@ -27,6 +41,10 @@ func _run() -> void:
 		completed = true
 	elif args[0] == "seed":
 		_seed()
+	elif args[0] == "third_seed":
+		_seed_third()
+	elif args[0].begins_with("third_"):
+		_verify_third(args[0].trim_prefix("third_"))
 	else:
 		_verify(args[0])
 	_check(completed, "phase reached final checks")
@@ -185,6 +203,68 @@ func _read_fixture(name: String) -> Dictionary:
 		_check(false, "fixture invalid or empty: " + name)
 		return {}
 	return parsed
+
+
+func _seed_third() -> void:
+	var hashes := _read_fixture("hashes.json")
+	if hashes.is_empty():
+		return
+	for slot in range(6, 9):
+		var world := _world()
+		var controller = world.get_node("QuestController")
+		_first(controller)
+		_kill(controller.journal, 1)
+		_kill(controller.journal, 2)
+		_check(controller.report("MQ-01-02", NPC) == "", "second complete")
+		_check(controller.journal.accept("MQ-01-03") == "", "third accept")
+		controller.journal.record_event("KILL", "feral_dog", "yeoulmok_dog_habitat", 3)
+		if slot >= 7:
+			controller.journal.record_event("KILL", "feral_dog", "yeoulmok_dog_habitat", 4)
+		if slot == 8:
+			_check(controller.report("MQ-01-03", NPC) == "", "third report")
+		var session = world.get_node("SaveSession")
+		_check(session.save_slot(slot).ok, "third save")
+		_write("expected_%d.json" % slot, JSON.stringify(session.character))
+		world.free()
+	for name in hashes:
+		_check(
+			FileAccess.get_sha256(ROOT.path_join(name)) == hashes[name],
+			"third seed original unchanged"
+		)
+	completed = true
+
+
+func _verify_third(phase: String) -> void:
+	var slot: int = {"active": 6, "ready": 7, "completed": 8}[phase]
+	var expected := _read_fixture("expected_%d.json" % slot)
+	if expected.is_empty():
+		return
+	var world := _world()
+	var result: Dictionary = world.get_node("SaveSession").load_slot(slot)
+	_check(result.ok, "third load")
+	if not result.ok:
+		world.free()
+		return
+	world = current_scene
+	world.process_mode = Node.PROCESS_MODE_DISABLED
+	_check(JSON.parse_string(JSON.stringify(_snapshot(world))) == expected, "third full payload")
+	var controller = world.get_node("QuestController")
+	_check(controller.journal.export_state()["MQ-01-03"].state == phase, "third state")
+	if phase == "active":
+		controller.journal.record_event("KILL", "feral_dog", "yeoulmok_dog_habitat", 700)
+	if phase != "completed":
+		_check(controller.report("MQ-01-03", NPC) == "", "third continued report")
+	var before := _snapshot(world)
+	_check(controller.report("MQ-01-03", NPC) == "quest_not_ready", "third repeat blocked")
+	_check(_snapshot(world) == before, "third repeat unchanged")
+	_check(before.inventory.gold == 270, "third total gold")
+	var progression = world.get_node("Player/PlayerProgression")
+	var earned: int = progression.current_exp
+	for level in range(1, progression.current_level):
+		earned += progression.level_curve.req(level)
+	_check(earned == 890, "third quest EXP total")
+	world.free()
+	completed = true
 
 
 func _write(name: String, value: String) -> void:

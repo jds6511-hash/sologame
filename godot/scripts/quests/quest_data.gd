@@ -4,6 +4,9 @@ extends Resource
 
 @export var quest_id: String = ""
 @export var title: String = ""
+@export_multiline var offer_text: String = ""
+@export var objective_label: String = ""
+@export var location_hint: String = ""
 @export var prerequisite: String = ""
 @export var npc_id: String = "yeoulmok_receptionist"
 @export var objective_kinds: Array[String] = []

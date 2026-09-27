@@ -145,10 +145,10 @@ func test_world_boot_dialog_and_codec_share_character_journal() -> void:
 	dialog.close_dialog()
 	assert_eq(world.get_node("Player/Inventory").gold, 0)
 	assert_true(npc.interact())
-	dialog.choose("report_first")
+	dialog.choose("report", "MQ-01-01")
 	assert_eq(world.get_node("Player/Inventory").gold, 20)
 	assert_true(npc.interact())
-	dialog.choose("accept_second")
+	dialog.choose("accept", "MQ-01-02")
 	assert_eq(journal.export_state()["MQ-01-02"].counts, [0])
 	var spawner = world.get_node("MonsterSpawner")
 	var initial: int = spawner.get_child_count()
@@ -233,3 +233,82 @@ func test_respawned_rabbit_keeps_source_and_counts_once() -> void:
 		assert_eq(replacement.get_meta("spawn_source_id"), "yeoulmok_rabbit_habitat")
 		replacement.take_damage(99999.0, "강")
 		assert_eq(quests.journal.export_state()["MQ-01-02"].state, "ready")
+
+
+func _finish_first_two() -> void:
+	var quests = world.get_node("QuestController")
+	quests.journal.record_event("REACH", "yeoulmok_receptionist", "", 0)
+	quests.journal.record_event("TALK", "yeoulmok_receptionist", "", 0)
+	assert_eq(quests.report("MQ-01-01", "yeoulmok_receptionist"), "")
+	assert_eq(quests.journal.accept("MQ-01-02"), "")
+	quests.journal.record_event("KILL", "horned_rabbit", "yeoulmok_rabbit_habitat", 100)
+	quests.journal.record_event("KILL", "horned_rabbit", "yeoulmok_rabbit_habitat", 101)
+	assert_eq(quests.report("MQ-01-02", "yeoulmok_receptionist"), "")
+
+
+func test_third_dialog_rejects_unoffered_actions_and_keeps_explicit_acceptance() -> void:
+	_finish_first_two()
+	var dialog = world.get_node("QuestDialog")
+	var quests = world.get_node("QuestController")
+	assert_false(dialog.open_dialog("wrong_npc"))
+	assert_true(dialog.open_dialog("yeoulmok_receptionist"))
+	dialog.choose("report", "MQ-01-03")
+	assert_false(quests.journal.export_state().has("MQ-01-03"))
+	dialog.choose("accept", "missing")
+	assert_false(quests.journal.export_state().has("MQ-01-03"))
+	dialog.close_dialog()
+	assert_false(quests.journal.export_state().has("MQ-01-03"))
+	dialog.open_dialog("yeoulmok_receptionist")
+	dialog.choose("accept", "MQ-01-03")
+	assert_eq(quests.journal.export_state()["MQ-01-03"].counts, [0])
+	assert_false(get_tree().paused)
+	quests.journal.record_event("KILL", "feral_dog", "yeoulmok_dog_habitat", 200)
+	quests.journal.record_event("KILL", "feral_dog", "yeoulmok_dog_habitat", 201)
+	assert_eq(world.get_node("Player/Inventory").gold, 120)
+	dialog.open_dialog("yeoulmok_receptionist")
+	dialog.choose("report", "MQ-01-03")
+	assert_eq(world.get_node("Player/Inventory").gold, 270)
+	assert_eq(quests.report("MQ-01-03", "yeoulmok_receptionist"), "quest_not_ready")
+	var progression = world.get_node("Player/PlayerProgression")
+	var earned: int = progression.current_exp
+	for level in range(1, progression.current_level):
+		earned += progression.level_curve.req(level)
+	assert_eq(earned, 890)
+
+
+func test_initial_and_respawned_dogs_keep_quest_source_and_single_death_registration() -> void:
+	_finish_first_two()
+	var quests = world.get_node("QuestController")
+	assert_eq(quests.journal.accept("MQ-01-03"), "")
+	await wait_process_frames(25)
+	var spawner = world.get_node("MonsterSpawner")
+	var dogs := []
+	for monster in spawner.get_children():
+		if monster is WolfMonster:
+			dogs.append(monster)
+	assert_gte(dogs.size(), 2)
+	for dog in dogs:
+		assert_eq(dog.get_meta("content_id", ""), "feral_dog")
+		assert_eq(dog.get_meta("spawn_source_id", ""), "yeoulmok_dog_habitat")
+		var receivers := {"drop": 0, "exp": 0, "quest": 0}
+		for connection in dog.died.get_connections():
+			var receiver: Object = connection.callable.get_object()
+			if receiver is DropSystem:
+				receivers.drop += 1
+			elif receiver is PlayerProgression:
+				receivers.exp += 1
+			elif receiver is QuestJournal:
+				receivers.quest += 1
+		assert_eq(receivers, {"drop": 1, "exp": 1, "quest": 1})
+		dog.take_damage(99999.0, "강")
+	assert_eq(quests.journal.export_state()["MQ-01-03"].state, "ready")
+	spawner.advance_respawn_tick(120.0)
+	# Existing budget is one marker per tick; both dog packs need two ticks.
+	spawner.advance_respawn_tick(1.0)
+	var alive := 0
+	for monster in spawner.get_children():
+		if monster is WolfMonster and not monster.is_dead():
+			alive += 1
+			assert_eq(monster.get_meta("spawn_source_id", ""), "yeoulmok_dog_habitat")
+			assert_eq(monster.get_meta("content_id", ""), "feral_dog")
+	assert_gte(alive, 2)

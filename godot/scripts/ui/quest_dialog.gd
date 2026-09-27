@@ -1,12 +1,16 @@
 class_name QuestDialog
 extends CanvasLayer
 
+const Presentation = preload("res://scripts/quests/quest_presentation.gd")
+const Npcs = preload("res://scripts/npc/npc_registry.gd")
+
 var controller: QuestController
 var panel: PanelContainer
 var _box: VBoxContainer
 var _message: Label
 var _npc_id := ""
 var _arbiter: UiPauseArbiter
+var _selection: Dictionary = {}
 
 
 func setup(quests: QuestController) -> void:
@@ -17,7 +21,9 @@ func setup(quests: QuestController) -> void:
 	panel = PanelContainer.new()
 	panel.position = Vector2(440, 300)
 	panel.custom_minimum_size = Vector2(1040, 400)
-	panel.add_theme_stylebox_override("panel", UiStyle.make_panel_stylebox())
+	var panel_style := UiStyle.make_panel_stylebox()
+	panel_style.bg_color.a = 1.0
+	panel.add_theme_stylebox_override("panel", panel_style)
 	var theme := Theme.new()
 	theme.default_font = load(UiStyle.FONT_BODY_PATH)
 	theme.default_font_size = 26
@@ -34,7 +40,7 @@ func setup(quests: QuestController) -> void:
 
 
 func open_dialog(npc_id: String) -> bool:
-	if panel.visible or not _arbiter.acquire(self):
+	if not Npcs.SCENES.has(npc_id) or panel.visible or not _arbiter.acquire(self):
 		return false
 	_npc_id = npc_id
 	controller.journal.record_event("TALK", npc_id, "", 0)
@@ -48,19 +54,28 @@ func close_dialog() -> void:
 	_arbiter.release(self)
 
 
-func choose(action: String) -> void:
+func choose(action: String, quest_id: String = "") -> void:
 	if not panel.visible:
+		return
+	if action == "close":
+		close_dialog()
+		return
+	var current := Presentation.select(
+		controller.journal.catalog, controller.journal.export_state(), _npc_id
+	)
+	if (
+		quest_id.is_empty()
+		or quest_id != _selection.get("quest_id")
+		or action != _selection.get("action")
+		or current != _selection
+	):
 		return
 	var error := ""
 	match action:
-		"report_first":
-			error = controller.report("MQ-01-01", _npc_id)
-		"accept_second":
-			error = controller.journal.accept("MQ-01-02")
-		"report_second":
-			error = controller.report("MQ-01-02", _npc_id)
-		"close":
-			pass
+		"report":
+			error = controller.report(quest_id, _npc_id)
+		"accept":
+			error = controller.journal.accept(quest_id)
 		_:
 			return
 	if not error.is_empty():
@@ -79,27 +94,19 @@ func _refresh() -> void:
 	_message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_message.custom_minimum_size = Vector2(960, 180)
 	_box.add_child(_message)
-	var states := controller.journal.export_state()
-	if states.get("MQ-01-01", {}).get("state") == "ready":
-		_message.text = "여울목 조합 순회 접수원\n출신을 묻지 않습니다. 당신의 공훈을 기록하겠습니다.\n모험가 패 · 경험치 75 · 20골드"
-		_button("모험가 패 받기", "report_first")
-	elif not states.has("MQ-01-02"):
-		_message.text = "모험가 패 보유\n동쪽 서식지의 뿔토끼 2마리를 잡고 돌아와 주세요.\n경험치 325 · 100골드 · 하급 회복약 2개"
-		_button("토끼몰이 수락", "accept_second")
-	elif states["MQ-01-02"].state == "ready":
-		_message.text = "토끼몰이 완료!\n보고하면 경험치 325 · 100골드 · 하급 회복약 2개를 받습니다."
-		_button("보고하고 보상 받기", "report_second")
-	elif states["MQ-01-02"].state == "completed":
-		_message.text = "공훈부에 기록했습니다.\n다음 의뢰는 준비 중입니다. 모험가 패는 계속 유효합니다."
-	else:
-		_message.text = "토끼몰이: 뿔토끼 %d/2\n동쪽 서식지에서 처치한 뒤 돌아와 주세요." % states["MQ-01-02"].counts[0]
+	_selection = Presentation.select(
+		controller.journal.catalog, controller.journal.export_state(), _npc_id
+	)
+	_message.text = _selection.message
+	if not _selection.action.is_empty():
+		_button(_selection.button, _selection.action, _selection.quest_id)
 	_button("나중에 / 닫기 [Esc]", "close")
 
 
-func _button(text: String, action: String) -> void:
+func _button(text: String, action: String, quest_id: String = "") -> void:
 	var button := Button.new()
 	button.text = text
-	button.pressed.connect(choose.bind(action))
+	button.pressed.connect(choose.bind(action, quest_id))
 	_box.add_child(button)
 
 

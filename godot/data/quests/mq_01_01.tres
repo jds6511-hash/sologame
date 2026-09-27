@@ -5,6 +5,8 @@
 [resource]
 script = ExtResource("1")
 quest_id = "MQ-01-01"
+offer_text = "출신을 묻지 않습니다. 당신의 공훈을 기록하겠습니다."
+objective_label = "접수원과 대화 [F] · 모험가 패 받기"
 title = "눈을 뜨다"
 objective_kinds = Array[String](["REACH", "TALK"])
 objective_targets = Array[String](["yeoulmok_receptionist", "yeoulmok_receptionist"])

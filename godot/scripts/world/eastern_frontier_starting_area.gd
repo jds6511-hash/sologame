@@ -58,6 +58,7 @@ func _ready() -> void:
 	_monster_spawner.monster_spawned.connect(_on_monster_spawned)
 	_setup_quest_ui(quests)
 	_monster_spawner.rabbit_spawn_source_id = "yeoulmok_rabbit_habitat"
+	_monster_spawner.wolf_spawn_source_id = "yeoulmok_dog_habitat"
 	_monster_spawner.start()
 	_start_tutorial()
 	_init_day_night_modulate()

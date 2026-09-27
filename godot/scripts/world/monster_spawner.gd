@@ -91,6 +91,7 @@ const MAX_RESPAWNS_PER_TICK := 1  ## 한 틱에 스폰할 마커 수 상한 (스
 
 @export var player_path: NodePath
 @export var rabbit_spawn_source_id: String = ""
+@export var wolf_spawn_source_id: String = ""
 
 @export_group("M2 3종 스폰 마커 그룹")
 @export var rabbit_spawn_root_path: NodePath
@@ -414,6 +415,9 @@ func _spawn_monster(
 	if scene == RABBIT_SCENE:
 		monster.set_meta("content_id", "horned_rabbit")
 		monster.set_meta("spawn_source_id", rabbit_spawn_source_id)
+	elif scene == WOLF_SCENE:
+		monster.set_meta("content_id", "feral_dog")
+		monster.set_meta("spawn_source_id", wolf_spawn_source_id)
 	if not pack_id.is_empty() and "pack_id" in monster:
 		monster.set("pack_id", pack_id)
 	add_child(monster)

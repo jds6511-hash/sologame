@@ -25,12 +25,32 @@ func _run() -> void:
 	_check(not paused, "Escape releases dialogue pause")
 	_check(world.get_node("Player/Inventory").gold == 0, "Escape grants no reward")
 	await _key(KEY_F)
-	dialog.choose("report_first")
+	dialog.choose("report", "MQ-01-01")
 	_check(world.get_node("Player/Inventory").gold == 20, "Explicit pass reward")
 	await _key(KEY_F)
 	await _capture("m5-02-rabbit-offer.png")
-	dialog.choose("accept_second")
+	dialog.choose("accept", "MQ-01-02")
 	await _capture("m5-03-quest-tracker.png")
+	if "third" in OS.get_cmdline_user_args():
+		# Synthetic goal events validate rendering, not real combat or director play.
+		world.process_mode = Node.PROCESS_MODE_DISABLED
+		var journal = world.get_node("QuestController").journal
+		journal.record_event("KILL", "horned_rabbit", "yeoulmok_rabbit_habitat", 100)
+		journal.record_event("KILL", "horned_rabbit", "yeoulmok_rabbit_habitat", 101)
+		dialog.open_dialog("yeoulmok_receptionist")
+		dialog.choose("report", "MQ-01-02")
+		dialog.open_dialog("yeoulmok_receptionist")
+		await _capture("m5-04-dog-offer.png")
+		dialog._box.get_child(1).pressed.emit()
+		_check(journal.export_state().has("MQ-01-03"), "third accept button wired")
+		await _capture("m5-05-dog-tracker.png")
+		journal.record_event("KILL", "feral_dog", "yeoulmok_dog_habitat", 102)
+		journal.record_event("KILL", "feral_dog", "yeoulmok_dog_habitat", 103)
+		dialog.open_dialog("yeoulmok_receptionist")
+		await _capture("m5-06-dog-report.png")
+		dialog._box.get_child(1).pressed.emit()
+		_check(world.get_node("Player/Inventory").gold == 270, "third report button reward")
+		_check(not paused, "third reward releases pause")
 	print("M5_QUEST_RENDER_%s" % ("FAIL" if _failed else "PASS"))
 	world.free()
 	root.get_node("BgmManager").reset()
@@ -56,6 +76,8 @@ func _capture(filename: String) -> void:
 	await process_frame
 	await RenderingServer.frame_post_draw
 	var directory := ProjectSettings.globalize_path("res://../docs/qa/screenshots/")
+	if "third" in OS.get_cmdline_user_args():
+		directory = directory.path_join("m5-third")
 	DirAccess.make_dir_recursive_absolute(directory)
 	_check(root.get_texture().get_image().save_png(directory.path_join(filename)) == OK, filename)
 

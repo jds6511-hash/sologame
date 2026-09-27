@@ -144,3 +144,17 @@ func test_json_restore_counts_continue_and_reward_overflow_is_atomic() -> void:
 	assert_eq(controller.report("MQ-01-02", "yeoulmok_receptionist"), "reward_overflow")
 	assert_eq(inventory.get_bag_quantity("POT-HP-1"), 0)
 	assert_eq(journal.export_state()["MQ-01-02"].state, "ready")
+
+
+func test_third_rejects_preaccept_other_source_target_and_duplicate_kills() -> void:
+	_second_ready()
+	controller.report("MQ-01-02", "yeoulmok_receptionist")
+	journal.record_event("KILL", "feral_dog", "yeoulmok_dog_habitat", 800)
+	assert_eq(journal.accept("MQ-01-03"), "")
+	journal.record_event("KILL", "feral_dog", "yeoulmok_dog_habitat", 800)
+	journal.record_event("KILL", "feral_dog", "", 801)
+	journal.record_event("KILL", "horned_rabbit", "yeoulmok_dog_habitat", 802)
+	assert_eq(journal.export_state()["MQ-01-03"].counts, [0])
+	journal.record_event("KILL", "feral_dog", "yeoulmok_dog_habitat", 803)
+	journal.record_event("KILL", "feral_dog", "yeoulmok_dog_habitat", 803)
+	assert_eq(journal.export_state()["MQ-01-03"].counts, [1])
