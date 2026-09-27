@@ -1,5 +1,7 @@
 # M4 저장·불러오기 계약과 G4 기준
 
+> 차기 검토: [C1/V3 저장 호환 계약](c1-save-migration.md). 기존 파일 계층·V1/V2 계약을 보존하면서 곡선별 검증/진행 비율 변환을 설계한다. **아직 구현하거나 V3를 쓰지 않는다.**
+
 - **최종 수정일**: 2026-09-25
 - **담당**: Codex 구현·통합 / Claude 독립 검토
 - **의존 문서**: [로드맵](../DEVELOPMENT_ROADMAP.md), [개척자의 유산](pioneer-legacy.md), [실행 계획](../../superpowers/plans/2026-09-21-m4-save-load.md)
