@@ -14,6 +14,7 @@ var account: Dictionary = {}
 var character: Dictionary = {}
 var active_slot := 0
 var migration_pending := false
+var loaded_source_version := 0
 var world: Node
 var account_error := ""
 var last_message := "슬롯을 선택해 저장하세요. 자동 저장은 첫 저장 후 시작됩니다."
@@ -23,7 +24,7 @@ var _play_seconds := 0.0
 
 func setup(owner_world: Node) -> String:
 	world = owner_world
-	store = Store.new(world.get_meta("save_directory", "user://saves"))
+	store = _create_store(world.get_meta("save_directory", "user://saves"))
 	store.validators["account"] = codec.schema.account_error
 	var result: Dictionary = store.read_save("account")
 	if result.ok:
@@ -45,10 +46,11 @@ func setup(owner_world: Node) -> String:
 		character = boot.character.duplicate(true)
 		active_slot = boot.slot
 		if not character.is_empty():
-			migration_pending = character.character_save_version == 1
 			var prepared: Dictionary = codec.prepare_loaded(character, account)
 			if not prepared.ok:
 				return prepared.code
+			loaded_source_version = int(character.character_save_version)
+			migration_pending = loaded_source_version < codec.character_version()
 			character = prepared.data
 			var error: String = codec.restore_into(world.get_node("Player"), character, account)
 			if not error.is_empty():
@@ -61,6 +63,14 @@ func setup(owner_world: Node) -> String:
 		if migration_pending:
 			last_message += "\n이전 버전 저장을 불러왔습니다. 확인 후 수동 저장이 필요합니다."
 	return ""
+
+
+func _create_store(directory: String) -> RefCounted:
+	return Store.new(directory)
+
+
+func _instantiate_world() -> Node:
+	return load(WORLD_PATH).instantiate()
 
 
 func _no_existing_saves() -> bool:
@@ -212,7 +222,7 @@ func _replace_world(
 	var old_day: int = GameClock.day_number
 	var old_time: float = GameClock._elapsed_real_sec_in_day
 	tree.paused = true
-	var next_world: Node = load(WORLD_PATH).instantiate()
+	var next_world: Node = _instantiate_world()
 	next_world.set_meta("save_directory", store.root)
 	next_world.set_meta(
 		"save_boot", {"account": saved_account, "character": data, "slot": slot, "message": message}

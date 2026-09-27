@@ -34,7 +34,7 @@ const NpcRegistry = preload("res://scripts/npc/npc_registry.gd")
 
 
 func _ready() -> void:
-	var save_session := SaveSessionScript.new()
+	var save_session = _create_save_session()
 	save_session.name = "SaveSession"
 	add_child(save_session)
 	var journal := JournalScript.new(save_session.codec.schema.quest_catalog)
@@ -67,6 +67,10 @@ func _ready() -> void:
 	save_menu.name = "SaveMenu"
 	add_child(save_menu)
 	save_menu.setup(save_session)
+
+
+func _create_save_session() -> Node:
+	return SaveSessionScript.new()
 
 
 # --- 주야간 시각 연출 (G2-4) ---

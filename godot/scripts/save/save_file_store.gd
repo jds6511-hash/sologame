@@ -18,6 +18,14 @@ func _init(directory: String = "user://saves") -> void:
 	root = directory
 
 
+func current_version(kind: String) -> int:
+	return VERSIONS[kind]
+
+
+func supported_versions(kind: String) -> Array:
+	return SUPPORTED[kind]
+
+
 func read_save(kind: String, slot: int = 0) -> Dictionary:
 	var path := _path(kind, slot)
 	if path.is_empty():
@@ -41,7 +49,7 @@ func write_save(kind: String, slot: int, data: Dictionary) -> Dictionary:
 	var path := _path(kind, slot)
 	if path.is_empty():
 		return _failure("invalid_slot")
-	var validation := _version_error(kind, VERSIONS[kind], data)
+	var validation := _version_error(kind, current_version(kind), data)
 	if validation != "ok":
 		return _failure(validation)
 	validation = _validate(kind, data)
@@ -58,7 +66,7 @@ func write_save(kind: String, slot: int, data: Dictionary) -> Dictionary:
 		return _failure("too_large")
 	var envelope := {
 		"kind": kind,
-		"version": VERSIONS[kind],
+		"version": current_version(kind),
 		"payload": payload,
 		"checksum": payload.sha256_text()
 	}
@@ -119,7 +127,7 @@ func _read(path: String, kind: String) -> Dictionary:
 	var version: Variant = envelope.get("version")
 	if not _integer_version(version):
 		return _failure("corrupt")
-	if int(version) not in SUPPORTED[kind]:
+	if int(version) not in supported_versions(kind):
 		return _failure("unsupported_version")
 	var payload: Variant = envelope.get("payload")
 	if not payload is String or envelope.get("checksum") != payload.sha256_text():
@@ -143,7 +151,7 @@ func _version_error(kind: String, version: Variant, data: Dictionary) -> String:
 	var body: Variant = data.get(kind + "_save_version")
 	if not _integer_version(body):
 		return "invalid_data"
-	if int(body) not in SUPPORTED[kind]:
+	if int(body) not in supported_versions(kind):
 		return "unsupported_version"
 	return "ok" if body == version else "invalid_data"
 

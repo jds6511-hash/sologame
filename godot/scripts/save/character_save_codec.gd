@@ -7,6 +7,10 @@ var schema = Schema.new()
 var registry = schema.registry
 
 
+func character_version() -> int:
+	return 2
+
+
 func prepare_loaded(data: Dictionary, account: Dictionary) -> Dictionary:
 	return _prepare_loaded(data, account, false)
 
@@ -104,7 +108,7 @@ func capture(player: Node2D, account_id: String, carry: Dictionary = {}) -> Dict
 	world.elapsed_real_sec_in_day = GameClock._elapsed_real_sec_in_day
 	var snapshot := {
 		"character_id": carry.get("character_id", new_id()),
-		"character_save_version": 2,
+		"character_save_version": character_version(),
 		"account_id": account_id,
 		"name": carry.get("name", "모험가"),
 		"play_seconds": carry.get("play_seconds", 0.0),
