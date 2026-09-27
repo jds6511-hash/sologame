@@ -31,6 +31,8 @@
 
 ## 1. 한 줄 상태
 
+> **현재 작업**: `c3e25e9` 보완 통과로 첫 슬라이스 자동 검증 리뷰 종료. 같은 리뷰를 재요청하지 않는다. 직접 플레이/G4/G5는 별도 유지하며, 다음 M5 후속 의뢰 MQ-01-03의 [설계 검토 요청](qa/m5-third-quest-design-review-request.md)을 준비했다. 아직 구현하지 않았고 M6로 넘어간 것이 아니다.
+
 > **리뷰 반영 최신**: `3022586` 자동 영속성 검증은 Claude 타당성 검토 통과. [보완 대응](qa/m5-quest-persistence-review-response.md)의 fixture 진단·종료 가드 및 경고 정정 반영, 7단계 재통과. 다음은 정상 물리 키 환경의 직접 플레이이며 G4/G5 미승인 유지. 아래 “검토 요청”은 제출 당시 이력이다.
 
 > **최신**: M5 단위 3 자동 재실행 7단계 PASS. [검토 요청](qa/m5-quest-persistence-review-request.md)·[결과](qa/m5-quest-persistence-report.md). 실제 창은 F/W 물리 키 전달 오류로 관통 플레이 미완료. 정상 입력 환경에서 직접 플레이를 이어가야 하며 단위 3 전체/G4/G5는 닫지 않는다.

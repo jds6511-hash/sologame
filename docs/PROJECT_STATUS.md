@@ -15,6 +15,7 @@
   - `docs\interim-review-2026-08-20.md` (2026-08-20 중간 검수 — 실측 스냅샷, 3장·9-5절·11장 근거)
   - `docs\claude-code-review-2026-08-20.md` (외부 개발 리뷰 — 디렉터 입수 입력 문서, 11장 채택분 근거)
 - **변경 이력**:
+  - 2026-09-27: Claude가 `c3e25e9` 보완 통과, 새 지적 없음. M5 단위 3 자동 검증 리뷰 종료(직접 플레이·G4/G5 미완료). 다음 독립 작업으로 기존 M5 후속 MQ-01-03 설계를 준비했다. [설계](design/systems/m5-third-quest.md)·[새 설계 검토 요청](qa/m5-third-quest-design-review-request.md). 게임 코드 변경/테스트 재실행 없음. 프롬프트 결함은 `406d4d0` 수정 완료이며 수동 확인만 남는다.
   - 2026-09-27: Claude가 `3022586` 자동 영속성 검증 타당성 통과. fixture 누락 진단·오디오 종료 가드 보완 후 정상 7단계 PASS, seed 누락은 파일명과 함께 exit 1. 종료 경고는 실행별 비결정적 관측으로 정정(아래 수치는 당시 실측이며 기준선 아님). [리뷰 대응](qa/m5-quest-persistence-review-response.md). 실제 플레이·G4/G5는 미완료.
   - 2026-09-27: M5 단위 3 의뢰 active/ready/completed·V1 캐릭터 별도 프로세스 7단계 PASS. 슬롯 5 저장 후 원본 1~4 해시 보호 확인. 신규 GDScript 2개 형식/린트 통과. 실제 창 F/W는 도구의 physical_keycode 불일치로 액션 미성립, 관통 플레이 미완료. [보고서](qa/m5-quest-persistence-report.md)·[검토 요청](qa/m5-quest-persistence-review-request.md). seed 4/2·active 6/2 종료 경고와 G4/G5 이월 유지.
   - 2026-09-27: Claude가 M5 단위 2 `5df3099` 구현 통과. 비차단 줍기 안내 불일치를 수정하고 전체 GUT 992/992·3574 assertions·108 scripts, 변경 GDScript 2개 형식/린트 통과. 토큰 최적화는 수락 전 처치 재반영 방지 계약 때문에 보류, 패 수령 후 재대화 체감은 단위 3으로 이월. [리뷰 대응](qa/m5-first-quest-review-response.md). 단위 3·G4/G5 미완료.
