@@ -3,6 +3,7 @@
 - 최종 수정일: 2026-09-28
 - 담당: Codex (구현·통합)
 - 기준 커밋: `c8f5173` (직전 제품 구현 `d424a6d`, 인계 `b9e0b60`)
+- 검토 대상 커밋: `3668bd4` (구현·테스트·진행 문서 15개)
 - 근거: [디렉터 플레이 피드백](c1-director-play-feedback.md), [몬스터 정본](../design/systems/m2-monster-spec.md)
 
 ## 문제와 변경
@@ -57,4 +58,5 @@ godot --headless --path godot -s res://test/save/c1_session_process_probe.gd -- 
 
 | 날짜 | 변경 |
 |---|---|
+| 2026-09-28 | 구현 커밋 `3668bd4` 확정 및 검토 범위 연결 |
 | 2026-09-28 | 토끼 행동 및 C1 리뷰 보완을 하나의 구현·검증 단위로 작성 |
