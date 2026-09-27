@@ -13,7 +13,7 @@
 
 `verify_100_hour_exp_margin.ps1`도 exit0. 증액 전 회귀·세 관문 B 여유≥1%·98/96/95 진입 레벨을 유지하며 콘텐츠 시점 미검증 출력도 유지한다. `git diff --check` 통과.
 
-변경 파일: 계산기2개, `m3_exp_math.py`, `test_m3_exp_calculators.py`, 전환 설계·이 리뷰 기록·HANDOFF·PROJECT_STATUS. 구현 커밋은 아래 후속 인계 기록에 고정한다.
+변경 파일: 계산기2개, `m3_exp_math.py`, `test_m3_exp_calculators.py`, 전환 설계·이 리뷰 기록·HANDOFF·PROJECT_STATUS. 구현·검증 커밋 **`4409236`**(기준 `2720453`). 이 해시 고정 후속 커밋은 인계 기록만 바꾸며 별도 리뷰 요청이 아니다.
 
 ## 원 검토 요청
 
