@@ -8,12 +8,26 @@ var registry = schema.registry
 
 
 func prepare_loaded(data: Dictionary, account: Dictionary) -> Dictionary:
-	var error: String = schema.character_error(data, account)
+	return _prepare_loaded(data, account, false)
+
+
+## 단위 B 후보 변환. 실제 제품 로드/복원 경로에서는 호출하지 않는다.
+func prepare_candidate_loaded(data: Dictionary, account: Dictionary) -> Dictionary:
+	return _prepare_loaded(data, account, true)
+
+
+func _prepare_loaded(data: Dictionary, account: Dictionary, candidate: bool) -> Dictionary:
+	var validate: Callable = (
+		schema.candidate_character_error if candidate else schema.character_error
+	)
+	var error: String = validate.call(data, account)
 	if not error.is_empty():
 		return {"ok": false, "code": error, "data": {}}
-	var result: Dictionary = Migrations.upgrade(data)
+	var result: Dictionary = (
+		Migrations.upgrade_candidate(data) if candidate else Migrations.upgrade(data)
+	)
 	if result.ok:
-		error = schema.character_error(result.data, account)
+		error = validate.call(result.data, account)
 		if not error.is_empty():
 			return {"ok": false, "code": error, "data": {}}
 	return result
