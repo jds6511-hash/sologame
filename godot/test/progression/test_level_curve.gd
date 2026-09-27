@@ -1,9 +1,9 @@
-## M3 B-1 검증 — 배포된 level_curve.tres의 REQ(L)·EXP(L)가 m3-leveling-spec.md 2장
+## M3 B-1 역사 검증 — 구 배포 fixture의 REQ(L)·EXP(L)가 당시 spec 2장
 ## 검산표 수치와 정확히 일치하는지 확인한다(공식 + 배포 계수 동시 검증). 대표 레벨
 ## 1/10/20/40/80/99/100을 검산한다.
 extends GutTest
 
-const LEVEL_CURVE: LevelCurveData = preload("res://data/progression/level_curve.tres")
+const LEVEL_CURVE: LevelCurveData = preload("res://test/save/legacy_level_curve.tres")
 
 # --- REQ(L) = round(55 x L^2.5 x 초반 배율), spec 2-2 표 ---
 

@@ -32,7 +32,7 @@ func _initialize() -> void:
 					0
 					if (
 						store
-						. write_save("character", 1, {"character_save_version": 2, "gold": 10})
+						. write_save("character", 1, {"character_save_version": 3, "gold": 10})
 						. ok
 					)
 					else 1
@@ -41,7 +41,7 @@ func _initialize() -> void:
 		"interrupt", "interrupt_mid":
 			var interrupted := InterruptingStore.new(ROOT)
 			interrupted.remove_before_kill = args[0] == "interrupt_mid"
-			interrupted.write_save("character", 1, {"character_save_version": 2, "gold": 99})
+			interrupted.write_save("character", 1, {"character_save_version": 3, "gold": 99})
 			quit(1)  # 정상 반환했다면 강제 중단 검증 실패다.
 		"verify", "verify_mid":
 			var result: Dictionary = store.read_save("character", 1)

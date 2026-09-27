@@ -60,7 +60,7 @@ func test_v1_boot_holds_autosave_until_successful_manual_save() -> void:
 	var path := directory.path_join("character_01.json")
 	var digest := FileAccess.get_sha256(path)
 	assert_true(migrated.migration_pending)
-	assert_eq(migrated.character.character_save_version, 2)
+	assert_eq(migrated.character.character_save_version, 3)
 	assert_true("수동 저장" in migrated.last_message)
 	assert_true("수동 저장 필요" in loaded.get_node("SaveMenu").badge.text)
 	migrated.advance(1000.0)

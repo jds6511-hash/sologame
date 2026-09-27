@@ -8,14 +8,14 @@ var registry = schema.registry
 
 
 func character_version() -> int:
-	return 2
+	return 3
 
 
 func prepare_loaded(data: Dictionary, account: Dictionary) -> Dictionary:
 	return _prepare_loaded(data, account, false)
 
 
-## 단위 B 후보 변환. 실제 제품 로드/복원 경로에서는 호출하지 않는다.
+## 기존 후보 검사 호출자의 호환 경로. 변환 구현은 제품과 공유한다.
 func prepare_candidate_loaded(data: Dictionary, account: Dictionary) -> Dictionary:
 	return _prepare_loaded(data, account, true)
 
@@ -159,6 +159,8 @@ func restore_into(player: Node2D, data: Dictionary, account: Dictionary) -> Stri
 	var error: String = schema.character_error(data, account)
 	if not error.is_empty():
 		return error
+	if data.character_save_version != character_version():
+		return "migration_required"
 	for name in [
 		"PlayerProgression",
 		"PlayerSkillPoints",

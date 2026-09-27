@@ -57,4 +57,4 @@ Check ((RoundPositive ($postgame * 0.7)) -eq 2031768) 'Postgame report split mis
 Check ((ReachedLevel $supply) -eq 98 -and (ReachedLevel $aSupply) -eq 96 -and (ReachedLevel $bSupply) -eq 95) 'Final entry levels mismatch'
 Check ($bonuses[7] -eq 500000 -and $bonuses[11] -eq 2060000 -and $bonuses[12] -eq 2799780) 'Reward schedule mismatch'
 Write-Output 'EXP_MARGIN_MODEL_PASS: all gates B margin >=1%; G40 B+521943; G80 B+282608; G95 B+578104; final entry98/96/95; guaranteed bonus5359780; postgame2902526'
-Write-Output 'CONTENT_TIMING_UNVERIFIED: mandatory quest slots, pre-boss allocation, engine rounding and real playtime remain untested'
+Write-Output 'CONTENT_TIMING_UNVERIFIED: mandatory quest slots, pre-boss allocation, quest reward rounding and real playtime remain untested'

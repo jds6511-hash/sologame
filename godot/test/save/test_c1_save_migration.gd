@@ -13,10 +13,10 @@ var data: Dictionary
 class RejectConvertedSchema:
 	extends Schema
 
-	func candidate_character_error(payload: Dictionary, owner: Dictionary) -> String:
+	func character_error(payload: Dictionary, owner: Dictionary) -> String:
 		if payload.character_save_version == 3:
 			return "vitals"
-		return super.candidate_character_error(payload, owner)
+		return super.character_error(payload, owner)
 
 
 func before_each() -> void:
@@ -29,6 +29,7 @@ func before_each() -> void:
 	add_child_autofree(player)
 	player.process_mode = Node.PROCESS_MODE_DISABLED
 	data = codec.capture(player, account.account_id)
+	data.character_save_version = 2
 	data.player.level = 20
 	data.player.skill_points = 19
 	data.player.exp = 50000
@@ -53,7 +54,7 @@ func test_old_exp_converts_but_claimed_v3_does_not() -> void:
 	assert_eq(codec.prepare_candidate_loaded(result.data, account).data, result.data)
 	data.character_save_version = 3
 	assert_eq(codec.prepare_candidate_loaded(data, account).code, "exp_overflow")
-	assert_eq(codec.prepare_loaded(result.data, account).code, "unsupported_version")
+	assert_eq(codec.prepare_loaded(result.data, account).data, result.data)
 
 
 func test_invalid_source_is_not_repaired_by_conversion() -> void:
@@ -84,7 +85,7 @@ func test_every_level_preserves_integer_ratio_and_early_exp() -> void:
 			for exp_value in [0, 1, old_req - 1]:
 				data.player.exp = exp_value
 				var snapshot := data.duplicate(true)
-				var result: Dictionary = codec.prepare_candidate_loaded(data, account)
+				var result: Dictionary = codec.prepare_loaded(data, account)
 				assert_true(result.ok)
 				if not result.ok:
 					return
@@ -109,15 +110,15 @@ func test_max_level_zero_and_candidate_idempotence_after_json() -> void:
 		data.player.skill_points = 99
 		data.player.exp = 0
 		var decoded: Dictionary = JSON.parse_string(JSON.stringify(data))
-		var result: Dictionary = codec.prepare_candidate_loaded(decoded, account)
+		var result: Dictionary = codec.prepare_loaded(decoded, account)
 		assert_true(result.ok)
 		assert_eq(result.data.player.exp, 0)
-		var second: Dictionary = codec.prepare_candidate_loaded(result.data, account)
+		var second: Dictionary = codec.prepare_loaded(result.data, account)
 		assert_eq(second.data, result.data)
 		second.data.inventory.gold = 7
 		assert_eq(result.data.inventory.gold, decoded.inventory.gold)
 		decoded.player.exp = 1
-		assert_eq(codec.prepare_candidate_loaded(decoded, account).code, "exp_overflow")
+		assert_eq(codec.prepare_loaded(decoded, account).code, "exp_overflow")
 
 
 func test_four_jobs_equipment_and_quest_states_preserve_every_other_field() -> void:
@@ -146,7 +147,7 @@ func test_four_jobs_equipment_and_quest_states_preserve_every_other_field() -> v
 				"MQ-01-03": {"state": state, "counts": [1 if state == "active" else 2]}
 			}
 			var snapshot := data.duplicate(true)
-			var result: Dictionary = codec.prepare_candidate_loaded(data, account)
+			var result: Dictionary = codec.prepare_loaded(data, account)
 			assert_true(result.ok)
 			if not result.ok:
 				return
@@ -163,7 +164,7 @@ func test_four_jobs_equipment_and_quest_states_preserve_every_other_field() -> v
 func test_post_conversion_validation_is_required() -> void:
 	codec.schema = RejectConvertedSchema.new()
 	var snapshot := data.duplicate(true)
-	var result: Dictionary = codec.prepare_candidate_loaded(data, account)
+	var result: Dictionary = codec.prepare_loaded(data, account)
 	assert_false(result.ok)
 	assert_eq(result.code, "vitals")
 	assert_eq(result.data, {})
@@ -192,10 +193,14 @@ func test_direct_migration_rejects_bad_arithmetic_inputs() -> void:
 		assert_eq(result.data, {})
 
 
-func test_source_protections_and_product_v2_path_remain() -> void:
+func test_source_protections_and_product_v3_conversion() -> void:
 	var original := data.duplicate(true)
 	var account_snapshot := account.duplicate(true)
-	assert_eq(codec.prepare_loaded(data, account).data, original)
+	var expected := original.duplicate(true)
+	expected.character_save_version = 3
+	expected.player.exp = 20000
+	assert_eq(codec.prepare_loaded(data, account).data, expected)
+	assert_eq(data, original)
 	for version in [0, -1, 4, 1e30]:
 		data.character_save_version = version
 		assert_eq(codec.prepare_candidate_loaded(data, account).code, "unsupported_version")

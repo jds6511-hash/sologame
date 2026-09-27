@@ -25,6 +25,7 @@ func before_each() -> void:
 	add_child_autofree(player)
 	player.process_mode = Node.PROCESS_MODE_DISABLED
 	data = codec.capture(player, account.account_id)
+	data.character_save_version = 2
 	data.player.level = 20
 	data.player.skill_points = 19
 	data.player.exp = 50000
@@ -63,7 +64,7 @@ func test_candidate_alternates_versions_without_changing_product_acceptance() ->
 	data.character_save_version = 3
 	data.player.exp = 0
 	assert_eq(codec.schema.candidate_character_error(data, account), "")
-	assert_eq(codec.prepare_loaded(data, account).code, "unsupported_version")
+	assert_true(codec.prepare_loaded(data, account).ok)
 	data.character_save_version = 2
 	data.player.exp = 50000
 	assert_eq(data, original, "검증은 payload를 변환하지 않는다")
@@ -96,7 +97,11 @@ func test_frozen_tables_match_engine_rounding_for_all_levels() -> void:
 	var early_total := 0
 	var c1_total := 0
 	for level in range(1, 100):
-		assert_eq(legacy.req(level), codec.registry.CURVE.req(level), "구 REQ %d" % level)
+		assert_eq(
+			legacy.req(level),
+			load("res://test/save/legacy_level_curve.tres").req(level),
+			"구 REQ %d" % level
+		)
 		var multiplier := 0.45 if level < 10 else 1.0
 		if level > 10:
 			multiplier = pow(0.4, float(level - 10) / 10.0) if level < 20 else 0.4
@@ -183,10 +188,7 @@ func test_json_numeric_versions_keep_validation_after_decode() -> void:
 		data.character_save_version = version
 		var decoded: Dictionary = JSON.parse_string(JSON.stringify(data))
 		assert_eq(codec.schema.candidate_character_error(decoded, account), "")
-		assert_eq(
-			codec.schema.character_error(decoded, account),
-			"unsupported_version" if version == 3 else ""
-		)
+		assert_eq(codec.schema.character_error(decoded, account), "")
 
 
 func test_missing_snapshot_job_gate_fails_closed() -> void:

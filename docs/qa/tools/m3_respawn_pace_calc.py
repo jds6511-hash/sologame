@@ -27,7 +27,7 @@ Phase D 3-5장은 "재스폰이 없다"는 전제로 빌드 전체 EXP 재고(10
 import os
 import re
 from pathlib import Path
-from m3_exp_math import roundi
+from m3_exp_math import roundi, requirement
 
 ROOT = Path(__file__).resolve().parents[3] / "godot"
 SPAWNER = "scripts/world/monster_spawner.gd"
@@ -150,9 +150,7 @@ for name, (sf, df) in MON_FILES.items():
 
 # ---------- 구현 공식 재현 (Phase D와 동일) ----------
 def req(L):
-    multiplier = (LC.get("pre_transition_req_multiplier", 1.0)
-                  if L < LC.get("first_transition_level", 10) else 1.0)
-    return roundi(LC["req_coefficient"] * L ** LC["req_exponent"] * multiplier)
+    return requirement(LC, L)
 
 
 def mob_exp(L):

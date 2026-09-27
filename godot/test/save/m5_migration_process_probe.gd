@@ -74,7 +74,7 @@ func _run() -> void:
 					)
 				else:
 					_check(not session.migration_pending, "v2_boot")
-					_check(session.character.character_save_version == 2, "v2")
+					_check(session.character.character_save_version == 3, "v3")
 		world.free()
 	print("M5_MIGRATION_PROCESS_PASS " + args[0] if errors.is_empty() else str(errors))
 	quit(0 if errors.is_empty() else 1)

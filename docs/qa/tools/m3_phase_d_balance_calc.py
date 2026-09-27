@@ -24,7 +24,7 @@
 """
 import re, os, math, sys, json
 from pathlib import Path
-from m3_exp_math import roundi
+from m3_exp_math import roundi, requirement
 
 ## 실행 위치와 무관하게 이 스크립트가 속한 저장소를 읽는다.
 ROOT = Path(__file__).resolve().parents[3] / "godot"
@@ -106,9 +106,8 @@ for name, (sf, df) in MON_FILES.items():
 
 # ---------- 구현 공식 ----------
 def req(L):
-    multiplier = (LC.get("pre_transition_req_multiplier", 1.0)
-                  if L < LC.get("first_transition_level", 10) else 1.0)
-    return roundi(LC["req_coefficient"] * L ** LC["req_exponent"] * multiplier)
+    return requirement(LC, L)
+
 
 def mob_exp(L): return roundi(LC["mob_exp_coefficient"] * L ** LC["mob_exp_exponent"])
 

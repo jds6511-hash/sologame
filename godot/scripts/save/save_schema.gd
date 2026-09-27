@@ -89,15 +89,15 @@ func account_error(data: Dictionary) -> String:
 
 
 func character_error(data: Dictionary, account: Dictionary) -> String:
-	return _character_error(data, account, false)
+	return _character_error(data, account)
 
 
-## 단위 A 검증 전용. 실제 codec/store는 V3를 계속 거부한다.
+## 기존 후보 검사 호출자의 호환 별칭. 제품과 같은 검증을 사용한다.
 func candidate_character_error(data: Dictionary, account: Dictionary) -> String:
-	return _character_error(data, account, true)
+	return _character_error(data, account)
 
 
-func _character_error(data: Dictionary, account: Dictionary, candidate: bool) -> String:
+func _character_error(data: Dictionary, account: Dictionary) -> String:
 	if not quest_catalog.definition_errors().is_empty():
 		return Codes.QUEST_CONTENT_ERROR
 	var error := account_error(account)
@@ -132,7 +132,7 @@ func _character_error(data: Dictionary, account: Dictionary, candidate: bool) ->
 	if not is_finite(version) or version != floor(version):
 		return "character_identity"
 	# JSON은 정수 값도 float로 읽는다. int 변환 전에 범위를 확인한다.
-	if version < 1 or version > (3 if candidate else 2):
+	if version < 1 or version > 3:
 		return "unsupported_version"
 	var rules = ProgressionRules.for_version(int(version))
 	if data.account_id != account.account_id:

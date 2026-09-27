@@ -11,12 +11,18 @@
 ##   EXP(L) = round(mob_exp_coefficient x L^mob_exp_exponent)
 ## 정예 x6 / 보스 x40, 야간 x1.2(보스 제외)는 각 배율 필드로 분리했다.
 ##
-## 반올림 안전성(spec 2-1): 정수 L에서 L^2.5·L^1.5의 소수부가 정확히 .5가 되는 경우가
-## 없어(무리수), roundi(half-away)와 원표(Python round, half-even)가 전 구간 일치한다.
+## 배포 C1: L11~19는 1→0.4 기하 보간, L20부터0.4. Legacy는 과거 fixture 재현용이다.
+## QA 계산기는 Godot과 같은 half-away 반올림을 쓰며 두 프로필 전99값을 대조한다.
 class_name LevelCurveData
 extends Resource
 
+enum Profile { LEGACY, C1 }
+
 @export var max_level: int = 100  ## 만렙 (spec 전제)
+@export var profile: Profile = Profile.LEGACY
+@export var c1_multiplier: float = 0.4
+@export var c1_blend_start_level: int = 10
+@export var c1_blend_end_level: int = 20
 
 @export_group("필요 경험치 REQ(L) (spec 7-1 — D-2 페이스 레버)")
 @export var req_coefficient: float = 55.0
@@ -40,6 +46,13 @@ extends Resource
 ## 없어 레벨업에 쓰지 않는다(호출자가 만렙에서 이 값을 참조하지 않도록 관리).
 func req(level: int) -> int:
 	var multiplier := pre_transition_req_multiplier if level < first_transition_level else 1.0
+	if profile == Profile.C1 and level > c1_blend_start_level:
+		var blend := clampf(
+			float(level - c1_blend_start_level) / float(c1_blend_end_level - c1_blend_start_level),
+			0.0,
+			1.0
+		)
+		multiplier *= pow(c1_multiplier, blend)
 	return roundi(req_coefficient * pow(float(level), req_exponent) * multiplier)
 
 

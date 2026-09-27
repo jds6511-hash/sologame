@@ -42,11 +42,11 @@ func after_each() -> void:
 		DirAccess.remove_absolute(directory)
 
 
-func test_candidate_store_writes_v3_without_changing_default_store() -> void:
-	var store = Env.CandidateStore.new(directory)
+func test_candidate_store_writes_v3_but_legacy_store_rejects() -> void:
+	var store = Env.Store.new(directory)
 	assert_true(store.write_save("character", 1, {"character_save_version": 3}).ok)
 	assert_true(store.read_save("character", 1).ok)
-	assert_eq(Env.Store.new(directory).read_save("character", 1).code, "unsupported_version")
+	assert_eq(Env.LegacyStore.new(directory).read_save("character", 1).code, "unsupported_version")
 
 
 func test_candidate_world_uses_c1_runtime_and_v3_session_together() -> void:
@@ -72,7 +72,7 @@ func test_candidate_world_uses_c1_runtime_and_v3_session_together() -> void:
 
 
 func _boot(fixture: Dictionary) -> Node:
-	var world = Env.instantiate_world()
+	var world = load(Env.WORLD_PATH).instantiate()
 	world.set_meta("save_directory", directory)
 	world.set_meta("save_boot", {"account": fixture.account, "character": fixture.data, "slot": 1})
 	add_child_autofree(world)
@@ -117,8 +117,8 @@ func test_v1_v2_hold_auto_and_preserve_bytes_on_failed_manual_save() -> void:
 
 func test_mixed_generations_read_without_rewriting_and_recover_old_backup() -> void:
 	var fixture: Dictionary = Env.seed_files(directory)
-	var codec = Env.CandidateCodec.new()
-	var store = Env.CandidateStore.new(directory)
+	var codec = Env.Codec.new()
+	var store = Env.Store.new(directory)
 	codec.bind_store(store, fixture.account)
 	var path := directory.path_join("character_01.json")
 	for versions in [[2, 1], [3, 2]]:
@@ -152,8 +152,8 @@ func test_mixed_generations_read_without_rewriting_and_recover_old_backup() -> v
 
 func test_future_main_and_backup_are_not_destroyed() -> void:
 	var fixture: Dictionary = Env.seed_files(directory)
-	var store = Env.CandidateStore.new(directory)
-	var codec = Env.CandidateCodec.new()
+	var store = Env.Store.new(directory)
+	var codec = Env.Codec.new()
 	codec.bind_store(store, fixture.account)
 	var upgraded: Dictionary = codec.prepare_loaded(fixture.data, fixture.account).data
 	var future := upgraded.duplicate(true)
@@ -170,7 +170,7 @@ func test_future_main_and_backup_are_not_destroyed() -> void:
 	assert_eq(FileAccess.get_sha256(path + ".bak.preserved." + digest), digest)
 
 
-func test_other_slot_and_real_world_replacement_keep_candidate_runtime() -> void:
+func test_other_slot_and_real_world_replacement_keep_product_runtime() -> void:
 	var fixture: Dictionary = Env.seed_files(directory)
 	var path := directory.path_join("character_01.json")
 	var digest := FileAccess.get_sha256(path)
@@ -187,7 +187,7 @@ func test_other_slot_and_real_world_replacement_keep_candidate_runtime() -> void
 	var fresh: Node = get_children()[-1]
 	autofree(fresh)
 	fresh.process_mode = Node.PROCESS_MODE_DISABLED
-	assert_true(fresh.get_node("SaveSession").codec is Env.CandidateCodec)
+	assert_true(fresh.get_node("SaveSession").codec.get_script() == Env.Codec)
 	assert_false(fresh.get_node("SaveSession").migration_pending)
 	assert_eq(fresh.get_node("Player/PlayerProgression").current_exp, 20000)
 	assert_eq(fresh.get_node("Player/PlayerProgression").level_curve.req(20), 39355)
@@ -206,8 +206,8 @@ func test_candidate_rejects_default_directory_and_old_runtime() -> void:
 
 func test_corrupt_main_recovers_v2_backup_without_mutating_either_file() -> void:
 	var fixture: Dictionary = Env.seed_files(directory)
-	var store = Env.CandidateStore.new(directory)
-	var codec = Env.CandidateCodec.new()
+	var store = Env.Store.new(directory)
+	var codec = Env.Codec.new()
 	codec.bind_store(store, fixture.account)
 	var path := directory.path_join("character_01.json")
 	Env.write_fixture(path + ".bak", fixture.data)
@@ -227,8 +227,8 @@ func test_corrupt_main_recovers_v2_backup_without_mutating_either_file() -> void
 
 func test_candidate_content_error_blocks_fallback_and_preservation() -> void:
 	var fixture: Dictionary = Env.seed_files(directory)
-	var store = Env.CandidateStore.new(directory)
-	var codec = Env.CandidateCodec.new()
+	var store = Env.Store.new(directory)
+	var codec = Env.Codec.new()
 	codec.bind_store(store, fixture.account)
 	var upgraded: Dictionary = codec.prepare_loaded(fixture.data, fixture.account).data
 	var path := directory.path_join("character_01.json")

@@ -6,21 +6,10 @@ const MAX_SIGNED_INT := 9223372036854775807
 
 ## codec가 계정 연결을 포함한 원본 스키마 검증 후 호출한다. 파일 쓰기/보상 지급 없음.
 static func upgrade(data: Dictionary) -> Dictionary:
-	var version: Variant = data.get("character_save_version")
-	if (
-		not (version is int or version is float)
-		or not is_finite(version)
-		or version != floor(version)
-		or int(version) not in [1, 2]
-	):
-		return {"ok": false, "code": "unsupported_version", "data": {}}
-	var upgraded := data.duplicate(true)
-	upgraded.character_save_version = 2
-	return {"ok": true, "code": "ok", "data": upgraded}
+	return upgrade_candidate(data)
 
 
-## 원본 전체 검증은 codec 소유. 여기서도 산술 입력을 검사하며 실패 시 복사본을 반환하지 않는다.
-## 제품 upgrade()는 V2 유지. 후보 경로는 플레이어/파일/보상에 접근하지 않는다.
+## 제품과 기존 후보 호출자가 공유하는 순수 V1/V2→V3 변환.
 static func upgrade_candidate(data: Dictionary) -> Dictionary:
 	var version: Variant = data.get("character_save_version")
 	if not _integer_between(version, 1, 3):
@@ -42,12 +31,8 @@ static func upgrade_candidate(data: Dictionary) -> Dictionary:
 		converted = _rescale_exp(int(exp_value), limit, new_rules.req(int(level)))
 		if converted < 0:
 			return _failure("migration_exp_range")
-	# V1 예약 필드는 codec에서 검증했다. 기존 V1→V2 복사를 거쳐 V3로 올린다.
-	var result: Dictionary = (
-		{"ok": true, "code": "ok", "data": data.duplicate(true)} if version == 3 else upgrade(data)
-	)
-	if not result.ok:
-		return result
+	# 원본 전체 검증 후 복사한다. V1 예약 필드는 그대로 보존한다.
+	var result := {"ok": true, "code": "ok", "data": data.duplicate(true)}
 	result.data.character_save_version = 3
 	result.data.player.exp = converted
 	return result

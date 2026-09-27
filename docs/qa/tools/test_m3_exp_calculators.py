@@ -5,6 +5,8 @@ from pathlib import Path
 import re
 import runpy
 import unittest
+import os
+import json
 from m3_exp_math import roundi
 
 
@@ -26,8 +28,39 @@ class ExpCalculatorsTest(unittest.TestCase):
         self.assertEqual(len(expected), 99)
         for name, calc in self.calculators.items():
             with self.subTest(calculator=name):
+                profile = calc["LC"].get("profile", 0)
+                try:
+                    calc["LC"]["profile"] = 0
+                    self.assertEqual([calc["req"](level) for level in range(1, 100)], expected)
+                    self.assertEqual(sum(calc["req"](level) for level in range(1, 10)), 18612)
+                finally:
+                    calc["LC"]["profile"] = profile
+
+    def test_shipped_c1_requirements_all_levels(self):
+        source = (TOOLS.parents[2] / "godot/scripts/save/save_progression_rules.gd").read_text(encoding="utf-8")
+        table = re.search(r"const C1_REQUIREMENTS := \[(.*?)\]", source, re.S).group(1)
+        expected = [int(value) for value in re.findall(r"\d+", table)]
+        self.assertEqual(len(expected), 99)
+        for name, calc in self.calculators.items():
+            with self.subTest(calculator=name):
+                self.assertEqual(calc["LC"]["profile"], 1)
                 self.assertEqual([calc["req"](level) for level in range(1, 100)], expected)
-                self.assertEqual(sum(calc["req"](level) for level in range(1, 10)), 18612)
+                self.assertEqual(sum(expected), 61860102)
+
+    @unittest.skipUnless(os.environ.get("C1_ENGINE_JSON"), "엔진 출력 경로 미지정")
+    def test_against_fresh_engine_export(self):
+        engine = json.loads(Path(os.environ["C1_ENGINE_JSON"]).read_text(encoding="utf-8"))
+        for name, calc in self.calculators.items():
+            with self.subTest(calculator=name):
+                self.assertEqual([calc["req"](level) for level in range(1, 100)], engine["c1"])
+                self.assertEqual([calc["mob_exp"](level) for level in range(1, 101)], engine["mob"])
+                profile = calc["LC"]["profile"]
+                try:
+                    calc["LC"]["profile"] = 0
+                    self.assertEqual([calc["req"](level) for level in range(1, 100)], engine["legacy"])
+                finally:
+                    calc["LC"]["profile"] = profile
+        self.assertEqual([roundi(x) for x in engine["ties"]], engine["rounded"])
 
     def test_half_ties_match_godot_roundi(self):
         for name, calc in self.calculators.items():

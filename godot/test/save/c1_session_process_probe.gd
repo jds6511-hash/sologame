@@ -48,18 +48,18 @@ func _boot(phase: String) -> Node:
 		errors.append("seed fixture missing")
 		return null
 	var digest := FileAccess.get_file_as_string(hash_path)
-	var store = environment.CandidateStore.new(DIRECTORY)
+	var store = environment.Store.new(DIRECTORY)
 	var account: Dictionary = store.read_save("account")
 	if not account.ok:
 		errors.append("account read failed")
 		return null
-	var codec = environment.CandidateCodec.new()
+	var codec = environment.Codec.new()
 	codec.bind_store(store, account.data)
 	var read: Dictionary = store.read_save("character", 1)
 	if not read.ok:
 		errors.append("character read failed")
 		return null
-	var world: Node = environment.instantiate_world()
+	var world: Node = load(environment.WORLD_PATH).instantiate()
 	world.set_meta("save_directory", DIRECTORY)
 	world.set_meta("save_boot", {"account": account.data, "character": read.data, "slot": 1})
 	root.add_child(world)
@@ -90,10 +90,10 @@ func _boot(phase: String) -> Node:
 		_check(FileAccess.get_sha256(path + ".bak") == digest, "backup hash after restart")
 		_check(
 			(
-				environment.Store.new(DIRECTORY).read_save("character", 1).code
+				environment.LegacyStore.new(DIRECTORY).read_save("character", 1).code
 				== "unsupported_version"
 			),
-			"old build refuses V3"
+			"legacy file contract refuses V3"
 		)
 	return world
 

@@ -1,4 +1,4 @@
-## C1/V3는 이 테스트 환경에만 존재한다. 제품 씬·리소스에 후보 설정을 저장하지 않는다.
+## 격리된 C1 비교 환경과 역사 파일 fixture. 제품 기본 경로는 D에서 C1/V3로 전환됐다.
 extends RefCounted
 
 const Store = preload("res://scripts/save/save_file_store.gd")
@@ -134,6 +134,17 @@ class CandidateStore:
 
 	func supported_versions(kind: String) -> Array:
 		return [1, 2, 3] if kind == "character" else [1]
+
+
+## 이전 배포의 파일 버전 거부 계약만 재현한다. 전체 구 빌드 실행은 아니다.
+class LegacyStore:
+	extends Store
+
+	func current_version(kind: String) -> int:
+		return 2 if kind == "character" else 1
+
+	func supported_versions(kind: String) -> Array:
+		return [1, 2] if kind == "character" else [1]
 
 
 class CandidateSession:

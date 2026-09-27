@@ -1,5 +1,5 @@
 ## 저장 버전의 고정 규칙. 런타임 리소스 변경으로 과거 저장의 의미를 바꾸지 않는다.
-## V3는 후보 검사에만 사용하며 codec/store의 지원 버전은 별도로 유지한다.
+## V1/V2는 Legacy, V3는 C1이다. codec/store의 지원 버전은 별도로 유지한다.
 extends RefCounted
 
 

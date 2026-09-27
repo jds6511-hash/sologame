@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1")
 max_level = 100
-profile = 1
+profile = 0
 c1_multiplier = 0.4
 c1_blend_start_level = 10
 c1_blend_end_level = 20
