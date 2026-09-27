@@ -1,7 +1,7 @@
 # M5 후속 단위 — 무리들의 그림자
 
 - 날짜: 2026-09-27. 코드 대조 기준 `234cc33`.
-- 상태: Claude `bfb4f85` 설계 리뷰 **착수 가능**, 코드 구현·자동 검증 완료/구현 리뷰 대기. [보고서](../../qa/m5-third-quest-report.md). G4/G5 직접 플레이 승인을 대신하지 않는다.
+- 상태: Claude `bfb4f85` 설계 리뷰 **착수 가능**, 코드 구현·자동 검증 완료, Claude `72cb569` **구현 통과**. [낮음 지적 대응과 MQ04 이월](../../qa/m5-third-quest-review-response.md) · [보고서](../../qa/m5-third-quest-report.md). G4/G5 직접 플레이 승인을 대신하지 않는다.
 - 근거: [전체 로드맵 §5](../DEVELOPMENT_ROADMAP.md), [퀘스트 구조 §3-2](../quests/quest-structure.md), [초반 성장](../quests/early-leveling-route.md), [시작 맵](../levels/eastern-frontier-start-map.md), [첫 슬라이스 계약](npc-dialog-quest.md).
 
 ## 목표와 범위

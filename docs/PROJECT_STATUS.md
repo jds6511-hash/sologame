@@ -15,6 +15,7 @@
   - `docs\interim-review-2026-08-20.md` (2026-08-20 중간 검수 — 실측 스냅샷, 3장·9-5절·11장 근거)
   - `docs\claude-code-review-2026-08-20.md` (외부 개발 리뷰 — 디렉터 입수 입력 문서, 11장 채택분 근거)
 - **변경 이력**:
+  - 2026-09-27: Claude가 `72cb569` MQ-01-03 구현 통과. [대응 기록](qa/m5-third-quest-review-response.md)에 낮음 2건을 MQ04로 이월하고 대화 패널 불투명 사유를 보완했다. 디렉터 요청으로 [100시간 전환 영향 감사](design/100-hour-scope-audit.md)와 [Claude 검토 요청](qa/100-hour-scope-review-request.md)을 작성했다. 100h 예산은 검토안이며 기존 250h 정본·게임 수치·저장 형식은 아직 변경하지 않았다. 게임 테스트 재실행 없음, 직접 플레이/G4/G5 미완료 유지.
   - 2026-09-27: MQ-01-03 구현·자동 검증 완료. 들개 2마리→명시적 보고→490 EXP/150골드, 공통 대화/추적 표시 및 V2 호환 연결. 전체 GUT 1001/1001·109 scripts, GD 13개 형식/린트, 별도 프로세스 11단계·렌더 PASS·기존 runtime 40/40. [보고서](qa/m5-third-quest-report.md)·[구현 검토 요청](qa/m5-third-quest-review-request.md). 실제 관통 플레이/G4/G5 및 동시 교전 체감 미완료 유지.
   - 2026-09-27: Claude가 `c3e25e9` 보완 통과, 새 지적 없음. M5 단위 3 자동 검증 리뷰 종료(직접 플레이·G4/G5 미완료). 다음 독립 작업으로 기존 M5 후속 MQ-01-03 설계를 준비했다. [설계](design/systems/m5-third-quest.md)·[새 설계 검토 요청](qa/m5-third-quest-design-review-request.md). 게임 코드 변경/테스트 재실행 없음. 프롬프트 결함은 `406d4d0` 수정 완료이며 수동 확인만 남는다.
   - 2026-09-27: Claude가 `3022586` 자동 영속성 검증 타당성 통과. fixture 누락 진단·오디오 종료 가드 보완 후 정상 7단계 PASS, seed 누락은 파일명과 함께 exit 1. 종료 경고는 실행별 비결정적 관측으로 정정(아래 수치는 당시 실측이며 기준선 아님). [리뷰 대응](qa/m5-quest-persistence-review-response.md). 실제 플레이·G4/G5는 미완료.
