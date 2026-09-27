@@ -1,5 +1,7 @@
 # 퀘스트 구조 기획 (M1)
 
+> **100시간 개정 작업(2026-09-27)**: Claude 예산 리뷰에서 정본 개정 착수 가능 판정을 받아 [장별 예산](../100-hour-progression-budget.md)을 공통 작업 기준으로 연결한다. 아래 250h/480건 및 기존 보상·시간표는 이전 기준이며 새 예산과 혼용하지 않는다. C1 곡선은 미승인·미적용이고, 생략 경로 EXP 부족(예산 §4-1)이 남아 있다. 이 안내는 100h 완주 보장이나 전체 정본 교체 완료 선언이 아니다.
+
 - **최종 수정일**: 2026-09-16
 - **담당**: quest-designer
 - **의존 문서**: `docs\design\GAME_CONCEPT.md`, `docs\design\story.md`, `docs\design\worldview.md`, `docs\design\systems\jobs.md`, `docs\design\systems\growth.md`, `docs\art\ux\onboarding.md`(3장 MQ-01~05 연계 확정 요청 3건), `docs\design\systems\m2-monster-spec.md`(뿔토끼·들개 마수 스펙), `docs\design\systems\m2-warrior-skills.md`(온보딩 지연 노출 스킬), `godot\scripts\ui\tutorial_controller.gd`(온보딩 대체 구현 — 0-3절 근거)

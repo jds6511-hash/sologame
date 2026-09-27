@@ -1,5 +1,7 @@
 # 스탯·성장 시스템 설계
 
+> **100시간 개정 작업(2026-09-27)**: Claude 예산 리뷰에서 정본 개정 착수 가능 판정을 받아 [장별 예산](../100-hour-progression-budget.md)을 공통 작업 기준으로 연결한다. 아래 250h/480건 및 기존 보상·시간표는 이전 기준이며 새 예산과 혼용하지 않는다. C1 곡선은 미승인·미적용이고, 생략 경로 EXP 부족(예산 §4-1)이 남아 있다. 이 안내는 100h 완주 보장이나 전체 정본 교체 완료 선언이 아니다.
+
 - **최종 수정일**: 2026-09-16
 - **담당**: systems-designer
 - **의존 문서**: `docs\design\GAME_CONCEPT.md`, `docs\design\systems\combat.md`, `docs\design\systems\jobs.md`, `docs\design\economy\economy-foundation.md`(장비 등급·서비스 가격 확정), `docs\design\systems\reputation-territory.md`(7장 워프 상세)

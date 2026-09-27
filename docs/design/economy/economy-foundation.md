@@ -1,5 +1,7 @@
 # 경제 기초 설계 (아이템 등급 · 드랍 · 골드 · 가격)
 
+> **100시간 개정 작업(2026-09-27)**: Claude 예산 리뷰에서 정본 개정 착수 가능 판정을 받아 [장별 예산](../100-hour-progression-budget.md)을 공통 작업 기준으로 연결한다. 아래 250h/480건 및 기존 보상·시간표는 이전 기준이며 새 예산과 혼용하지 않는다. C1 곡선은 미승인·미적용이고, 생략 경로 EXP 부족(예산 §4-1)이 남아 있다. 이 안내는 100h 완주 보장이나 전체 정본 교체 완료 선언이 아니다.
+
 - **최종 수정일**: 2026-09-11
 - **담당**: economy-designer
 - **의존 문서**: `docs\design\GAME_CONCEPT.md`, `docs\design\systems\growth.md`(3장 장비 슬롯, 5장 곡선), `docs\design\systems\combat.md`(2-3장 야간, 5-4장 회복, 6장 치명타 공식, 8장 곡선, 11장 경제 전제), `docs\design\systems\jobs.md`(5장 무기 제한·스마트 드랍), `docs\design\worldview.md`(6장 정주지, 명성 3단계), `docs\design\systems\m2-monster-spec.md`(1·2·4장 몬스터 레벨·재료 ID·핵파괴 예외), `docs\design\systems\m3-monster-spec.md`(5·7·9장 M3 신규 3종·아종 4종 드랍 표·재료 ID 제안값), `docs\design\systems\m3-archer-skills.md`(7장 민첩→치명타 곡선, 12장 반지 치명타 옵션 플래그), `docs\design\systems\m3-adventurer-basic-combo.md`(5-3·10장 초기 지급 C급 소검 전제)
