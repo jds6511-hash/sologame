@@ -23,13 +23,15 @@
       그 부분은 산출 문서 9-2장의 G3-1 관찰 항목이다.
 """
 import re, os, math, sys, json
+from pathlib import Path
+from m3_exp_math import roundi
 
-## 리포지토리 위치가 바뀌면 이 경로만 고치면 된다.
-ROOT = r"C:\Users\UserK\Desktop\game\godot"
+## 실행 위치와 무관하게 이 스크립트가 속한 저장소를 읽는다.
+ROOT = Path(__file__).resolve().parents[3] / "godot"
 
 def parse_tres(path):
     """[resource] 섹션의 스칼라/배열 필드를 dict로."""
-    src = open(os.path.join(ROOT, path), encoding="utf-8").read()
+    src = (ROOT / path).read_text(encoding="utf-8")
     # 마지막 [resource] 블록
     idx = src.rindex("[resource]")
     body = src[idx:]
@@ -52,7 +54,7 @@ def parse_tres(path):
 
 def parse_combo(path):
     """콤보 .tres의 sub_resource 단계들을 순서대로 파싱 (기본값 보정 포함)."""
-    src = open(os.path.join(ROOT, path), encoding="utf-8").read()
+    src = (ROOT / path).read_text(encoding="utf-8")
     # WarriorAttackStep 기본값 (warrior_attack_step.gd)
     dflt = dict(damage_coefficient=1.0, hitbox_range_tiles=1.8, hitbox_angle_deg=90.0,
                 startup_sec=0.15, active_sec=0.10, recovery_sec=0.25)
@@ -103,8 +105,12 @@ for name, (sf, df) in MON_FILES.items():
                       elite=bool(s.get("is_elite", False)))
 
 # ---------- 구현 공식 ----------
-def req(L):  return round(LC["req_coefficient"] * L ** LC["req_exponent"])
-def mob_exp(L): return round(LC["mob_exp_coefficient"] * L ** LC["mob_exp_exponent"])
+def req(L):
+    multiplier = (LC.get("pre_transition_req_multiplier", 1.0)
+                  if L < LC.get("first_transition_level", 10) else 1.0)
+    return roundi(LC["req_coefficient"] * L ** LC["req_exponent"] * multiplier)
+
+def mob_exp(L): return roundi(LC["mob_exp_coefficient"] * L ** LC["mob_exp_exponent"])
 
 def leveldiff_mult(d):
     if d >= LDC["up_cap_diff"]: return LDC["up_cap_mult"]
@@ -114,7 +120,7 @@ def leveldiff_mult(d):
     return dm[idx] if 0 <= idx < len(dm) else LDC["floor_mult"]
 
 def exp_gain(base, grade, ld, night):
-    return max(1, round(base * grade * ld * night))
+    return max(1, roundi(base * grade * ld * night))
 
 def primary(level, job, key):
     J = JOBS[job]

@@ -26,8 +26,10 @@ Phase D 3-5장은 "재스폰이 없다"는 전제로 빌드 전체 EXP 재고(10
 """
 import os
 import re
+from pathlib import Path
+from m3_exp_math import roundi
 
-ROOT = r"C:\Users\UserK\Desktop\game\godot"
+ROOT = Path(__file__).resolve().parents[3] / "godot"
 SPAWNER = "scripts/world/monster_spawner.gd"
 START_AREA = "scenes/world/eastern_frontier_starting_area.tscn"
 INITIAL_STOCK_EXP = 10688
@@ -35,7 +37,7 @@ INITIAL_STOCK_EXP = 10688
 
 # ---------- 파싱 (Phase D 스크립트와 동일 방식) ----------
 def parse_tres(path):
-    src = open(os.path.join(ROOT, path), encoding="utf-8").read()
+    src = (ROOT / path).read_text(encoding="utf-8")
     body = src[src.rindex("[resource]"):]
     out = {}
     for m in re.finditer(r"^(\w+) = (.+)$", body, flags=re.M):
@@ -56,7 +58,7 @@ def parse_tres(path):
 
 
 def parse_combo(path):
-    src = open(os.path.join(ROOT, path), encoding="utf-8").read()
+    src = (ROOT / path).read_text(encoding="utf-8")
     dflt = dict(damage_coefficient=1.0, startup_sec=0.15, active_sec=0.10, recovery_sec=0.25)
     subs = {}
     for blk in re.split(r"^\[sub_resource ", src, flags=re.M)[1:]:
@@ -75,7 +77,7 @@ def parse_combo(path):
 
 def parse_gd_consts(path, names):
     """monster_spawner.gd의 `const NAME := 30.0` 형태 상수를 읽는다(문서 수치 재입력 방지)."""
-    src = open(os.path.join(ROOT, path), encoding="utf-8").read()
+    src = (ROOT / path).read_text(encoding="utf-8")
     out = {}
     for n in names:
         m = re.search(r"^const %s\s*:?=\s*([\d.]+)" % n, src, flags=re.M)
@@ -85,7 +87,7 @@ def parse_gd_consts(path, names):
 
 def parse_pack_sizes(path):
     """`const WOLF_PACK_SIZE := Vector2i(2, 4)` → ("WOLF", (2, 4))"""
-    src = open(os.path.join(ROOT, path), encoding="utf-8").read()
+    src = (ROOT / path).read_text(encoding="utf-8")
     out = {}
     for m in re.finditer(r"^const (\w+)_(?:PACK_SIZE|ESCORT_SIZE) := Vector2i\((\d+), (\d+)\)",
                          src, flags=re.M):
@@ -95,7 +97,7 @@ def parse_pack_sizes(path):
 
 def parse_markers(scene_path):
     """씬의 마커 그룹 → [Vector2(px) …]. Marker2D 노드의 parent/position만 본다."""
-    src = open(os.path.join(ROOT, scene_path), encoding="utf-8").read()
+    src = (ROOT / scene_path).read_text(encoding="utf-8")
     groups = {}
     blocks = re.split(r"^\[node ", src, flags=re.M)[1:]
     for blk in blocks:
@@ -149,12 +151,12 @@ for name, (sf, df) in MON_FILES.items():
 # ---------- 구현 공식 재현 (Phase D와 동일) ----------
 def req(L):
     multiplier = (LC.get("pre_transition_req_multiplier", 1.0)
-                  if L < LC.get("first_transition_level", 0.0) else 1.0)
-    return round(LC["req_coefficient"] * L ** LC["req_exponent"] * multiplier)
+                  if L < LC.get("first_transition_level", 10) else 1.0)
+    return roundi(LC["req_coefficient"] * L ** LC["req_exponent"] * multiplier)
 
 
 def mob_exp(L):
-    return round(LC["mob_exp_coefficient"] * L ** LC["mob_exp_exponent"])
+    return roundi(LC["mob_exp_coefficient"] * L ** LC["mob_exp_exponent"])
 
 
 def leveldiff_mult(d):
@@ -213,7 +215,7 @@ def exp_gain(mon, level, night):
     base = mob_exp(mon["level"])
     grade = LC["elite_multiplier"] if mon["elite"] else 1.0
     nm = LC["night_exp_multiplier"] if night else 1.0
-    return max(1, round(base * grade * leveldiff_mult(mon["level"] - level) * nm))
+    return max(1, roundi(base * grade * leveldiff_mult(mon["level"] - level) * nm))
 
 
 # ---------- 시작 지역 배치 실측 ----------
