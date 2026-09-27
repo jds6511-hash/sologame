@@ -199,8 +199,12 @@ func player_error(data: Variant, rules: RefCounted) -> String:
 		or (data.job_id != "adventurer" and not Registry.JOBS.has(data.job_id))
 	):
 		return "unknown_job"
-	if data.job_id != "adventurer" and data.level < rules.transition_level(data.job_id):
-		return "job_level"
+	if data.job_id != "adventurer":
+		var gate: int = rules.transition_level(data.job_id)
+		if gate < 1:
+			return "unknown_job"
+		if data.level < gate:
+			return "job_level"
 	var stats := registry.max_stats(int(data.level), data.job_id)
 	if not number(data.hp, 0.000001, stats.max_hp) or not number(data.mp, 0, stats.max_mp):
 		return "vitals"

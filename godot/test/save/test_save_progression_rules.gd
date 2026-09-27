@@ -8,6 +8,13 @@ var account: Dictionary
 var data: Dictionary
 
 
+class MissingJobRules:
+	extends Rules.Legacy
+
+	func transition_level(_job_id: String) -> int:
+		return -1
+
+
 func before_each() -> void:
 	codec = Codec.new()
 	account = codec.new_account()
@@ -180,3 +187,14 @@ func test_json_numeric_versions_keep_validation_after_decode() -> void:
 			codec.schema.character_error(decoded, account),
 			"unsupported_version" if version == 3 else ""
 		)
+
+
+func test_missing_snapshot_job_gate_fails_closed() -> void:
+	data.player.job_id = "warrior"
+	data.player.skill_points = 21
+	assert_eq(codec.schema.player_error(data.player, MissingJobRules.new()), "unknown_job")
+	var registered: Array = codec.registry.JOBS.keys()
+	var frozen: Array = Rules.Legacy.JOB_LEVELS.keys()
+	registered.sort()
+	frozen.sort()
+	assert_eq(frozen, registered, "새 직업 등록 시 저장 규칙 누락 금지")
