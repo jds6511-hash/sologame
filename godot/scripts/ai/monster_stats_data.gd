@@ -64,6 +64,7 @@ extends Resource
 
 @export_group("도주 — 뿔토끼 전용")
 @export var flee_duration_sec: float = 1.5
+@export_range(0.1, 5.0, 0.05) var flee_rest_duration_sec: float = 0.8  ## 토끼 도주 후 공격 기회
 
 @export_group("원거리 공격(투사체) — 균열 점액 · 밀렵꾼(석궁) 공용")
 ## 돌진↔조준 사격 조합 스위치 (m3-monster-spec 7-3 밀렵꾼 아종) — true면 OutlawMonster가

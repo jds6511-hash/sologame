@@ -17,3 +17,4 @@ melee_range_tiles = 1.5
 melee_telegraph_sec = 0.7
 melee_recovery_sec = 0.55
 flee_duration_sec = 1.5
+flee_rest_duration_sec = 0.8

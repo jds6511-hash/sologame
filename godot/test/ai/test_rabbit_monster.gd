@@ -38,10 +38,33 @@ func test_flee_transitions_to_melee_swing_when_caught() -> void:
 	assert_eq(_rabbit.state, RabbitMonster.State.MELEE_SWING)
 
 
-func test_flee_returns_to_wander_after_duration_when_distance_secured() -> void:
+func test_flee_stops_after_duration_even_while_target_keeps_chasing() -> void:
 	_rabbit._start_flee()
-	_target.global_position = _rabbit.global_position + Vector2(1000, 0)  ## 인지범위 밖으로 거리 확보
+	_target.global_position = _rabbit.global_position + Vector2(32, 0)
 	_rabbit._physics_process(_rabbit.stats.flee_duration_sec + 0.1)
+	assert_ne(_rabbit.state, RabbitMonster.State.FLEE, "근처에 추격자가 있어도 도주 종료")
+	assert_eq(_rabbit.velocity, Vector2.ZERO, "공격할 정지 기회 보장")
+
+
+func test_rest_does_not_restart_flee_or_attack_when_target_approaches() -> void:
+	_rabbit._start_flee()
+	_target.global_position = _rabbit.global_position + Vector2(32, 0)
+	_rabbit._physics_process(_rabbit.stats.flee_duration_sec)
+	_target.global_position = _rabbit.global_position + Vector2(20, 0)
+	_rabbit._physics_process(0.4)
+	assert_eq(_rabbit.velocity, Vector2.ZERO)
+	assert_ne(_rabbit.state, RabbitMonster.State.FLEE)
+	assert_ne(_rabbit.state, RabbitMonster.State.MELEE_SWING)
+	_rabbit._physics_process(0.41)
+	assert_eq(_rabbit.state, RabbitMonster.State.FLEE, "정지 종료 후 기존 도주 행동 재개")
+
+
+func test_rest_returns_to_wander_when_target_leaves() -> void:
+	_rabbit._start_flee()
+	_target.global_position = _rabbit.global_position + Vector2(1000, 0)
+	_rabbit._physics_process(_rabbit.stats.flee_duration_sec)
+	assert_eq(_rabbit.velocity, Vector2.ZERO)
+	_rabbit._physics_process(0.81)
 	assert_eq(_rabbit.state, RabbitMonster.State.WANDER)
 
 

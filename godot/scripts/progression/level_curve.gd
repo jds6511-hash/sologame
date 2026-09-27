@@ -21,6 +21,7 @@ enum Profile { LEGACY, C1 }
 @export var max_level: int = 100  ## 만렙 (spec 전제)
 @export var profile: Profile = Profile.LEGACY
 @export var c1_multiplier: float = 0.4
+## 배포 C1 계약: first_transition_level과 함께 10으로 유지. 별도 변경은 곡선 재검증 필요.
 @export var c1_blend_start_level: int = 10
 @export var c1_blend_end_level: int = 20
 

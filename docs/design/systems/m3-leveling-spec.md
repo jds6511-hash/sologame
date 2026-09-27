@@ -1,8 +1,8 @@
 # M3 레벨업 시스템 구현 사양 (경험치·자동 성장·스킬 포인트)
 
-> **2026-09-27 D 제품 전환**: 디렉터 승인으로 C1/V3 적용. 아래 기존 곡선 검산표는 V1/V2 역사 규칙이다. 현행 REQ는 `roundi(55×L^2.5×배율)`이며 L<10은0.45, L10은1, L11~19는`0.4^((L−10)/10)`, L≥20은0.4다. Lv10 누적18,612·Lv100 누적61,860,102. 몬스터EXP·스킬 포인트·전직 관문은 유지. [성장 정본](growth.md) · [전환 계약](c1-product-rollout.md).
+> **2026-09-28 D 제품 전환**: 디렉터 승인으로 C1/V3 적용. 아래 기존 곡선 검산표는 V1/V2 역사 규칙이다. 현행 REQ는 `roundi(55×L^2.5×배율)`이며 L<10은0.45, L10은1, L11~19는`0.4^((L−10)/10)`, L≥20은0.4다. Lv10 누적18,612·Lv100 누적61,860,102. 몬스터EXP·스킬 포인트·전직 관문은 유지. [성장 정본](growth.md) · [전환 계약](c1-product-rollout.md).
 
-- **최종 수정일**: 2026-09-14
+- **최종 수정일**: 2026-09-28
 - **담당**: systems-designer
 - **의존 문서**:
   - `docs\design\systems\growth.md` (1-2장 파생 공식, 2장 자동 성장, 5장 경험치 곡선·5-4 레벨 차 보정, 6장 스킬 포인트 경제)
@@ -10,7 +10,7 @@
   - `docs\design\systems\combat.md` (6장 데미지·치명타 공식, 7장 스킬 계수 규격, 8장 몬스터 곡선)
   - `docs\design\economy\economy-foundation.md` (1-1장 골드 공식·5-4 레벨 차 골드 보정 — EXP 곡선과 전제 공유)
   - 구현체: `godot\scripts\combat\combatant_stats.gd`, `godot\scripts\player\player_stats_component.gd`, `godot\scripts\combat\damage_calculator.gd`, `godot\scripts\player\warrior_skill_data.gd`, `godot\data\combat\warrior_lv1_combatant_stats.tres`
-- **변경 이력**:
+- **변경 이력**: 2026-09-28 C1/V3 제품 전환 반영 이력·날짜 보완(제품 커밋 d424a6d); 과거 산출값은 역사 자료로 보존.
   - 2026-09-14: 디렉터 플레이 판정을 반영해 Lv1~9 REQ에만 0.45 배율을 적용했다. Lv10 도달 누적은 41,359→18,612, Lv10 이후 레벨당 REQ는 기존 곡선을 그대로 유지한다.
   - 2026-09-11: 전직 교체 스킬 환급·공통 강화 유지·실제 지출 장부 저장 계약을 추가하고 최종 빌드 비용 비교를 정정했다.
   - 2026-07-27: 최초 작성 — growth.md 2·5·6장을 systems-dev가 바로 구현할 데이터/공식 시트로 확정. 경험치 곡선 1~20 + 밴드 검산표(REQ·누적·몹EXP·환산처치·1차 총합·전사 파생 검산 — growth.md 5-2·2-2와 일치 확인), 레벨업 트리거 규칙, 레벨 차 보정 데이터, 스킬 포인트 경제, .tres 스키마 제안. 표시 반올림 규칙·전직 임계 교차 처리 등 4건을 확인 플래그로 명시.

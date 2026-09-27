@@ -12,24 +12,20 @@ func character_version() -> int:
 
 
 func prepare_loaded(data: Dictionary, account: Dictionary) -> Dictionary:
-	return _prepare_loaded(data, account, false)
+	return _prepare_loaded(data, account)
 
 
 ## 기존 후보 검사 호출자의 호환 경로. 변환 구현은 제품과 공유한다.
 func prepare_candidate_loaded(data: Dictionary, account: Dictionary) -> Dictionary:
-	return _prepare_loaded(data, account, true)
+	return _prepare_loaded(data, account)
 
 
-func _prepare_loaded(data: Dictionary, account: Dictionary, candidate: bool) -> Dictionary:
-	var validate: Callable = (
-		schema.candidate_character_error if candidate else schema.character_error
-	)
+func _prepare_loaded(data: Dictionary, account: Dictionary) -> Dictionary:
+	var validate: Callable = schema.character_error
 	var error: String = validate.call(data, account)
 	if not error.is_empty():
 		return {"ok": false, "code": error, "data": {}}
-	var result: Dictionary = (
-		Migrations.upgrade_candidate(data) if candidate else Migrations.upgrade(data)
-	)
+	var result: Dictionary = Migrations.upgrade(data)
 	if result.ok:
 		error = validate.call(result.data, account)
 		if not error.is_empty():

@@ -1,6 +1,6 @@
 # M3 Phase D — 밸런스 실측·튜닝 (공격 중 이동 재검증 · 페이스 실측 · 이월 플래그 판정)
 
-- **최종 수정일**: 2026-09-27 (역사 산출물 경계 정정; 본문 산출값은 2026-07-31 기준 보존)
+- **최종 수정일**: 2026-09-28 (역사 산출물 경계 정정; 본문 산출값은 2026-07-31 기준 보존)
 
 > **역사 스냅샷**: 본문의 성장 수치·판정은 초반0.45 배율 도입 전 곡선과 당시 배치 기준이다. `4409236` 이후 현행 계산기 재실행은 이 문서의 재현이 아니라 현재 리소스의 새 계산이다. 특히 3장의 “목표1.8h가 두 모델 사이” 결론은 현행에 적용되지 않는다. 당시 수치를 새 값으로 덮어쓰지 않는다. 배율 보정과 D의 엔진 출력 대조는 완료됐으나, 이 역사 문서의 플레이 페이스 결론이 현행에 유효해진 것은 아니다. [현행 검증 상태](../100-hour-scope-audit.md) 참조.
 - **담당**: systems-designer
@@ -17,7 +17,7 @@
   - `docs\design\systems\m2-monster-spec.md` (3-1 뿔토끼 서술·3-3 코어 파괴 기믹)
   - **구현 실측 대상(읽기 전용)**: `godot\scripts\progression\*`, `godot\data\progression\*.tres`, `godot\data\monsters\*.tres`, `godot\data\drops\*.tres`, `godot\data\player\*_basic_combo.tres`, `godot\data\player\skills\**`, `godot\scripts\player\player_controller.gd`, `godot\scripts\player\archer_shot_module.gd`, `godot\scripts\ai\monster_base.gd`, `godot\scripts\ai\blocks\*`, `godot\scripts\ai\{rabbit,wolf,rift_slime,forest_spider,outlaw,imp}_monster.gd`, `godot\scripts\combat\player_attack_resolver.gd`, `godot\scenes\world\*.tscn`, `godot\scenes\player\player.tscn`
   - **산출 도구**: `docs\qa\tools\m3_phase_d_balance_calc.py` (당시 판본으로 본문 산출. 현행 판본은 현재 리소스를 읽으며 역사 수치·판정을 재현하지 않음)
-- **변경 이력**:
+- **변경 이력**: 2026-09-28 C1/V3 제품 전환 반영 이력·날짜 보완(제품 커밋 d424a6d); 과거 산출값은 역사 자료로 보존.
   - 2026-07-31: 최초 작성 — Phase D-1(공격 중 이동 45% 재검증, 둔화 조합 포함)·D-2(페이스 실측으로 M2 QA-3 추정치 대체) 판정, 이월 플래그 3건(대검 캐이던스 1.23배·균열 점액 코어 기믹·뿔토끼 HP 서술) 판정, 정예 그로기 비율 재검산. 측정은 전부 구현체 `.tres`/`.gd` 값을 직접 읽어 산출했고, 신뢰도를 3등급(구현 실측 / 모델 계산 / 계산 불가)으로 분리 표기. 신규 발견 4건(둔화×공격 중 실질 27%·레벨 차 상향 보정의 취지 미달·숲거미 공격 토큰 미적용·플레이어 걷기 속도 미확정)을 등재하고 이 중 1건을 디렉터 결정 필요로 상정.
 
 > **본 문서의 성격**: Phase D는 "M2에서 추정치로 남겼던 것을 실측으로 대체"하는 태스크다. 따라서 본 문서의 최우선 원칙은 **정직성**이다 — 구현체에서 직접 읽은 값, 전제를 깐 모델 계산값, 현 빌드에서 측정이 불가능한 값을 절대 섞지 않고 1장의 신뢰도 등급으로 분리했다. **`combat.md`·`growth.md`·`m3-monster-spec.md` 등 타 문서의 수치는 본 문서에서 변경하지 않았다** — 필요한 정정은 8장에 "어느 문서 어느 절을 어떻게"로 지시만 남긴다(동시 작업 중).
