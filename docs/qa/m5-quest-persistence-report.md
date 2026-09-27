@@ -1,6 +1,7 @@
 # M5 단위 3 — 의뢰 재실행 검증
 
 - 날짜: 2026-09-27. 비교 기준 `f11430e`.
+- 검증 구현 커밋: **`3022586`**, 범위 `f11430e..3022586`.
 - 상태: **별도 프로세스 자동 검증 완료, 실제 플레이 미완료**. G4/G5 미승인 유지.
 - 연결: [실행 계획](../superpowers/plans/2026-09-27-m5-first-quest.md), [단위 2 보고서](m5-first-quest-report.md), [검토 요청](m5-quest-persistence-review-request.md).
 
