@@ -10,7 +10,7 @@
 
 **Spec:** [M5 구현 계약](../../design/systems/npc-dialog-quest.md). 이 계획은 구현 전 설계 단위이며 체크되지 않은 항목은 미실행이다.
 
-**Review handoff:** [Claude 설계 리뷰 요청](../../qa/m5-design-review-request.md). `955f9c5` 리뷰는 보완 후 착수 가능 판정. [지적별 대응](../../qa/m5-design-review-response.md)에 설계 보완과 재검토 범위를 기록했다. 보완본의 독립 재검토는 아직 미수신이다.
+**Review handoff:** [Claude 설계 리뷰 요청](../../qa/m5-design-review-request.md). `b9b5599` 보완본 재검토 결과 **단위 1 착수 가능**. [지적별 대응](../../qa/m5-design-review-response.md)에 잔여 1건·참고 2건의 단위 2 반영을 기록했다. 다음 리뷰 제출은 단위 1 구현 커밋과 검증 보고서다.
 
 ## 공통 제약
 
@@ -69,8 +69,11 @@ godot --headless --path godot -s addons/gut/gut_cmdln.gd -gdir=res://test/quests
 - [ ] 2회 처치 후 ready를 표시하고 보고 버튼만 보상을 준다. 만석 실패, 기존 포션 스택 성공, 신호 재진입, completed 재보고를 테스트한다.
 - [ ] Journal을 codec 캡처/복원에 연결하고 슬롯 교체 전후 객체 공유가 없는지 검증한다. restore 완료 전에 이벤트를 받지 않는다.
 - [ ] 스포너 _ready에서 생성 제거 → 복원/신호 연결 후 start → 초기 토끼 등록 후 온보딩 순서를 검증한다. start 2회 중복 생성 0, start 전 생성 0, 최초/재스폰 모두 집계, 낮밤·프레임 분산·교체 중 생성 중단·M3 테스트 필드 회귀를 검사한다.
+- [ ] 시작 지역의 `_register_spawned_monsters()` 소급 호출·불필요해진 함수와 비중복 시점 주석을 제거한다. `_on_monster_spawned` 한 경로로 등록하며 초기 토끼 1마리 사망당 경험치/드랍/퀘스트 각 1회, 중복 연결 오류 0건을 검사한다.
+- [ ] 접근만 하면 01 counts의 REACH만 증가하고, 대화 열기에서 TALK가 증가하는지 확인한다. 범위 밖 대화 성공을 가정하지 않는다.
 - [ ] 대화 pause·닫기·F6 차단·통합 메뉴 상호 배제를 검증한다. 보상 중 저장 요청은 명시적으로 거부한다.
 - [ ] UI 세 종류의 순서 있는 6개 조합을 검사한다. 다른 소유자 release·중복 release·외부 pause·소유자 종료·월드 교체에서 pause 침범이 없어야 한다. 기존 메뉴 process_mode 우회 제거 후에도 동일하게 검사한다.
+- [ ] 월드 교체 실패를 주입해 기존 메뉴 표시와 토큰 소유권을 함께 복원하고, 이후 메뉴 닫기로 정상 재개되는지 검사한다. 성공은 이전 토큰 폐기, 이전 월드의 늦은 release가 새 월드 pause에 영향 0인지를 확인한다.
 - [ ] 전체 GUT 및 변경 파일 형식/린트, 렌더 월드 회귀를 실행한다. `docs/qa/m5-first-quest-report.md`에 기록 후 커밋한다.
 
 ## 단위 3 — 재실행·실제 플레이 검증
