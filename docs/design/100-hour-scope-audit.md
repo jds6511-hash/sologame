@@ -4,6 +4,7 @@
 - 상태: **축소안과 적용 순서 검토용. 아직 250시간 정본·게임 수치·저장 형식을 변경하지 않았다.**
 - 요청: 디렉터의 100시간 규모 질문에 대해 변경할 문서와 실제 구현을 구분하고 Claude 독립 검토를 받는다.
 - [리뷰 요청](../qa/100-hour-scope-review-request.md) · [현행 로드맵](DEVELOPMENT_ROADMAP.md) · [MQ-01-03 리뷰 대응](../qa/m5-third-quest-review-response.md).
+- 후속 진행: 감사의 두 리뷰 통과 후 [장별 예산 v1](100-hour-progression-budget.md)과 [새 수치 검토 요청](../qa/100-hour-budget-review-request.md)을 작성했다. 아래 감사 자체를 다시 승인받는 단계가 아니다.
 
 ## 1. 판단
 
