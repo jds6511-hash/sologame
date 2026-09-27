@@ -29,9 +29,13 @@ func _run() -> void:
 		_seed()
 	else:
 		_verify(args[0])
-	root.get_node("BgmManager").reset()
-	await process_frame
 	_check(completed, "phase reached final checks")
+	var bgm := root.get_node_or_null("BgmManager")
+	if bgm == null or not bgm.has_method("reset"):
+		_check(false, "audio cleanup unavailable: BgmManager.reset")
+	else:
+		bgm.call("reset")
+	await process_frame
 	print("M5_FIRST_QUEST_PROCESS_PASS " + args[0] if errors.is_empty() else str(errors))
 	quit(0 if errors.is_empty() else 1)
 
@@ -113,9 +117,10 @@ func _seed() -> void:
 
 func _verify(phase: String) -> void:
 	var slot: int = {"active": 1, "ready": 2, "completed": 3, "legacy": 4}[phase]
-	var expected: Dictionary = JSON.parse_string(
-		FileAccess.get_file_as_string(ROOT.path_join("expected_%d.json" % slot))
-	)
+	var expected := _read_fixture("expected_%d.json" % slot)
+	var hashes := _read_fixture("hashes.json")
+	if expected.is_empty() or hashes.is_empty():
+		return
 	var world := _world()
 	var result: Dictionary = world.get_node("SaveSession").load_slot(slot)
 	_check(result.ok, "load " + phase)
@@ -161,9 +166,6 @@ func _verify(phase: String) -> void:
 		_check(_snapshot(world) == after, "repeat unchanged")
 	world.get_node("Player/PlayerStats")._time_since_combat_action_sec = 10.0
 	_check(world.get_node("SaveSession").save_slot(5).ok, "save progressed character to other slot")
-	var hashes: Dictionary = JSON.parse_string(
-		FileAccess.get_file_as_string(ROOT.path_join("hashes.json"))
-	)
 	for name in hashes:
 		_check(
 			FileAccess.get_sha256(ROOT.path_join(name)) == hashes[name],
@@ -171,6 +173,18 @@ func _verify(phase: String) -> void:
 		)
 	world.free()
 	completed = true
+
+
+func _read_fixture(name: String) -> Dictionary:
+	var path := ROOT.path_join(name)
+	if not FileAccess.file_exists(path):
+		_check(false, "fixture missing: " + name + " (run seed first)")
+		return {}
+	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
+	if not parsed is Dictionary or parsed.is_empty():
+		_check(false, "fixture invalid or empty: " + name)
+		return {}
+	return parsed
 
 
 func _write(name: String, value: String) -> void:

@@ -26,4 +26,6 @@ gdformat --check godot/test/quests/first_quest_process_probe.gd docs/qa/tools/m5
 gdlint godot/test/quests/first_quest_process_probe.gd docs/qa/tools/m5_manual_play.gd
 ```
 
-예상: 7단계 PASS, 신규 2파일 형식/린트 통과. seed 종료 경고 4/2, active 6/2는 잔존한다. 직접 플레이는 입력 도구의 physical_keycode 불일치로 미완료다. 리뷰가 통과해도 G4/G5 승인을 대신하지 않는다.
+예상: 7단계 PASS, 신규 2파일 형식/린트 통과. 종료 경고는 비결정적이다. seed 4/2·active 6/2는 최초 관측값이며 고정 통과 기준이 아니다. 직접 플레이는 입력 도구의 physical_keycode 불일치로 미완료다. 리뷰가 통과해도 G4/G5 승인을 대신하지 않는다.
+
+검토 결과: Claude가 `3022586`의 검증 스크립트 타당성과 보고서 주장을 승인했다. [보완 대응](m5-quest-persistence-review-response.md)에 진단 개선 및 경고 표기 정정을 기록한다.

@@ -2,7 +2,7 @@
 
 - 날짜: 2026-09-27. 비교 기준 `f11430e`.
 - 검증 구현 커밋: **`3022586`**, 범위 `f11430e..3022586`.
-- 상태: **별도 프로세스 자동 검증 완료, 실제 플레이 미완료**. G4/G5 미승인 유지.
+- 상태: **별도 프로세스 자동 검증·Claude 타당성 검토 통과, 실제 플레이 미완료**. [리뷰 보완 기록](m5-quest-persistence-review-response.md). G4/G5 미승인 유지.
 - 연결: [실행 계획](../superpowers/plans/2026-09-27-m5-first-quest.md), [단위 2 보고서](m5-first-quest-report.md), [검토 요청](m5-quest-persistence-review-request.md).
 
 ## 변경과 범위
@@ -31,7 +31,7 @@
 
 각 복원 단계는 새 OS 프로세스다. 복원 비교는 의뢰뿐 아니라 codec 전체 payload(레벨·EXP·골드·가방·장비·위치 등)를 비교한다. 각 단계에서 진행 캐릭터를 **슬롯 5에 저장한 후** 슬롯 1~4 원본 SHA-256이 모두 불변인지 확인한다. V1 원문도 포함된다. V1 fixture는 신버전에서 만든 검증된 캐릭터를 V1 봉투/빈 quests로 변환한 것이며 과거 사용자 저장 샘플은 아니다. 처치는 이벤트만 전달하므로 처치 EXP/드랍은 없고 75/400은 의뢰 EXP만의 총량이다.
 
-최종 7단계 모두 `M5_FIRST_QUEST_PROCESS_PASS`, exit 0. SCRIPT ERROR 없음. seed 종료 4 ObjectDB/2 resources, active 종료 6/2 경고가 남았다. ready/completed/legacy/cleanup에서는 같은 경고가 없었다. 원인은 미확정이며 저장 유실로 판정하지 않는다.
+최종 7단계 모두 `M5_FIRST_QUEST_PROCESS_PASS`, exit 0. SCRIPT ERROR 없음. 최초 실행에서 seed 종료 4 ObjectDB/2 resources, active 종료 6/2 경고를 관측했고 ready/completed/legacy/cleanup에서는 관측하지 않았다. **이는 고정 기준선이 아니다.** Claude는 같은 active 명령의 연속 실행에서 경고 없음/있음을 모두 확인했다. 보완 재실행에서는 ready/completed/legacy에도 6/2가 관측됐다. 종료 경고 유무·수치는 비결정적이며 원인은 미확정이다. 특정 수치 차이만으로 회귀나 저장 유실을 판정하지 않는다.
 
 형식·린트: 신규 GDScript 2개 통과. 게임 코드를 바꾸지 않은 이번 검증 단위에서는 전체 GUT/렌더 회귀를 재실행하지 않았다. 직전 전체 결과는 `406d4d0`의 992/992이며 이번 실측과 구분한다.
 
