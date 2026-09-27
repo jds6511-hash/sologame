@@ -1,3 +1,4 @@
+# gdlint: disable=max-returns
 class_name QuestData
 extends Resource
 
@@ -24,6 +25,10 @@ func definition_error() -> String:
 		return "quest_definition"
 	if objective_sources.size() != count:
 		return "quest_definition"
+	if reward_exp < 0 or reward_gold < 0 or reward_item_count < 0:
+		return "quest_reward"
+	if reward_item_id.is_empty() != (reward_item_count == 0):
+		return "quest_reward"
 	for index in count:
 		if objective_kinds[index] not in ["REACH", "TALK", "KILL"]:
 			return "unsupported_objective"

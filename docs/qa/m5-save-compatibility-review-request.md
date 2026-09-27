@@ -1,7 +1,7 @@
 # Claude 코드 리뷰 요청 — M5 단위 1
 
 - 검토 대상: **`d5878fd`**, 비교 기준: **`64d7f61`**.
-- 상태: 구현·자동 검증 완료, 독립 코드 리뷰 결과 미수신.
+- 상태: Claude **단위 1 통과** 회신 수신. 이 문서는 원 요청 이력이며 후속 제출은 [리뷰 대응·보완 검토 요청](m5-save-compatibility-review-response.md)을 사용한다.
 - [검증 보고서](m5-save-compatibility-report.md), [계약](../design/systems/npc-dialog-quest.md), [실행 계획](../superpowers/plans/2026-09-27-m5-first-quest.md).
 
 ## 전달 요청

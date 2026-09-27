@@ -21,6 +21,35 @@ func test_data_rewards_and_shared_definitions() -> void:
 	assert_eq(second.objective_sources, ["yeoulmok_rabbit_habitat"])
 
 
+func test_all_catalog_definitions_and_rewards_are_valid() -> void:
+	assert_true(catalog.has_method("definition_errors"))
+	if not catalog.has_method("definition_errors"):
+		return
+	assert_eq(catalog.call("definition_errors"), {})
+	var copy: QuestData = catalog.definitions["MQ-01-02"].duplicate(true)
+	catalog.definitions[copy.quest_id] = copy
+	copy.objective_counts = [0]
+	assert_eq(catalog.call("definition_errors"), {"MQ-01-02": "quest_definition"})
+	copy.objective_counts = [2]
+	copy.reward_item_id = "missing_item"
+	assert_eq(catalog.call("definition_errors"), {"MQ-01-02": "quest_reward_item"})
+	assert_eq(Catalog.new().definitions[copy.quest_id].reward_item_id, "POT-HP-1")
+
+
+func test_negative_rewards_and_inconsistent_item_counts_rejected() -> void:
+	var original: QuestData = catalog.definitions["MQ-01-02"]
+	for field in ["reward_exp", "reward_gold", "reward_item_count"]:
+		var copy: QuestData = original.duplicate(true)
+		copy.set(field, -1)
+		assert_eq(copy.definition_error(), "quest_reward")
+	var copy: QuestData = original.duplicate(true)
+	copy.reward_item_count = 0
+	assert_eq(copy.definition_error(), "quest_reward")
+	copy.reward_item_count = 2
+	copy.reward_item_id = ""
+	assert_eq(copy.definition_error(), "quest_reward")
+
+
 func test_valid_states_including_json_roundtrip() -> void:
 	assert_eq(Schema.validate({}, catalog), "")
 	for state in [

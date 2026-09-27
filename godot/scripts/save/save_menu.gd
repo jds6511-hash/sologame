@@ -220,6 +220,7 @@ static func error_text(code: String) -> String:
 			"account_mismatch": "계정이 일치하지 않습니다.",
 			"pending_transfer": "미완료 창고 거래가 있습니다.",
 			"unsupported_transfer_history": "지원하지 않는 거래 기록입니다.",
+			"quest_content_error": "의뢰 콘텐츠 오류로 저장·불러오기를 중단했습니다. 게임 데이터 확인이 필요합니다.",
 			"position_outside_map": "저장 위치가 현재 지도 밖입니다.",
 			"unsupported_world": "이 지역의 저장 연결을 확인할 수 없습니다.",
 			"session_blocked": "현재 상태에서는 캐릭터를 바꿀 수 없습니다."

@@ -88,6 +88,8 @@ func account_error(data: Dictionary) -> String:
 
 
 func character_error(data: Dictionary, account: Dictionary) -> String:
+	if not quest_catalog.definition_errors().is_empty():
+		return Codes.QUEST_CONTENT_ERROR
 	var error := account_error(account)
 	if not error.is_empty():
 		return error
@@ -112,7 +114,12 @@ func character_error(data: Dictionary, account: Dictionary) -> String:
 		]
 	):
 		return "character_fields"
-	if not identifier(data.character_id) or not integer(data.character_save_version, 1):
+	if not identifier(data.character_id):
+		return "character_identity"
+	var version: Variant = data.character_save_version
+	if not (version is int or version is float):
+		return "character_identity"
+	if not is_finite(version) or version != floor(version):
 		return "character_identity"
 	if int(data.character_save_version) not in [1, 2]:
 		return "unsupported_version"

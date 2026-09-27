@@ -35,6 +35,34 @@ func test_new_capture_uses_version_two() -> void:
 	assert_eq(data.character_save_version, 2)
 
 
+func test_direct_codec_unsupported_integer_versions_match_store() -> void:
+	for version in [0, -1, 3, 0.0]:
+		data.character_save_version = version
+		assert_eq(codec.prepare_loaded(data, account).code, "unsupported_version")
+
+
+func test_unaccepted_content_error_does_not_recover_or_modify_saves() -> void:
+	var store = Store.new(directory)
+	codec.bind_store(store, account)
+	assert_true(store.write_save("character", 1, data).ok)
+	assert_true(store.write_save("character", 1, data).ok)
+	var path := directory.path_join("character_01.json")
+	var main_hash := FileAccess.get_sha256(path)
+	var backup_hash := FileAccess.get_sha256(path + ".bak")
+	var copy: QuestData = codec.schema.quest_catalog.definitions["MQ-01-02"].duplicate(true)
+	codec.schema.quest_catalog.definitions[copy.quest_id] = copy
+	for fault in ["objective_counts", "reward_item_id"]:
+		copy.objective_counts.assign([0] if fault == "objective_counts" else [2])
+		copy.reward_item_id = "missing_item" if fault == "reward_item_id" else "POT-HP-1"
+		var read: Dictionary = store.read_save("character", 1)
+		assert_eq(read.code, "quest_content_error")
+		assert_eq(read.backup_code, "not_checked")
+		assert_eq(store.write_save("character", 1, data).code, "quest_content_error")
+		assert_eq(FileAccess.get_sha256(path), main_hash)
+		assert_eq(FileAccess.get_sha256(path + ".bak"), backup_hash)
+		assert_eq(DirAccess.get_files_at(directory).size(), 2)
+
+
 func test_supported_quest_progress_is_accepted() -> void:
 	data.character_save_version = 2
 	data.progress.quests = {
