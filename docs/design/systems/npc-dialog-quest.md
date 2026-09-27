@@ -1,7 +1,7 @@
 # M5 — NPC·대화·첫 의뢰 구현 계약
 
 - 날짜: 2026-09-27. 기준 코드: `dcbda4d`.
-- 상태: 다음 단계 진행 지시에 따른 구현 설계. 구현·G5 통과 기록이 아니다.
+- 상태: 단위 1 구현·리뷰 통과, 단위 2 구현·자동 검증 완료/독립 리뷰 대기. [단위 2 보고서](../../qa/m5-first-quest-report.md). 단위 3·G5 통과 기록은 아니다.
 - 리뷰: Claude가 `b9b5599` 보완본에 **단위 1 착수 가능** 판정. 단위 2의 등록 경로·접근/대화 기록 시점·pause 복원 보완은 아래 계약과 실행 계획에 반영했다.
 - 담당: Codex 구현·통합, Claude 독립 검토.
 - 정본: [개발 로드맵](../DEVELOPMENT_ROADMAP.md), [퀘스트 구조](../quests/quest-structure.md), [초반 성장](../quests/early-leveling-route.md), [저장 계약](save-load.md).
@@ -31,7 +31,7 @@
 | ai/monster_base.gd | died 신호 사용. tree_exited/낮 소멸을 처치로 세지 않음 |
 | data/monsters/rabbit_stats.tres | display_name만으로 식별하지 않음. 콘텐츠 ID 매핑을 명시적으로 추가 |
 | items/inventory_component.gd | 가방 30칸, 기존 아이템은 합산, add_to_bag는 실패 가능 |
-| save/save_schema.gd | 현재 quests/story_flags/territory는 빈 값만 허용. 검사 삭제로 확장하지 않음 |
+| save/save_schema.gd | V1 quests는 빈 값, V2 quests는 카탈로그 기준 검증. story_flags/territory 예약 제약은 유지 |
 | save/save_session.gd | 월드 교체 전에 저장 검증, 복원 실패 시 이전 월드 유지 경계 보존 |
 
 ## 3. 데이터와 상태 소유권
@@ -56,6 +56,8 @@ TALK/KILL/REACH를 첫 슬라이스에서 실행한다. COLLECT/DELIVER/ESCORT/I
 - 첫 대화 → 패 수령 → 토끼몰이 설명/수락 또는 나중에 → 진행 확인 → 보고/보상 → 후속 의뢰 안내 상태로 표시한다. 보상과 레벨업 알림은 대화 종료 후 순서대로 표시한다.
 - 대화 중에는 월드와 자동 저장 시간이 정지한다. 닫기/ESC는 미선택 수락·보고를 실행하지 않는다. 클릭 연타·키 반복도 한 번의 전이만 만든다.
 - 추적 문구는 `접수원과 대화` → `뿔토끼 처치 0/2` → `접수원에게 보고`로 전환한다. 기존 온보딩은 유지하되 새 추적 문구와 상호작용 프롬프트를 동시에 덮어쓰지 않게 우선순위를 정한다.
+
+단위 2에서는 NPC 대화 대상이 있으면 F 줍기와 온보딩 공격 프롬프트보다 대화를 우선한다. 줍기는 NPC 범위 밖에서 수행한다. 기존 전직 선택창도 이미 pause 상태이면 열지 않아 세 UI의 소유권을 침범하지 않는다. 접수원은 기존 마커에서 런타임 생성하며 전사 LPC 외형을 임시 재사용한다. 최종 NPC 아트는 별도 단계다.
 
 일시정지는 새 Autoload 대신 **월드 소유 UiPauseArbiter 1개**로 중재한다. `acquire(owner: Node) -> bool`은 다른 소유자 또는 외부 pause가 있으면 실패하고, 성공할 때만 pause를 건다. `release(owner: Node) -> void`는 자기 소유자만 해제한다. IntegratedMenu·SaveMenu·QuestDialog 모두 경유하고 직접 pause 토글/다른 메뉴 process_mode 비활성화 우회는 제거한다. 소유자 종료 시 자기 토큰만 반납하며 중복 반납은 무효다. 월드 교체는 기존 메뉴 토큰을 먼저 반납한 후 SaveSession이 전환용 pause를 잡고 이전 pause 상태를 복원한다. 이전 월드의 늦은 종료가 새 월드 pause를 풀지 않아야 한다. 기존 비메뉴 pause 중에는 세 UI 모두 열리지 않는다.
 

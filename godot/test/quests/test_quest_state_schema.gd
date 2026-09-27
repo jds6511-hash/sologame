@@ -50,6 +50,15 @@ func test_negative_rewards_and_inconsistent_item_counts_rejected() -> void:
 	assert_eq(copy.definition_error(), "quest_reward")
 
 
+func test_catalog_reuses_save_registry_and_validates_npc_ids() -> void:
+	var schema = load("res://scripts/save/save_schema.gd").new()
+	assert_same(schema.quest_catalog.registry, schema.registry)
+	var copy: QuestData = catalog.definitions["MQ-01-01"].duplicate(true)
+	catalog.definitions[copy.quest_id] = copy
+	copy.npc_id = "missing_npc"
+	assert_eq(catalog.definition_errors(), {"MQ-01-01": "quest_npc"})
+
+
 func test_valid_states_including_json_roundtrip() -> void:
 	assert_eq(Schema.validate({}, catalog), "")
 	for state in [

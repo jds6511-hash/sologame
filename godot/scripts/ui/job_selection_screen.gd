@@ -69,7 +69,7 @@ func bind_transition(transition: PlayerJobTransition) -> void:
 ## 않고 "지금 갈 수 있는 후보가 있는가"로만 판정한다(헤더 참조). 후보는 현재 직업에 따라
 ## 달라지므로 열 때마다 카드를 다시 만든다.
 func open() -> void:
-	if _transition == null or not _transition.transition_available:
+	if _transition == null or not _transition.transition_available or get_tree().paused:
 		return
 	_build_cards()
 	if _cards_row.get_child_count() == 0:

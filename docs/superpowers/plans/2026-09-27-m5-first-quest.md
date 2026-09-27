@@ -10,7 +10,7 @@
 
 **Spec:** [M5 구현 계약](../../design/systems/npc-dialog-quest.md). 이 계획은 구현 전 설계 단위이며 체크되지 않은 항목은 미실행이다.
 
-**Review handoff:** Claude가 `d5878fd` 및 보완 `08af954`를 **통과**로 판정했다. [단위 1 리뷰 대응](../../qa/m5-save-compatibility-review-response.md)에 재현 결과와 비차단 인덱스 통합 이월을 기록했다. 단위 1 재검토는 종료하며 다음 구현·검토 대상은 단위 2다.
+**Review handoff:** 단위 1 및 보완 리뷰는 종료했다. 단위 2 구현·자동 검증을 완료했으며 [Claude 단위 2 리뷰 요청](../../qa/m5-first-quest-review-request.md)과 [보고서](../../qa/m5-first-quest-report.md)를 전달한다. 아이템 인덱스 통합도 반영했다. 다음 검증은 단위 3이며 G5 판정은 아직 아니다.
 
 ## 공통 제약
 
@@ -64,19 +64,19 @@ godot --headless --path godot -s addons/gut/gut_cmdln.gd -gdir=res://test/quests
 
 인터페이스: Journal `accept(quest_id: String) -> String`, `record_event(kind: String, target_id: String, source_id: String, token: int) -> void`, `export_state() -> Dictionary`, `restore_state(data: Dictionary) -> String`. 성공 문자열은 빈 값. Controller `report(quest_id: String, npc_id: String) -> String`이 지급·완료를 함께 소유하고 `is_reward_busy() -> bool`을 저장 경계에 제공한다. NPC는 Controller만 호출하며 저장 파일에 접근하지 않는다.
 
-- [ ] 01 자동 수락/접근/대화 완료 → 02 제안/거절/수락 경로를 테스트로 작성한다. 수락 전 죽음·다른 서식지·중복 token은 진행되지 않아야 한다.
-- [ ] 01의 접근 REACH → 대화 열기 TALK → 명시적 패 수령 선택 순서를 고정한다. TALK 후 ESC는 ready 유지·보상 0, 재대화 확인은 1회 지급. 02 counts는 KILL 하나이며 수락/보고를 목표에 넣지 않는다.
-- [ ] 기존 마커에 NPC를 배치하고 F 대상 탐색·기존 프롬프트·대화·추적 문구를 연결한다. 기존 에셋의 임시 외형임을 명시한다.
-- [ ] 스폰 출처와 명시적인 몬스터 콘텐츠 ID를 이벤트로 전달한다. 등록은 1회, 낮 소멸/씬 해제는 KILL 제외다.
-- [ ] 2회 처치 후 ready를 표시하고 보고 버튼만 보상을 준다. 만석 실패, 기존 포션 스택 성공, 신호 재진입, completed 재보고를 테스트한다.
-- [ ] Journal을 codec 캡처/복원에 연결하고 슬롯 교체 전후 객체 공유가 없는지 검증한다. restore 완료 전에 이벤트를 받지 않는다.
-- [ ] 스포너 _ready에서 생성 제거 → 복원/신호 연결 후 start → 초기 토끼 등록 후 온보딩 순서를 검증한다. start 2회 중복 생성 0, start 전 생성 0, 최초/재스폰 모두 집계, 낮밤·프레임 분산·교체 중 생성 중단·M3 테스트 필드 회귀를 검사한다.
-- [ ] 시작 지역의 `_register_spawned_monsters()` 소급 호출·불필요해진 함수와 비중복 시점 주석을 제거한다. `_on_monster_spawned` 한 경로로 등록하며 초기 토끼 1마리 사망당 경험치/드랍/퀘스트 각 1회, 중복 연결 오류 0건을 검사한다.
-- [ ] 접근만 하면 01 counts의 REACH만 증가하고, 대화 열기에서 TALK가 증가하는지 확인한다. 범위 밖 대화 성공을 가정하지 않는다.
-- [ ] 대화 pause·닫기·F6 차단·통합 메뉴 상호 배제를 검증한다. 보상 중 저장 요청은 명시적으로 거부한다.
-- [ ] UI 세 종류의 순서 있는 6개 조합을 검사한다. 다른 소유자 release·중복 release·외부 pause·소유자 종료·월드 교체에서 pause 침범이 없어야 한다. 기존 메뉴 process_mode 우회 제거 후에도 동일하게 검사한다.
-- [ ] 월드 교체 실패를 주입해 기존 메뉴 표시와 토큰 소유권을 함께 복원하고, 이후 메뉴 닫기로 정상 재개되는지 검사한다. 성공은 이전 토큰 폐기, 이전 월드의 늦은 release가 새 월드 pause에 영향 0인지를 확인한다.
-- [ ] 전체 GUT 및 변경 파일 형식/린트, 렌더 월드 회귀를 실행한다. `docs/qa/m5-first-quest-report.md`에 기록 후 커밋한다.
+- [x] 01 자동 수락/접근/대화 완료 → 02 제안/거절/수락 경로를 테스트로 작성한다. 수락 전 죽음·다른 서식지·중복 token은 진행되지 않아야 한다.
+- [x] 01의 접근 REACH → 대화 열기 TALK → 명시적 패 수령 선택 순서를 고정한다. TALK 후 ESC는 ready 유지·보상 0, 재대화 확인은 1회 지급. 02 counts는 KILL 하나이며 수락/보고를 목표에 넣지 않는다.
+- [x] 기존 마커에 NPC를 배치하고 F 대상 탐색·기존 프롬프트·대화·추적 문구를 연결한다. 기존 에셋의 임시 외형임을 명시한다.
+- [x] 스폰 출처와 명시적인 몬스터 콘텐츠 ID를 이벤트로 전달한다. 등록은 1회, 낮 소멸/씬 해제는 KILL 제외다.
+- [x] 2회 처치 후 ready를 표시하고 보고 버튼만 보상을 준다. 만석 실패, 기존 포션 스택 성공, 신호 재진입, completed 재보고를 테스트한다.
+- [x] Journal을 codec 캡처/복원에 연결하고 슬롯 교체 전후 객체 공유가 없는지 검증한다. restore 완료 전에 이벤트를 받지 않는다.
+- [x] 스포너 _ready에서 생성 제거 → 복원/신호 연결 후 start → 초기 토끼 등록 후 온보딩 순서를 검증한다. start 2회 중복 생성 0, start 전 생성 0, 최초/재스폰 모두 집계, 낮밤·프레임 분산·교체 중 생성 중단·M3 테스트 필드 회귀를 검사한다.
+- [x] 시작 지역의 `_register_spawned_monsters()` 소급 호출·불필요해진 함수와 비중복 시점 주석을 제거한다. `_on_monster_spawned` 한 경로로 등록하며 초기 토끼 1마리 사망당 경험치/드랍/퀘스트 각 1회, 중복 연결 오류 0건을 검사한다.
+- [x] 접근만 하면 01 counts의 REACH만 증가하고, 대화 열기에서 TALK가 증가하는지 확인한다. 범위 밖 대화 성공을 가정하지 않는다.
+- [x] 대화 pause·닫기·F6 차단·통합 메뉴 상호 배제를 검증한다. 보상 중 저장 요청은 명시적으로 거부한다.
+- [x] UI 세 종류의 순서 있는 6개 조합을 검사한다. 다른 소유자 release·중복 release·외부 pause·소유자 종료·월드 교체에서 pause 침범이 없어야 한다. 기존 메뉴 process_mode 우회 제거 후에도 동일하게 검사한다.
+- [x] 월드 교체 실패를 주입해 기존 메뉴 표시와 토큰 소유권을 함께 복원하고, 이후 메뉴 닫기로 정상 재개되는지 검사한다. 성공은 이전 토큰 폐기, 이전 월드의 늦은 release가 새 월드 pause에 영향 0인지를 확인한다.
+- [x] 전체 GUT 및 변경 파일 형식/린트, 렌더 월드 회귀를 실행한다. `docs/qa/m5-first-quest-report.md`에 기록 후 커밋한다.
 
 ## 단위 3 — 재실행·실제 플레이 검증
 
@@ -91,4 +91,4 @@ godot --headless --path godot -s addons/gut/gut_cmdln.gd -gdir=res://test/quests
 
 ## 이번 설계 단위 검증
 
-설계 단계에서 기존 NPC 마커, interact 입력, 스포너/사망 신호, 가방 실패 조건, 저장 예약 필드 제약을 코드로 대조했다. 이후 단위 1을 구현하고 [검증 보고서](../../qa/m5-save-compatibility-report.md)를 작성했다. 단위 2·3은 미실행이며 NPC 수직 슬라이스와 G5 통과를 주장하지 않는다.
+설계 단계에서 기존 NPC 마커, interact 입력, 스포너/사망 신호, 가방 실패 조건, 저장 예약 필드 제약을 코드로 대조했다. 단위 1 구현·리뷰 통과 후 단위 2 구현·자동 검증을 완료했다. GUT 989/989, 기존 렌더 입력 40/40, 신규 대화 렌더 PASS. 단위 3의 의뢰 상태별 별도 프로세스·직접 플레이는 미실행이며 G5 통과를 주장하지 않는다.

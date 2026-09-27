@@ -30,6 +30,11 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
+	if (
+		_nearby_inventory != null
+		and _nearby_inventory.get_parent().get_meta("npc_interaction_available", false)
+	):
+		return
 	if _nearby_inventory != null and Input.is_action_just_pressed("interact"):
 		_try_pickup()
 

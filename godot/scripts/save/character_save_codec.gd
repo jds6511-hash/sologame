@@ -88,7 +88,7 @@ func capture(player: Node2D, account_id: String, carry: Dictionary = {}) -> Dict
 	world.position = [player.position.x, player.position.y]
 	world.day_number = GameClock.day_number
 	world.elapsed_real_sec_in_day = GameClock._elapsed_real_sec_in_day
-	return {
+	var snapshot := {
 		"character_id": carry.get("character_id", new_id()),
 		"character_save_version": 2,
 		"account_id": account_id,
@@ -128,6 +128,12 @@ func capture(player: Node2D, account_id: String, carry: Dictionary = {}) -> Dict
 		"pending_transfer": null,
 		"applied_transfer_ids": []
 	}
+	var journal: QuestJournal = (
+		player.get_meta("quest_journal") if player.has_meta("quest_journal") else null
+	)
+	if journal != null:
+		snapshot.progress.quests = journal.export_state()
+	return snapshot
 
 
 ## 신규 player.tscn + Inventory, _ready 완료 뒤 동기 호출. 기존 플레이어 덮어쓰기는 거부한다.
@@ -170,6 +176,13 @@ func restore_into(player: Node2D, data: Dictionary, account: Dictionary) -> Stri
 	if data.player.job_id != "adventurer" and transition._find_job(data.player.job_id) == null:
 		return "target_job_unavailable"
 	# 모든 데이터/대상 검사 이후에만 변경한다. 레벨업·전직 보상을 발생시키지 않는다.
+	var journal: QuestJournal = (
+		player.get_meta("quest_journal") if player.has_meta("quest_journal") else null
+	)
+	if journal != null:
+		error = journal.restore_state(data.progress.quests)
+		if not error.is_empty():
+			return error
 	progression.current_level = int(data.player.level)
 	progression.current_exp = int(data.player.exp)
 	transition.restore_saved_job(StringName(data.player.job_id))

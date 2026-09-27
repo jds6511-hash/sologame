@@ -32,6 +32,7 @@ func _run() -> void:
 			_check(session.save_slot(1).ok, "seed")
 			var old: Dictionary = session.character.duplicate(true)
 			old.character_save_version = 1
+			old.progress.quests = {}
 			var payload := JSON.stringify(old)
 			session.store._write_text(
 				ROOT.path_join("character_01.json"),

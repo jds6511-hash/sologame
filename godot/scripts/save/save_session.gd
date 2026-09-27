@@ -191,6 +191,9 @@ func new_character() -> Dictionary:
 
 
 func _change_blocked() -> bool:
+	var quests := world.get_node_or_null("QuestController") as QuestController
+	if quests != null and quests.is_reward_busy():
+		return true
 	var player = world.get_node("Player")
 	return (
 		player.is_input_locked
@@ -204,6 +207,8 @@ func _replace_world(
 ) -> Dictionary:
 	var tree := get_tree()
 	var paused := tree.paused
+	var arbiter := UiPauseArbiter.for_world(world)
+	var previous_owner := arbiter.suspend()
 	var old_day: int = GameClock.day_number
 	var old_time: float = GameClock._elapsed_real_sec_in_day
 	tree.paused = true
@@ -222,7 +227,11 @@ func _replace_world(
 	if not error.is_empty():
 		next_world.free()
 		GameClock.prepare_scene_time(old_day, old_time)
-		tree.paused = paused
+		if is_instance_valid(previous_owner):
+			tree.paused = false
+			arbiter.acquire(previous_owner)
+		else:
+			tree.paused = paused
 		return _failure(error)
 	if tree.current_scene == world:
 		tree.current_scene = next_world

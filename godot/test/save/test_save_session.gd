@@ -32,6 +32,7 @@ func _boot_old_save() -> Node:
 	assert_true(session.save_slot(1).ok)
 	var old: Dictionary = session.character.duplicate(true)
 	old.character_save_version = 1
+	old.progress.quests = {}
 	var payload := JSON.stringify(old)
 	session.store._write_text(
 		directory.path_join("character_01.json"),
@@ -186,7 +187,7 @@ func test_menu_pause_ownership_and_confirmation() -> void:
 	menu.open_menu()
 	assert_true(get_tree().paused)
 	assert_true(menu.panel.visible)
-	assert_eq(world.get_node("IntegratedMenu").process_mode, Node.PROCESS_MODE_DISABLED)
+	assert_eq(world.get_node("IntegratedMenu").process_mode, Node.PROCESS_MODE_ALWAYS)
 	menu.request_action("save")
 	assert_true(menu.confirmation.visible)
 	assert_eq(session.active_slot, 0)
@@ -286,6 +287,7 @@ func test_failed_boot_restores_clock_pause_and_existing_world() -> void:
 	assert_eq(GameClock.day_number, 5)
 	assert_eq(GameClock._elapsed_real_sec_in_day, 1500.0)
 	menu.close_menu()
+	assert_false(get_tree().paused)
 
 
 func test_account_failure_keeps_main_and_backup_causes() -> void:

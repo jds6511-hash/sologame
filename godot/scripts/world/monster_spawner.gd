@@ -90,6 +90,7 @@ const RESPAWN_GATE_MARGIN_TILES := 1.0  ## 거리 게이트 = 서식종 인지 �
 const MAX_RESPAWNS_PER_TICK := 1  ## 한 틱에 스폰할 마커 수 상한 (스폰 스톨 방지)
 
 @export var player_path: NodePath
+@export var rabbit_spawn_source_id: String = ""
 
 @export_group("M2 3종 스폰 마커 그룹")
 @export var rabbit_spawn_root_path: NodePath
@@ -112,6 +113,7 @@ var _player: Node2D = null
 var _night_only_monsters: Array[MonsterBase] = []
 var _respawn_slots: Array = []
 var _respawn_tick_accum := 0.0
+var _started := false
 
 
 ## 마커 1개 = 재스폰 슬롯 1개. 슬롯은 자기 마커에서 스폰할 무리 규격과 현재 생존 개체를 들고
@@ -134,13 +136,19 @@ class RespawnSlot:
 
 
 ## 뿔토끼(마커당 1마리, 최대 3마리)는 온보딩 튜토리얼(eastern_frontier_starting_area.gd
-## _start_tutorial)이 _ready() 직후 get_children()으로 즉시 필요로 하므로 동기 스폰을
+## _start_tutorial)이 start() 직후 get_children()으로 즉시 필요로 하므로 동기 스폰을
 ## 유지한다. 몬스터 수가 많은 나머지 종은 마커(무리) 단위로 한 프레임씩 양보해, 시작 지역
 ## 진입 시 몬스터 9~13마리를 한 프레임에 동기 생성해 발생하던 스톨(tech-artist
 ## 프로파일링 — 진입 직후 ~1초간 FPS 1~4)을 완화한다.
 func _ready() -> void:
 	_rng.randomize()
 	_player = get_node_or_null(player_path) as Node2D
+
+
+func start() -> void:
+	if _started or not is_inside_tree():
+		return
+	_started = true
 	_spawn_rabbits()
 	await _spawn_ring_packs(WOLF_SCENE, wolf_pack_spawn_root_path, WOLF_PACK_SIZE, "dogpack")
 	await _spawn_solo_markers(SLIME_SCENE, slime_spawn_root_path)
@@ -167,6 +175,8 @@ func _spawn_rabbits() -> void:
 ## 마커당 1마리(솔로 또는 개별 급습). 마커 하나를 스폰할 때마다 한 프레임을 양보한다.
 func _spawn_solo_markers(scene: PackedScene, root_path: NodePath) -> void:
 	for marker in _spawn_markers(root_path):
+		if not _can_spawn():
+			return
 		_populate_slot(_add_slot(SpawnKind.SOLO, scene, marker))
 		await get_tree().process_frame
 
@@ -176,6 +186,8 @@ func _spawn_ring_packs(
 	scene: PackedScene, root_path: NodePath, size_range: Vector2i, pack_prefix: String
 ) -> void:
 	for marker in _spawn_markers(root_path):
+		if not _can_spawn():
+			return
 		var slot := _add_slot(SpawnKind.RING_PACK, scene, marker)
 		slot.pack_size_range = size_range
 		slot.pack_prefix = pack_prefix
@@ -188,6 +200,8 @@ func _spawn_ring_packs(
 ## 재스폰도 캠프 단위이므로 임프장 없이 호위만 남거나 그 반대가 되는 상태는 생기지 않는다.
 func _spawn_imp_lord_camps() -> void:
 	for marker in _spawn_markers(imp_lord_camp_spawn_root_path):
+		if not _can_spawn():
+			return
 		var slot := _add_slot(SpawnKind.IMP_LORD_CAMP, IMP_LORD_SCENE, marker)
 		slot.delay_sec = ELITE_RESPAWN_SEC
 		_populate_slot(slot)
@@ -311,6 +325,8 @@ func _process(delta: float) -> void:
 ## 한 호출에서 스폰하는 마커는 MAX_RESPAWNS_PER_TICK개까지다 — 쿨다운이 동시에 만료돼도
 ## 스폰이 초당 1마커로 분산돼 M2의 진입 스톨 같은 프레임 낙하가 생기지 않는다.
 func advance_respawn_tick(elapsed_sec: float) -> void:
+	if not _can_spawn():
+		return
 	var spawned_markers := 0
 	for entry in _respawn_slots:
 		var slot: RespawnSlot = entry
@@ -330,6 +346,8 @@ func advance_respawn_tick(elapsed_sec: float) -> void:
 
 
 func _init_night_only_spawns() -> void:
+	if not _can_spawn():
+		return
 	GameClock.night_started.connect(_on_night_started)
 	GameClock.day_started.connect(_on_day_started)
 	if not GameClock.is_day:
@@ -346,6 +364,8 @@ func _on_day_started(_day_number: int) -> void:
 
 ## 낮/밤 신호가 중복으로 와도 개체가 누적되지 않도록, 스폰 전에 항상 이전 야간 개체를 정리한다.
 func _spawn_night_only_monsters() -> void:
+	if not _can_spawn():
+		return
 	_despawn_night_only_monsters()
 	for marker in _spawn_markers(shadow_forest_spider_night_spawn_root_path):
 		var monster := _spawn_monster(SHADOW_FOREST_SPIDER_SCENE, marker.global_position)
@@ -366,6 +386,8 @@ func _despawn_night_only_monsters() -> void:
 
 func _spawn_markers(root_path: NodePath) -> Array[Marker2D]:
 	var markers: Array[Marker2D] = []
+	if not _can_spawn():
+		return markers
 	var root := get_node_or_null(root_path)
 	if root == null:
 		return markers
@@ -382,13 +404,27 @@ func _spawn_markers(root_path: NodePath) -> Array[Marker2D]:
 func _spawn_monster(
 	scene: PackedScene, spawn_position: Vector2, pack_id: String = ""
 ) -> MonsterBase:
+	if not _can_spawn():
+		return null
 	var monster := scene.instantiate() as MonsterBase
 	if monster == null:
 		return null
 	monster.global_position = spawn_position
 	monster.target = _player
+	if scene == RABBIT_SCENE:
+		monster.set_meta("content_id", "horned_rabbit")
+		monster.set_meta("spawn_source_id", rabbit_spawn_source_id)
 	if not pack_id.is_empty() and "pack_id" in monster:
 		monster.set("pack_id", pack_id)
 	add_child(monster)
 	monster_spawned.emit(monster)
 	return monster
+
+
+func _can_spawn() -> bool:
+	return (
+		_started
+		and is_inside_tree()
+		and not is_queued_for_deletion()
+		and not get_parent().is_queued_for_deletion()
+	)

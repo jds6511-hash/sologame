@@ -24,6 +24,7 @@ const ACTION_TO_TAB := {
 	"menu_codex": Tab.CODEX,
 }
 
+var pause_arbiter: UiPauseArbiter
 var _is_open: bool = false
 
 ## M3 B-4: 캐릭터/스킬 탭 실값 바인딩용 참조(bind_player가 채운다).
@@ -101,9 +102,11 @@ func is_menu_blocked() -> bool:
 func open_menu() -> void:
 	if _is_open or is_menu_blocked():
 		return
+	pause_arbiter = UiPauseArbiter.for_world(get_parent())
+	if not pause_arbiter.acquire(self):
+		return
 	_is_open = true
 	visible = true
-	get_tree().paused = true
 	menu_opened.emit()
 
 
@@ -112,7 +115,7 @@ func close_menu() -> void:
 		return
 	_is_open = false
 	visible = false
-	get_tree().paused = false
+	pause_arbiter.release(self)
 	menu_closed.emit()
 
 

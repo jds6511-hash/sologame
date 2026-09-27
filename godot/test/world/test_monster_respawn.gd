@@ -46,6 +46,7 @@ func _attach_spawner(root: Node2D, exports: Dictionary) -> MonsterSpawner:
 	for export_name in exports:
 		spawner.set(export_name, NodePath("../%s" % exports[export_name]))
 	root.add_child(spawner)
+	spawner.ready.connect(spawner.start)
 	return spawner
 
 
@@ -92,6 +93,21 @@ func _tick(spawner: MonsterSpawner, seconds: int) -> void:
 
 
 # --- 재스폰 트리거 ---
+
+
+func test_start_is_explicit_and_idempotent() -> void:
+	var root := _make_root()
+	_add_marker_group(root, "Rabbits", [Vector2.ZERO])
+	var spawner := _attach_spawner(root, {"rabbit_spawn_root_path": "Rabbits"})
+	spawner.ready.disconnect(spawner.start)
+	add_child_autofree(root)
+	assert_eq(_living(spawner), 0)
+	spawner.advance_respawn_tick(100.0)
+	assert_eq(_living(spawner), 0)
+	spawner.start()
+	assert_eq(_living(spawner), 1)
+	spawner.start()
+	assert_eq(_living(spawner), 1)
 
 
 func test_solo_marker_respawns_after_cooldown() -> void:

@@ -82,6 +82,7 @@ func _load_world(path: String) -> void:
 		world.queue_free()
 		await process_frame
 	world = load(path).instantiate()
+	world.set_meta("save_directory", "user://m5_runtime_regression")
 	root.add_child(world)
 	current_scene = world
 	player = world.get_node("Player")
@@ -189,6 +190,8 @@ func _potion_and_death() -> void:
 	_check("시작 지점 부활", player.global_position.distance_to(stats.get_respawn_position()) < 1.0)
 	_check("사망 골드 패널티", inventory.gold == 950, "잔액 %d" % inventory.gold)
 	await _capture("04-respawn")
+	# M5: F prioritizes the nearby receptionist. Test pickup outside the NPC's 40px range.
+	player.global_position += Vector2(64, 0)
 	var item: Node2D = load("res://scenes/items/world_item.tscn").instantiate()
 	var potion_data: Resource = load("res://data/items/pot_hp_1.tres")
 	item.item_data = potion_data

@@ -243,6 +243,8 @@ func _nearest_rabbit_in_range() -> RabbitMonster:
 
 
 func _update_attack_world_prompt() -> void:
+	if _player.get_meta("npc_interaction_available", false):
+		return
 	if _base_attack_landed:
 		_hud.hide_interaction_prompt()
 		return

@@ -7,7 +7,7 @@ const MAX_INT := 2147483647
 const QuestSchema = preload("res://scripts/quests/quest_state_schema.gd")
 const Catalog = preload("res://scripts/quests/quest_catalog.gd")
 var registry = Registry.new()
-var quest_catalog = Catalog.new()
+var quest_catalog = Catalog.new(registry)
 
 
 func number(value: Variant, minimum: float, maximum: float, inclusive: bool = true) -> bool:

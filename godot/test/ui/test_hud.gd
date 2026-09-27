@@ -20,7 +20,19 @@ func before_each() -> void:
 
 
 func after_each() -> void:
+	get_tree().paused = false
 	GameClock.reset()
+
+
+func test_dialogue_level_notice_waits_for_resume_and_reward_notice() -> void:
+	get_tree().paused = true
+	_hud._on_leveled_up(2)
+	assert_false(_hud.get_node("LevelUpFlash").visible)
+	get_tree().paused = false
+	_hud._process(2.9)
+	assert_false(_hud.get_node("LevelUpFlash").visible)
+	_hud._process(0.2)
+	assert_true(_hud.get_node("LevelUpFlash").visible)
 
 
 func test_hud_has_expected_child_elements() -> void:

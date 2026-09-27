@@ -19,6 +19,8 @@ extends CanvasLayer
 const LEVEL_UP_FLASH_SEC := 1.2
 
 var _exp_bar_width := 0.0
+var _pending_levels: Array[int] = []
+var _notice_delay := 0.0
 var _job_name := "전사"
 ## M3 전직 UI 배선용 참조(bind_player가 채운다).
 var _bound_player: PlayerController = null
@@ -174,7 +176,20 @@ func _on_exp_changed(current_exp: int, next_exp: int) -> void:
 
 func _on_leveled_up(new_level: int) -> void:
 	_status_panel.set_level_and_job(new_level, _job_name)
+	if get_tree().paused:
+		_pending_levels.append(new_level)
+		_notice_delay = 3.0
+		return
 	_play_level_up_flash(new_level)
+
+
+func _process(delta: float) -> void:
+	if _pending_levels.is_empty():
+		return
+	_notice_delay -= delta
+	if _notice_delay <= 0.0:
+		_play_level_up_flash(_pending_levels.pop_front())
+		_notice_delay = LEVEL_UP_FLASH_SEC
 
 
 ## 화면 중앙에 "레벨 업!" 문구를 페이드 인/아웃하는 간단 연출(ux 5장 J행 규격 내).

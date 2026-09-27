@@ -213,6 +213,7 @@ class NightSpawnHarness:
 		spawner.name = "Spawner"
 		spawner.shadow_forest_spider_night_spawn_root_path = NodePath("../NightMarkers")
 		add_child(spawner)
+		spawner.ready.connect(spawner.start)
 
 
 func _spawned_shadow_spiders(harness: NightSpawnHarness) -> int:

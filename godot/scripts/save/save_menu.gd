@@ -8,12 +8,12 @@ var status: Label
 var badge: Button
 var _action := ""
 var _slot := 0
-var _integrated_mode: Node.ProcessMode
-var _owns_pause := false
+var _arbiter: UiPauseArbiter
 
 
 func setup(owner_session: Node) -> void:
 	session = owner_session
+	_arbiter = UiPauseArbiter.for_world(session.world)
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	layer = 30
 	var root := Control.new()
@@ -98,13 +98,8 @@ func _input(event: InputEvent) -> void:
 func open_menu() -> void:
 	if panel.visible or session._change_blocked():
 		return
-	var integrated = session.world.get_node("IntegratedMenu")
-	if integrated.is_open() or get_tree().paused:
+	if not _arbiter.acquire(self):
 		return
-	_integrated_mode = integrated.process_mode
-	integrated.process_mode = Node.PROCESS_MODE_DISABLED
-	_owns_pause = true
-	get_tree().paused = true
 	refresh_slots()
 	panel.show()
 	_show_status(session.last_message)
@@ -113,16 +108,7 @@ func open_menu() -> void:
 func close_menu() -> void:
 	confirmation.hide()
 	panel.hide()
-	if _owns_pause:
-		session.world.get_node("IntegratedMenu").process_mode = _integrated_mode
-		get_tree().paused = false
-		_owns_pause = false
-
-
-func _exit_tree() -> void:
-	if _owns_pause:
-		get_tree().paused = false
-		_owns_pause = false
+	_arbiter.release(self)
 
 
 func refresh_slots() -> void:
@@ -221,6 +207,7 @@ static func error_text(code: String) -> String:
 			"pending_transfer": "미완료 창고 거래가 있습니다.",
 			"unsupported_transfer_history": "지원하지 않는 거래 기록입니다.",
 			"quest_content_error": "의뢰 콘텐츠 오류로 저장·불러오기를 중단했습니다. 게임 데이터 확인이 필요합니다.",
+			"reward_busy": "의뢰 보상을 지급 중입니다. 잠시 후 다시 시도하세요.",
 			"position_outside_map": "저장 위치가 현재 지도 밖입니다.",
 			"unsupported_world": "이 지역의 저장 연결을 확인할 수 없습니다.",
 			"session_blocked": "현재 상태에서는 캐릭터를 바꿀 수 없습니다."

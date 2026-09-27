@@ -82,8 +82,7 @@ func _ready() -> void:
 	## unbind(1) 이유는 eastern_frontier_starting_area.gd 동일 배선 주석 참조.
 	_drop_system.gold_dropped.connect(_inventory.add_gold.unbind(1))
 	_monster_spawner.monster_spawned.connect(_register_monster)
-	for monster in _monster_spawner.get_children():
-		_register_monster(monster)
+	_monster_spawner.start()
 	var user_args := OS.get_cmdline_user_args()
 	_capture_mode = user_args.has(CAPTURE_FLAG)
 	_respawn_capture_mode = user_args.has(RESPAWN_CAPTURE_FLAG)

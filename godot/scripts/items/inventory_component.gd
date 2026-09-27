@@ -77,6 +77,14 @@ func pickup_world_item(world_item: WorldItem) -> bool:
 	return true
 
 
+func can_add_to_bag(item: ItemData, quantity: int) -> bool:
+	return (
+		item != null
+		and quantity > 0
+		and (get_bag_quantity(item.item_id) > 0 or bag.size() < bag_capacity)
+	)
+
+
 func add_to_bag(item: ItemData, quantity: int) -> bool:
 	if item == null or quantity <= 0:
 		return false

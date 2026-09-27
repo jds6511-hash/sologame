@@ -1,17 +1,3 @@
-## M2 최종 통합 — 시작 지역 씬에 HUD(UI-1)·통합 메뉴(UI-2)·DropSystem(IT-2)을 배선한다.
-##
-## MonsterSpawner(MP-4)는 자신의 _ready()에서 몬스터를 스폰한다. Godot은 자식 노드의
-## _ready()를 부모보다 먼저 호출하므로, 이 루트 스크립트의 _ready() 시점에는 뿔토끼처럼
-## 동기 스폰되는 몬스터는 이미 존재한다 — 그 몬스터들은 get_children()으로 조회해
-## DropSystem에 등록한다. 다만 들개 마수·균열 점액은 진입 스톨 완화를 위해 스폰이 이후
-## 프레임으로 분산되므로(monster_spawner.gd), 그 몬스터들은 monster_spawned 시그널을
-## 구독해 늦게라도 등록한다(_register_monster로 두 경로가 로직을 공유하며, 시점이 겹치지
-## 않아 이중 등록되지 않는다).
-##
-## 골드는 world_item.gd 문서 그대로 "즉시 지급" 정책을 따른다 — DropSystem.gold_dropped를
-## Player/Inventory(InventoryComponent).add_gold에 직접 연결한다. item_dropped는 실제
-## 월드 아이템(WorldItem, F 상호작용) 스폰을 DropSystem이 이미 처리하므로 별도 연결이
-## 필요 없다.
 class_name EasternFrontierStartingArea
 extends Node2D
 
@@ -26,6 +12,11 @@ const NIGHT_COLOR := Color("6d7ab5")
 const DAY_NIGHT_FADE_SEC := 3.0
 const SaveSessionScript = preload("res://scripts/save/save_session.gd")
 const SaveMenuScript = preload("res://scripts/save/save_menu.gd")
+const JournalScript = preload("res://scripts/quests/quest_journal.gd")
+const ControllerScript = preload("res://scripts/quests/quest_controller.gd")
+const DialogScript = preload("res://scripts/ui/quest_dialog.gd")
+const TrackerScript = preload("res://scripts/ui/quest_tracker.gd")
+const NpcRegistry = preload("res://scripts/npc/npc_registry.gd")
 
 @onready var _player: PlayerController = $Player
 ## Inventory의 combat_stats는 의도적으로 비배선이다(골드만 사용). M3에서는 성장 계층
@@ -46,9 +37,17 @@ func _ready() -> void:
 	var save_session := SaveSessionScript.new()
 	save_session.name = "SaveSession"
 	add_child(save_session)
+	var journal := JournalScript.new(save_session.codec.schema.quest_catalog)
+	_player.set_meta("quest_journal", journal)
 	set_meta("save_boot_error", save_session.setup(self))
 	if has_meta("save_boot") and not String(get_meta("save_boot_error")).is_empty():
 		return
+	if journal.export_state().is_empty():
+		journal.accept("MQ-01-01")
+	var quests := ControllerScript.new()
+	quests.name = "QuestController"
+	add_child(quests)
+	quests.setup(_player, journal)
 	_hud.bind_player(_player, _player.get_node("PlayerStats"))
 	_integrated_menu.bind_player(_player)
 	print("[통합] HUD 바인딩 완료")
@@ -57,7 +56,9 @@ func _ready() -> void:
 	## 골드가 인벤토리에 들어가지 않는다.
 	_drop_system.gold_dropped.connect(_inventory.add_gold.unbind(1))
 	_monster_spawner.monster_spawned.connect(_on_monster_spawned)
-	_register_spawned_monsters()
+	_setup_quest_ui(quests)
+	_monster_spawner.rabbit_spawn_source_id = "yeoulmok_rabbit_habitat"
+	_monster_spawner.start()
 	_start_tutorial()
 	_init_day_night_modulate()
 	_init_bgm()
@@ -118,20 +119,18 @@ func _start_tutorial() -> void:
 	)
 
 
-## MonsterSpawner가 _ready() 시점까지 동기 스폰해 둔 몬스터(뿔토끼)를 종류별 드랍
-## 테이블로 DropSystem에 등록한다. 들개 마수·균열 점액·숲거미는 스폰이 이후 프레임으로
-## 분산돼 이 시점에는 아직 자식으로 없을 수 있으므로 _on_monster_spawned(시그널)가
-## 등록한다 — 시점이 겹치지 않아 이중 등록되지 않는다.
-func _register_spawned_monsters() -> void:
-	for monster in _monster_spawner.get_children():
-		_register_monster(monster)
-
-
-## MonsterSpawner.monster_spawned 시그널 핸들러 — 스폰이 프레임 분산된 이후에 추가되는
-## 몬스터(들개 마수·균열 점액·숲거미)와 밤마다 새로 스폰되는 야간 전용 종(그림자 숲거미)을
-## 놓치지 않고 DropSystem에 등록한다.
 func _on_monster_spawned(monster: MonsterBase) -> void:
 	_register_monster(monster)
+	var quests := get_node("QuestController") as QuestController
+	if monster.has_meta("content_id"):
+		monster.died.connect(
+			quests.journal.record_event.bind(
+				"KILL",
+				String(monster.get_meta("content_id")),
+				String(monster.get_meta("spawn_source_id", "")),
+				monster.get_instance_id()
+			)
+		)
 
 
 ## 드랍 테이블 조회는 MonsterDropRegistry(scripts/world) 한 곳으로 통일했다 — M3 신규 종은
@@ -147,3 +146,19 @@ func _register_monster(monster: Node) -> void:
 	## 처치 경험치 지급(B-1) — 드랍과 동일하게 몬스터 레벨·등급을 DropTableData에서 재사용한다.
 	_progression.register_monster(monster, drop_table)
 	print("[통합] 몬스터 등록: %s" % monster.name)
+
+
+func _setup_quest_ui(quests: QuestController) -> void:
+	var dialog := DialogScript.new()
+	dialog.name = "QuestDialog"
+	add_child(dialog)
+	dialog.setup(quests)
+	var tracker := TrackerScript.new()
+	tracker.name = "QuestTracker"
+	add_child(tracker)
+	tracker.setup(quests)
+	var npc = load(NpcRegistry.SCENES["yeoulmok_receptionist"]).instantiate()
+	npc.name = "QuestReceptionist"
+	npc.position = get_node("Markers/NPCs/NPC_조합순회접수원").position
+	add_child(npc)
+	npc.setup(_player, quests, dialog, _hud)

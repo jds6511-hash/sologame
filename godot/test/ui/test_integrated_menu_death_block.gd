@@ -21,6 +21,10 @@ func before_each() -> void:
 
 
 func after_each() -> void:
+	_menu.close_menu()
+	var arbiter := get_node_or_null("UiPauseArbiter")
+	if arbiter != null:
+		arbiter.free()
 	## 메뉴가 열린 채 끝나면 SceneTree.paused=true가 남아 다른 테스트에 영향을 준다.
 	get_tree().paused = false
 
