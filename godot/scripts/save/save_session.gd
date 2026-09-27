@@ -13,6 +13,7 @@ var store: RefCounted
 var account: Dictionary = {}
 var character: Dictionary = {}
 var active_slot := 0
+var migration_pending := false
 var world: Node
 var account_error := ""
 var last_message := "슬롯을 선택해 저장하세요. 자동 저장은 첫 저장 후 시작됩니다."
@@ -44,6 +45,11 @@ func setup(owner_world: Node) -> String:
 		character = boot.character.duplicate(true)
 		active_slot = boot.slot
 		if not character.is_empty():
+			migration_pending = character.character_save_version == 1
+			var prepared: Dictionary = codec.prepare_loaded(character, account)
+			if not prepared.ok:
+				return prepared.code
+			character = prepared.data
 			var error: String = codec.restore_into(world.get_node("Player"), character, account)
 			if not error.is_empty():
 				return error
@@ -52,6 +58,8 @@ func setup(owner_world: Node) -> String:
 			tutorial.hint_heal_done = character.tutorial.hint_heal_done
 			_play_seconds = float(character.play_seconds)
 		last_message = boot.get("message", "불러오기 완료")
+		if migration_pending:
+			last_message += "\n이전 버전 저장을 불러왔습니다. 확인 후 수동 저장이 필요합니다."
 	return ""
 
 
@@ -81,7 +89,7 @@ func advance(delta: float) -> void:
 	if get_tree().paused or not account_error.is_empty():
 		return
 	_play_seconds += delta
-	if active_slot == 0:
+	if active_slot == 0 or migration_pending:
 		return
 	_auto_elapsed += delta
 	if _auto_elapsed < AUTO_SECONDS or not Safety.blocked_reason(world).is_empty():
@@ -137,6 +145,7 @@ func save_slot(slot: int) -> Dictionary:
 	result = store.write_save("character", slot, snapshot)
 	if result.ok:
 		character = snapshot
+		migration_pending = false
 		active_slot = slot
 		_auto_elapsed = 0.0
 		_report("저장 완료 · 슬롯 %d" % slot)

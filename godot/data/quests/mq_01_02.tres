@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "MQ-01-02"
+title = "토끼몰이"
+prerequisite = "MQ-01-01"
+objective_kinds = Array[String](["KILL"])
+objective_targets = Array[String](["horned_rabbit"])
+objective_sources = Array[String](["yeoulmok_rabbit_habitat"])
+objective_counts = Array[int]([2])
+reward_exp = 325
+reward_gold = 100
+reward_item_id = "POT-HP-1"
+reward_item_count = 2

@@ -1,4 +1,5 @@
 extends GutTest
+# gdlint: disable=max-public-methods
 
 const Session = preload("res://scripts/save/save_session.gd")
 const WORLD = preload("res://scenes/world/eastern_frontier_starting_area.tscn")
@@ -25,6 +26,95 @@ func after_each() -> void:
 		for file in DirAccess.get_files_at(directory):
 			DirAccess.remove_absolute(directory.path_join(file))
 		DirAccess.remove_absolute(directory)
+
+
+func _boot_old_save() -> Node:
+	assert_true(session.save_slot(1).ok)
+	var old: Dictionary = session.character.duplicate(true)
+	old.character_save_version = 1
+	var payload := JSON.stringify(old)
+	session.store._write_text(
+		directory.path_join("character_01.json"),
+		JSON.stringify(
+			{
+				"kind": "character",
+				"version": 1,
+				"payload": payload,
+				"checksum": payload.sha256_text()
+			}
+		)
+	)
+	var loaded = WORLD.instantiate()
+	loaded.set_meta("save_directory", directory)
+	loaded.set_meta("save_boot", {"account": session.account, "character": old, "slot": 1})
+	add_child_autofree(loaded)
+	loaded.process_mode = Node.PROCESS_MODE_DISABLED
+	loaded.get_node("Player/PlayerStats")._time_since_combat_action_sec = 10.0
+	return loaded
+
+
+func test_v1_boot_holds_autosave_until_successful_manual_save() -> void:
+	var loaded = _boot_old_save()
+	var migrated = loaded.get_node("SaveSession")
+	var path := directory.path_join("character_01.json")
+	var digest := FileAccess.get_sha256(path)
+	assert_true(migrated.migration_pending)
+	assert_eq(migrated.character.character_save_version, 2)
+	assert_true("수동 저장" in migrated.last_message)
+	assert_true("수동 저장 필요" in loaded.get_node("SaveMenu").badge.text)
+	migrated.advance(1000.0)
+	assert_eq(FileAccess.get_sha256(path), digest)
+	assert_eq(migrated._auto_elapsed, 0.0)
+	loaded.get_node("Player").is_dashing = true
+	assert_false(migrated.save_slot(1).ok)
+	assert_true(migrated.migration_pending)
+	loaded.get_node("Player").is_dashing = false
+	var obstacle := directory.path_join("character_01.json.tmp")
+	DirAccess.make_dir_absolute(obstacle)
+	assert_false(migrated.save_slot(1).ok)
+	assert_true(migrated.migration_pending)
+	assert_eq(FileAccess.get_sha256(path), digest)
+	DirAccess.remove_absolute(obstacle)
+	assert_true(migrated.save_slot(1).ok)
+	assert_false(migrated.migration_pending)
+	assert_eq(migrated._auto_elapsed, 0.0)
+	assert_eq(FileAccess.get_sha256(path + ".bak"), digest)
+	loaded.get_node("Player/Inventory").gold = 37
+	migrated.advance(179.0)
+	assert_eq(int(migrated.store.read_save("character", 1).data.inventory.gold), 0)
+	migrated.advance(1.0)
+	assert_eq(int(migrated.store.read_save("character", 1).data.inventory.gold), 37)
+
+
+func test_migration_other_slot_preserves_v1_and_new_boot_has_no_pending() -> void:
+	var loaded = _boot_old_save()
+	var migrated = loaded.get_node("SaveSession")
+	var path := directory.path_join("character_01.json")
+	var digest := FileAccess.get_sha256(path)
+	var menu = loaded.get_node("SaveMenu")
+	menu.open_menu()
+	menu.request_action("save")
+	menu.close_menu()
+	assert_true(migrated.migration_pending)
+	assert_eq(FileAccess.get_sha256(path), digest)
+	assert_true(migrated.save_slot(2).ok)
+	assert_eq(migrated.active_slot, 2)
+	assert_false(migrated.migration_pending)
+	assert_eq(FileAccess.get_sha256(path), digest)
+	for character_data in [{}, migrated.character]:
+		var fresh = WORLD.instantiate()
+		fresh.set_meta("save_directory", directory)
+		fresh.set_meta(
+			"save_boot",
+			{
+				"account": migrated.account,
+				"character": character_data,
+				"slot": 0 if character_data.is_empty() else 2
+			}
+		)
+		add_child_autofree(fresh)
+		fresh.process_mode = Node.PROCESS_MODE_DISABLED
+		assert_false(fresh.get_node("SaveSession").migration_pending)
 
 
 func test_save_requires_safe_state_and_persists_tutorial_and_active_slot() -> void:

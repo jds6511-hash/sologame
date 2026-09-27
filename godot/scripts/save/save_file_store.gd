@@ -5,7 +5,8 @@ extends RefCounted
 # gdlint: disable=max-returns
 
 const Codes = preload("res://scripts/save/save_validation_codes.gd")
-const VERSIONS := {"account": 1, "character": 1}
+const VERSIONS := {"account": 1, "character": 2}
+const SUPPORTED := {"account": [1], "character": [1, 2]}
 const MAX_BYTES := 4 * 1024 * 1024
 const MAX_ENVELOPE_BYTES := 8 * 1024 * 1024
 var root: String
@@ -54,7 +55,10 @@ func write_save(kind: String, slot: int, data: Dictionary) -> Dictionary:
 	var path := _path(kind, slot)
 	if path.is_empty():
 		return _failure("invalid_slot")
-	var validation := _validate(kind, data)
+	var validation := _version_error(kind, VERSIONS[kind], data)
+	if validation != "ok":
+		return _failure(validation)
+	validation = _validate(kind, data)
 	if validation != "ok":
 		return _failure(validation)
 	# 상위 버전은 현재 세션의 데이터로 덮어쓰면 돌이킬 수 없으므로 명시 거부한다.
@@ -144,19 +148,35 @@ func _read(path: String, kind: String) -> Dictionary:
 	if envelope.get("kind") != kind:
 		return _failure("corrupt")
 	var version: Variant = envelope.get("version")
-	if not (version is int or version is float):
+	if not _integer_version(version):
 		return _failure("corrupt")
-	if version != VERSIONS[kind]:
+	if int(version) not in SUPPORTED[kind]:
 		return _failure("unsupported_version")
 	var payload: Variant = envelope.get("payload")
 	if not payload is String or envelope.get("checksum") != payload.sha256_text():
 		return _failure("corrupt")
 	if json.parse(payload) != OK or not json.data is Dictionary:
 		return _failure("corrupt")
-	var validation := _validate(kind, json.data)
+	var validation := _version_error(kind, version, json.data)
+	if validation != "ok":
+		return _failure(validation)
+	validation = _validate(kind, json.data)
 	if validation != "ok":
 		return _failure(validation)
 	return {"ok": true, "code": "ok", "data": json.data, "recovered": false}
+
+
+func _integer_version(value: Variant) -> bool:
+	return (value is int or value is float) and is_finite(value) and value == floor(value)
+
+
+func _version_error(kind: String, version: Variant, data: Dictionary) -> String:
+	var body: Variant = data.get(kind + "_save_version")
+	if not _integer_version(body):
+		return "invalid_data"
+	if int(body) not in SUPPORTED[kind]:
+		return "unsupported_version"
+	return "ok" if body == version else "invalid_data"
 
 
 func _validate(kind: String, data: Dictionary) -> String:
@@ -168,7 +188,7 @@ func _validate(kind: String, data: Dictionary) -> String:
 	var result: Variant = validator.call(data)
 	if not result is String:
 		return "invalid_validator"
-	if result in Codes.BLOCKED:
+	if result in Codes.BLOCKED or result == "unsupported_version":
 		return result
 	return "ok" if result.is_empty() else "invalid_data"
 

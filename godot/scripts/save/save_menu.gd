@@ -146,7 +146,7 @@ func refresh_slots() -> void:
 				]
 			)
 		if session.active_slot == slot:
-			text += " · 자동 저장 대상"
+			text += " · 수동 저장 필요" if session.migration_pending else " · 자동 저장 대상"
 		slots.add_item("%02d  %s" % [slot, text])
 	slots.select(selected)
 
@@ -190,6 +190,8 @@ func _show_status(message: String) -> void:
 	badge.tooltip_text = message
 	if session.active_slot > 0:
 		badge.text = "저장 [F6] · 자동 슬롯 %02d" % session.active_slot
+	if session.migration_pending:
+		badge.text = "저장 [F6] · 이전 버전: 수동 저장 필요"
 	if message.begins_with("자동 저장"):
 		badge.text = "[F6] " + message
 

@@ -2,8 +2,21 @@
 extends RefCounted
 
 const Schema = preload("res://scripts/save/save_schema.gd")
+const Migrations = preload("res://scripts/save/character_save_migrations.gd")
 var schema = Schema.new()
 var registry = schema.registry
+
+
+func prepare_loaded(data: Dictionary, account: Dictionary) -> Dictionary:
+	var error: String = schema.character_error(data, account)
+	if not error.is_empty():
+		return {"ok": false, "code": error, "data": {}}
+	var result: Dictionary = Migrations.upgrade(data)
+	if result.ok:
+		error = schema.character_error(result.data, account)
+		if not error.is_empty():
+			return {"ok": false, "code": error, "data": {}}
+	return result
 
 
 func new_id() -> String:
@@ -77,7 +90,7 @@ func capture(player: Node2D, account_id: String, carry: Dictionary = {}) -> Dict
 	world.elapsed_real_sec_in_day = GameClock._elapsed_real_sec_in_day
 	return {
 		"character_id": carry.get("character_id", new_id()),
-		"character_save_version": 1,
+		"character_save_version": 2,
 		"account_id": account_id,
 		"name": carry.get("name", "모험가"),
 		"play_seconds": carry.get("play_seconds", 0.0),

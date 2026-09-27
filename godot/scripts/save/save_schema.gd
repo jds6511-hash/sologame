@@ -4,7 +4,10 @@ extends RefCounted
 const Registry = preload("res://scripts/save/save_content_registry.gd")
 const Codes = preload("res://scripts/save/save_validation_codes.gd")
 const MAX_INT := 2147483647
+const QuestSchema = preload("res://scripts/quests/quest_state_schema.gd")
+const Catalog = preload("res://scripts/quests/quest_catalog.gd")
 var registry = Registry.new()
+var quest_catalog = Catalog.new()
 
 
 func number(value: Variant, minimum: float, maximum: float, inclusive: bool = true) -> bool:
@@ -109,8 +112,10 @@ func character_error(data: Dictionary, account: Dictionary) -> String:
 		]
 	):
 		return "character_fields"
-	if not identifier(data.character_id) or data.character_save_version != 1:
+	if not identifier(data.character_id) or not integer(data.character_save_version, 1):
 		return "character_identity"
+	if int(data.character_save_version) not in [1, 2]:
+		return "unsupported_version"
 	if data.account_id != account.account_id:
 		return "account_mismatch"
 	if not data.name is String or data.name.is_empty() or data.name.length() > 40:
@@ -133,11 +138,15 @@ func character_error(data: Dictionary, account: Dictionary) -> String:
 	):
 		return "progress_fields"
 	if (
-		data.progress.quests != {}
+		(data.character_save_version == 1 and data.progress.quests != {})
 		or data.progress.territory != {}
 		or data.progress.story_flags != {}
 	):
 		return "reserved_progress"
+	if data.character_save_version == 2:
+		var quest_error: String = QuestSchema.validate(data.progress.quests, quest_catalog)
+		if not quest_error.is_empty():
+			return quest_error
 	if not integer(data.progress.reputation) or data.progress.reputation != 0:
 		return "reputation"
 	if not data.progress.first_death_waiver_used is bool:
