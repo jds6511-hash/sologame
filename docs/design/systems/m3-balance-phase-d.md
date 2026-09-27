@@ -1,6 +1,8 @@
 # M3 Phase D — 밸런스 실측·튜닝 (공격 중 이동 재검증 · 페이스 실측 · 이월 플래그 판정)
 
-- **최종 수정일**: 2026-07-31
+- **최종 수정일**: 2026-09-27 (역사 산출물 경계 정정; 본문 산출값은 2026-07-31 기준 보존)
+
+> **역사 스냅샷**: 본문의 성장 수치·판정은 초반0.45 배율 도입 전 곡선과 당시 배치 기준이다. `4409236` 이후 현행 계산기 재실행은 이 문서의 재현이 아니라 현재 리소스의 새 계산이다. 특히 3장의 “목표1.8h가 두 모델 사이” 결론은 현행에 적용되지 않는다. 당시 수치를 새 값으로 덮어쓰지 않는다. 배율 보정은 완료됐으나 엔진 실행 대조는 D에서 수행하며, 그 전까지 현행 성장 판정은 보류한다. [현행 검증 상태](../100-hour-scope-audit.md) 참조.
 - **담당**: systems-designer
 - **의존 문서**:
   - `docs\design\M3_PLAN.md` (Phase D — D-1·D-2 검증 기준, 7장 "페이스 실측 반영처")
@@ -14,7 +16,7 @@
   - `docs\design\systems\m3-monster-spec.md` (3-1 도약·3-2 거미줄·3-3 돌진·3-4 가드·7-4 정예 임프장·8-1 총괄표)
   - `docs\design\systems\m2-monster-spec.md` (3-1 뿔토끼 서술·3-3 코어 파괴 기믹)
   - **구현 실측 대상(읽기 전용)**: `godot\scripts\progression\*`, `godot\data\progression\*.tres`, `godot\data\monsters\*.tres`, `godot\data\drops\*.tres`, `godot\data\player\*_basic_combo.tres`, `godot\data\player\skills\**`, `godot\scripts\player\player_controller.gd`, `godot\scripts\player\archer_shot_module.gd`, `godot\scripts\ai\monster_base.gd`, `godot\scripts\ai\blocks\*`, `godot\scripts\ai\{rabbit,wolf,rift_slime,forest_spider,outlaw,imp}_monster.gd`, `godot\scripts\combat\player_attack_resolver.gd`, `godot\scenes\world\*.tscn`, `godot\scenes\player\player.tscn`
-  - **재현 도구**: `docs\qa\tools\m3_phase_d_balance_calc.py` (본 문서 전 수치의 산출 스크립트 — `.tres`를 직접 읽으므로 데이터 변경 시 재실행만으로 갱신)
+  - **산출 도구**: `docs\qa\tools\m3_phase_d_balance_calc.py` (당시 판본으로 본문 산출. 현행 판본은 현재 리소스를 읽으며 역사 수치·판정을 재현하지 않음)
 - **변경 이력**:
   - 2026-07-31: 최초 작성 — Phase D-1(공격 중 이동 45% 재검증, 둔화 조합 포함)·D-2(페이스 실측으로 M2 QA-3 추정치 대체) 판정, 이월 플래그 3건(대검 캐이던스 1.23배·균열 점액 코어 기믹·뿔토끼 HP 서술) 판정, 정예 그로기 비율 재검산. 측정은 전부 구현체 `.tres`/`.gd` 값을 직접 읽어 산출했고, 신뢰도를 3등급(구현 실측 / 모델 계산 / 계산 불가)으로 분리 표기. 신규 발견 4건(둔화×공격 중 실질 27%·레벨 차 상향 보정의 취지 미달·숲거미 공격 토큰 미적용·플레이어 걷기 속도 미확정)을 등재하고 이 중 1건을 디렉터 결정 필요로 상정.
 
@@ -578,13 +580,13 @@ N × 0.25H = D × (T − 3.0N) + (캐스트 수) × ratio × 0.25H
 
 ## 12. 재현 도구
 
-`docs\qa\tools\m3_phase_d_balance_calc.py` — 본 문서 전 수치의 산출 스크립트.
+`docs\qa\tools\m3_phase_d_balance_calc.py` — 당시 본문 산출에 사용한 도구. 아래 명령은 현재 체크아웃의 도구·리소스로 새 결과를 계산한다. 본문 역사 수치를 재현하려면 당시 도구와 리소스 판본을 함께 사용해야 한다.
 
 ```
 PYTHONIOENCODING=utf-8 python docs\qa\tools\m3_phase_d_balance_calc.py
 ```
 
-- **`.tres`/씬 파일을 직접 파싱**하므로 데이터가 바뀌면 재실행만으로 갱신된다(문서 수치를 재입력하지 않는다).
+- **`.tres`/씬 파일을 직접 파싱**하므로 실행 출력은 현재 데이터를 반영한다. 문서 본문이 자동 갱신되는 것은 아니며, 역사 판정과 현행 결과를 구분해야 한다. 현행 성장 회귀의 엔진 대조는 아직 미완료다.
 - 출력 11개 섹션: 0 모델 캘리브레이션 / 1 콤보 계수/초 / 2 몬스터 스펙·TTK / 3 피격 예산 / 4 페이스 실측표(2모델) / 5 민감도 / 6 Lv10→20 / 7 양학 상한 / 8 EXP 재고 / 9 이동 속도 / 10 판정 이탈 검산 / 11 그로기 재검산.
 - **QA 리포트가 아니라 측정 도구**이므로 휘발성 규칙(지적 반영 후 삭제) 대상이 아니다. Phase D 이후에도 몬스터·콤보 수치를 바꿀 때 회귀 확인용으로 재사용한다.
 - 도구 자체의 한계: 플레이어 행동(회피 성공률·사냥터 선택·오버헤드)은 모델링하지 않는다. 그 부분이 9-2장 G3-1 관찰 항목이다.
