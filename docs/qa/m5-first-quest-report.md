@@ -2,7 +2,7 @@
 
 - 날짜: 2026-09-27. 기준 커밋: `0e7e261`.
 - 상태: 구현·자동 검증 완료, Claude 독립 코드 리뷰 대기. 단위 3의 별도 프로세스 의뢰 상태별 복원·직접 플레이/G5는 미완료다.
-- 구현 커밋은 후속 인계 커밋에 기록한다. [검토 요청](m5-first-quest-review-request.md), [실행 계획](../superpowers/plans/2026-09-27-m5-first-quest.md), [계약](../design/systems/npc-dialog-quest.md).
+- 구현 커밋: **`5df3099`**, 비교 범위 `0e7e261..5df3099`. [검토 요청](m5-first-quest-review-request.md), [실행 계획](../superpowers/plans/2026-09-27-m5-first-quest.md), [계약](../design/systems/npc-dialog-quest.md).
 
 ## 실제 연결된 흐름
 
