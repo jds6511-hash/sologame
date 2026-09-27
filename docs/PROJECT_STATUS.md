@@ -15,6 +15,7 @@
   - `docs\interim-review-2026-08-20.md` (2026-08-20 중간 검수 — 실측 스냅샷, 3장·9-5절·11장 근거)
   - `docs\claude-code-review-2026-08-20.md` (외부 개발 리뷰 — 디렉터 입수 입력 문서, 11장 채택분 근거)
 - **변경 이력**:
+  - 2026-09-27: C 통합 리뷰 통과. 원본 버전 선보관을 Variant 스냅샷→검증 후 int 변환으로 보완, 주입 회귀 재현 후 전체1,029/1,029·112 scripts·8,804 assertions 통과. [D 제품 전환·보상 배치 통합안](design/systems/c1-product-rollout.md)과 [새 통합 검토 요청](qa/c1-product-rollout-review-request.md) 작성. 실제 C1/V3·새 보상 미적용, G4/G5 유지.
   - 2026-09-27: B 독립 리뷰 통과(새 지적 없음) 후 파일·세션·월드 교체·재실행 후보 통합을 한 묶음으로 완료. GUT1,028/1,028·112 scripts·8,801 assertions(관측), 후보 프로세스7단계·기존5단계 PASS, GD7개 형식/린트 통과. [통합 보고서](qa/c1-save-integration-report.md) · [새 통합 검토 요청](qa/c1-save-integration-review-request.md). 후보 종료4객체/2리소스 경고 유지. 기본 제품 V2·C1 미적용·G4/G5 이월. 이후 연결된 기능 단위로 리뷰를 묶는 디렉터 지침 반영.
   - 2026-09-27: 단위 A 통과, `c5adb9c`로 누락 전직 규칙 거부 후 B 순수 후보 변환 구현. 정수 비율·입력 불변·V3 멱등·변환 후 재검증, 제품 V2 경로 유지. 전체 GUT1,019/1,019·111 scripts·8,707 assertions(관측), 기존 probe5단계·GD5개 검사 통과. [B 보고서](qa/c1-save-conversion-report.md) · [새 구현 검토 요청](qa/c1-save-conversion-review-request.md). C/D·G4/G5 이월.
   - 2026-09-27: `14373e2` 설계 리뷰 반영 후 C1 저장 호환 단위 A 구현. 불변 구/후보 규칙·호출별 인자 전달·V2/V3 의뢰 검증, 실제 제품의 V3 거부 유지. 전체 GUT 1,009/1,009·4,968 assertions, 기존 V1→V2 probe5단계, GD3개 형식/린트 통과. [보고서](qa/c1-save-rules-report.md) · [새 구현 검토 요청](qa/c1-save-rules-review-request.md). B/C/D·G4/G5 이월.

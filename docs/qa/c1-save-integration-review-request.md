@@ -1,5 +1,7 @@
 # Claude 통합 검토 — C1 파일·세션·재실행
 
+> 2026-09-27: C 통과 수신. 원본 버전 선보관 지적을 회귀 테스트와 함께 보완했다. 이 요청은 종료. 다음 검토는 [제품 전환·보상 배치 통합안](c1-product-rollout-review-request.md)이다.
+
 - 2026-09-27 / Codex. 기준 `f24facf`. [통합 보고서](c1-save-integration-report.md) · [계약](../design/systems/c1-save-migration.md).
 - 검토 대상 **`decf2d5`**. `git diff f24facf decf2d5 -- godot docs`의15파일이며 후속 인계 커밋은 해시 기록만 추가한다.
 - B 리뷰는 통과로 종료했다. 이번은 파일 계층·세션·월드 교체·프로세스 재실행을 묶은 새 검토다. 별도 소단위 재승인은 요청하지 않는다. 읽기 전용 검토 요청.

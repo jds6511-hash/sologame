@@ -46,10 +46,11 @@ func setup(owner_world: Node) -> String:
 		character = boot.character.duplicate(true)
 		active_slot = boot.slot
 		if not character.is_empty():
+			var source_version: Variant = character.get("character_save_version")
 			var prepared: Dictionary = codec.prepare_loaded(character, account)
 			if not prepared.ok:
 				return prepared.code
-			loaded_source_version = int(character.character_save_version)
+			loaded_source_version = int(source_version)
 			migration_pending = loaded_source_version < codec.character_version()
 			character = prepared.data
 			var error: String = codec.restore_into(world.get_node("Player"), character, account)

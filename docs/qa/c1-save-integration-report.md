@@ -2,6 +2,7 @@
 
 - 2026-09-27 / Codex 구현·통합. 기준 `f24facf`.
 - 구현·검증 커밋 **`decf2d5`** (15파일). 후속 인계는 보고서/요청서에 이 해시만 기록한다.
+- 2026-09-27 독립 리뷰: C 통과. 리뷰어1,028/1,028·112 scripts·8,794 assertions는 작성자8,801과 별도 관측이다. 낮음 지적은 원본 버전을 호출 전에 Variant로 보관하고 검증 후 int 변환하도록 보완했다. 입력을 변경하는 codec 주입 시9/10 실패(2 assertions)→전체1,029/1,029·112 scripts·8,804 assertions 통과, GD2개 형식/린트 통과. 변경 파일은 `save_session.gd`, `test_c1_save_integration.gd`. 별도 보완 리뷰 대신 [D 전환·보상 설계](../design/systems/c1-product-rollout.md)와 묶었다.
 - 의존: [계약](../design/systems/c1-save-migration.md), [B 보고서](c1-save-conversion-report.md).
 - 변경 이력: B 통과를 반영하고 C의 파일 계층·세션·월드 교체·재실행을 한 검토 묶음으로 구현했다. 후보 환경 검증이며 기본 제품 전환은 아니다.
 

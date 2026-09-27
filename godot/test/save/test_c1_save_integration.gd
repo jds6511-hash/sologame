@@ -4,6 +4,30 @@ const Env = preload("res://test/save/c1_candidate_environment.gd")
 var directory: String
 
 
+class MutatingCodec:
+	extends Env.CandidateCodec
+
+	func prepare_loaded(data: Dictionary, account: Dictionary) -> Dictionary:
+		var result: Dictionary = super.prepare_loaded(data, account)
+		if result.ok:
+			data.character_save_version = 3
+		return result
+
+
+class MutatingSession:
+	extends Env.CandidateSession
+
+	func _init() -> void:
+		codec = MutatingCodec.new()
+
+
+class MutatingWorld:
+	extends Env.CandidateWorld
+
+	func _create_save_session() -> Node:
+		return MutatingSession.new()
+
+
 func before_each() -> void:
 	directory = "user://c1_candidate_gut_%d" % Time.get_ticks_usec()
 
@@ -222,3 +246,17 @@ func test_candidate_content_error_blocks_fallback_and_preservation() -> void:
 	assert_eq(FileAccess.get_sha256(path), digest)
 	assert_eq(FileAccess.get_sha256(path + ".bak"), backup_digest)
 	assert_eq(DirAccess.get_files_at(directory).size(), 3)
+
+
+func test_source_version_is_captured_before_conversion_even_if_codec_mutates() -> void:
+	var fixture: Dictionary = Env.seed_files(directory)
+	var world = Env.instantiate_world()
+	world.set_script(MutatingWorld)
+	world.set_meta("save_directory", directory)
+	world.set_meta("save_boot", {"account": fixture.account, "character": fixture.data, "slot": 1})
+	add_child_autofree(world)
+	world.process_mode = Node.PROCESS_MODE_DISABLED
+	assert_eq(world.get_meta("save_boot_error"), "")
+	var session = world.get_node("SaveSession")
+	assert_eq(session.loaded_source_version, 2)
+	assert_true(session.migration_pending)
