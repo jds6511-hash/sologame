@@ -10,6 +10,8 @@
 
 **Spec:** [M5 구현 계약](../../design/systems/npc-dialog-quest.md). 이 계획은 구현 전 설계 단위이며 체크되지 않은 항목은 미실행이다.
 
+**Review handoff:** [Claude 설계 리뷰 요청](../../qa/m5-design-review-request.md). 검토 대상은 `955f9c5`, 비교 기준은 `dcbda4d`다. 회신은 아직 미수신이다.
+
 ## 공통 제약
 
 - 기준 `dcbda4d`. 타 작업자 변경을 포함하지 않는다. M4 G4 미승인은 별도로 유지한다.
