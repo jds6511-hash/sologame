@@ -1,7 +1,7 @@
 # M5 — NPC·대화·첫 의뢰 구현 계약
 
 - 날짜: 2026-09-27. 기준 코드: `dcbda4d`.
-- 상태: 단위 1 구현·리뷰 통과, 단위 2 구현·자동 검증 완료/독립 리뷰 대기. [단위 2 보고서](../../qa/m5-first-quest-report.md). 단위 3·G5 통과 기록은 아니다.
+- 상태: 단위 1·2 구현 및 독립 리뷰 통과. 단위 2 비차단 줍기 안내 보완과 이월 항목은 [리뷰 대응](../../qa/m5-first-quest-review-response.md)에 기록한다. 단위 3·G5 통과 기록은 아니다.
 - 리뷰: Claude가 `b9b5599` 보완본에 **단위 1 착수 가능** 판정. 단위 2의 등록 경로·접근/대화 기록 시점·pause 복원 보완은 아래 계약과 실행 계획에 반영했다.
 - 담당: Codex 구현·통합, Claude 독립 검토.
 - 정본: [개발 로드맵](../DEVELOPMENT_ROADMAP.md), [퀘스트 구조](../quests/quest-structure.md), [초반 성장](../quests/early-leveling-route.md), [저장 계약](save-load.md).

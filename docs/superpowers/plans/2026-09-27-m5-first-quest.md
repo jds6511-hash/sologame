@@ -80,6 +80,10 @@ godot --headless --path godot -s addons/gut/gut_cmdln.gd -gdir=res://test/quests
 
 ## 단위 3 — 재실행·실제 플레이 검증
 
+단위 2는 Claude 독립 검토 통과(`5df3099`). [보완 대응](../../qa/m5-first-quest-review-response.md)의 줍기 안내 수정은 전체 GUT 992/992로 검증했다. 토큰 누적 최적화는 수락 전 이벤트 재반영 방지 계약을 유지할 수 있는 설계/측정 후 별도로 판단한다.
+
+- [ ] 패 수령 후 다시 F를 눌러 토끼 의뢰를 받는 흐름이 발견 가능한지, 보상/레벨업 안내와 충돌하지 않는지 실제 플레이로 관찰한다.
+
 신규 `godot/test/quests/first_quest_process_probe.gd`는 `user://m5_first_quest_probe`만 사용한다. `docs/qa/m5-first-quest-report.md`와 현황/인수인계를 갱신한다.
 
 - [ ] active 1/2·ready 2/2·completed 상태를 각각 저장하고 새 프로세스에서 상태·레벨/EXP·골드·포션을 비교한다. completed 재보고 시 변화가 없어야 한다.
