@@ -1,5 +1,7 @@
 # 100시간 예산 리뷰 대응 — d0c5817
 
+> 후속 `8ca006b` 리뷰 통과로 아래4건 종료. 새 지적 EXP 여유 계약과3개 관문 표는 [여유 설계](../design/100-hour-exp-margin.md) 및 [새 검토 요청](100-hour-exp-margin-review-request.md)으로 처리했다. 아래 EXP 미달은 증액 전 기초 풀 관측으로 보존한다.
+
 - 기준 `de4bf93`, 리뷰 대상 `d0c5817`. Claude 판정: **정본 문서 개정 착수 가능**. C1 승인·저장 호환 구현 승인·100h 완주 보장은 아님.
 - [예산 보완본](../design/100-hour-progression-budget.md). 제품 코드/데이터는 변경하지 않았다.
 
