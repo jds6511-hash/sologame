@@ -145,6 +145,8 @@ func test_v4_idempotence_and_v3_cannot_claim_new_quest() -> void:
 
 
 func test_region_bounds_match_both_runtime_tilemaps() -> void:
+	assert_eq(Regions.BOUNDS.size(), Regions.SCENES.size())
+	assert_false(Regions.contains("unknown", Vector2.ZERO))
 	var novera = load(Regions.SCENES[Regions.NEXT]).instantiate()
 	novera.set_meta("save_directory", world.get_meta("save_directory"))
 	add_child_autofree(novera)
@@ -155,6 +157,7 @@ func test_region_bounds_match_both_runtime_tilemaps() -> void:
 		var tile_size := ground.tile_set.tile_size
 		var first := Vector2(used.position * tile_size)
 		var end := Vector2(used.end * tile_size)
+		assert_eq(Regions.BOUNDS[area.map_id], Rect2(first, end - first))
 		assert_true(Regions.contains(area.map_id, first))
 		assert_true(Regions.contains(area.map_id, end - Vector2.ONE))
 		assert_false(Regions.contains(area.map_id, Vector2(end.x, first.y)))
