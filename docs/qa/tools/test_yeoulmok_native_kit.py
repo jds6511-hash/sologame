@@ -17,7 +17,7 @@ KIT = ROOT / "docs/art/concepts/yeoulmok/native-kit"
 class NativeKitTests(unittest.TestCase):
     def test_palette_alpha_and_grid(self):
         image = Image.open(KIT / "environment.png").convert("RGBA")
-        self.assertEqual(image.size, (160, 144))
+        self.assertEqual(image.size, (160, 192))
         for r, g, b, a in image.get_flattened_data():
             self.assertIn(a, (0, 255))
             if a:
@@ -34,8 +34,8 @@ class NativeKitTests(unittest.TestCase):
             ax, ay = asset["anchor"]
             x, y, w, h = asset["footprint"]
             self.assertEqual([ox - ax + x, oy - ay + y, w, h], expected[name])
-        self.assertEqual(len(manifest["props"]), 5)
-        self.assertEqual(len(manifest["tiles"]), 26)
+        self.assertEqual(len(manifest["props"]), 8)
+        self.assertEqual(len(manifest["tiles"]), 36)
         image = Image.open(KIT / "environment.png").convert("RGBA")
         for asset in list(manifest["buildings"].values()) + list(manifest["props"].values()) + list(manifest["tiles"].values()):
             x, y, w, h = asset["region"]
@@ -100,6 +100,39 @@ class NativeKitTests(unittest.TestCase):
                     dx = 15-x if "e" in direction else x
                     dy = 15-y if "s" in direction else y
                     self.assertLessEqual(dx+dy, 2)
+
+    def test_materials_are_opaque_with_quiet_texture(self):
+        manifest = json.loads((KIT / "manifest.json").read_text(encoding="utf-8"))
+        image = Image.open(KIT / "environment.png").convert("RGBA")
+        for kind in ("water", "sand", "paving"):
+            means = []
+            for variant in (0, 1):
+                ox, oy, w, h = manifest["tiles"][kind+str(variant)]["region"]
+                pixels = list(image.crop((ox, oy, ox+w, oy+h)).get_flattened_data())
+                self.assertTrue(all(p[3] == 255 for p in pixels))
+                self.assertNotIn((255, 255, 255, 255), pixels)
+                values = [0.299*r+0.587*g+0.114*b for r,g,b,_ in pixels]
+                mean = sum(values)/256
+                means.append(mean)
+                if kind == "water":
+                    self.assertEqual(pixels.count((0,153,219,255)), 189)
+                    self.assertEqual(pixels.count((18,78,137,255)), 51)
+                    self.assertEqual(pixels.count((139,155,180,255)), 16)
+                else:
+                    self.assertLessEqual(math.sqrt(sum((v-mean)**2 for v in values)/256), 10)
+                    self.assertLessEqual(max(abs(v-mean) for v in values), 40)
+            self.assertAlmostEqual(*means)
+
+    def test_boundary_stays_inside_edge_cell(self):
+        manifest = json.loads((KIT / "manifest.json").read_text(encoding="utf-8"))
+        image = Image.open(KIT / "environment.png").convert("RGBA")
+        for direction in "nesw":
+            ox, oy, w, h = manifest["tiles"]["boundary_"+direction]["region"]
+            for y in range(h):
+                for x in range(w):
+                    if image.getpixel((ox+x, oy+y))[3]:
+                        self.assertTrue({"n": y <= 8, "s": y >= 7,
+                                         "e": x >= 7, "w": x <= 8}[direction])
 
     def test_edge_tiles_stay_inside_two_pixel_boundary(self):
         manifest = json.loads((KIT / "manifest.json").read_text(encoding="utf-8"))

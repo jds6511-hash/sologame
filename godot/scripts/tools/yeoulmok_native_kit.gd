@@ -7,7 +7,10 @@ const PLACEMENTS := {
 	"crate": [Vector2(243, 450), Vector2(258, 450)],
 	"logs": [Vector2(65, 456)],
 	"basket": [Vector2(259, 488)],
-	"bench": [Vector2(218, 488)]
+	"bench": [Vector2(218, 488)],
+	"well": [Vector2(114, 452)],
+	"rack": [Vector2(115, 493)],
+	"sign": [Vector2(286, 432)]
 }
 const DIRECTIONS := {"n": Vector2i.UP, "e": Vector2i.RIGHT, "s": Vector2i.DOWN, "w": Vector2i.LEFT}
 
@@ -82,6 +85,7 @@ static func _install_environment(art: Node2D, texture: Texture2D, manifest: Dict
 	# 같은 셀 안에만 있는 원본 소품을 바닥 다음에 모아 텍스처 교대를 줄인다.
 	for original in originals:
 		surface.add_child(original)
+	_install_materials(surface, ground, texture, manifest)
 	for y in range(bounds.position.y, bounds.end.y):
 		for x in range(bounds.position.x, bounds.end.x):
 			var cell := Vector2i(x, y)
@@ -102,6 +106,38 @@ static func _install_environment(art: Node2D, texture: Texture2D, manifest: Dict
 		var sprite := _sprite(texture, manifest.tiles.reeds)
 		sprite.position = position
 		surface.add_child(sprite)
+	_install_boundary(surface, ground, texture, manifest)
+
+
+static func _install_materials(
+	surface: Node2D, ground: TileMapLayer, texture: Texture2D, manifest: Dictionary
+) -> void:
+	var materials := {Vector2i(1, 1): "water", Vector2i(2, 1): "sand", Vector2i(2, 2): "paving"}
+	for cell in ground.get_used_cells():
+		var atlas := ground.get_cell_atlas_coords(cell)
+		if not materials.has(atlas):
+			continue
+		var kind: String = materials[atlas]
+		var sprite := _sprite(texture, manifest.tiles[kind + str(variant_for(cell))])
+		sprite.position = Vector2(cell * 16)
+		sprite.set_meta("material_kind", kind)
+		surface.add_child(sprite)
+
+
+static func _install_boundary(
+	surface: Node2D, ground: TileMapLayer, texture: Texture2D, manifest: Dictionary
+) -> void:
+	var bounds := ground.get_used_rect()
+	for cell in ground.get_used_cells():
+		if ground.get_cell_atlas_coords(cell) != Vector2i(2, 3):
+			continue
+		for direction in DIRECTIONS:
+			if bounds.has_point(cell + DIRECTIONS[direction]):
+				continue
+			var sprite := _sprite(texture, manifest.tiles["boundary_" + direction])
+			sprite.position = Vector2(cell * 16)
+			sprite.set_meta("boundary_direction", direction)
+			surface.add_child(sprite)
 
 
 static func variant_for(cell: Vector2i) -> int:

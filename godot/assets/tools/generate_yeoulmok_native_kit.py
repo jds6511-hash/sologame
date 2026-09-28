@@ -108,6 +108,27 @@ def prop(kind):
         for x in (12, 16, 20):
             d.line((x, 20, x, 24), fill=LIGHT)
         d.line((10, 19, 22, 19), fill=LIGHT)
+    elif kind == "well":
+        d.ellipse((5, 17, 27, 28), fill=DARK, outline=INK)
+        d.ellipse((5, 12, 27, 23), fill=STONE, outline=SHADE)
+        d.ellipse((9, 15, 23, 21), fill=C["navy_gray"])
+        d.line((7, 12, 7, 4), fill=DARK, width=2)
+        d.line((25, 12, 25, 4), fill=DARK, width=2)
+        d.line((7, 4, 25, 4), fill=WOOD, width=2)
+        d.line((16, 4, 16, 17), fill=LIGHT)
+        d.rectangle((14, 17, 18, 20), fill=WOOD)
+    elif kind == "rack":
+        for x in (4, 27):
+            d.line((x, 4, x, 27), fill=DARK, width=2)
+        d.line((4, 5, 27, 5), fill=WOOD)
+        for x in (8, 17):
+            d.rectangle((x, 6, x+6, 20), fill=C["tan"])
+            d.line((x+1, 8, x+1, 19), fill=LIGHT)
+    elif kind == "sign":
+        d.rectangle((15, 13, 17, 27), fill=DARK)
+        d.polygon([(6, 5), (23, 5), (28, 9), (23, 13), (6, 13)], fill=DARK)
+        d.line((7, 6, 23, 6), fill=WOOD)
+        d.line((10, 9, 21, 9), fill=LIGHT)
     else:
         d.rectangle((6, 19, 8, 26), fill=DARK)
         d.rectangle((24, 19, 26, 26), fill=DARK)
@@ -122,6 +143,30 @@ def prop(kind):
 def tile(kind):
     image = Image.new("RGBA", (16, 16))
     d = ImageDraw.Draw(image)
+    if kind.startswith("water"):
+        # STYLE_GUIDE의 물 예외: 청색189/남색51/회청16, 3단 램프 유지.
+        image.paste(C["blue"], (0, 0, 16, 16))
+        for y, start, end in ((4, 1, 11), (5, 3, 10), (10, 0, 8), (11, 2, 11), (14, 7, 15), (2, 2, 5)):
+            d.line((start, y, end, y), fill=C["navy"])
+        for y, start in ((3, 2), (9, 4)):
+            d.line((start, y, start+7, y), fill=STONE)
+        return image if kind.endswith("0") else image.transpose(Image.Transpose.ROTATE_180)
+    if kind.startswith("sand") or kind.startswith("paving"):
+        sand = kind.startswith("sand")
+        image.paste(C["tan"] if sand else SHADE, (0, 0, 16, 16))
+        points = [(3, 4), (10, 11)] if kind.endswith("0") else [(8, 5), (2, 12)]
+        for x, y in points:
+            d.line((x, y, x+2, y), fill=LIGHT if sand else C["navy_gray"])
+        return image
+    if kind.startswith("boundary_"):
+        d.rectangle((0, 0, 15, 5), fill=C["dark_navy"])
+        d.polygon([(0, 0), (5, 0), (7, 3), (5, 7), (1, 8), (0, 6)], fill=SHADE)
+        d.polygon([(8, 1), (14, 0), (15, 2), (15, 8), (10, 7), (7, 4)], fill=C["navy_gray"])
+        d.line((1, 1, 4, 1), fill=STONE)
+        d.line((9, 2, 13, 1), fill=SHADE)
+        rotation = {"n": None, "e": Image.Transpose.ROTATE_270,
+                    "s": Image.Transpose.ROTATE_180, "w": Image.Transpose.ROTATE_90}[kind[-1]]
+        return image if rotation is None else image.transpose(rotation)
     if kind.startswith("road_") or kind.startswith("shore_"):
         shore = kind.startswith("shore_")
         direction = kind.split("_")[1]
@@ -173,10 +218,10 @@ def tile(kind):
 
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
-    sheet = Image.new("RGBA", (160, 144))
+    sheet = Image.new("RGBA", (160, 192))
     sheet.paste(building(), (0, 0))
     sheet.paste(building(True), (64, 0))
-    data = {"version": 4, "image": "environment.png", "buildings": {}, "props": {}, "tiles": {}}
+    data = {"version": 5, "image": "environment.png", "buildings": {}, "props": {}, "tiles": {}}
     for name, x, origin, footprint in (
         ("House", 0, [72, 424], [12, 36, 40, 24]),
         ("Workshop", 64, [248, 424], [12, 40, 40, 20]),
@@ -201,6 +246,12 @@ def main():
     for index, kind in enumerate(("road_ne", "road_se", "road_sw", "road_nw", "shore_ne", "shore_se", "shore_sw", "shore_nw")):
         sheet.paste(tile(kind), (index*16, 128))
         data["tiles"][kind] = {"region": [index*16, 128, 16, 16], "anchor": [0, 0]}
+    for index, kind in enumerate(("water0", "water1", "sand0", "sand1", "paving0", "paving1", "boundary_n", "boundary_e", "boundary_s", "boundary_w")):
+        sheet.paste(tile(kind), (index*16, 144))
+        data["tiles"][kind] = {"region": [index*16, 144, 16, 16], "anchor": [0, 0]}
+    for index, kind in enumerate(("well", "rack", "sign")):
+        sheet.paste(prop(kind), (index*32, 160))
+        data["props"][kind] = {"region": [index*32, 160, 32, 32], "anchor": [16, 27]}
     sheet.save(OUT / "environment.png")
     (OUT / "manifest.json").write_text(json.dumps(data, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
     print("YEOULMOK_NATIVE_KIT_GENERATED", OUT)

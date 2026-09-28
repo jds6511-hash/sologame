@@ -58,6 +58,7 @@ func _run() -> void:
 		_check_native_visibility(art)
 		_check_native_edges(art, ground)
 		_check_object_ground(art, ground)
+		_check_materials_and_boundary(art, ground)
 	_check(ground.tile_map_data == cells, "원본 타일·충돌 데이터 불변")
 	_check(world.get_node("Player").position == Vector2(152, 504), "플레이어 시작점 불변")
 	for rect in ART.FOOTPRINTS:
@@ -176,12 +177,16 @@ func _check_native_contract(art: Node2D, manifest: Dictionary) -> void:
 
 func _check_native_visibility(art: Node2D) -> void:
 	var protected := [Vector2(248, 456), Vector2(280, 456), Vector2(152, 472), Vector2(152, 504)]
+	var seen_bounds: Array[Rect2] = []
 	for child in art.get_children():
 		if not child.has_meta("native_decoration"):
 			continue
 		var sprite: Sprite2D = child.get_node("NativeSprite")
 		var used := sprite.texture.get_image().get_used_rect()
 		var bounds := Rect2(Vector2(used.position) + child.position + sprite.position, used.size)
+		for other in seen_bounds:
+			_check(not bounds.intersects(other), "생활 소품끼리 가림 없음")
+		seen_bounds.append(bounds)
 		if str(child.name).begins_with("Native_bench"):
 			var previous := Rect2(bounds.position + Vector2(244, 470) - child.position, bounds.size)
 			_check(previous.has_point(Vector2(248, 456)), "이전 벤치 배치 가림 재현")
@@ -194,6 +199,41 @@ func _check_native_visibility(art: Node2D) -> void:
 		if str(child.name).begins_with("Native_bench"):
 			var old_crop := Rect2(bounds.position + Vector2(224, 488) - child.position, bounds.size)
 			_check(old_crop.intersects(ART.CROP_PATCHES[1]), "이전 벤치 작물 겹침 재현")
+
+
+func _check_materials_and_boundary(art: Node2D, ground: TileMapLayer) -> void:
+	var materials := {}
+	var boundary := {}
+	var bounds := ground.get_used_rect()
+	var directions := {
+		"n": Vector2i.UP, "e": Vector2i.RIGHT, "s": Vector2i.DOWN, "w": Vector2i.LEFT
+	}
+	for sprite in art.get_node("NativeSurface").get_children():
+		var cell := Vector2i(sprite.position / 16)
+		if sprite.has_meta("material_kind"):
+			_check(not materials.has(cell), "재질 중복 없음")
+			materials[cell] = sprite.get_meta("material_kind")
+			_check(not sprite.texture.get_image().detect_alpha(), "재질 완전 불투명")
+		if sprite.has_meta("boundary_direction"):
+			var direction: String = sprite.get_meta("boundary_direction")
+			_check(ground.get_cell_atlas_coords(cell) == Vector2i(2, 3), "경계 띠는 기존 충돌 바위만")
+			_check(not bounds.has_point(cell + directions[direction]), "경계 띠는 맵 가장자리만")
+			boundary["%s:%s" % [cell, direction]] = true
+	var expected_materials := {}
+	var expected_boundary := {}
+	var mapping := {Vector2i(1, 1): "water", Vector2i(2, 1): "sand", Vector2i(2, 2): "paving"}
+	for cell in ground.get_used_cells():
+		var atlas := ground.get_cell_atlas_coords(cell)
+		if mapping.has(atlas):
+			expected_materials[cell] = mapping[atlas]
+		if atlas == Vector2i(2, 3):
+			for direction in directions:
+				if not bounds.has_point(cell + directions[direction]):
+					expected_boundary["%s:%s" % [cell, direction]] = true
+	_check(materials == expected_materials, "물/여울/판석 전수 재질 일치")
+	_check(boundary == expected_boundary, "충돌 경계 띠 전수 일치")
+	_check(not boundary.has("(47, 27):e") and not boundary.has("(47, 28):e"), "노베라 출구 표시 보존")
+	print("재질 수: ", materials.size(), " / 경계 띠: ", boundary.size())
 
 
 func _check_object_ground(art: Node2D, ground: TileMapLayer) -> void:
