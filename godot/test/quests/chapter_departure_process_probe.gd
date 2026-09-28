@@ -14,7 +14,10 @@ func _run() -> void:
 	var args := OS.get_cmdline_user_args()
 	if (
 		args.is_empty()
-		or args[0] not in ["cleanup", "seed", "depart", "verify", "return", "unsaved", "legacy"]
+		or (
+			args[0]
+			not in ["cleanup", "seed", "depart", "verify", "return", "unsaved", "legacy", "legacy2"]
+		)
 	):
 		quit(2)
 		return
@@ -43,7 +46,7 @@ func _phase(phase: String) -> void:
 	for frame in 8:
 		await process_frame
 	var session = world.get_node("SaveSession")
-	if phase in ["unsaved", "legacy"]:
+	if phase in ["unsaved", "legacy", "legacy2"]:
 		await _special(world, phase)
 		return
 	if phase != "seed":
@@ -144,11 +147,14 @@ func _special(world: Node, phase: String) -> void:
 	_check(quests.journal.restore_state(states) == "", "special fixture")
 	var path := ROOT.path_join("character_01.json")
 	var digest := ""
-	if phase == "legacy":
+	if phase in ["legacy", "legacy2"]:
 		world.get_node("Player").position = Vector2(152, 536)
 		_check(session.save_slot(1).ok, "legacy seed account")
 		var old: Dictionary = session.character.duplicate(true)
-		old.character_save_version = 3
+		old.character_save_version = 2 if phase == "legacy2" else 3
+		old.player.level = 20
+		old.player.exp = 50000 if phase == "legacy2" else 20000
+		old.player.skill_points = 19
 		var payload := JSON.stringify(old)
 		_check(
 			(
@@ -157,7 +163,7 @@ func _special(world: Node, phase: String) -> void:
 					JSON.stringify(
 						{
 							"kind": "character",
-							"version": 3,
+							"version": old.character_save_version,
 							"payload": payload,
 							"checksum": payload.sha256_text()
 						}
@@ -184,11 +190,16 @@ func _special(world: Node, phase: String) -> void:
 	_check(world.map_id == "novera_gate", "special travel")
 	_check(session.account.account_id == account_id, "account identity retained")
 	var character_id: String = session.character.character_id
-	if phase == "legacy":
+	if phase in ["legacy", "legacy2"]:
 		_check(
-			session.migration_pending and session.loaded_source_version == 3,
+			(
+				session.migration_pending
+				and session.loaded_source_version == (2 if phase == "legacy2" else 3)
+			),
 			"old-save hold carried across travel"
 		)
+		_check(session.last_message.contains("수동 저장"), "migration notice after travel")
+		_check(session.character.player.exp == 21800, "converted EXP plus single reward")
 		session.advance(1000.0)
 		_check(FileAccess.get_sha256(path) == digest, "old file untouched by travel/autosave")
 	else:

@@ -63,12 +63,12 @@ func setup(owner_world: Node) -> String:
 			tutorial.hint_heal_done = character.tutorial.hint_heal_done
 			_play_seconds = float(character.play_seconds)
 		last_message = boot.get("message", "불러오기 완료")
-		if migration_pending:
-			last_message += "\n이전 버전 저장을 불러왔습니다. 확인 후 수동 저장이 필요합니다."
 		var carry: Dictionary = boot.get("session_carry", {})
 		migration_pending = carry.get("migration_pending", migration_pending)
 		loaded_source_version = carry.get("loaded_source_version", loaded_source_version)
 		_auto_elapsed = carry.get("auto_elapsed", 0.0)
+		if migration_pending:
+			last_message += "\n이전 버전 저장을 불러왔습니다. 확인 후 수동 저장이 필요합니다."
 	return ""
 
 

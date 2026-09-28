@@ -1,5 +1,7 @@
 # M5 여울목 장 마무리 — 통합 구현 검토 요청
 
+> 2026-09-28 변경 이력: Claude 통과 수신. [대응·검증](m5-chapter-one-review-response.md)으로 작은 보완을 닫았고 새 전달물은 [M6 설계 검토](m6-economy-equipment-review-request.md)다. 아래 결과는 최초 구현 당시 기록이다.
+
 - 날짜: 2026-09-28
 - 담당: Codex 구현·통합 / Claude 독립 검토
 - 기준: `91a9999` (직전 저널 구현 `bf50f49`)

@@ -1,6 +1,7 @@
 extends GutTest
 
 const WORLD = preload("res://scenes/world/eastern_frontier_starting_area.tscn")
+const Regions = preload("res://scripts/world/region_registry.gd")
 var world: Node
 var session: Node
 var quests: QuestController
@@ -52,6 +53,9 @@ func test_v4_preserves_v3_exp_without_modifying_source() -> void:
 		world.get_node("Player"), session.account.account_id
 	)
 	data.character_save_version = 3
+	data.player.level = 20
+	data.player.exp = 20000
+	data.player.skill_points = 19
 	var before := data.duplicate(true)
 	var result: Dictionary = session.codec.prepare_loaded(data, session.account)
 	assert_true(result.ok)
@@ -138,3 +142,20 @@ func test_v4_idempotence_and_v3_cannot_claim_new_quest() -> void:
 	assert_eq(session.codec.prepare_loaded(data, session.account).data, data)
 	data.character_save_version = 3
 	assert_eq(session.codec.schema.character_error(data, session.account), "unknown_quest")
+
+
+func test_region_bounds_match_both_runtime_tilemaps() -> void:
+	var novera = load(Regions.SCENES[Regions.NEXT]).instantiate()
+	novera.set_meta("save_directory", world.get_meta("save_directory"))
+	add_child_autofree(novera)
+	novera.process_mode = Node.PROCESS_MODE_DISABLED
+	for area in [world, novera]:
+		var ground: TileMapLayer = area.get_node("Ground")
+		var used: Rect2i = ground.get_used_rect()
+		var tile_size := ground.tile_set.tile_size
+		var first := Vector2(used.position * tile_size)
+		var end := Vector2(used.end * tile_size)
+		assert_true(Regions.contains(area.map_id, first))
+		assert_true(Regions.contains(area.map_id, end - Vector2.ONE))
+		assert_false(Regions.contains(area.map_id, Vector2(end.x, first.y)))
+		assert_false(Regions.contains(area.map_id, Vector2(first.x, end.y)))

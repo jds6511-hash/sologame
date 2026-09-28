@@ -3,6 +3,7 @@ extends CanvasLayer
 
 const Presentation = preload("res://scripts/quests/quest_presentation.gd")
 const Npcs = preload("res://scripts/npc/npc_registry.gd")
+const Regions = preload("res://scripts/world/region_registry.gd")
 
 var controller: QuestController
 var panel: PanelContainer
@@ -74,9 +75,7 @@ func choose(action: String, quest_id: String = "") -> void:
 	match action:
 		"travel":
 			var session = get_parent().get_node("SaveSession")
-			var destination := (
-				"eastern_frontier_start" if _npc_id == "novera_gatewarden" else "novera_gate"
-			)
+			var destination := Regions.START if _npc_id == "novera_gatewarden" else Regions.NEXT
 			close_dialog()
 			var result: Dictionary = session.travel(destination)
 			if not result.ok:
@@ -96,7 +95,7 @@ func choose(action: String, quest_id: String = "") -> void:
 		return
 	close_dialog()
 	if action == "report" and quest_id == "MQ-01-05":
-		var result: Dictionary = get_parent().get_node("SaveSession").travel("novera_gate")
+		var result: Dictionary = get_parent().get_node("SaveSession").travel(Regions.NEXT)
 		if not result.ok:
 			open_dialog(_npc_id)
 			_message.text += "\n이동 대기: " + result.code + " · 보상은 이미 받았습니다."
