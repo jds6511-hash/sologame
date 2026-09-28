@@ -178,6 +178,7 @@ func _check_native_contract(art: Node2D, manifest: Dictionary) -> void:
 func _check_native_visibility(art: Node2D) -> void:
 	var protected := [Vector2(248, 456), Vector2(280, 456), Vector2(152, 472), Vector2(152, 504)]
 	var seen_bounds: Array[Rect2] = []
+	var npc_reading_areas := [Rect2(132, 424, 40, 48), Rect2(260, 408, 40, 48)]
 	for child in art.get_children():
 		if not child.has_meta("native_decoration"):
 			continue
@@ -187,6 +188,17 @@ func _check_native_visibility(art: Node2D) -> void:
 		for other in seen_bounds:
 			_check(not bounds.intersects(other), "생활 소품끼리 가림 없음")
 		seen_bounds.append(bounds)
+		for area in npc_reading_areas:
+			_check(
+				not bounds.intersects(area),
+				"%s %s NPC 상부 예약 영역" % [child.get_meta("decoration_kind"), child.position]
+			)
+		if child.get_meta("decoration_kind") == "crate" and child.position == Vector2(251, 450):
+			var previous := Rect2(bounds.position + Vector2(258, 450) - child.position, bounds.size)
+			_check(previous.intersects(npc_reading_areas[1]), "이전 상자 NPC 상부 침범 재현")
+		if str(child.name).begins_with("Native_sign"):
+			var previous := Rect2(bounds.position + Vector2(286, 432) - child.position, bounds.size)
+			_check(previous.intersects(npc_reading_areas[1]), "이전 안내판 NPC 가림 재현")
 		if str(child.name).begins_with("Native_bench"):
 			var previous := Rect2(bounds.position + Vector2(244, 470) - child.position, bounds.size)
 			_check(previous.has_point(Vector2(248, 456)), "이전 벤치 배치 가림 재현")

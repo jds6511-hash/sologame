@@ -4,13 +4,13 @@ extends RefCounted
 const DIRECTORY := "res://../docs/art/concepts/yeoulmok/native-kit/"
 const PLACEMENTS := {
 	"barrel": [Vector2(83, 450), Vector2(60, 498)],
-	"crate": [Vector2(243, 450), Vector2(258, 450)],
+	"crate": [Vector2(236, 450), Vector2(251, 450)],
 	"logs": [Vector2(65, 456)],
 	"basket": [Vector2(259, 488)],
 	"bench": [Vector2(218, 488)],
 	"well": [Vector2(114, 452)],
 	"rack": [Vector2(115, 493)],
-	"sign": [Vector2(286, 432)]
+	"sign": [Vector2(286, 396)]
 }
 const DIRECTIONS := {"n": Vector2i.UP, "e": Vector2i.RIGHT, "s": Vector2i.DOWN, "w": Vector2i.LEFT}
 
@@ -39,6 +39,7 @@ static func install(art: Node2D) -> Dictionary:
 			var prop := Node2D.new()
 			prop.name = "Native_" + kind
 			prop.set_meta("native_decoration", true)
+			prop.set_meta("decoration_kind", kind)
 			prop.position = position
 			prop.add_child(_sprite(texture, manifest.props[kind]))
 			art.add_child(prop)
