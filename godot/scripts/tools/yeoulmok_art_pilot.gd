@@ -12,11 +12,25 @@ const STONE := Color("8b9bb4")
 const HOUSE := Rect2(48, 376, 48, 48)
 const WORKSHOP := Rect2(224, 376, 48, 48)
 const FOOTPRINTS := [Rect2(52, 400, 40, 24), Rect2(228, 404, 40, 20)]
+var drawing_kind := "root"
 
 
 func _ready() -> void:
+	if drawing_kind != "root":
+		return
 	get_parent().get_node("Ground").z_index = -2
-	z_index = -1
+	y_sort_enabled = true
+	var floor_art = get_script().new()
+	floor_art.drawing_kind = "floor"
+	floor_art.z_index = -1
+	add_child(floor_art)
+	for index in range(2):
+		var building = get_script().new()
+		building.name = "House" if index == 0 else "Workshop"
+		building.drawing_kind = "house" if index == 0 else "workshop"
+		var bounds: Rect2 = HOUSE if index == 0 else WORKSHOP
+		building.position = Vector2(bounds.get_center().x, bounds.end.y)
+		add_child(building)
 	for footprint in FOOTPRINTS:
 		var body := StaticBody2D.new()
 		body.collision_layer = 1
@@ -36,6 +50,11 @@ func _box(x: float, y: float, w: float, h: float, color: Color) -> void:
 
 
 func _draw() -> void:
+	if drawing_kind == "root":
+		return
+	if drawing_kind in ["house", "workshop"]:
+		_house(Vector2(-24, -48), drawing_kind == "workshop")
+		return
 	# 광장 중앙은 비워 두고 조용한 흙에 판석 군집을 배치한다.
 	_box(96, 400, 128, 112, WOOD)
 	for p in [
@@ -55,8 +74,6 @@ func _draw() -> void:
 			_box(x + 5, y, 37, 1, Color("c28569"))
 	# 도로 중앙과 접수원/플레이어 사이에는 소품을 놓지 않는다.
 	_box(192, 432, 80, 32, WOOD)
-	_house(HOUSE.position, false)
-	_house(WORKSHOP.position, true)
 	for p in [Vector2(57, 442), Vector2(65, 446), Vector2(57, 451)]:
 		_log(p)
 	_barrel(Vector2(78, 436))
