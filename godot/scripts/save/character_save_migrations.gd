@@ -6,7 +6,17 @@ const MAX_SIGNED_INT := 9223372036854775807
 
 ## codec가 계정 연결을 포함한 원본 스키마 검증 후 호출한다. 파일 쓰기/보상 지급 없음.
 static func upgrade(data: Dictionary) -> Dictionary:
-	return upgrade_candidate(data)
+	if data.get("character_save_version") == 4:
+		var current := data.duplicate(true)
+		current.character_save_version = 3
+		var checked := upgrade_candidate(current)
+		if checked.ok:
+			checked.data.character_save_version = 4
+		return checked
+	var result := upgrade_candidate(data)
+	if result.ok:
+		result.data.character_save_version = 4
+	return result
 
 
 ## 제품과 기존 후보 호출자가 공유하는 순수 V1/V2→V3 변환.

@@ -117,7 +117,7 @@ func _check_phase(phase: String) -> void:
 	if phase != "seed":
 		_check(world.get_node("Player").position == Vector2(152, 536), "moved position restored")
 		_check(session.save_slot(1).ok, "save current")
-		_check(session.character.character_save_version == 3, "current version")
+		_check(session.character.character_save_version == 4, "current version")
 		_check(
 			(
 				FileAccess.get_sha256(ROOT.path_join("character_02.json"))

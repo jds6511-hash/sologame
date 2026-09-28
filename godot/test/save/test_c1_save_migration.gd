@@ -14,7 +14,7 @@ class RejectConvertedSchema:
 	extends Schema
 
 	func character_error(payload: Dictionary, owner: Dictionary) -> String:
-		if payload.character_save_version == 3:
+		if payload.character_save_version == 4:
 			return "vitals"
 		return super.character_error(payload, owner)
 
@@ -48,7 +48,7 @@ func test_old_exp_converts_but_claimed_v3_does_not() -> void:
 	assert_true(result.ok)
 	if not result.ok:
 		return
-	assert_eq(result.data.character_save_version, 3)
+	assert_eq(result.data.character_save_version, 4)
 	assert_eq(result.data.player.exp, 20000)
 	assert_eq(data, snapshot)
 	assert_eq(codec.prepare_candidate_loaded(result.data, account).data, result.data)
@@ -98,7 +98,7 @@ func test_every_level_preserves_integer_ratio_and_early_exp() -> void:
 					assert_eq(converted, exp_value)
 				assert_eq(data, snapshot)
 				var expected := snapshot.duplicate(true)
-				expected.character_save_version = 3
+				expected.character_save_version = 4
 				expected.player.exp = converted
 				assert_eq(result.data, expected)
 
@@ -152,7 +152,7 @@ func test_four_jobs_equipment_and_quest_states_preserve_every_other_field() -> v
 			if not result.ok:
 				return
 			var expected := snapshot.duplicate(true)
-			expected.character_save_version = 3
+			expected.character_save_version = 4
 			expected.player.exp = result.data.player.exp
 			assert_eq(result.data, expected)
 			assert_eq(data, snapshot)
@@ -197,11 +197,11 @@ func test_source_protections_and_product_v3_conversion() -> void:
 	var original := data.duplicate(true)
 	var account_snapshot := account.duplicate(true)
 	var expected := original.duplicate(true)
-	expected.character_save_version = 3
+	expected.character_save_version = 4
 	expected.player.exp = 20000
 	assert_eq(codec.prepare_loaded(data, account).data, expected)
 	assert_eq(data, original)
-	for version in [0, -1, 4, 1e30]:
+	for version in [0, -1, 5, 1e30]:
 		data.character_save_version = version
 		assert_eq(codec.prepare_candidate_loaded(data, account).code, "unsupported_version")
 	data = original.duplicate(true)

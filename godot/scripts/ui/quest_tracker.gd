@@ -30,11 +30,12 @@ func setup(controller: QuestController) -> void:
 
 
 func _refresh() -> void:
-	_label.text = (
-		Presentation
-		. select(journal.catalog, journal.export_state(), "yeoulmok_receptionist")
-		. tracker
+	var npc_id := (
+		"novera_gatewarden"
+		if get_parent().get("map_id") == "novera_gate"
+		else "yeoulmok_receptionist"
 	)
+	_label.text = (Presentation.select(journal.catalog, journal.export_state(), npc_id).tracker)
 	_label.text += "\n[J] 의뢰 목록·상세"
 
 

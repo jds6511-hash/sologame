@@ -35,6 +35,9 @@
 		}
 	},
 	"scenes": {
+		"res://scenes/world/novera_gate.tscn": {
+			"day": "town_novera"
+		},
 		"res://scenes/world/eastern_frontier_starting_area.tscn": {
 			"day": "field_eastern_frontier_south",
 			"night": "field_night_common"

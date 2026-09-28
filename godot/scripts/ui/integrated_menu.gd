@@ -43,7 +43,7 @@ var _formula: DamageFormulaData = null
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	_background.color = Color(UiStyle.COLOR_OUTLINE, 0.92)
+	_background.color = Color(UiStyle.COLOR_OUTLINE, 1.0)
 	_tabs.set_tab_title(Tab.INVENTORY, "인벤토리")
 	_tabs.set_tab_title(Tab.CHARACTER, "캐릭터")
 	_tabs.set_tab_title(Tab.SKILL, "스킬")

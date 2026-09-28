@@ -132,7 +132,7 @@ func _character_error(data: Dictionary, account: Dictionary) -> String:
 	if not is_finite(version) or version != floor(version):
 		return "character_identity"
 	# JSON은 정수 값도 float로 읽는다. int 변환 전에 범위를 확인한다.
-	if version < 1 or version > 3:
+	if version < 1 or version > 4:
 		return "unsupported_version"
 	var rules = ProgressionRules.for_version(int(version))
 	if data.account_id != account.account_id:
@@ -166,7 +166,22 @@ func _character_error(data: Dictionary, account: Dictionary) -> String:
 		var quest_error: String = QuestSchema.validate(data.progress.quests, quest_catalog)
 		if not quest_error.is_empty():
 			return quest_error
-	if not integer(data.progress.reputation) or data.progress.reputation != 0:
+	var expected_reputation := 0
+	if version < 4:
+		if data.world.map_id != Registry.MAP_ID:
+			return "unknown_map"
+		if data.progress.quests.has("MQ-01-05"):
+			return "unknown_quest"
+	else:
+		for id in data.progress.quests:
+			if data.progress.quests[id].state == "completed":
+				expected_reputation += quest_catalog.definitions[id].reward_reputation
+		if (
+			data.world.map_id == "novera_gate"
+			and data.progress.quests.get("MQ-01-05", {}).get("state") != "completed"
+		):
+			return "region_locked"
+	if not integer(data.progress.reputation) or data.progress.reputation != expected_reputation:
 		return "reputation"
 	if not data.progress.first_death_waiver_used is bool:
 		return "death_waiver"
@@ -286,7 +301,10 @@ func world_error(data: Variant) -> String:
 		]
 	):
 		return "world_fields"
-	if data.map_id != Registry.MAP_ID:
+	if (
+		not data.map_id is String
+		or not preload("res://scripts/world/region_registry.gd").SCENES.has(data.map_id)
+	):
 		return "unknown_map"
 	if not data.position is Array or data.position.size() != 2:
 		return "position"

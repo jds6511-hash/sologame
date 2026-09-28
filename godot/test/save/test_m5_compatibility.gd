@@ -32,7 +32,7 @@ func after_each() -> void:
 
 
 func test_new_capture_uses_version_three() -> void:
-	assert_eq(data.character_save_version, 3)
+	assert_eq(data.character_save_version, 4)
 
 
 func test_previous_catalog_recovers_backup_and_preserves_unknown_third_quest_on_write() -> void:
@@ -51,6 +51,7 @@ func test_previous_catalog_recovers_backup_and_preserves_unknown_third_quest_on_
 	var original_hash := FileAccess.get_sha256(path)
 	codec.schema.quest_catalog.definitions.erase("MQ-01-03")
 	codec.schema.quest_catalog.definitions.erase("MQ-01-04")
+	codec.schema.quest_catalog.definitions.erase("MQ-01-05")
 	assert_eq(codec.schema.character_error(future, account), "quest_fields")
 	var recovered: Dictionary = store.read_save("character", 1)
 	assert_true(recovered.ok)
@@ -79,7 +80,7 @@ func test_third_quest_all_states_remain_version_three_and_restore_to_independent
 
 
 func test_direct_codec_unsupported_integer_versions_match_store() -> void:
-	for version in [0, -1, 4, 0.0]:
+	for version in [0, -1, 5, 0.0]:
 		data.character_save_version = version
 		assert_eq(codec.prepare_loaded(data, account).code, "unsupported_version")
 
@@ -135,7 +136,7 @@ func test_v1_upgrade_is_pure_and_preserves_all_progress() -> void:
 	var result: Dictionary = codec.prepare_loaded(data, account)
 	assert_true(result.ok)
 	assert_eq(data, original)
-	original.character_save_version = 3
+	original.character_save_version = 4
 	assert_eq(result.data, original)
 	assert_eq(codec.prepare_loaded(result.data, account).data, original)
 	result.data.progress.quests["MQ-01-01"] = {"state": "active", "counts": [0, 0]}
@@ -167,7 +168,7 @@ func test_v1_read_and_first_v3_write_keep_original_backup() -> void:
 	assert_eq(FileAccess.get_sha256(path), original)
 	assert_true(store.write_save("character", 1, prepared.data).ok)
 	assert_eq(FileAccess.get_sha256(path + ".bak"), original)
-	assert_eq(int(store.read_save("character", 1).data.character_save_version), 3)
+	assert_eq(int(store.read_save("character", 1).data.character_save_version), 4)
 	for file in DirAccess.get_files_at(directory):
 		assert_false(".preserved." in file)
 	store._write_text(path, "broken")
@@ -183,14 +184,14 @@ func test_mismatch_preserved_and_future_body_never_overwritten() -> void:
 		_raw(store, versions[0], data)
 		var digest := FileAccess.get_sha256(path)
 		assert_eq(store.read_save("character", 1).code, "invalid_data")
-		data.character_save_version = 3
+		data.character_save_version = 4
 		assert_true(store.write_save("character", 1, data).ok)
 		assert_eq(FileAccess.get_sha256(path + ".preserved." + digest), digest)
 	data.character_save_version = 99
 	_raw(store, 2, data)
 	var original := FileAccess.get_sha256(path)
 	assert_eq(store.read_save("character", 1).code, "unsupported_version")
-	data.character_save_version = 3
+	data.character_save_version = 4
 	assert_eq(store.write_save("character", 1, data).code, "unsupported_version")
 	assert_eq(FileAccess.get_sha256(path), original)
 

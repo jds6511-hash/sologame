@@ -5,8 +5,8 @@ extends RefCounted
 # gdlint: disable=max-returns
 
 const Codes = preload("res://scripts/save/save_validation_codes.gd")
-const VERSIONS := {"account": 1, "character": 3}
-const SUPPORTED := {"account": [1], "character": [1, 2, 3]}
+const VERSIONS := {"account": 1, "character": 4}
+const SUPPORTED := {"account": [1], "character": [1, 2, 3, 4]}
 const MAX_BYTES := 4 * 1024 * 1024
 const MAX_ENVELOPE_BYTES := 8 * 1024 * 1024
 var root: String

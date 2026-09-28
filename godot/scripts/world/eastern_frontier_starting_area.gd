@@ -17,6 +17,9 @@ const ControllerScript = preload("res://scripts/quests/quest_controller.gd")
 const DialogScript = preload("res://scripts/ui/quest_dialog.gd")
 const TrackerScript = preload("res://scripts/ui/quest_tracker.gd")
 const NpcRegistry = preload("res://scripts/npc/npc_registry.gd")
+const Regions = preload("res://scripts/world/region_registry.gd")
+const InteractionScript = preload("res://scripts/quests/world_interaction.gd")
+@export var map_id := Regions.START
 
 @onready var _player: PlayerController = $Player
 ## Inventory의 combat_stats는 의도적으로 비배선이다(골드만 사용). M3에서는 성장 계층
@@ -34,6 +37,9 @@ const NpcRegistry = preload("res://scripts/npc/npc_registry.gd")
 
 
 func _ready() -> void:
+	_player.set_meta("map_id", map_id)
+	if map_id == Regions.NEXT:
+		load("res://scripts/world/novera_gate_layout.gd").prepare(self)
 	var save_session = _create_save_session()
 	save_session.name = "SaveSession"
 	add_child(save_session)
@@ -60,13 +66,16 @@ func _ready() -> void:
 	_monster_spawner.rabbit_spawn_source_id = "yeoulmok_rabbit_habitat"
 	_monster_spawner.wolf_spawn_source_id = "yeoulmok_dog_habitat"
 	_monster_spawner.start()
-	_start_tutorial()
+	if map_id == Regions.START:
+		_start_tutorial()
 	_init_day_night_modulate()
 	_init_bgm()
 	var save_menu := SaveMenuScript.new()
 	save_menu.name = "SaveMenu"
 	add_child(save_menu)
 	save_menu.setup(save_session)
+	_integrated_menu.menu_opened.connect(func(): save_menu.badge.hide())
+	_integrated_menu.menu_closed.connect(func(): save_menu.badge.show())
 
 
 func _create_save_session() -> Node:
@@ -163,6 +172,14 @@ func _setup_quest_ui(quests: QuestController) -> void:
 	tracker.name = "QuestTracker"
 	add_child(tracker)
 	tracker.setup(quests)
+	if map_id == Regions.NEXT:
+		var keeper = _add_gatekeeper("novera_gatewarden", quests, dialog)
+		var selection = InteractionScript.new()
+		selection.name = "WorldInteraction"
+		add_child(selection)
+		selection.setup(_player, _hud)
+		selection.candidates.assign([keeper])
+		return
 	var npc = load(NpcRegistry.SCENES["yeoulmok_receptionist"]).instantiate()
 	npc.name = "QuestReceptionist"
 	npc.position = get_node("Markers/NPCs/NPC_조합순회접수원").position
@@ -173,8 +190,20 @@ func _setup_quest_ui(quests: QuestController) -> void:
 	site.position = get_node("Markers/QuestPoints/INTERACT_균열표식_MQ0104").position
 	add_child(site)
 	site.setup(_player, quests, get_node("Markers/QuestPoints/REACH_균열굴어귀_MQ0104").global_position)
-	var interaction = load("res://scripts/quests/world_interaction.gd").new()
+	var interaction = InteractionScript.new()
 	interaction.name = "WorldInteraction"
 	add_child(interaction)
 	interaction.setup(_player, _hud)
-	interaction.candidates.assign([npc, site])
+	var keeper = _add_gatekeeper("yeoulmok_gatewarden", quests, dialog)
+	interaction.candidates.assign([npc, site, keeper])
+
+
+func _add_gatekeeper(id: String, quests: QuestController, dialog: QuestDialog) -> Node2D:
+	var keeper = load(NpcRegistry.SCENES[id]).instantiate()
+	keeper.name = "Gatewarden"
+	keeper.npc_id = id
+	keeper.position = Regions.GATES[map_id]
+	keeper.get_node("Name").text = NpcRegistry.NAMES[id]
+	add_child(keeper)
+	keeper.setup(_player, quests, dialog, _hud)
+	return keeper

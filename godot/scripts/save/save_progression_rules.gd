@@ -6,7 +6,7 @@ extends RefCounted
 static func for_version(version: int) -> RefCounted:
 	if version in [1, 2]:
 		return Legacy.new()
-	if version == 3:
+	if version in [3, 4]:
 		return Candidate.new()
 	return null
 

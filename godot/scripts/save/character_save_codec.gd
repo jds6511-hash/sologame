@@ -8,7 +8,7 @@ var registry = schema.registry
 
 
 func character_version() -> int:
-	return 3
+	return 4
 
 
 func prepare_loaded(data: Dictionary, account: Dictionary) -> Dictionary:
@@ -25,7 +25,9 @@ func _prepare_loaded(data: Dictionary, account: Dictionary) -> Dictionary:
 	var error: String = validate.call(data, account)
 	if not error.is_empty():
 		return {"ok": false, "code": error, "data": {}}
-	var result: Dictionary = Migrations.upgrade(data)
+	var result: Dictionary = (
+		Migrations.upgrade_candidate(data) if character_version() == 3 else Migrations.upgrade(data)
+	)
 	if result.ok:
 		error = validate.call(result.data, account)
 		if not error.is_empty():
@@ -100,6 +102,7 @@ func capture(player: Node2D, account_id: String, carry: Dictionary = {}) -> Dict
 		. duplicate(true)
 	)
 	world.position = [player.position.x, player.position.y]
+	world.map_id = player.get_meta("map_id", registry.MAP_ID)
 	world.day_number = GameClock.day_number
 	world.elapsed_real_sec_in_day = GameClock._elapsed_real_sec_in_day
 	var snapshot := {
@@ -147,6 +150,7 @@ func capture(player: Node2D, account_id: String, carry: Dictionary = {}) -> Dict
 	)
 	if journal != null:
 		snapshot.progress.quests = journal.export_state()
+		snapshot.progress.reputation = journal.reputation()
 	return snapshot
 
 

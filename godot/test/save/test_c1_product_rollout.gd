@@ -21,11 +21,11 @@ func test_product_curve_matches_all_c1_requirements() -> void:
 	assert_eq(total, 61860102)
 
 
-func test_product_file_and_codec_versions_are_v3() -> void:
+func test_product_file_and_codec_versions_are_v4() -> void:
 	var store = Store.new("user://c1_product_unused")
-	assert_eq(store.current_version("character"), 3)
-	assert_eq(store.supported_versions("character"), [1, 2, 3])
-	assert_eq(Codec.new().character_version(), 3)
+	assert_eq(store.current_version("character"), 4)
+	assert_eq(store.supported_versions("character"), [1, 2, 3, 4])
+	assert_eq(Codec.new().character_version(), 4)
 
 
 func test_restore_requires_conversion_before_applying_legacy_exp() -> void:

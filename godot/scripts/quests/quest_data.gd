@@ -9,12 +9,14 @@ extends Resource
 @export var objective_location_hints: Array[String] = []
 @export var prerequisite: String = ""
 @export var npc_id: String = "yeoulmok_receptionist"
+@export var accept_npc_id: String = ""
 @export var objective_kinds: Array[String] = []
 @export var objective_targets: Array[String] = []
 @export var objective_sources: Array[String] = []
 @export var objective_counts: Array[int] = []
 @export var reward_exp: int = 0
 @export var reward_gold: int = 0
+@export var reward_reputation: int = 0
 @export var reward_item_id: String = ""
 @export var reward_item_count: int = 0
 @export var grants_adventurer_pass: bool = false
@@ -32,7 +34,7 @@ func definition_error() -> String:
 		return "quest_presentation"
 	if objective_labels.size() != count or objective_location_hints.size() != count:
 		return "quest_presentation"
-	if reward_exp < 0 or reward_gold < 0 or reward_item_count < 0:
+	if reward_exp < 0 or reward_gold < 0 or reward_item_count < 0 or reward_reputation < 0:
 		return "quest_reward"
 	if reward_item_id.is_empty() != (reward_item_count == 0):
 		return "quest_reward"
@@ -52,3 +54,7 @@ func definition_error() -> String:
 		if not pass_location and objective_location_hints[index].strip_edges().is_empty():
 			return "quest_presentation"
 	return ""
+
+
+func giver_id() -> String:
+	return npc_id if accept_npc_id.is_empty() else accept_npc_id

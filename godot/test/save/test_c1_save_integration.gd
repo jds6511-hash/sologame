@@ -43,7 +43,7 @@ func after_each() -> void:
 
 
 func test_candidate_store_writes_v3_but_legacy_store_rejects() -> void:
-	var store = Env.Store.new(directory)
+	var store = Env.CandidateStore.new(directory)
 	assert_true(store.write_save("character", 1, {"character_save_version": 3}).ok)
 	assert_true(store.read_save("character", 1).ok)
 	assert_eq(Env.LegacyStore.new(directory).read_save("character", 1).code, "unsupported_version")
@@ -91,7 +91,7 @@ func test_v1_v2_hold_auto_and_preserve_bytes_on_failed_manual_save() -> void:
 		var session = world.get_node("SaveSession")
 		assert_eq(session.loaded_source_version, version)
 		assert_true(session.migration_pending)
-		assert_eq(session.character.character_save_version, 3)
+		assert_eq(session.character.character_save_version, 4)
 		assert_eq(world.get_node("Player/PlayerProgression").current_exp, 20000)
 		session.advance(180.0)
 		session.advance(1000.0)
@@ -107,7 +107,7 @@ func test_v1_v2_hold_auto_and_preserve_bytes_on_failed_manual_save() -> void:
 		assert_true(session.save_slot(1).ok)
 		assert_false(session.migration_pending)
 		assert_eq(FileAccess.get_sha256(path + ".bak"), digest)
-		assert_eq(int(session.store.read_save("character", 1).data.character_save_version), 3)
+		assert_eq(int(session.store.read_save("character", 1).data.character_save_version), 4)
 		world.get_node("Player/Inventory").gold = 99
 		session.advance(179.0)
 		assert_eq(int(session.store.read_save("character", 1).data.inventory.gold), 71)
@@ -157,7 +157,7 @@ func test_future_main_and_backup_are_not_destroyed() -> void:
 	codec.bind_store(store, fixture.account)
 	var upgraded: Dictionary = codec.prepare_loaded(fixture.data, fixture.account).data
 	var future := upgraded.duplicate(true)
-	future.character_save_version = 4
+	future.character_save_version = 5
 	var path := directory.path_join("character_01.json")
 	Env.write_fixture(path, future)
 	var digest := FileAccess.get_sha256(path)

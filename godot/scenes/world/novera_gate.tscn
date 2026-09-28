@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/world/eastern_frontier_starting_area.tscn" id="1"]
+
+[node name="NoveraGate" instance=ExtResource("1")]
+map_id = "novera_gate"

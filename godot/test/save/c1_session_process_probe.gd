@@ -84,7 +84,7 @@ func _boot(phase: String) -> Node:
 			_check(not session.migration_pending, "pending cleared")
 			_check(FileAccess.get_sha256(path + ".bak") == digest, "V2 backup retained")
 	else:
-		_check(session.loaded_source_version == 3 and not session.migration_pending, "V3 restart")
+		_check(session.loaded_source_version == 4 and not session.migration_pending, "V4 restart")
 		_check(player.position == Vector2(168, 504), "moved position restored")
 		_check(player.get_node("Inventory").gold == 99, "gold restored")
 		_check(FileAccess.get_sha256(path + ".bak") == digest, "backup hash after restart")

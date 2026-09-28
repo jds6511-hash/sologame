@@ -113,7 +113,7 @@ func test_frozen_tables_match_engine_rounding_for_all_levels() -> void:
 			early_total += candidate.req(level)
 	assert_eq(early_total, 18612)
 	assert_eq(c1_total, 61860102)
-	assert_null(Rules.for_version(4))
+	assert_null(Rules.for_version(5))
 	for level in [0, -1, 100, 101]:
 		assert_eq(legacy.req(level), 0)
 		assert_eq(candidate.req(level), 0)
@@ -168,7 +168,7 @@ func test_candidate_keeps_identity_transfer_and_content_blocks() -> void:
 	data.pending_transfer = {}
 	assert_eq(codec.schema.candidate_character_error(data, account), "pending_transfer")
 	data = snapshot.duplicate(true)
-	for version in [0, -1, 4, 1e30]:
+	for version in [0, -1, 5, 1e30]:
 		data.character_save_version = version
 		assert_eq(codec.schema.candidate_character_error(data, account), "unsupported_version")
 	data = snapshot.duplicate(true)

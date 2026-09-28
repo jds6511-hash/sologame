@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "MQ-01-05"
+title = "여울목을 나서며"
+offer_text = "조사 기록을 노베라에 전해야 합니다. 부락 동쪽 관문의 관문지기를 만나 출발을 보고하세요. 여울목에서 세운 공훈을 문장원에 올리겠습니다."
+objective_labels = Array[String](["부락 동쪽 관문 도달", "관문지기에게 출발 인사"])
+objective_location_hints = Array[String](["부락 동쪽 대문", "동쪽 대문의 관문지기 [F]"])
+prerequisite = "MQ-01-04"
+accept_npc_id = "yeoulmok_receptionist"
+npc_id = "yeoulmok_gatewarden"
+objective_kinds = Array[String](["REACH", "TALK"])
+objective_targets = Array[String](["yeoulmok_gatewarden", "yeoulmok_gatewarden"])
+objective_sources = Array[String](["", ""])
+objective_counts = Array[int]([1, 1])
+reward_exp = 1800
+reward_gold = 560
+reward_reputation = 100

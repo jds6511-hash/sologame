@@ -72,6 +72,17 @@ func choose(action: String, quest_id: String = "") -> void:
 		return
 	var error := ""
 	match action:
+		"travel":
+			var session = get_parent().get_node("SaveSession")
+			var destination := (
+				"eastern_frontier_start" if _npc_id == "novera_gatewarden" else "novera_gate"
+			)
+			close_dialog()
+			var result: Dictionary = session.travel(destination)
+			if not result.ok:
+				open_dialog(_npc_id)
+				_message.text = "이동할 수 없습니다: " + result.code + "\n안전한 상태에서 다시 시도하세요."
+			return
 		"report":
 			error = controller.report(quest_id, _npc_id)
 		"accept":
@@ -84,6 +95,11 @@ func choose(action: String, quest_id: String = "") -> void:
 		)
 		return
 	close_dialog()
+	if action == "report" and quest_id == "MQ-01-05":
+		var result: Dictionary = get_parent().get_node("SaveSession").travel("novera_gate")
+		if not result.ok:
+			open_dialog(_npc_id)
+			_message.text += "\n이동 대기: " + result.code + " · 보상은 이미 받았습니다."
 
 
 func _refresh() -> void:

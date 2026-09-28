@@ -4,7 +4,7 @@ extends MarginContainer
 const View = preload("res://scripts/quests/quest_journal_view.gd")
 const Presentation = preload("res://scripts/quests/quest_presentation.gd")
 const FILTERS := ["all", "active", "ready", "completed"]
-const FILTER_TEXT := ["전체", "진행 중", "보고 가능", "완료"]
+const FILTER_TEXT := ["전체", "미완료", "보고 가능", "완료"]
 const OBJECTIVE_TEXT := {"completed": "완료", "current": "현재", "pending": "대기"}
 var selected_quest_id := ""
 var _journal: QuestJournal

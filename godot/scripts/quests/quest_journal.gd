@@ -67,6 +67,14 @@ func export_state() -> Dictionary:
 	return _states.duplicate(true)
 
 
+func reputation() -> int:
+	var total := 0
+	for id in _states:
+		if _states[id].state == "completed":
+			total += catalog.definitions[id].reward_reputation
+	return total
+
+
 ## 프레임 질의용. 저장 스냅샷을 만들지 않고 현재 첫 미완료 목표만 확인한다.
 func expects_event(quest_id: String, kind: String, target_id: String, source_id: String) -> bool:
 	var state: Dictionary = _states.get(quest_id, {})

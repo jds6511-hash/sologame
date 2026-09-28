@@ -2,6 +2,7 @@ extends RefCounted
 ## 수락한 의뢰의 읽기 전용 표시 모델. 저장·진행·보상을 변경하지 않는다.
 
 const Presentation = preload("res://scripts/quests/quest_presentation.gd")
+const Npcs = preload("res://scripts/npc/npc_registry.gd")
 const STATE_TEXT := {"active": "진행 중", "ready": "보고 가능", "completed": "완료"}
 
 
@@ -53,9 +54,9 @@ static func detail(catalog: QuestCatalog, states: Dictionary, id: String) -> Dic
 				"status": status
 			}
 		)
-	var next_action := "현재 목표를 마친 뒤 접수원에게 돌아가 보고하세요."
+	var next_action := "현재 목표를 마친 뒤 %s에게 보고하세요." % Npcs.NAMES[definition.npc_id]
 	if state.state == "ready":
-		next_action = "목표 완료 · 여울목 조합 접수원에게 보고하고 보상을 받으세요. [F]"
+		next_action = "목표 완료 · %s에게 보고하고 보상을 받으세요. [F]" % Npcs.NAMES[definition.npc_id]
 	elif state.state == "completed":
 		next_action = "보고 및 보상 수령 완료"
 	return {

@@ -82,7 +82,7 @@ func _key(code: int, unicode_value: int = 0) -> void:
 func _capture(label: String) -> void:
 	await process_frame
 	await RenderingServer.frame_post_draw
-	var directory := ProjectSettings.globalize_path("res://../docs/qa/evidence/m5-journal")
+	var directory := ProjectSettings.globalize_path("res://../docs/qa/screenshots/m5-journal")
 	DirAccess.make_dir_recursive_absolute(directory)
 	_check(
 		root.get_texture().get_image().save_png(directory.path_join(label + ".png")) == OK, label
