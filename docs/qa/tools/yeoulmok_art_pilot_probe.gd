@@ -101,6 +101,11 @@ func _run() -> void:
 		world.get_node("DayNightModulate").color = Color("6d7ab5")
 		await _capture("shore-night")
 		world.get_node("DayNightModulate").color = Color.WHITE
+		for point in [Vector2(152, 200), Vector2(152, 96), Vector2(560, 320)]:
+			world.get_node("Player").position = point
+			camera.reset_smoothing()
+			await _capture("region-%d-%d" % [int(point.x), int(point.y)])
+		world.get_node("DayNightModulate").color = Color.WHITE
 		world.get_node("Player").position = Vector2(152, 504)
 		camera.reset_smoothing()
 	if "--candidate" in OS.get_cmdline_user_args():
@@ -191,8 +196,9 @@ func _check_object_ground(art: Node2D, ground: TileMapLayer) -> void:
 		if sprite.has_meta("original_object"):
 			objects[cell] = sprite
 	var expected := 0
-	for y in range(11, 34):
-		for x in range(0, 27):
+	var bounds := ground.get_used_rect()
+	for y in range(bounds.position.y, bounds.end.y):
+		for x in range(bounds.position.x, bounds.end.x):
 			var cell := Vector2i(x, y)
 			if ground.get_cell_atlas_coords(cell) not in [Vector2i(2, 3), Vector2i(3, 3)]:
 				continue
@@ -215,7 +221,25 @@ func _check_object_ground(art: Node2D, ground: TileMapLayer) -> void:
 	_check(bases.has(Vector2i(10, 12)), "MQ04 표식 아래 바닥")
 	_check(bases.has(Vector2i(2, 16)), "강 남쪽 덤불 아래 바닥")
 	_check(not bases.has(Vector2i(9, 14)), "여울 바닥 덮기 금지")
-	_check(not bases.has(Vector2i(27, 20)), "시제품 범위 밖 바닥 불변")
+	_check(bases.has(Vector2i(27, 20)), "동부 필드 지면 연결")
+	_check(bases.has(Vector2i(0, 0)), "북쪽 가장자리 바닥 연결")
+	var expected_bases := 0
+	for cell in ground.get_used_cells():
+		var atlas := ground.get_cell_atlas_coords(cell)
+		var eligible := (
+			atlas
+			in [
+				Vector2i(0, 0),
+				Vector2i(1, 0),
+				Vector2i(2, 0),
+				Vector2i(3, 0),
+				Vector2i(2, 3),
+				Vector2i(3, 3)
+			]
+		)
+		_check(bases.has(cell) == eligible, "지역 전수 지면 포함/제외")
+		expected_bases += int(eligible)
+	_check(bases.size() == expected_bases, "맵 밖 추가 지면 없음")
 	print("표면 수: ", bases.size(), " / 분리 오브젝트: ", objects.size())
 
 
@@ -233,6 +257,7 @@ func _check_native_edges(art: Node2D, ground: TileMapLayer) -> void:
 		_check(ratio >= 0.3 and ratio <= 0.7, "변형의 행/열 단주기 반복 방지")
 	var counts := {"road": 0, "shore": 0}
 	var corners := {"road": 0, "shore": 0}
+	var actual_edges := {}
 	for sprite in art.get_node("NativeSurface").get_children():
 		if sprite.has_meta("corner_kind"):
 			var kind: String = sprite.get_meta("corner_kind")
@@ -263,14 +288,32 @@ func _check_native_edges(art: Node2D, ground: TileMapLayer) -> void:
 		var kind: String = sprite.get_meta("edge_kind")
 		counts[kind] += 1
 		var cell := Vector2i(sprite.position / 16)
+		var direction: String = sprite.get_meta("edge_direction")
+		var key := "%s:%s:%s" % [cell, kind, direction]
+		_check(not actual_edges.has(key), "직선 경계 중복 없음")
+		actual_edges[key] = true
 		if kind == "shore":
 			_check(ground.get_cell_atlas_coords(cell) == Vector2i(1, 1), "물가 장식은 물 셀 안쪽")
 	_check(counts.road > 0 and counts.shore > 0, "길/물가 접합 실제 배치")
 	print("접합 수: ", counts)
 	_check(corners.road + corners.shore > 0, "코너 실제 배치")
 	print("코너 수: ", corners)
-	_check(counts == {"road": 22, "shore": 56}, "바위/덤불 경계 연결 전수 수량")
-	_check(corners == {"road": 2, "shore": 0}, "회색 빈칸 주변 코너 3개 제거")
+	var expected_edges := {}
+	var directions := {
+		"n": Vector2i(0, -1), "e": Vector2i(1, 0), "s": Vector2i(0, 1), "w": Vector2i(-1, 0)
+	}
+	for cell in ground.get_used_cells():
+		var atlas := ground.get_cell_atlas_coords(cell)
+		if atlas not in [Vector2i(1, 1), Vector2i(2, 0), Vector2i(3, 0)]:
+			continue
+		var kind := "shore" if atlas == Vector2i(1, 1) else "road"
+		var eligible := [Vector2i(0, 0), Vector2i(1, 0), Vector2i(2, 3), Vector2i(3, 3)]
+		if kind == "shore":
+			eligible.append_array([Vector2i(2, 0), Vector2i(3, 0), Vector2i(2, 1)])
+		for direction in directions:
+			if ground.get_cell_atlas_coords(cell + directions[direction]) in eligible:
+				expected_edges["%s:%s:%s" % [cell, kind, direction]] = true
+	_check(actual_edges == expected_edges, "전 지역 직선 경계 누락/과잉 없음")
 
 
 func _candidate_preview(world: Node2D, art: Node2D) -> void:

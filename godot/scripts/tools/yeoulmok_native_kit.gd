@@ -48,9 +48,10 @@ static func _install_environment(art: Node2D, texture: Texture2D, manifest: Dict
 	surface.z_index = -1
 	art.add_child(surface)
 	var ground: TileMapLayer = art.get_parent().get_node("Ground")
-	# 경계 탐색 영역과 한 칸 여백까지 같은 바닥을 깐다. 원본 TileMap은 읽기 전용.
-	for y in range(11, 34):
-		for x in range(0, 27):
+	# 여울목 사용 영역 전체를 처리해 카메라 안의 인위적 사각 이음매를 없앤다.
+	var bounds := ground.get_used_rect()
+	for y in range(bounds.position.y, bounds.end.y):
+		for x in range(bounds.position.x, bounds.end.x):
 			var cell := Vector2i(x, y)
 			var atlas := ground.get_cell_atlas_coords(cell)
 			var object_tile := atlas in [Vector2i(2, 3), Vector2i(3, 3)]
@@ -77,8 +78,8 @@ static func _install_environment(art: Node2D, texture: Texture2D, manifest: Dict
 				original.position = sprite.position
 				original.set_meta("original_object", true)
 				surface.add_child(original)
-	for y in range(12, 33):
-		for x in range(1, 26):
+	for y in range(bounds.position.y, bounds.end.y):
+		for x in range(bounds.position.x, bounds.end.x):
 			var cell := Vector2i(x, y)
 			var atlas := ground.get_cell_atlas_coords(cell)
 			if atlas == Vector2i(1, 1):
@@ -122,6 +123,7 @@ static func _add_edges(
 		var sprite := _sprite(texture, manifest.tiles[kind + "_" + direction])
 		sprite.position = Vector2(cell * 16)
 		sprite.set_meta("edge_kind", kind)
+		sprite.set_meta("edge_direction", direction)
 		surface.add_child(sprite)
 	# 직선 경계가 없는 두 변 사이에 대각 육지만 있을 때 안쪽 모서리를 메운다.
 	for corner in ["ne", "se", "sw", "nw"]:
