@@ -48,16 +48,35 @@ static func _install_environment(art: Node2D, texture: Texture2D, manifest: Dict
 	surface.z_index = -1
 	art.add_child(surface)
 	var ground: TileMapLayer = art.get_parent().get_node("Ground")
-	for y in range(23, 33):
-		for x in range(3, 22):
+	# 경계 탐색 영역과 한 칸 여백까지 같은 바닥을 깐다. 원본 TileMap은 읽기 전용.
+	for y in range(11, 34):
+		for x in range(0, 27):
 			var cell := Vector2i(x, y)
 			var atlas := ground.get_cell_atlas_coords(cell)
-			if atlas.y != 0 or atlas.x not in [0, 1, 2, 3]:
+			var object_tile := atlas in [Vector2i(2, 3), Vector2i(3, 3)]
+			if not object_tile and (atlas.y != 0 or atlas.x not in [0, 1, 2, 3]):
 				continue
-			var kind := ("grass" if atlas.x < 2 else "dirt") + str(variant_for(cell))
+			var kind := ("grass" if object_tile or atlas.x < 2 else "dirt") + str(variant_for(cell))
 			var sprite := _sprite(texture, manifest.tiles[kind])
 			sprite.position = Vector2(cell * 16)
+			sprite.set_meta("base_kind", kind)
 			surface.add_child(sprite)
+			if object_tile:
+				var source: TileSetAtlasSource = ground.tile_set.get_source(
+					ground.get_cell_source_id(cell)
+				)
+				var region := source.get_tile_texture_region(atlas)
+				var original := _sprite(
+					source.texture,
+					{
+						"region":
+						[region.position.x, region.position.y, region.size.x, region.size.y],
+						"anchor": [0, 0]
+					}
+				)
+				original.position = sprite.position
+				original.set_meta("original_object", true)
+				surface.add_child(original)
 	for y in range(12, 33):
 		for x in range(1, 26):
 			var cell := Vector2i(x, y)
@@ -122,7 +141,7 @@ static func _add_edges(
 
 
 static func _edge_neighbor(atlas: Vector2i, kind: String) -> bool:
-	var grass := atlas in [Vector2i(0, 0), Vector2i(1, 0)]
+	var grass := atlas in [Vector2i(0, 0), Vector2i(1, 0), Vector2i(2, 3), Vector2i(3, 3)]
 	return grass or (kind == "shore" and atlas in [Vector2i(2, 0), Vector2i(3, 0), Vector2i(2, 1)])
 
 

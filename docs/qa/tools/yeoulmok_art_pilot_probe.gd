@@ -50,6 +50,7 @@ func _run() -> void:
 		_check_native_contract(art, manifest)
 		_check_native_visibility(art)
 		_check_native_edges(art, ground)
+		_check_object_ground(art, ground)
 	_check(ground.tile_map_data == cells, "원본 타일·충돌 데이터 불변")
 	_check(world.get_node("Player").position == Vector2(152, 504), "플레이어 시작점 불변")
 	for rect in ART.FOOTPRINTS:
@@ -180,6 +181,44 @@ func _check_native_visibility(art: Node2D) -> void:
 			_check(old_crop.intersects(ART.CROP_PATCHES[1]), "이전 벤치 작물 겹침 재현")
 
 
+func _check_object_ground(art: Node2D, ground: TileMapLayer) -> void:
+	var bases := {}
+	var objects := {}
+	for sprite in art.get_node("NativeSurface").get_children():
+		var cell := Vector2i(sprite.position / 16)
+		if sprite.has_meta("base_kind"):
+			bases[cell] = sprite
+		if sprite.has_meta("original_object"):
+			objects[cell] = sprite
+	var expected := 0
+	for y in range(11, 34):
+		for x in range(0, 27):
+			var cell := Vector2i(x, y)
+			if ground.get_cell_atlas_coords(cell) not in [Vector2i(2, 3), Vector2i(3, 3)]:
+				continue
+			expected += 1
+			_check(bases.has(cell) and objects.has(cell), "오브젝트 바닥/그림 분리 설치")
+			if not bases.has(cell) or not objects.has(cell):
+				continue
+			_check(bases[cell].get_index() < objects[cell].get_index(), "바닥 뒤 원래 소품 표시")
+			var image: Image = bases[cell].texture.get_image()
+			_check(not image.detect_alpha(), "오브젝트 바닥 불투명")
+			var source: TileSetAtlasSource = ground.tile_set.get_source(
+				ground.get_cell_source_id(cell)
+			)
+			var region := source.get_tile_texture_region(ground.get_cell_atlas_coords(cell))
+			var original := source.texture.get_image().get_region(region)
+			_check(
+				original.get_data() == objects[cell].texture.get_image().get_data(), "소품 픽셀 원본 보존"
+			)
+	_check(objects.size() == expected and expected > 0, "오브젝트 전수 보존")
+	_check(bases.has(Vector2i(10, 12)), "MQ04 표식 아래 바닥")
+	_check(bases.has(Vector2i(2, 16)), "강 남쪽 덤불 아래 바닥")
+	_check(not bases.has(Vector2i(9, 14)), "여울 바닥 덮기 금지")
+	_check(not bases.has(Vector2i(27, 20)), "시제품 범위 밖 바닥 불변")
+	print("표면 수: ", bases.size(), " / 분리 오브젝트: ", objects.size())
+
+
 func _check_native_edges(art: Node2D, ground: TileMapLayer) -> void:
 	for offset in [Vector2i(0, 2), Vector2i(2, 0), Vector2i(0, 1)]:
 		var equal := 0
@@ -201,7 +240,7 @@ func _check_native_edges(art: Node2D, ground: TileMapLayer) -> void:
 			var cell := Vector2i(sprite.position / 16)
 			var dx := Vector2i(1 if "e" in direction else -1, 0)
 			var dy := Vector2i(0, 1 if "s" in direction else -1)
-			var neighbors := [Vector2i(0, 0), Vector2i(1, 0)]
+			var neighbors := [Vector2i(0, 0), Vector2i(1, 0), Vector2i(2, 3), Vector2i(3, 3)]
 			if kind == "shore":
 				neighbors.append_array([Vector2i(2, 0), Vector2i(3, 0), Vector2i(2, 1)])
 				_check(ground.get_cell_atlas_coords(cell) == Vector2i(1, 1), "물가 코너는 물 셀")
@@ -230,6 +269,8 @@ func _check_native_edges(art: Node2D, ground: TileMapLayer) -> void:
 	print("접합 수: ", counts)
 	_check(corners.road + corners.shore > 0, "코너 실제 배치")
 	print("코너 수: ", corners)
+	_check(counts == {"road": 22, "shore": 56}, "바위/덤불 경계 연결 전수 수량")
+	_check(corners == {"road": 2, "shore": 0}, "회색 빈칸 주변 코너 3개 제거")
 
 
 func _candidate_preview(world: Node2D, art: Node2D) -> void:
