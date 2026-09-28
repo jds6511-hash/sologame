@@ -1,7 +1,7 @@
 # 여울목 배치·도보·대화 통합 검증
 
 - 최종 수정: 2026-09-29 / 담당: Codex
-- 기준: `795e276` / 구현 해시: 인계 커밋에 기록
+- 기준: `795e276` / 구현 해시: `393d3f5` (9파일, 로컬 완료; 원격 미푸시)
 - 의존: [키트 규격](../art/concepts/yeoulmok/native-kit/README.md), [통합 검토](yeoulmok-environment-kit-review-request.md)
 - 변경 이력: `bfab533` 리뷰 통과를 반영하고 NPC 상부 배치 보호와 실제 이동·대화 자동 검증을 연결했다.
 

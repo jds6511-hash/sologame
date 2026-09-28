@@ -1,7 +1,7 @@
 # 여울목 배치·도보·대화 통합 검토
 
 - 최종 수정: 2026-09-29 / 담당: Codex
-- 기준: `795e276` / 대상: 후속 인계에 구현 해시 기록
+- 기준: `795e276` / 대상: **`393d3f5`** (9파일, 로컬 커밋)
 - 변경 이력: 재질 묶음 리뷰 통과 후 배치 보완과 실제 이동·대화 자동 회귀를 함께 검토한다. [과거 요청](yeoulmok-environment-kit-review-history.md)은 이력으로 분리했다.
 - 근거: [변경 파일·검증 상세](yeoulmok-walk-report.md), [키트 계약](../art/concepts/yeoulmok/native-kit/README.md)
 
