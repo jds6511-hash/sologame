@@ -1,7 +1,7 @@
 # 여울목 환경 시제품 통합 검토 — 재질·경계·생활 공간
 
 - 최종 수정: 2026-09-29 / 담당: Codex(구현·통합)
-- 기준: `de34df5` / 검토 커밋: 인계 시 기록
+- 기준: `de34df5` / 검토 커밋: **`bfab533`** (17파일, 로컬 완료)
 - 변경 이력: 배칭 통과 리뷰 수신 후 재질·경계·생활 소품·검증까지 한 묶음으로 제작했다. 현재 요청만 이 파일에 두고 [과거 검토 기록](yeoulmok-environment-kit-review-history.md)을 분리했다.
 - 의존: [환경 방향](../art/environment-style-direction.md), [제작 규격](../art/concepts/yeoulmok/native-kit/README.md)
 
