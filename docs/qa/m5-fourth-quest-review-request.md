@@ -1,5 +1,7 @@
 # MQ-01-04 조사 구현 — 통합 검토 요청
 
+> **2026-09-28 변경 이력**: 최초 구현 검토 통과. 이후 배치·목표 질의 [보완 검증](m5-fourth-quest-review-response.md)을 참조한다. 아래 수치는 최초 실행 이력이며 화면 증거는 보완 후 재생성본이다.
+
 - 최종 수정일: 2026-09-28
 - 담당: Codex (구현·통합)
 - 기준: `e63dd13` (설계 `38bacfa`)
@@ -58,7 +60,7 @@ godot --headless --path godot -s res://test/quests/fourth_quest_process_probe.gd
 godot --path godot --rendering-method gl_compatibility -s ../docs/qa/tools/m5_fourth_render_probe.gd
 ```
 
-렌더는 선행 진행·좌표를 직접 설정하고 엔진에 physical_keycode를 합성 주입한다. 외부 키 입력 도구의 문제를 해결하거나 인간 플레이/G4/G5를 대신한 것이 아니다. 증거: [수락](screenshots/m5-fourth/offer.png), [표식](screenshots/m5-fourth/site.png), [조사 후](screenshots/m5-fourth/ready.png), [보고](screenshots/m5-fourth/report.png). 기존 작업자의 스크린샷9개를 덮어쓰지 않았다.
+렌더는 선행 진행·좌표를 직접 설정하고 엔진에 physical_keycode를 합성 주입한다. 외부 키 입력 도구의 문제를 해결하거나 인간 플레이/G4/G5를 대신한 것이 아니다. 증거: [수락](evidence/m5-fourth/offer.png), [표식](evidence/m5-fourth/site.png), [조사 후](evidence/m5-fourth/ready.png), [보고](evidence/m5-fourth/report.png). 기존 작업자의 스크린샷9개를 덮어쓰지 않았다.
 
 로컬 로그: `m5-fourth-red.log`, `m5-fourth-full.log`, `m5-fourth-world.log`, `m5-fourth-final.log`, `m5-fourth-process.log`, `m5-fourth-c1.log`, `m5-fourth-previous.log`, `m5-fourth-render.log`. 로그는 커밋 제외.
 

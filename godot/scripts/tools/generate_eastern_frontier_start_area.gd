@@ -46,8 +46,9 @@ const ROAD_X_START := 18
 const NOBERA_EXIT_X := 47
 const NOBERA_EXIT_Y := Vector2i(26, 29)
 
-const HOLE_CENTER := Vector2i(9, 5)  # MQ-01-04 REACH 지점 "균열 굴 어귀"
-const HOLE_INTERACT := Vector2i(11, 4)  # 균열 표식 조사 지점
+const HOLE_CENTER := Vector2i(9, 5)  # 균열 지형 중심은 유지한다.
+const HOLE_APPROACH := Vector2i(9, 12)  # MQ04 어귀 접근점, 초기 점액 인지 밖
+const HOLE_INTERACT := Vector2i(10, 12)  # 남쪽 오솔길 조사 표식 (강 북쪽 육지)
 
 const PLAYER_START := Vector2i(9, 31)
 const NPC_RECEPTIONIST := Vector2i(9, 29)
@@ -290,7 +291,7 @@ func _build_markers(parent: Node2D) -> void:
 			(VILLAGE_GATE_Y.x + VILLAGE_GATE_Y.y) / 2
 		)
 	)
-	_add_marker(quest_group, "REACH_균열굴어귀_MQ0104", HOLE_CENTER)
+	_add_marker(quest_group, "REACH_균열굴어귀_MQ0104", HOLE_APPROACH)
 	_add_marker(quest_group, "INTERACT_균열표식_MQ0104", HOLE_INTERACT)
 	_add_marker(quest_group, "REACH_부락중심_거리기준점", VILLAGE_FLAG_POS)
 	_add_marker(
@@ -320,17 +321,19 @@ func _set_owner_recursive(node: Node, owner_node: Node) -> void:
 
 
 func _report_distances() -> void:
-	var flag_to_hole := Vector2(VILLAGE_FLAG_POS).distance_to(Vector2(HOLE_CENTER))
-	var start_to_hole := Vector2(PLAYER_START).distance_to(Vector2(HOLE_CENTER))
+	var flag_to_hole := Vector2(VILLAGE_FLAG_POS).distance_to(Vector2(HOLE_APPROACH))
+	var start_to_hole := Vector2(PLAYER_START).distance_to(Vector2(HOLE_APPROACH))
 	var manhattan_start_to_hole := (
-		abs(PLAYER_START.x - HOLE_CENTER.x) + abs(PLAYER_START.y - HOLE_CENTER.y)
+		abs(PLAYER_START.x - HOLE_APPROACH.x) + abs(PLAYER_START.y - HOLE_APPROACH.y)
 	)
 	print("[MQ-01-04 거리 실측]")
 	print(
 		(
 			"  부락 중심(깃발, %s) → 균열 굴 어귀(%s) 직선거리: %.1f 타일"
-			% [VILLAGE_FLAG_POS, HOLE_CENTER, flag_to_hole]
+			% [VILLAGE_FLAG_POS, HOLE_APPROACH, flag_to_hole]
 		)
 	)
-	print("  플레이어 시작점(%s) → 균열 굴 어귀(%s) 직선거리: %.1f 타일" % [PLAYER_START, HOLE_CENTER, start_to_hole])
+	print(
+		"  플레이어 시작점(%s) → 균열 굴 어귀(%s) 직선거리: %.1f 타일" % [PLAYER_START, HOLE_APPROACH, start_to_hole]
+	)
 	print("  플레이어 시작점 → 균열 굴 어귀 맨해튼 거리(실제 이동 경로 하한): %d 타일" % manhattan_start_to_hole)

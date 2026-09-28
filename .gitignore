@@ -3,6 +3,8 @@ godot/.godot/
 *.import
 # Python
 __pycache__/
+# 임시 QA 화면은 추적하지 않는다. 검토 증거는 docs/qa/evidence/에 한정한다.
+docs/qa/screenshots/
 # 임시
 *.tmp
 # 스프라이트 생성 스크립트가 시트 옆에 남기는 4배 확대 미리보기 (검수용 — 게임 에셋 아님)

@@ -41,10 +41,8 @@ func can_reach() -> bool:
 func can_interact() -> bool:
 	if not is_instance_valid(player) or get_tree().paused:
 		return false
-	var state: Dictionary = controller.journal.export_state().get("MQ-01-04", {})
 	return (
-		state.get("state") == "active"
-		and state.get("counts") == [1, 0]
+		controller.journal.expects_event("MQ-01-04", "INTERACT", "yeoulmok_rift_mark", SOURCE)
 		and not player.is_input_locked
 		and not player.is_hit_stunned
 		and not player.get_node("PlayerStats").is_dead()

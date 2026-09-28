@@ -86,10 +86,10 @@ position = Vector2(152, 472)
 position = Vector2(280, 456)
 
 [node name="REACH_균열굴어귀_MQ0104" type="Marker2D" parent="Markers/QuestPoints" unique_id=840804342]
-position = Vector2(152, 88)
+position = Vector2(152, 200)
 
 [node name="INTERACT_균열표식_MQ0104" type="Marker2D" parent="Markers/QuestPoints" unique_id=825693251]
-position = Vector2(184, 72)
+position = Vector2(168, 200)
 
 [node name="REACH_부락중심_거리기준점" type="Marker2D" parent="Markers/QuestPoints" unique_id=1923090535]
 position = Vector2(152, 440)

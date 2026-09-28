@@ -67,6 +67,24 @@ func export_state() -> Dictionary:
 	return _states.duplicate(true)
 
 
+## 프레임 질의용. 저장 스냅샷을 만들지 않고 현재 첫 미완료 목표만 확인한다.
+func expects_event(quest_id: String, kind: String, target_id: String, source_id: String) -> bool:
+	var state: Dictionary = _states.get(quest_id, {})
+	if state.get("state") != "active":
+		return false
+	var definition: QuestData = catalog.definitions.get(quest_id)
+	if definition == null:
+		return false
+	for index in definition.objective_counts.size():
+		if state.counts[index] < definition.objective_counts[index]:
+			return (
+				definition.objective_kinds[index] == kind
+				and definition.objective_targets[index] == target_id
+				and definition.objective_sources[index] == source_id
+			)
+	return false
+
+
 func restore_state(data: Dictionary) -> String:
 	if not catalog.definition_errors().is_empty():
 		return "quest_content_error"
