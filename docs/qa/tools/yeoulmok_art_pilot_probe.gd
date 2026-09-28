@@ -2,6 +2,7 @@
 extends SceneTree
 
 const ART = preload("res://scripts/tools/yeoulmok_art_pilot.gd")
+const KIT = preload("res://scripts/tools/yeoulmok_native_kit.gd")
 var failed := false
 
 
@@ -40,8 +41,7 @@ func _run() -> void:
 	art.name = "ArtPilot"
 	world.add_child(art)
 	if "--native-kit" in arguments:
-		var kit = load("res://scripts/tools/yeoulmok_native_kit.gd")
-		var manifest: Dictionary = kit.install(art)
+		var manifest: Dictionary = KIT.install(art)
 		_check(not manifest.has("error"), "정수 픽셀 키트 설치")
 		if manifest.has("error"):
 			print(manifest.error)
@@ -49,6 +49,7 @@ func _run() -> void:
 			return
 		_check_native_contract(art, manifest)
 		_check_native_visibility(art)
+		_check_native_edges(art, ground)
 	_check(ground.tile_map_data == cells, "원본 타일·충돌 데이터 불변")
 	_check(world.get_node("Player").position == Vector2(152, 504), "플레이어 시작점 불변")
 	for rect in ART.FOOTPRINTS:
@@ -93,6 +94,12 @@ func _run() -> void:
 		world.get_node("Player").position = Vector2(248, 456)
 		camera.reset_smoothing()
 		await _capture("return-arrival")
+		world.get_node("Player").position = Vector2(152, 264)
+		camera.reset_smoothing()
+		await _capture("shore-day")
+		world.get_node("DayNightModulate").color = Color("6d7ab5")
+		await _capture("shore-night")
+		world.get_node("DayNightModulate").color = Color.WHITE
 		world.get_node("Player").position = Vector2(152, 504)
 		camera.reset_smoothing()
 	if "--candidate" in OS.get_cmdline_user_args():
@@ -165,6 +172,33 @@ func _check_native_visibility(art: Node2D) -> void:
 		for point in protected:
 			_check(not bounds.has_point(point), str(child.name) + " 보호 지점 가림 없음")
 		_check(not bounds.intersects(Rect2(200, 450, 100, 7)), str(child.name) + " 동문 발밑 여백")
+		_check(not bounds.intersects(Rect2(194, 456, 12, 55)), str(child.name) + " 세로 동선 여백")
+		for patch in ART.CROP_PATCHES:
+			_check(not bounds.intersects(patch), str(child.name) + " 작물 가림 없음")
+		if str(child.name).begins_with("Native_bench"):
+			var old_crop := Rect2(bounds.position + Vector2(224, 488) - child.position, bounds.size)
+			_check(old_crop.intersects(ART.CROP_PATCHES[1]), "이전 벤치 작물 겹침 재현")
+
+
+func _check_native_edges(art: Node2D, ground: TileMapLayer) -> void:
+	var values := []
+	var adjacent_equal := false
+	for x in range(16):
+		values.append(KIT.variant_for(Vector2i(x, 23)))
+		if x > 0 and values[x] == values[x - 1]:
+			adjacent_equal = true
+	_check(values.has(0) and values.has(1) and adjacent_equal, "변형 선택은 단순 바둑판이 아님")
+	var counts := {"road": 0, "shore": 0}
+	for sprite in art.get_node("NativeSurface").get_children():
+		if not sprite.has_meta("edge_kind"):
+			continue
+		var kind: String = sprite.get_meta("edge_kind")
+		counts[kind] += 1
+		var cell := Vector2i(sprite.position / 16)
+		if kind == "shore":
+			_check(ground.get_cell_atlas_coords(cell) == Vector2i(1, 1), "물가 장식은 물 셀 안쪽")
+	_check(counts.road > 0 and counts.shore > 0, "길/물가 접합 실제 배치")
+	print("접합 수: ", counts)
 
 
 func _candidate_preview(world: Node2D, art: Node2D) -> void:

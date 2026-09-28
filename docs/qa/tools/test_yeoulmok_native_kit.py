@@ -18,7 +18,7 @@ class NativeKitTests(unittest.TestCase):
     def test_palette_alpha_and_grid(self):
         image = Image.open(KIT / "environment.png").convert("RGBA")
         self.assertEqual(image.size, (160, 128))
-        for r, g, b, a in image.getdata():
+        for r, g, b, a in image.get_flattened_data():
             self.assertIn(a, (0, 255))
             if a:
                 self.assertIn((r, g, b), ALLOWED_RGB_SET)
@@ -35,7 +35,7 @@ class NativeKitTests(unittest.TestCase):
             x, y, w, h = asset["footprint"]
             self.assertEqual([ox - ax + x, oy - ay + y, w, h], expected[name])
         self.assertEqual(len(manifest["props"]), 5)
-        self.assertEqual(len(manifest["tiles"]), 10)
+        self.assertEqual(len(manifest["tiles"]), 18)
         image = Image.open(KIT / "environment.png").convert("RGBA")
         for asset in list(manifest["buildings"].values()) + list(manifest["props"].values()) + list(manifest["tiles"].values()):
             x, y, w, h = asset["region"]
@@ -65,7 +65,7 @@ class NativeKitTests(unittest.TestCase):
         image = Image.open(KIT / "environment.png").convert("RGBA")
         for name in ("grass0", "grass1", "dirt0", "dirt1"):
             x, y, w, h = manifest["tiles"][name]["region"]
-            pixels = list(image.crop((x, y, x+w, y+h)).getdata())
+            pixels = list(image.crop((x, y, x+w, y+h)).get_flattened_data())
             self.assertTrue(all(p[3] == 255 for p in pixels))
             self.assertNotIn((255, 255, 255, 255), pixels)
             if name.startswith("grass"):
@@ -74,6 +74,30 @@ class NativeKitTests(unittest.TestCase):
             mean = sum(luma)/len(luma)
             self.assertLessEqual(math.sqrt(sum((v-mean)**2 for v in luma)/len(luma)), 10)
             self.assertLessEqual(max(abs(v-mean) for v in luma), 40)
+
+    def test_building_regions_cover_all_visible_pixels(self):
+        manifest = json.loads((KIT / "manifest.json").read_text(encoding="utf-8"))
+        image = Image.open(KIT / "environment.png").convert("RGBA")
+        for entry in manifest["buildings"].values():
+            ox, oy, width, height = entry["region"]
+            regions = [entry["roof_bounds"], entry["visible_wall"], entry["steps"]]
+            for y in range(height):
+                for x in range(width):
+                    if image.getpixel((ox+x, oy+y))[3]:
+                        self.assertTrue(any(rx <= x < rx+w and ry <= y < ry+h
+                                            for rx, ry, w, h in regions), (x, y))
+
+    def test_edge_tiles_stay_inside_two_pixel_boundary(self):
+        manifest = json.loads((KIT / "manifest.json").read_text(encoding="utf-8"))
+        image = Image.open(KIT / "environment.png").convert("RGBA")
+        for kind in ("road", "shore"):
+            for direction in "nesw":
+                ox, oy, w, h = manifest["tiles"][kind+"_"+direction]["region"]
+                for y in range(h):
+                    for x in range(w):
+                        if image.getpixel((ox+x, oy+y))[3]:
+                            self.assertTrue({"n": y < 2, "e": x >= 14,
+                                             "s": y >= 14, "w": x < 2}[direction])
 
 
 if __name__ == "__main__":

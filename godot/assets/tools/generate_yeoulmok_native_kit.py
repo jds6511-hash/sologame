@@ -122,6 +122,14 @@ def prop(kind):
 def tile(kind):
     image = Image.new("RGBA", (16, 16))
     d = ImageDraw.Draw(image)
+    if kind.startswith("road_") or kind.startswith("shore_"):
+        shore = kind.startswith("shore_")
+        d.line((0, 0, 15, 0), fill=WOOD if shore else C["green"])
+        for x in (1, 2, 6, 10, 11, 14):
+            d.point((x, 1), fill=C["navy"] if shore else C["green"])
+        rotation = {"n": None, "e": Image.Transpose.ROTATE_270,
+                    "s": Image.Transpose.ROTATE_180, "w": Image.Transpose.ROTATE_90}[kind[-1]]
+        return image if rotation is None else image.transpose(rotation)
     if kind.startswith("grass"):
         image.paste(C["green"], (0, 0, 16, 16))
         points = [(3, 4), (11, 10)] if kind.endswith("0") else [(7, 3), (3, 12)]
@@ -160,7 +168,7 @@ def main():
     sheet = Image.new("RGBA", (160, 128))
     sheet.paste(building(), (0, 0))
     sheet.paste(building(True), (64, 0))
-    data = {"version": 2, "image": "environment.png", "buildings": {}, "props": {}, "tiles": {}}
+    data = {"version": 3, "image": "environment.png", "buildings": {}, "props": {}, "tiles": {}}
     for name, x, origin, footprint in (
         ("House", 0, [72, 424], [12, 36, 40, 24]),
         ("Workshop", 64, [248, 424], [12, 40, 40, 20]),
@@ -169,8 +177,9 @@ def main():
             "region": [x, 0, 64, 64], "anchor": [32, 60],
             "threshold": [32, 60], "wall_bottom": 60,
             "footprint": footprint, "origin": origin,
-            "roof_bounds": [5 if x else 7, 13 if x else 11, 54 if x else 51, 27 if x else 28],
+            "roof_bounds": [5 if x else 7, 13 if x else 4, 54 if x else 51, 27 if x else 35],
             "visible_wall": [12, 40 if x else 39, 40, 20 if x else 21],
+            "steps": [25, 60, 16, 3],
         }
     for index, kind in enumerate(("barrel", "crate", "logs", "basket", "bench")):
         sheet.paste(prop(kind), (index*32, 64))
@@ -178,6 +187,9 @@ def main():
     for index, kind in enumerate(("grass0", "grass1", "dirt0", "dirt1", "fence", "fence_end", "fence_corner", "shrub0", "shrub1", "reeds")):
         sheet.paste(tile(kind), (index*16, 96))
         data["tiles"][kind] = {"region": [index*16, 96, 16, 16], "anchor": [0, 0]}
+    for index, kind in enumerate(("road_n", "road_e", "road_s", "road_w", "shore_n", "shore_e", "shore_s", "shore_w")):
+        sheet.paste(tile(kind), (index*16, 112))
+        data["tiles"][kind] = {"region": [index*16, 112, 16, 16], "anchor": [0, 0]}
     sheet.save(OUT / "environment.png")
     (OUT / "manifest.json").write_text(json.dumps(data, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
     print("YEOULMOK_NATIVE_KIT_GENERATED", OUT)

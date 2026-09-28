@@ -7,8 +7,9 @@ const PLACEMENTS := {
 	"crate": [Vector2(243, 450), Vector2(258, 450)],
 	"logs": [Vector2(65, 456)],
 	"basket": [Vector2(259, 488)],
-	"bench": [Vector2(224, 488)]
+	"bench": [Vector2(218, 488)]
 }
+const DIRECTIONS := {"n": Vector2i.UP, "e": Vector2i.RIGHT, "s": Vector2i.DOWN, "w": Vector2i.LEFT}
 
 
 static func install(art: Node2D) -> Dictionary:
@@ -53,10 +54,18 @@ static func _install_environment(art: Node2D, texture: Texture2D, manifest: Dict
 			var atlas := ground.get_cell_atlas_coords(cell)
 			if atlas.y != 0 or atlas.x not in [0, 1, 2, 3]:
 				continue
-			var kind := ("grass" if atlas.x < 2 else "dirt") + str((x + y) % 2)
+			var kind := ("grass" if atlas.x < 2 else "dirt") + str(variant_for(cell))
 			var sprite := _sprite(texture, manifest.tiles[kind])
 			sprite.position = Vector2(cell * 16)
 			surface.add_child(sprite)
+	for y in range(12, 33):
+		for x in range(1, 26):
+			var cell := Vector2i(x, y)
+			var atlas := ground.get_cell_atlas_coords(cell)
+			if atlas == Vector2i(1, 1):
+				_add_edges(surface, ground, texture, manifest, cell, "shore")
+			elif atlas in [Vector2i(2, 0), Vector2i(3, 0)]:
+				_add_edges(surface, ground, texture, manifest, cell, "road")
 	for x in [48, 64, 80, 224, 240, 256]:
 		var sprite := _sprite(texture, manifest.tiles.fence)
 		sprite.position = Vector2(x, 520)
@@ -68,6 +77,32 @@ static func _install_environment(art: Node2D, texture: Texture2D, manifest: Dict
 	for position in [Vector2(112, 272), Vector2(192, 272)]:
 		var sprite := _sprite(texture, manifest.tiles.reeds)
 		sprite.position = position
+		surface.add_child(sprite)
+
+
+static func variant_for(cell: Vector2i) -> int:
+	# 좌표 해시의 상위 비트를 섞어 단순 홀짝 바둑판 배치를 피한다.
+	var value := (cell.x * 73856093) ^ (cell.y * 19349663)
+	return (value ^ (value >> 13)) & 1
+
+
+static func _add_edges(
+	surface: Node2D,
+	ground: TileMapLayer,
+	texture: Texture2D,
+	manifest: Dictionary,
+	cell: Vector2i,
+	kind: String
+) -> void:
+	for direction in DIRECTIONS:
+		var neighbor := ground.get_cell_atlas_coords(cell + DIRECTIONS[direction])
+		var grass := neighbor in [Vector2i(0, 0), Vector2i(1, 0)]
+		var bank := grass or neighbor in [Vector2i(2, 0), Vector2i(3, 0), Vector2i(2, 1)]
+		if not (grass if kind == "road" else bank):
+			continue
+		var sprite := _sprite(texture, manifest.tiles[kind + "_" + direction])
+		sprite.position = Vector2(cell * 16)
+		sprite.set_meta("edge_kind", kind)
 		surface.add_child(sprite)
 
 

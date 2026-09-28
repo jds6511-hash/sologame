@@ -12,6 +12,7 @@ const STONE := Color("8b9bb4")
 const HOUSE := Rect2(48, 376, 48, 48)
 const WORKSHOP := Rect2(224, 376, 48, 48)
 const FOOTPRINTS := [Rect2(52, 400, 40, 24), Rect2(228, 404, 40, 20)]
+const CROP_PATCHES := [Rect2(76, 468, 18, 48), Rect2(232, 468, 19, 48)]
 var drawing_kind := "root"
 var native_kit := false
 
@@ -86,11 +87,12 @@ func _draw() -> void:
 		_basket(Vector2(254, 480))
 		_barrel(Vector2(55, 484))
 	# 작은 재배 구역은 접수원 접근 동선의 바깥에 둔다.
-	for y in range(472, 515, 14):
-		for x in [76, 87, 232, 244]:
-			_box(x, y, 7, 2, DARK)
-			_box(x + 2, y - 4, 2, 5, LEAF)
-			_box(x, y - 4, 6, 2, GREEN)
+	for patch in CROP_PATCHES:
+		for y in range(int(patch.position.y) + 4, int(patch.end.y), 14):
+			for x in [patch.position.x, patch.end.x - 7]:
+				_box(x, y, 7, 2, DARK)
+				_box(x + 2, y - 4, 2, 5, LEAF)
+				_box(x, y - 4, 6, 2, GREEN)
 	if not native_kit:
 		for x in [51, 64, 77, 90, 228, 241, 254, 267]:
 			_box(x, 522, 3, 9, DARK)
