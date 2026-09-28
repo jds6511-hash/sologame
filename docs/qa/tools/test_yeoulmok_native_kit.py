@@ -17,7 +17,7 @@ KIT = ROOT / "docs/art/concepts/yeoulmok/native-kit"
 class NativeKitTests(unittest.TestCase):
     def test_palette_alpha_and_grid(self):
         image = Image.open(KIT / "environment.png").convert("RGBA")
-        self.assertEqual(image.size, (160, 128))
+        self.assertEqual(image.size, (160, 144))
         for r, g, b, a in image.get_flattened_data():
             self.assertIn(a, (0, 255))
             if a:
@@ -35,7 +35,7 @@ class NativeKitTests(unittest.TestCase):
             x, y, w, h = asset["footprint"]
             self.assertEqual([ox - ax + x, oy - ay + y, w, h], expected[name])
         self.assertEqual(len(manifest["props"]), 5)
-        self.assertEqual(len(manifest["tiles"]), 18)
+        self.assertEqual(len(manifest["tiles"]), 26)
         image = Image.open(KIT / "environment.png").convert("RGBA")
         for asset in list(manifest["buildings"].values()) + list(manifest["props"].values()) + list(manifest["tiles"].values()):
             x, y, w, h = asset["region"]
@@ -86,6 +86,20 @@ class NativeKitTests(unittest.TestCase):
                     if image.getpixel((ox+x, oy+y))[3]:
                         self.assertTrue(any(rx <= x < rx+w and ry <= y < ry+h
                                             for rx, ry, w, h in regions), (x, y))
+
+    def test_corner_pixels_stay_at_the_selected_corner(self):
+        manifest = json.loads((KIT / "manifest.json").read_text(encoding="utf-8"))
+        image = Image.open(KIT / "environment.png").convert("RGBA")
+        for kind in ("road", "shore"):
+            for direction in ("ne", "se", "sw", "nw"):
+                ox, oy, w, h = manifest["tiles"][kind+"_"+direction]["region"]
+                pixels = [(x, y) for y in range(h) for x in range(w)
+                          if image.getpixel((ox+x, oy+y))[3]]
+                self.assertTrue(pixels)
+                for x, y in pixels:
+                    dx = 15-x if "e" in direction else x
+                    dy = 15-y if "s" in direction else y
+                    self.assertLessEqual(dx+dy, 2)
 
     def test_edge_tiles_stay_inside_two_pixel_boundary(self):
         manifest = json.loads((KIT / "manifest.json").read_text(encoding="utf-8"))

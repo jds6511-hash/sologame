@@ -181,15 +181,44 @@ func _check_native_visibility(art: Node2D) -> void:
 
 
 func _check_native_edges(art: Node2D, ground: TileMapLayer) -> void:
-	var values := []
-	var adjacent_equal := false
-	for x in range(16):
-		values.append(KIT.variant_for(Vector2i(x, 23)))
-		if x > 0 and values[x] == values[x - 1]:
-			adjacent_equal = true
-	_check(values.has(0) and values.has(1) and adjacent_equal, "변형 선택은 단순 바둑판이 아님")
+	for offset in [Vector2i(0, 2), Vector2i(2, 0), Vector2i(0, 1)]:
+		var equal := 0
+		var total := 0
+		for y in range(36 - offset.y):
+			for x in range(48 - offset.x):
+				var cell := Vector2i(x, y)
+				equal += int(KIT.variant_for(cell) == KIT.variant_for(cell + offset))
+				total += 1
+		var ratio := float(equal) / total
+		print("변형 2차원 일치율: ", offset, " ", equal, "/", total)
+		_check(ratio >= 0.3 and ratio <= 0.7, "변형의 행/열 단주기 반복 방지")
 	var counts := {"road": 0, "shore": 0}
+	var corners := {"road": 0, "shore": 0}
 	for sprite in art.get_node("NativeSurface").get_children():
+		if sprite.has_meta("corner_kind"):
+			var kind: String = sprite.get_meta("corner_kind")
+			var direction: String = sprite.get_meta("corner_direction")
+			var cell := Vector2i(sprite.position / 16)
+			var dx := Vector2i(1 if "e" in direction else -1, 0)
+			var dy := Vector2i(0, 1 if "s" in direction else -1)
+			var neighbors := [Vector2i(0, 0), Vector2i(1, 0)]
+			if kind == "shore":
+				neighbors.append_array([Vector2i(2, 0), Vector2i(3, 0), Vector2i(2, 1)])
+				_check(ground.get_cell_atlas_coords(cell) == Vector2i(1, 1), "물가 코너는 물 셀")
+			else:
+				_check(
+					ground.get_cell_atlas_coords(cell) in [Vector2i(2, 0), Vector2i(3, 0)],
+					"길 코너는 흙 셀"
+				)
+			_check(ground.get_cell_atlas_coords(cell + dx + dy) in neighbors, "코너의 대각 경계 존재")
+			_check(
+				(
+					ground.get_cell_atlas_coords(cell + dx) not in neighbors
+					and ground.get_cell_atlas_coords(cell + dy) not in neighbors
+				),
+				"직선 경계와 코너 중복 없음"
+			)
+			corners[kind] += 1
 		if not sprite.has_meta("edge_kind"):
 			continue
 		var kind: String = sprite.get_meta("edge_kind")
@@ -199,6 +228,8 @@ func _check_native_edges(art: Node2D, ground: TileMapLayer) -> void:
 			_check(ground.get_cell_atlas_coords(cell) == Vector2i(1, 1), "물가 장식은 물 셀 안쪽")
 	_check(counts.road > 0 and counts.shore > 0, "길/물가 접합 실제 배치")
 	print("접합 수: ", counts)
+	_check(corners.road + corners.shore > 0, "코너 실제 배치")
+	print("코너 수: ", corners)
 
 
 func _candidate_preview(world: Node2D, art: Node2D) -> void:

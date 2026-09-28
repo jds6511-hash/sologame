@@ -124,6 +124,14 @@ def tile(kind):
     d = ImageDraw.Draw(image)
     if kind.startswith("road_") or kind.startswith("shore_"):
         shore = kind.startswith("shore_")
+        direction = kind.split("_")[1]
+        if len(direction) == 2:
+            for dy in range(3):
+                for dx in range(3-dy):
+                    x = 15-dx if "e" in direction else dx
+                    y = 15-dy if "s" in direction else dy
+                    d.point((x, y), fill=WOOD if shore else C["green"])
+            return image
         d.line((0, 0, 15, 0), fill=WOOD if shore else C["green"])
         for x in (1, 2, 6, 10, 11, 14):
             d.point((x, 1), fill=C["navy"] if shore else C["green"])
@@ -165,10 +173,10 @@ def tile(kind):
 
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
-    sheet = Image.new("RGBA", (160, 128))
+    sheet = Image.new("RGBA", (160, 144))
     sheet.paste(building(), (0, 0))
     sheet.paste(building(True), (64, 0))
-    data = {"version": 3, "image": "environment.png", "buildings": {}, "props": {}, "tiles": {}}
+    data = {"version": 4, "image": "environment.png", "buildings": {}, "props": {}, "tiles": {}}
     for name, x, origin, footprint in (
         ("House", 0, [72, 424], [12, 36, 40, 24]),
         ("Workshop", 64, [248, 424], [12, 40, 40, 20]),
@@ -190,6 +198,9 @@ def main():
     for index, kind in enumerate(("road_n", "road_e", "road_s", "road_w", "shore_n", "shore_e", "shore_s", "shore_w")):
         sheet.paste(tile(kind), (index*16, 112))
         data["tiles"][kind] = {"region": [index*16, 112, 16, 16], "anchor": [0, 0]}
+    for index, kind in enumerate(("road_ne", "road_se", "road_sw", "road_nw", "shore_ne", "shore_se", "shore_sw", "shore_nw")):
+        sheet.paste(tile(kind), (index*16, 128))
+        data["tiles"][kind] = {"region": [index*16, 128, 16, 16], "anchor": [0, 0]}
     sheet.save(OUT / "environment.png")
     (OUT / "manifest.json").write_text(json.dumps(data, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
     print("YEOULMOK_NATIVE_KIT_GENERATED", OUT)

@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 4,
   "image": "environment.png",
   "buildings": {
     "House": {
@@ -364,6 +364,102 @@
       "region": [
         112,
         112,
+        16,
+        16
+      ],
+      "anchor": [
+        0,
+        0
+      ]
+    },
+    "road_ne": {
+      "region": [
+        0,
+        128,
+        16,
+        16
+      ],
+      "anchor": [
+        0,
+        0
+      ]
+    },
+    "road_se": {
+      "region": [
+        16,
+        128,
+        16,
+        16
+      ],
+      "anchor": [
+        0,
+        0
+      ]
+    },
+    "road_sw": {
+      "region": [
+        32,
+        128,
+        16,
+        16
+      ],
+      "anchor": [
+        0,
+        0
+      ]
+    },
+    "road_nw": {
+      "region": [
+        48,
+        128,
+        16,
+        16
+      ],
+      "anchor": [
+        0,
+        0
+      ]
+    },
+    "shore_ne": {
+      "region": [
+        64,
+        128,
+        16,
+        16
+      ],
+      "anchor": [
+        0,
+        0
+      ]
+    },
+    "shore_se": {
+      "region": [
+        80,
+        128,
+        16,
+        16
+      ],
+      "anchor": [
+        0,
+        0
+      ]
+    },
+    "shore_sw": {
+      "region": [
+        96,
+        128,
+        16,
+        16
+      ],
+      "anchor": [
+        0,
+        0
+      ]
+    },
+    "shore_nw": {
+      "region": [
+        112,
+        128,
         16,
         16
       ],
