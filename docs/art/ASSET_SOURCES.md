@@ -9,6 +9,7 @@
   - `docs\design\M2_PLAN.md` (2-5장 AR-1·AR-2 태스크)
   - `docs\design\systems\m2-monster-spec.md` (몬스터 3종 실루엣·기믹 힌트)
 - **변경 이력**:
+  - 2026-09-28: [여울목 원본 픽셀 키트](concepts/yeoulmok/native-kit/README.md) 추가. 공용 EDG32 직접 작화이며 생성 후보의 축소/가공이 아니다. 격리 시제품용이며 제품 편입·미술 승인 전이다.
   - 2026-09-28: [여울목 생성 콘셉트 원본](concepts/yeoulmok/README.md)3장을 별도 기록했다. 내장 image_gen 결과이며 CC0 소싱·Higgsfield/PixelLab·제품 편입 자산이 아니다. 건물V1/V2는 규격 미충족으로 콘셉트 참고만 허용한다.
   - 2026-09-28: 지역/생활 마법 참고와 도구 비교 연결. Higgsfield와 프리렌은 실제 편입 에셋 출처가 아니며 기존 라이선스 목록을 변경하지 않았다.
   - 2026-09-21: 10-2의 문서명 없는 12장 참조를 캐릭터 아트 계획 12장으로 연결하고, Foozle 반려·LPC 채택으로 현행 결정이 닫혔음을 명시했다.

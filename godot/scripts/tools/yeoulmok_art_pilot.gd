@@ -13,6 +13,7 @@ const HOUSE := Rect2(48, 376, 48, 48)
 const WORKSHOP := Rect2(224, 376, 48, 48)
 const FOOTPRINTS := [Rect2(52, 400, 40, 24), Rect2(228, 404, 40, 20)]
 var drawing_kind := "root"
+var native_kit := false
 
 
 func _ready() -> void:
@@ -21,6 +22,7 @@ func _ready() -> void:
 	get_parent().get_node("Ground").z_index = -2
 	y_sort_enabled = true
 	var floor_art = get_script().new()
+	floor_art.name = "Floor"
 	floor_art.drawing_kind = "floor"
 	floor_art.z_index = -1
 	add_child(floor_art)
@@ -74,14 +76,15 @@ func _draw() -> void:
 			_box(x + 5, y, 37, 1, Color("c28569"))
 	# 도로 중앙과 접수원/플레이어 사이에는 소품을 놓지 않는다.
 	_box(192, 432, 80, 32, WOOD)
-	for p in [Vector2(57, 442), Vector2(65, 446), Vector2(57, 451)]:
-		_log(p)
-	_barrel(Vector2(78, 436))
-	_crate(Vector2(238, 438))
-	_crate(Vector2(250, 438))
-	_bench(Vector2(233, 459))
-	_basket(Vector2(254, 480))
-	_barrel(Vector2(55, 484))
+	if not native_kit:
+		for p in [Vector2(57, 442), Vector2(65, 446), Vector2(57, 451)]:
+			_log(p)
+		_barrel(Vector2(78, 436))
+		_crate(Vector2(238, 438))
+		_crate(Vector2(250, 438))
+		_bench(Vector2(233, 459))
+		_basket(Vector2(254, 480))
+		_barrel(Vector2(55, 484))
 	# 작은 재배 구역은 접수원 접근 동선의 바깥에 둔다.
 	for y in range(472, 515, 14):
 		for x in [76, 87, 232, 244]:

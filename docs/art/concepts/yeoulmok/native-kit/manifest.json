@@ -1,0 +1,134 @@
+{
+  "version": 1,
+  "image": "environment.png",
+  "buildings": {
+    "House": {
+      "region": [
+        0,
+        0,
+        64,
+        64
+      ],
+      "anchor": [
+        32,
+        60
+      ],
+      "threshold": [
+        32,
+        60
+      ],
+      "wall_bottom": 60,
+      "footprint": [
+        12,
+        36,
+        40,
+        24
+      ],
+      "origin": [
+        72,
+        424
+      ],
+      "roof_overhang": [
+        7,
+        11,
+        51,
+        28
+      ]
+    },
+    "Workshop": {
+      "region": [
+        64,
+        0,
+        64,
+        64
+      ],
+      "anchor": [
+        32,
+        60
+      ],
+      "threshold": [
+        32,
+        60
+      ],
+      "wall_bottom": 60,
+      "footprint": [
+        12,
+        40,
+        40,
+        20
+      ],
+      "origin": [
+        248,
+        424
+      ],
+      "roof_overhang": [
+        5,
+        13,
+        54,
+        27
+      ]
+    }
+  },
+  "props": {
+    "barrel": {
+      "region": [
+        0,
+        64,
+        32,
+        32
+      ],
+      "anchor": [
+        16,
+        27
+      ]
+    },
+    "crate": {
+      "region": [
+        32,
+        64,
+        32,
+        32
+      ],
+      "anchor": [
+        16,
+        27
+      ]
+    },
+    "logs": {
+      "region": [
+        64,
+        64,
+        32,
+        32
+      ],
+      "anchor": [
+        16,
+        27
+      ]
+    },
+    "basket": {
+      "region": [
+        96,
+        64,
+        32,
+        32
+      ],
+      "anchor": [
+        16,
+        27
+      ]
+    },
+    "bench": {
+      "region": [
+        128,
+        64,
+        32,
+        32
+      ],
+      "anchor": [
+        16,
+        27
+      ]
+    }
+  }
+}

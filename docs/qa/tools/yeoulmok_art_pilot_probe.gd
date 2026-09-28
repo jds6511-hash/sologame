@@ -11,6 +11,10 @@ func _initialize() -> void:
 
 func _run() -> void:
 	var arguments := OS.get_cmdline_user_args()
+	if "--candidate" in arguments and "--native-kit" in arguments:
+		print("후보 원본과 정수 픽셀 키트는 별도 실행으로 비교합니다.")
+		quit(2)
+		return
 	if "--candidate" in arguments and "--interactive" in arguments:
 		print("후보 이미지의 충돌·앵커는 미승인입니다. --candidate는 정지 비교만 지원합니다.")
 		quit(2)
@@ -35,6 +39,15 @@ func _run() -> void:
 	art.process_mode = Node.PROCESS_MODE_ALWAYS
 	art.name = "ArtPilot"
 	world.add_child(art)
+	if "--native-kit" in arguments:
+		var kit = load("res://scripts/tools/yeoulmok_native_kit.gd")
+		var manifest: Dictionary = kit.install(art)
+		_check(not manifest.has("error"), "정수 픽셀 키트 설치")
+		if manifest.has("error"):
+			print(manifest.error)
+			quit(1)
+			return
+		_check_native_contract(art, manifest)
 	_check(ground.tile_map_data == cells, "원본 타일·충돌 데이터 불변")
 	_check(world.get_node("Player").position == Vector2(152, 504), "플레이어 시작점 불변")
 	for rect in ART.FOOTPRINTS:
@@ -88,6 +101,8 @@ func _run() -> void:
 	var label := (
 		"YEOULMOK_ART_CANDIDATE_PREVIEW" if "--candidate" in arguments else "YEOULMOK_ART_PILOT"
 	)
+	if "--native-kit" in arguments:
+		label = "YEOULMOK_NATIVE_KIT"
 	print(label + ("_PASS" if not failed else "_FAIL"))
 	quit(1 if failed else 0)
 
@@ -96,6 +111,8 @@ func _capture(label: String) -> void:
 	await process_frame
 	await RenderingServer.frame_post_draw
 	var directory := ProjectSettings.globalize_path("res://../docs/qa/screenshots/yeoulmok-art")
+	if "--native-kit" in OS.get_cmdline_user_args():
+		directory = directory.path_join("native-kit")
 	DirAccess.make_dir_recursive_absolute(directory)
 	_check(
 		root.get_texture().get_image().save_png(directory.path_join(label + ".png")) == OK, label
@@ -105,6 +122,26 @@ func _capture(label: String) -> void:
 func _check(condition: bool, label: String) -> void:
 	print(label + ": " + str(condition))
 	failed = failed or not condition
+
+
+func _check_native_contract(art: Node2D, manifest: Dictionary) -> void:
+	var index := 0
+	for name in ["House", "Workshop"]:
+		var entry: Dictionary = manifest.buildings[name]
+		var building = art.get_node(name)
+		var sprite: Sprite2D = building.get_node("NativeSprite")
+		var footprint: Array = entry.footprint
+		var bounds := Rect2(
+			building.position + sprite.position + Vector2(footprint[0], footprint[1]),
+			Vector2(footprint[2], footprint[3])
+		)
+		_check(bounds == ART.FOOTPRINTS[index], name + " 명시 벽 범위와 충돌 일치")
+		_check(sprite.scale == Vector2.ONE, name + " 원본 1px를 월드 1px로 표시")
+		_check(
+			sprite.position + Vector2(entry.threshold[0], entry.threshold[1]) == Vector2.ZERO,
+			name + " 문턱과 발밑 앵커 일치"
+		)
+		index += 1
 
 
 func _candidate_preview(world: Node2D, art: Node2D) -> void:
