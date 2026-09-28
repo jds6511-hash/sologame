@@ -18,4 +18,4 @@
 
 코드 근거: `inventory_component.gd`의 null 배선/1회 base 캡처/equip 조건, `player_stat_growth.gd`의 가상 장비 포함 계산, `character_save_codec.gd`의 `unsupported_equipment_stat_binding`, `save_content_registry.gd`의 장비 없는 `max_stats`, `inventory_tab_stub.gd`의 임시UI, 소검/토끼 발/포션/목걸이 `.tres` 가격을 읽었다. 새 경제 코드 실행 결과로 주장하지 않는다.
 
-구현·인계 커밋은 후속 기록에 기입한다. 직접 플레이/G4/G5·질주 힌트·2장 의뢰는 이월 유지.
+보완·설계 커밋: `36a9724` (기준 `aa3c580`,13파일). 코드 변경은 M5 보완4파일이며 M6/V5 제품 구현은 없다. 직접 플레이/G4/G5·질주 힌트·2장 의뢰는 이월 유지.
