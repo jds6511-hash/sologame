@@ -61,7 +61,9 @@ func _check_phase(phase: String) -> void:
 		world.get_node("Player/PlayerStats")._time_since_combat_action_sec = 10.0
 	var quests = world.get_node("QuestController")
 	var before: Dictionary = quests.journal.export_state()
+	_check_journal(world)
 	if phase == "seed":
+		world.get_node("Player").position = Vector2(152, 536)
 		_check(
 			(
 				quests.journal.restore_state(
@@ -113,6 +115,7 @@ func _check_phase(phase: String) -> void:
 		var progression = world.get_node("Player/PlayerProgression")
 		_check(progression.current_level == 4 and progression.current_exp == 489, "exact EXP once")
 	if phase != "seed":
+		_check(world.get_node("Player").position == Vector2(152, 536), "moved position restored")
 		_check(session.save_slot(1).ok, "save current")
 		_check(session.character.character_save_version == 3, "current version")
 		_check(
@@ -122,8 +125,24 @@ func _check_phase(phase: String) -> void:
 			),
 			"other slot unchanged"
 		)
+	_check_journal(world)
 	world.free()
 	completed = true
+
+
+func _check_journal(world: Node) -> void:
+	var journal = world.get_node("QuestController").journal
+	var before: Dictionary = journal.export_state()
+	var tab = world.get_node("IntegratedMenu/Tabs/JournalTab")
+	tab.set_filter("all")
+	_check(tab.visible_entries().size() == before.size(), "journal accepted list restored")
+	for id in before:
+		tab.select_quest(id)
+		var detail: Dictionary = tab.selected_detail()
+		_check(detail.get("state") == before[id].state, "journal state " + id)
+		var counts: Array = detail.objectives.map(func(objective): return objective.current)
+		_check(counts == before[id].counts, "journal objectives " + id)
+	_check(journal.export_state() == before, "journal browsing is read only")
 
 
 func _write(name: String, value: String) -> void:

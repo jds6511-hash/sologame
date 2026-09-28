@@ -2,11 +2,9 @@
 ##
 ## `docs\art\ux\ux-foundation.md` 2장(단축키 표)·3장(화면 목록 S06~S11)·4장(전환 규칙 —
 ## "단축키 재입력 시 메뉴 닫힘", "다른 탭 단축키 입력 시 해당 탭으로 즉시 전환")을 그대로
-## 구현한다. 인벤토리·캐릭터 탭만 실제 내용이 있고 나머지(스킬/퀘스트 저널/지도/도감)는
-## 빈 자리다 — 각각 담당 시스템(직업 트리·퀘스트 구조·월드맵·도감 스키마)이 M2 범위 밖.
+## 구현한다. M3 스킬 탭과 M5 의뢰 저널까지 연결했으며 지도·도감은 후속 범위다.
 ##
-## player.tscn·world 씬을 직접 수정하지 않았다 — 이 씬을 게임 씬에 자식으로 추가하기만
-## 하면 단축키가 바로 동작한다(부착 방법은 결과 보고 참조).
+## 월드에서 bind_player / bind_quests로 현재 캐릭터를 연결한다.
 class_name IntegratedMenu
 extends CanvasLayer
 
@@ -38,7 +36,7 @@ var _formula: DamageFormulaData = null
 @onready var _inventory_tab: InventoryTabStub = $Tabs/InventoryTab
 @onready var _character_tab: CharacterTab = $Tabs/CharacterTab
 @onready var _skill_tab: SkillTab = $Tabs/SkillTab
-@onready var _journal_tab: PlaceholderTab = $Tabs/JournalTab
+@onready var _journal_tab: Control = $Tabs/JournalTab
 @onready var _map_tab: PlaceholderTab = $Tabs/MapTab
 @onready var _codex_tab: PlaceholderTab = $Tabs/CodexTab
 
@@ -54,13 +52,14 @@ func _ready() -> void:
 	_tabs.set_tab_title(Tab.CODEX, "도감")
 	## 8장 M2 이후 과제(5·6·4번) — 의존 시스템 확정 전까지 빈 자리임을 명시.
 	## 스킬 탭(3번)은 M3 B-4에서 실탭(스킬 포인트·강화 화면)으로 구현됐다.
-	_journal_tab.set_message("퀘스트 저널 (퀘스트 구조 확정 후 구현 — M2 이후)")
 	_map_tab.set_message("지도 (월드맵 구조 확정 후 구현 — M2 이후)")
 	_codex_tab.set_message("도감 (도감 데이터 스키마 확정 후 구현 — M2 이후)")
 	visible = false
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event.is_echo():
+		return
 	for action_name in ACTION_TO_TAB.keys():
 		if event.is_action_pressed(action_name):
 			_on_tab_shortcut(ACTION_TO_TAB[action_name])
@@ -126,6 +125,10 @@ func is_open() -> bool:
 ## IT-3(인벤토리 시스템) 연동 지점 — 실제 인벤토리 UI 서브트리를 이 루트 아래에 추가하면 된다.
 func get_inventory_content_root() -> Control:
 	return _inventory_tab.get_content_root()
+
+
+func bind_quests(journal: QuestJournal) -> void:
+	_journal_tab.bind_journal(journal)
 
 
 ## 캐릭터 탭 데이터 바인딩(읽기 전용 스탯 표시) — 치명타% 미포함 하위 호환 경로.

@@ -19,6 +19,8 @@ func before_each() -> void:
 	site = world.get_node("RiftInvestigation")
 	selector = world.get_node("WorldInteraction")
 	selector.process_mode = Node.PROCESS_MODE_DISABLED
+	# start()의 프레임 분할 스폰이 끝나기 전에 fixture를 해제하지 않는다.
+	await wait_process_frames(8)
 	assert_eq(quests.journal.restore_state(_previous()), "")
 	assert_eq(quests.journal.accept("MQ-01-04"), "")
 

@@ -6,9 +6,9 @@
 script = ExtResource("1")
 quest_id = "MQ-01-04"
 title = "옛 균열의 숨소리"
-offer_text = "북쪽 옛 균열 굴 어귀에 가서 표식을 조사해 주세요. 깊이 들어가거나 마수를 처치할 필요는 없습니다. 확인한 뒤 돌아와 보고해 주세요."
-objective_labels = Array[String](["균열 굴 어귀 도달", "균열 표식 조사 [F]"])
-objective_location_hints = Array[String](["북쪽 오솔길 끝", "어귀의 균열 표식"])
+offer_text = "북쪽 균열 굴로 향하는 오솔길의 조사 표식을 확인해 주세요. 굴까지 더 올라가거나 마수를 처치할 필요는 없습니다. 표식을 조사한 뒤 돌아와 보고해 주세요."
+objective_labels = Array[String](["북쪽 오솔길 조사 지점 도달", "균열 조사 표식 확인 [F]"])
+objective_location_hints = Array[String](["부락 북쪽 오솔길의 푸른 표식", "오솔길 조사 지점의 푸른 표식"])
 prerequisite = "MQ-01-03"
 objective_kinds = Array[String](["REACH", "INTERACT"])
 objective_targets = Array[String](["yeoulmok_old_rift_entrance", "yeoulmok_rift_mark"])

@@ -35,9 +35,7 @@ func _refresh() -> void:
 		. select(journal.catalog, journal.export_state(), "yeoulmok_receptionist")
 		. tracker
 	)
-	var menu = get_parent().get_node_or_null("IntegratedMenu")
-	if menu:
-		menu.get_node("Tabs/JournalTab").set_message(_label.text)
+	_label.text += "\n[J] 의뢰 목록·상세"
 
 
 func _on_reward(id: String) -> void:

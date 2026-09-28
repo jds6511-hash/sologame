@@ -154,6 +154,7 @@ func _register_monster(monster: Node) -> void:
 
 
 func _setup_quest_ui(quests: QuestController) -> void:
+	_integrated_menu.bind_quests(quests.journal)
 	var dialog := DialogScript.new()
 	dialog.name = "QuestDialog"
 	add_child(dialog)
