@@ -12,6 +12,13 @@ func _initialize() -> void:
 
 func _run() -> void:
 	var arguments := OS.get_cmdline_user_args()
+	if (
+		"--surface-profile" in arguments
+		and ("--native-kit" not in arguments or "--interactive" in arguments)
+	):
+		print("표면 측정은 --native-kit 비대화형 실행만 지원합니다.")
+		quit(2)
+		return
 	if "--candidate" in arguments and "--native-kit" in arguments:
 		print("후보 원본과 정수 픽셀 키트는 별도 실행으로 비교합니다.")
 		quit(2)
@@ -110,6 +117,9 @@ func _run() -> void:
 		camera.reset_smoothing()
 	if "--candidate" in OS.get_cmdline_user_args():
 		await _candidate_preview(world, art)
+	if "--surface-profile" in arguments and "--native-kit" in arguments:
+		var profiler = load("res://../docs/qa/tools/yeoulmok_surface_profile.gd")
+		_check(await profiler.run(self, world, art), "표면 재정렬 전후 화면 바이트 동일")
 	if "--interactive" in OS.get_cmdline_user_args():
 		world.process_mode = Node.PROCESS_MODE_INHERIT
 		camera.position = Vector2.ZERO
@@ -189,12 +199,18 @@ func _check_native_visibility(art: Node2D) -> void:
 func _check_object_ground(art: Node2D, ground: TileMapLayer) -> void:
 	var bases := {}
 	var objects := {}
+	var first_object := -1
+	var last_base := -1
 	for sprite in art.get_node("NativeSurface").get_children():
 		var cell := Vector2i(sprite.position / 16)
 		if sprite.has_meta("base_kind"):
 			bases[cell] = sprite
+			last_base = sprite.get_index()
 		if sprite.has_meta("original_object"):
 			objects[cell] = sprite
+			if first_object < 0:
+				first_object = sprite.get_index()
+	_check(first_object > last_base and last_base >= 0, "전체 바닥 뒤 소품 묶음 순서")
 	var expected := 0
 	var bounds := ground.get_used_rect()
 	for y in range(bounds.position.y, bounds.end.y):

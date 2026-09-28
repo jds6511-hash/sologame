@@ -50,6 +50,7 @@ static func _install_environment(art: Node2D, texture: Texture2D, manifest: Dict
 	var ground: TileMapLayer = art.get_parent().get_node("Ground")
 	# 여울목 사용 영역 전체를 처리해 카메라 안의 인위적 사각 이음매를 없앤다.
 	var bounds := ground.get_used_rect()
+	var originals: Array[Sprite2D] = []
 	for y in range(bounds.position.y, bounds.end.y):
 		for x in range(bounds.position.x, bounds.end.x):
 			var cell := Vector2i(x, y)
@@ -77,7 +78,10 @@ static func _install_environment(art: Node2D, texture: Texture2D, manifest: Dict
 				)
 				original.position = sprite.position
 				original.set_meta("original_object", true)
-				surface.add_child(original)
+				originals.append(original)
+	# 같은 셀 안에만 있는 원본 소품을 바닥 다음에 모아 텍스처 교대를 줄인다.
+	for original in originals:
+		surface.add_child(original)
 	for y in range(bounds.position.y, bounds.end.y):
 		for x in range(bounds.position.x, bounds.end.x):
 			var cell := Vector2i(x, y)
