@@ -48,6 +48,7 @@ func _run() -> void:
 			quit(1)
 			return
 		_check_native_contract(art, manifest)
+		_check_native_visibility(art)
 	_check(ground.tile_map_data == cells, "원본 타일·충돌 데이터 불변")
 	_check(world.get_node("Player").position == Vector2(152, 504), "플레이어 시작점 불변")
 	for rect in ART.FOOTPRINTS:
@@ -88,6 +89,12 @@ func _run() -> void:
 			await _capture(building_name.to_lower() + "-" + str(feet_y))
 	world.get_node("Player").position = Vector2(152, 504)
 	camera.reset_smoothing()
+	if "--native-kit" in arguments:
+		world.get_node("Player").position = Vector2(248, 456)
+		camera.reset_smoothing()
+		await _capture("return-arrival")
+		world.get_node("Player").position = Vector2(152, 504)
+		camera.reset_smoothing()
 	if "--candidate" in OS.get_cmdline_user_args():
 		await _candidate_preview(world, art)
 	if "--interactive" in OS.get_cmdline_user_args():
@@ -142,6 +149,22 @@ func _check_native_contract(art: Node2D, manifest: Dictionary) -> void:
 			name + " 문턱과 발밑 앵커 일치"
 		)
 		index += 1
+
+
+func _check_native_visibility(art: Node2D) -> void:
+	var protected := [Vector2(248, 456), Vector2(280, 456), Vector2(152, 472), Vector2(152, 504)]
+	for child in art.get_children():
+		if not child.has_meta("native_decoration"):
+			continue
+		var sprite: Sprite2D = child.get_node("NativeSprite")
+		var used := sprite.texture.get_image().get_used_rect()
+		var bounds := Rect2(Vector2(used.position) + child.position + sprite.position, used.size)
+		if str(child.name).begins_with("Native_bench"):
+			var previous := Rect2(bounds.position + Vector2(244, 470) - child.position, bounds.size)
+			_check(previous.has_point(Vector2(248, 456)), "이전 벤치 배치 가림 재현")
+		for point in protected:
+			_check(not bounds.has_point(point), str(child.name) + " 보호 지점 가림 없음")
+		_check(not bounds.intersects(Rect2(200, 450, 100, 7)), str(child.name) + " 동문 발밑 여백")
 
 
 func _candidate_preview(world: Node2D, art: Node2D) -> void:

@@ -7,7 +7,7 @@ const PLACEMENTS := {
 	"crate": [Vector2(243, 450), Vector2(258, 450)],
 	"logs": [Vector2(65, 456)],
 	"basket": [Vector2(259, 488)],
-	"bench": [Vector2(244, 470)]
+	"bench": [Vector2(224, 488)]
 }
 
 
@@ -29,14 +29,46 @@ static func install(art: Node2D) -> Dictionary:
 	var floor_art = art.get_node("Floor")
 	floor_art.native_kit = true
 	floor_art.queue_redraw()
+	_install_environment(art, texture, manifest)
 	for kind in PLACEMENTS:
 		for position in PLACEMENTS[kind]:
 			var prop := Node2D.new()
 			prop.name = "Native_" + kind
+			prop.set_meta("native_decoration", true)
 			prop.position = position
 			prop.add_child(_sprite(texture, manifest.props[kind]))
 			art.add_child(prop)
 	return manifest
+
+
+static func _install_environment(art: Node2D, texture: Texture2D, manifest: Dictionary) -> void:
+	var surface := Node2D.new()
+	surface.name = "NativeSurface"
+	surface.z_index = -1
+	art.add_child(surface)
+	var ground: TileMapLayer = art.get_parent().get_node("Ground")
+	for y in range(23, 33):
+		for x in range(3, 22):
+			var cell := Vector2i(x, y)
+			var atlas := ground.get_cell_atlas_coords(cell)
+			if atlas.y != 0 or atlas.x not in [0, 1, 2, 3]:
+				continue
+			var kind := ("grass" if atlas.x < 2 else "dirt") + str((x + y) % 2)
+			var sprite := _sprite(texture, manifest.tiles[kind])
+			sprite.position = Vector2(cell * 16)
+			surface.add_child(sprite)
+	for x in [48, 64, 80, 224, 240, 256]:
+		var sprite := _sprite(texture, manifest.tiles.fence)
+		sprite.position = Vector2(x, 520)
+		surface.add_child(sprite)
+	for position in [Vector2(16, 384), Vector2(16, 416), Vector2(288, 368)]:
+		var sprite := _sprite(texture, manifest.tiles.shrub1)
+		sprite.position = position
+		surface.add_child(sprite)
+	for position in [Vector2(112, 272), Vector2(192, 272)]:
+		var sprite := _sprite(texture, manifest.tiles.reeds)
+		sprite.position = position
+		surface.add_child(sprite)
 
 
 static func _sprite(texture: Texture2D, entry: Dictionary) -> Sprite2D:

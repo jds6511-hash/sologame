@@ -119,12 +119,48 @@ def prop(kind):
     return image
 
 
+def tile(kind):
+    image = Image.new("RGBA", (16, 16))
+    d = ImageDraw.Draw(image)
+    if kind.startswith("grass"):
+        image.paste(C["green"], (0, 0, 16, 16))
+        points = [(3, 4), (11, 10)] if kind.endswith("0") else [(7, 3), (3, 12)]
+        for x, y in points:
+            d.line((x, y, x+1, y), fill=C["deep_green"])
+    elif kind.startswith("dirt"):
+        image.paste(WOOD, (0, 0, 16, 16))
+        points = [(4, 7), (12, 12)] if kind.endswith("0") else [(9, 4), (2, 11)]
+        for x, y in points:
+            d.line((x, y, x+2, y), fill=C["tan"])
+    elif kind.startswith("fence"):
+        d.rectangle((0, 6, 15, 7), fill=WOOD)
+        d.rectangle((0, 10, 15, 11), fill=DARK)
+        for x in (2, 12):
+            d.rectangle((x, 3, x+2, 14), fill=DARK)
+            d.line((x, 3, x, 13), fill=LIGHT)
+        if kind == "fence_end":
+            d.rectangle((5, 0, 15, 15), fill=(0, 0, 0, 0))
+        elif kind == "fence_corner":
+            d.rectangle((2, 0, 4, 13), fill=WOOD)
+            d.line((2, 0, 2, 13), fill=LIGHT)
+    elif kind.startswith("shrub"):
+        d.polygon([(2, 12), (1, 7), (4, 5), (5, 2), (11, 3), (14, 7), (13, 13)], fill=C["deep_green"])
+        d.polygon([(3, 7), (6, 4), (11, 5), (12, 9), (7, 11), (3, 10)], fill=C["green"])
+        if kind.endswith("1"):
+            d.line((6, 5, 9, 5), fill=C["fresh_green"])
+    else:
+        for x, y in ((3, 6), (7, 3), (11, 5)):
+            d.line((x, y, x+1, 14), fill=C["deep_green"])
+            d.line((x, y, x, y+3), fill=WOOD)
+    return image
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
-    sheet = Image.new("RGBA", (160, 96))
+    sheet = Image.new("RGBA", (160, 128))
     sheet.paste(building(), (0, 0))
     sheet.paste(building(True), (64, 0))
-    data = {"version": 1, "image": "environment.png", "buildings": {}, "props": {}}
+    data = {"version": 2, "image": "environment.png", "buildings": {}, "props": {}, "tiles": {}}
     for name, x, origin, footprint in (
         ("House", 0, [72, 424], [12, 36, 40, 24]),
         ("Workshop", 64, [248, 424], [12, 40, 40, 20]),
@@ -133,11 +169,15 @@ def main():
             "region": [x, 0, 64, 64], "anchor": [32, 60],
             "threshold": [32, 60], "wall_bottom": 60,
             "footprint": footprint, "origin": origin,
-            "roof_overhang": [5 if x else 7, 13 if x else 11, 54 if x else 51, 27 if x else 28],
+            "roof_bounds": [5 if x else 7, 13 if x else 11, 54 if x else 51, 27 if x else 28],
+            "visible_wall": [12, 40 if x else 39, 40, 20 if x else 21],
         }
     for index, kind in enumerate(("barrel", "crate", "logs", "basket", "bench")):
         sheet.paste(prop(kind), (index*32, 64))
         data["props"][kind] = {"region": [index*32, 64, 32, 32], "anchor": [16, 27]}
+    for index, kind in enumerate(("grass0", "grass1", "dirt0", "dirt1", "fence", "fence_end", "fence_corner", "shrub0", "shrub1", "reeds")):
+        sheet.paste(tile(kind), (index*16, 96))
+        data["tiles"][kind] = {"region": [index*16, 96, 16, 16], "anchor": [0, 0]}
     sheet.save(OUT / "environment.png")
     (OUT / "manifest.json").write_text(json.dumps(data, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
     print("YEOULMOK_NATIVE_KIT_GENERATED", OUT)

@@ -91,16 +91,17 @@ func _draw() -> void:
 			_box(x, y, 7, 2, DARK)
 			_box(x + 2, y - 4, 2, 5, LEAF)
 			_box(x, y - 4, 6, 2, GREEN)
-	for x in [51, 64, 77, 90, 228, 241, 254, 267]:
-		_box(x, 522, 3, 9, DARK)
-		_box(x, 522, 2, 8, LIGHT)
-	for x in [51, 228]:
-		_box(x, 526, 42, 2, WOOD)
-	# 관목은 마을 외곽에만 두어 내부 실루엣을 가리지 않는다.
-	for p in [Vector2(20, 370), Vector2(20, 408), Vector2(291, 371)]:
-		_box(p.x, p.y + 4, 17, 8, LEAF)
-		_box(p.x + 3, p.y, 11, 12, GREEN)
-		_box(p.x + 5, p.y + 2, 6, 2, Color("63c74d"))
+	if not native_kit:
+		for x in [51, 64, 77, 90, 228, 241, 254, 267]:
+			_box(x, 522, 3, 9, DARK)
+			_box(x, 522, 2, 8, LIGHT)
+		for x in [51, 228]:
+			_box(x, 526, 42, 2, WOOD)
+		# 관목은 마을 외곽에만 두어 내부 실루엣을 가리지 않는다.
+		for p in [Vector2(20, 370), Vector2(20, 408), Vector2(291, 371)]:
+			_box(p.x, p.y + 4, 17, 8, LEAF)
+			_box(p.x + 3, p.y, 11, 12, GREEN)
+			_box(p.x + 5, p.y + 2, 6, 2, Color("63c74d"))
 
 
 func _house(p: Vector2, workshop: bool) -> void:

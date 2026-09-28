@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "image": "environment.png",
   "buildings": {
     "House": {
@@ -28,11 +28,17 @@
         72,
         424
       ],
-      "roof_overhang": [
+      "roof_bounds": [
         7,
         11,
         51,
         28
+      ],
+      "visible_wall": [
+        12,
+        39,
+        40,
+        21
       ]
     },
     "Workshop": {
@@ -61,11 +67,17 @@
         248,
         424
       ],
-      "roof_overhang": [
+      "roof_bounds": [
         5,
         13,
         54,
         27
+      ],
+      "visible_wall": [
+        12,
+        40,
+        40,
+        20
       ]
     }
   },
@@ -128,6 +140,128 @@
       "anchor": [
         16,
         27
+      ]
+    }
+  },
+  "tiles": {
+    "grass0": {
+      "region": [
+        0,
+        96,
+        16,
+        16
+      ],
+      "anchor": [
+        0,
+        0
+      ]
+    },
+    "grass1": {
+      "region": [
+        16,
+        96,
+        16,
+        16
+      ],
+      "anchor": [
+        0,
+        0
+      ]
+    },
+    "dirt0": {
+      "region": [
+        32,
+        96,
+        16,
+        16
+      ],
+      "anchor": [
+        0,
+        0
+      ]
+    },
+    "dirt1": {
+      "region": [
+        48,
+        96,
+        16,
+        16
+      ],
+      "anchor": [
+        0,
+        0
+      ]
+    },
+    "fence": {
+      "region": [
+        64,
+        96,
+        16,
+        16
+      ],
+      "anchor": [
+        0,
+        0
+      ]
+    },
+    "fence_end": {
+      "region": [
+        80,
+        96,
+        16,
+        16
+      ],
+      "anchor": [
+        0,
+        0
+      ]
+    },
+    "fence_corner": {
+      "region": [
+        96,
+        96,
+        16,
+        16
+      ],
+      "anchor": [
+        0,
+        0
+      ]
+    },
+    "shrub0": {
+      "region": [
+        112,
+        96,
+        16,
+        16
+      ],
+      "anchor": [
+        0,
+        0
+      ]
+    },
+    "shrub1": {
+      "region": [
+        128,
+        96,
+        16,
+        16
+      ],
+      "anchor": [
+        0,
+        0
+      ]
+    },
+    "reeds": {
+      "region": [
+        144,
+        96,
+        16,
+        16
+      ],
+      "anchor": [
+        0,
+        0
       ]
     }
   }
