@@ -10,6 +10,11 @@ func _initialize() -> void:
 
 
 func _run() -> void:
+	var arguments := OS.get_cmdline_user_args()
+	if "--candidate" in arguments and "--interactive" in arguments:
+		print("후보 이미지의 충돌·앵커는 미승인입니다. --candidate는 정지 비교만 지원합니다.")
+		quit(2)
+		return
 	root.size = Vector2i(1920, 1080)
 	var world = load("res://scenes/world/eastern_frontier_starting_area.tscn").instantiate()
 	world.set_meta("save_directory", "user://yeoulmok_art_pilot")
@@ -70,6 +75,8 @@ func _run() -> void:
 			await _capture(building_name.to_lower() + "-" + str(feet_y))
 	world.get_node("Player").position = Vector2(152, 504)
 	camera.reset_smoothing()
+	if "--candidate" in OS.get_cmdline_user_args():
+		await _candidate_preview(world, art)
 	if "--interactive" in OS.get_cmdline_user_args():
 		world.process_mode = Node.PROCESS_MODE_INHERIT
 		camera.position = Vector2.ZERO
@@ -78,7 +85,10 @@ func _run() -> void:
 	world.free()
 	root.get_node("BgmManager").reset()
 	await process_frame
-	print("YEOULMOK_ART_PILOT_PASS" if not failed else "YEOULMOK_ART_PILOT_FAIL")
+	var label := (
+		"YEOULMOK_ART_CANDIDATE_PREVIEW" if "--candidate" in arguments else "YEOULMOK_ART_PILOT"
+	)
+	print(label + ("_PASS" if not failed else "_FAIL"))
 	quit(1 if failed else 0)
 
 
@@ -95,6 +105,26 @@ func _capture(label: String) -> void:
 func _check(condition: bool, label: String) -> void:
 	print(label + ": " + str(condition))
 	failed = failed or not condition
+
+
+func _candidate_preview(world: Node2D, art: Node2D) -> void:
+	var loader = load("res://scripts/tools/yeoulmok_candidate_assets.gd")
+	var path := "res://../docs/art/concepts/yeoulmok/buildings-source-v2.png"
+	var inspection: Dictionary = loader.inspect_source(path)
+	_check(not inspection.has("error"), "후보 원본 읽기/투명 분리")
+	if inspection.has("error"):
+		print(inspection.error)
+		return
+	var report := inspection.duplicate()
+	report.erase("image")
+	print("후보 원본 실측: ", JSON.stringify(report))
+	print("후보 품질 판정: 원본 규격·팔레트 미승인, 물리 검사는 도형 시제품에 한정")
+	for width in [48.0, 72.0]:
+		loader.install(art, inspection, width)
+		for night in [false, true]:
+			world.get_node("DayNightModulate").color = Color("6d7ab5") if night else Color.WHITE
+			await _capture("candidate-v2-%d-%s" % [int(width), "night" if night else "day"])
+	world.get_node("DayNightModulate").color = Color.WHITE
 
 
 func _route_clear(
