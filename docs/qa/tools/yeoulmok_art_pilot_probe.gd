@@ -122,6 +122,9 @@ func _run() -> void:
 		var profiler = load("res://../docs/qa/tools/yeoulmok_surface_profile.gd")
 		_check(await profiler.run(self, world, art), "표면 재정렬 전후 화면 바이트 동일")
 	if "--interactive" in OS.get_cmdline_user_args():
+		var lifecycle = load("res://scripts/tools/yeoulmok_pilot_session.gd").new()
+		lifecycle.native_kit = "--native-kit" in arguments
+		root.add_child(lifecycle)
 		world.process_mode = Node.PROCESS_MODE_INHERIT
 		camera.position = Vector2.ZERO
 		print("여울목 시각 시제품: 별도 저장 폴더, 제품 아트 미적용")
