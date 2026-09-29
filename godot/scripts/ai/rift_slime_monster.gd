@@ -148,6 +148,13 @@ func _die() -> void:
 ## self_destructed 분기 전용 — 실제 산성 웅덩이(RiftSlimeAcidPool)를 사망 지점에 스폰하고
 ## 몬스터 파라미터(공격력·DPS 비율·예고/지속 시간·반경)를 그대로 넘긴다.
 func _spawn_acid_pool(spawn_position: Vector2) -> void:
+	# 근접 hitbox의 body_entered 안에서 사망할 수 있으므로 인스턴스 생성도 지연한다.
+	_add_acid_pool.call_deferred(spawn_position)
+
+
+func _add_acid_pool(spawn_position: Vector2) -> void:
+	if not is_inside_tree() or get_parent() == null or get_parent().is_queued_for_deletion():
+		return
 	if acid_pool_scene == null:
 		return
 	var pool := acid_pool_scene.instantiate() as Node2D

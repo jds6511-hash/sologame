@@ -25,6 +25,7 @@ func before_each() -> void:
 ## 원점에 스폰한 플레이어를 투사체가 때리는 플레이키 실패를 만들었다 — test/combat
 ## 자기피격 회귀 2건의 간헐 실패 원인. 스폰 부모 변경 + 이 정리로 양쪽에서 막는다.
 func after_each() -> void:
+	await get_tree().process_frame
 	for child in _spawned_world_nodes():
 		child.get_parent().remove_child(child)
 		child.free()
@@ -101,6 +102,7 @@ func test_medium_hit_finish_also_triggers_self_destruct() -> void:
 func test_self_destruct_spawns_acid_pool_at_death_position() -> void:
 	_slime.global_position = Vector2(320, 240)
 	_slime.take_damage(9999.0, "약")
+	await get_tree().process_frame
 	var pool: RiftSlimeAcidPool = null
 	for child in _spawned_world_nodes():
 		if child is RiftSlimeAcidPool:
@@ -111,6 +113,7 @@ func test_self_destruct_spawns_acid_pool_at_death_position() -> void:
 
 func test_core_break_does_not_spawn_acid_pool() -> void:
 	_slime.take_damage(9999.0, "강")
+	await get_tree().process_frame
 	var pools := 0
 	for child in _spawned_world_nodes():
 		if child is RiftSlimeAcidPool:
@@ -125,6 +128,7 @@ func test_spawned_world_nodes_are_siblings_not_root_children() -> void:
 	_slime._start_aim()
 	_slime._physics_process(1.0)  ## 조준 예고 종료 → 투사체 발사
 	_slime.take_damage(9999.0, "약")  ## 자폭 → 산성 웅덩이
+	await get_tree().process_frame
 	var spawned := _spawned_world_nodes()
 	assert_gt(spawned.size(), 0, "사전 조건: 투사체·웅덩이가 실제로 스폰되어야 한다")
 	for child in spawned:

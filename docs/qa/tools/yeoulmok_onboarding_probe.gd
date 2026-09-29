@@ -12,8 +12,21 @@ var defense_frames := 0
 
 
 func _initialize() -> void:
+	node_added.connect(_observe_death_sequence)
 	create_timer(240.0).timeout.connect(_timeout)
 	_run.call_deferred()
+
+
+func _observe_death_sequence(node: Node) -> void:
+	if (
+		node.get_script() != null
+		and node.get_script().resource_path == "res://scripts/player/player_death_sequence.gd"
+	):
+		node.connect("death_sequence_started", _on_observed_death)
+
+
+func _on_observed_death() -> void:
+	_check(false, "대기 포함 전체 세션 사망 감지")
 
 
 func _timeout() -> void:
@@ -61,10 +74,11 @@ func _play(phase: String) -> void:
 	current_scene = world
 	await _refresh_world()
 	if phase == "reload":
+		var prior := failed
 		var result: Dictionary = world.get_node("SaveSession").load_slot(1)
 		_check(result.ok, "별도 프로세스 로드")
 		if not result.ok:
-			if not FileAccess.file_exists(SAVE_ROOT.path_join("character_01.json")):
+			if not prior and not FileAccess.file_exists(SAVE_ROOT.path_join("character_01.json")):
 				print("ONBOARDING_MISSING_SAVE_CONFIRMED")
 			return
 		await _refresh_world()
@@ -195,8 +209,9 @@ func _walk(target: Vector2) -> bool:
 		await process_frame
 	_release()
 	Input.action_release("attack")
+	var prior := failed
 	_check(false, "동적 도보 시간 초과: %s → %s (현재 %s)" % [start, target, player.position])
-	if navigation_disabled and player.position.distance_to(start) < 1.5:
+	if not prior and navigation_disabled and player.position.distance_to(start) < 1.5:
 		print("ONBOARDING_NAVIGATION_DISABLED_CONFIRMED")
 	return false
 
@@ -389,8 +404,9 @@ func _hunt(id: String, source: String, blocked: bool) -> bool:
 		await process_frame
 	_release()
 	Input.action_release("attack")
+	var prior := failed
 	_check(false, "실제 처치 시간 초과: " + id)
-	if blocked and _state(id) == "active":
+	if not prior and blocked and _state(id) == "active":
 		var counts = world.get_node("QuestController").journal.export_state()[id].counts
 		if counts == [0]:
 			print("ONBOARDING_ATTACK_DISABLED_CONFIRMED")

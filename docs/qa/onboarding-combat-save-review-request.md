@@ -1,3 +1,59 @@
+# 여울목 경계·사망 부산물·실패 감시 통합 검토
+
+- 날짜: 2026-09-29 / 담당: Codex
+- 기준: `811227f` / 대상: 구현 커밋 후 HANDOFF 상단에 기록. 원격 미푸시.
+- 변경 이력: `73e8dee` 독립 검토 통과(Claude도 3/3·21/21 재현). 낮음 2건을 보완하고 이월된 경계 이탈 및 추가 실전에서 발견한 산성 웅덩이 오류를 함께 수정한다.
+
+## 제품 변경과 근거
+
+**맵 경계**: 이전 완주 검사에서 맵 폭 바깥 좌표가 관측됐지만 원인이 미확정이었다. 이번 실제 플레이어 `test_move` 질의에서 여울목 (744,440)→동쪽 64px는 차단되지 않고, 노베라의 같은 방향은 차단됨을 재현했다. 여울목 동쪽 4칸은 열린 장식 길이고 지역 전환은 관문 대화로만 수행된다. 월드 초기화 시 지역별 `RegionRegistry.BOUNDS` 바깥에 충돌층1의 32px 외곽벽 네 면을 둔다. 원본 타일·관문·귀환점·카메라·저장 범위는 불변이다. 몬스터도 같은 지형 충돌층을 사용한다.
+
+**산성 웅덩이**: 아래 첫 배치에서 실제 근접 처치가 `body_entered → take_damage → _die → _spawn_acid_pool`을 지나며 `flushing queries` 오류를 냈다. 드롭 수정과 별개인 기존 산성 웅덩이 경로다. 생성과 add_child를 콜백 이후로 미루고, 트리 이탈·부모 삭제 예약 시 생성하지 않는다. 웅덩이 위치·공격력·예고·지속 시간과 강타 핵 파괴 분기는 그대로다. 실제 물리 콜백 재현, 지연 위치 보존, 월드 제거 후 유출 없음 테스트를 추가했다.
+
+## 리뷰 낮음 2건
+
+- reload/도보 시간 초과/사냥 시간 초과 직전에 기존 `failed` 값을 보관하고, 선행 실패가 없을 때만 의도된 음성 확인 마커를 출력한다.
+- SceneTree의 node_added에서 사망 시퀀스 신호를 연결한다. 최초 월드뿐 아니라 교체 월드에도 적용되며, 대기 중 사망 후 부활해도 `failed`는 되돌리지 않는다. --script 초기화 시 autoload를 일찍 참조하지 않도록 런타임 스크립트 경로로 대상을 식별한다.
+- 별도 `onboarding_guard_probe.gd`는 선행 실패를 주입한 세 경로와, 실제 피해로 사망시킨 뒤 5.1초 대기·부활하는 경로를 검사한다. **이 검사에만 명시적 실패·피해 주입이 있다. 정상 완주 probe는 상태/피해 주입 없이 유지한다.**
+- 전용 실행기는 해당 실패 분기에 실제 도달했는지, 금지된 음성 마커가 없는지, 엔진 오류가 없는지 모두 확인한다. guard probe의 exit0만으로 합격시키지 않는다.
+
+## 검증 기록
+
+- 경계 테스트 최초 실행은 테스트의 process_mode 비활성화로 물리 공간이 없어지는 오류였다. 이를 제거한 재실행에서 **여울목 이탈 1건만 실패**, 수정 후 1/1·4 asserts 통과(양 지역 이탈 질의·귀환점 통행).
+- 산성 웅덩이 새 테스트 수정 전 3건 중 2건 실패: 즉시 생성 단언 및 실제 물리 콜백 엔진 오류. 수정 후 AI 전체 212/212·569 asserts 통과.
+- 최종 제품 전체 GUT **1081/1081 · 123 scripts · 9207 asserts**, exit0. SCRIPT ERROR/종료 잔존 로그 없음. 기존 저장 I/O ExpectedError 1건만 존재한다.
+- `run_onboarding_guards.ps1`: cleanup + 선행 실패 3경로 + 사망/부활 감시 **5/5**, exit0. `guards-20260929-210236-210`에 기록. 사망 감지 true와 부활 후 is_dead=false를 동시에 확인했다.
+- 산성 웅덩이 수정 전 고정 배치 `batch-20260929-205736-452`는 **0/3 실패**다. 1·3회는 완주했으나 산성 웅덩이 엔진 오류로 실행기가 거부했고, 2회는 MQ02 추격 중 사망했다. 종료 코드0/PASS 마커만 보고 오류를 숨기지 않았다. 이 결과를 삭제하거나 이전 성공 표본과 합치지 않는다.
+- 변경 GDScript 8파일 gdformat/gdlint, 신규 PowerShell 구문 검사·git diff --check 통과. 회귀 전후 로그는 ignored `screenshots/onboarding/guard-review/`에 보존한다.
+- 최종 제품 코드 고정 배치 `batch-20260929-210334-404`: **3/3 연속 통과 · 21/21 기대 결과 일치 · exit0**. 각 회차 MQ01~05, 실제 드롭 줍기, 별도 프로세스 가방 포함 복원이 통과했다. SCRIPT ERROR/ERROR/종료 잔존 로그 없음. 반복 성공은 이 표본의 결과이며 장기 통과율 보장이 아니다.
+
+## 재현과 변경 파일
+
+```powershell
+powershell -ExecutionPolicy Bypass -File docs/qa/tools/run_onboarding_guards.ps1
+powershell -ExecutionPolicy Bypass -File docs/qa/tools/run_yeoulmok_onboarding.ps1 -Runs 3
+godot --headless --path godot -s addons/gut/gut_cmdln.gd -gdir=res://test -ginclude_subdirs -gexit
+```
+
+두 QA 실행기는 같은 격리 저장 경로를 사용하므로 순차 실행한다. 렌더 단계는 포인터를 실제로 움직인다. 제품 저장 경로는 사용하지 않는다.
+
+- 제품: `region_boundary.gd`, `eastern_frontier_starting_area.gd`, `rift_slime_monster.gd`.
+- 회귀: `test_region_boundary.gd`, `test_slime_pool_lifecycle.gd`, 기존 `test_rift_slime_monster.gd`의 지연 생성 대기·정리.
+- QA: `yeoulmok_onboarding_probe.gd`, `onboarding_guard_probe.gd`, `run_onboarding_guards.ps1`.
+- 문서: 이 검토서, `eastern-frontier-start-map.md` 경계 계약, PROJECT_STATUS·HANDOFF.
+
+경계 검사는 물리 이동 질의이며 사람이 네 가장자리를 직접 걸은 검사는 아니다. 정상 완주는 기본 모험가·현재 드롭 표본이며, 적 좌표를 읽는 자동 조작이다. 과거/이번 사망 표본을 난이도 승인 근거로 쓰지 않는다. G3~G5, 전직, 장기 균형, 전사 좌측 원화, 미감·환경 제품 채택은 미판정 유지.
+
+## Claude에게 요청할 질문
+
+1. 지역별 외곽벽이 저장 가능 범위 안에서 기존 관문 여행·귀환 동선을 유지하는가? 타일 데이터와 서로 다른 지역 크기 계약을 건드리지 않는가?
+2. 산성 웅덩이 지연 생성이 사망 위치·핵 파괴/자폭 분기·월드 해제 수명을 보존하는가?
+3. 선행 실패가 있는 음성 단계와 대기 중 사망/부활을 놓치지 않는가? 명시적 결함 주입과 정상 완주 증거를 분리했는가?
+
+---
+
+## 73e8dee 구현·실행 이력 (독립 검토 통과, 아래 수치는 당시 기준)
+
 # 여울목 이동·교전·줍기·저장 반복 검토
 
 - 날짜: 2026-09-29 / 담당: Codex
