@@ -5,12 +5,24 @@ import math
 import unittest
 from unittest.mock import patch
 
+from PIL import Image
+
 import gen_player_lpc as generator
 from lpc_common import LPC_DIR, head_mask
 
 
 @unittest.skipUnless((LPC_DIR / "body/bodies/male/shoot.png").exists(), "외부 LPC 원본 필요")
 class PlayerArcherArtTest(unittest.TestCase):
+    def test_deployed_combat_sheets_match_verified_generation(self):
+        pending = {}
+        with contextlib.redirect_stdout(io.StringIO()):
+            _, issues = generator.build_job("archer", False, pending=pending)
+        self.assertEqual(issues, [])
+        for path, generated in generator.combat_bow_patches(pending).items():
+            with self.subTest(sheet=path.name), Image.open(path) as deployed:
+                self.assertEqual(deployed.size, generated.size)
+                self.assertEqual(deployed.convert("RGBA").tobytes(), generated.tobytes())
+
     def test_combat_bow_size_stays_constant_through_aim_release_and_recovery(self):
         sizes = {
             pose[0]
