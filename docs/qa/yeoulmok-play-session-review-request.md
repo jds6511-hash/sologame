@@ -1,7 +1,7 @@
 # 여울목 연속 플레이 세션 통합 검토
 
 - 최종 수정: 2026-09-29 / 담당: Codex
-- 기준: `77e963e` / 구현 해시: 인계에서 기록
+- 기준: `77e963e` / 구현 해시: `1ec31d3` (12파일, 로컬 완료·원격 미푸시)
 - 변경 이력: `d660631` 독립 검토 지적0건 통과 후, 긴 이름 보완을 포함하여 시제품 실행·월드 교체·지역 왕복·저장/프로세스 복원까지 연결했다.
 - 의존: [키트 규격](../art/concepts/yeoulmok/native-kit/README.md), [이전 NPC 검토](npc-reading-review-request.md), [저장 계약](../design/systems/save-load.md)
 
