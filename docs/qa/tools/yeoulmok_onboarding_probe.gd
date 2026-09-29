@@ -5,6 +5,10 @@ extends "res://../docs/qa/tools/yeoulmok_journey_probe.gd"
 
 const SAVE_ROOT := "user://yeoulmok_onboarding_probe"
 var completed_flow := false
+var navigation_disabled := false
+var defense_enabled := true
+var repaths := 0
+var defense_frames := 0
 
 
 func _initialize() -> void:
@@ -22,7 +26,7 @@ func _timeout() -> void:
 func _run() -> void:
 	seed(20260929)  # 이 자동 조작 시나리오의 재현용. 사람 난이도 표본이 아니다.
 	var args := OS.get_cmdline_user_args()
-	if args.size() != 1 or args[0] not in ["cleanup", "play", "reload", "blocked"]:
+	if args.size() != 1 or args[0] not in ["cleanup", "play", "reload", "blocked", "walk_blocked"]:
 		quit(2)
 		return
 	if args[0] == "cleanup":
@@ -31,8 +35,11 @@ func _run() -> void:
 				_check(DirAccess.remove_absolute(SAVE_ROOT.path_join(file)) == OK, "격리 파일 정리")
 		completed_flow = true
 	else:
+		navigation_disabled = args[0] == "walk_blocked"
+		defense_enabled = args[0] == "play"
 		await _play(args[0])
 	_check(completed_flow, "전체 흐름 마지막 검사 도달")
+	print("도보 재탐색: ", repaths, " / 방어 입력 프레임: ", defense_frames)
 	_release()
 	Input.action_release("attack")
 	paused = false
@@ -44,7 +51,7 @@ func _run() -> void:
 
 
 func _play(phase: String) -> void:
-	if DisplayServer.get_name() == "headless" and phase in ["play", "blocked"]:
+	if DisplayServer.get_name() == "headless" and phase in ["play", "blocked", "walk_blocked"]:
 		_check(false, "조준 포인터가 필요한 play/blocked는 렌더링 실행 필요")
 		return
 	root.size = Vector2i(1920, 1080)
@@ -96,6 +103,8 @@ func _play(phase: String) -> void:
 			return
 	if not await _hunt("MQ-01-03", "yeoulmok_dog_habitat", false):
 		return
+	if not await _pickup_drop():
+		return
 	if not await _home_report():
 		return
 	if not await _choose("옛 균열의 숨소리 수락"):
@@ -144,6 +153,7 @@ func _snapshot() -> Dictionary:
 		"gold": player.get_node("Inventory").gold,
 		"reputation": journal.reputation(),
 		"quests": journal.export_state(),
+		"bag": _bag_counts(),
 	}
 
 
@@ -152,6 +162,46 @@ func _state(id: String) -> String:
 
 
 func _walk(target: Vector2) -> bool:
+	var start := player.position
+	var path := PackedVector2Array()
+	var index := 0
+	var rebuild := true
+	var limit := 120 if navigation_disabled else 2400
+	for tick in range(limit):
+		_release()
+		Input.action_release("attack")
+		if player.get_node("PlayerStats").is_dead():
+			_check(false, "이동 중 사망")
+			return false
+		if player.position.distance_to(target) <= 1.5:
+			print("동적 도보 도착: ", start, " → ", player.position)
+			return true
+		var enemy := _nearest_enemy(48.0) if defense_enabled else null
+		if enemy != null:
+			_combat_step(enemy, true)
+			defense_frames += 1
+			rebuild = true
+		else:
+			if rebuild or tick % 30 == 0:
+				path = _route(target)
+				index = 0
+				rebuild = false
+				repaths += 1
+			if not path.is_empty() and not navigation_disabled:
+				while index < path.size() - 1 and player.position.distance_to(path[index]) <= 1.5:
+					index += 1
+				_move_toward(path[index], 1.0)
+		await physics_frame
+		await process_frame
+	_release()
+	Input.action_release("attack")
+	_check(false, "동적 도보 시간 초과: %s → %s (현재 %s)" % [start, target, player.position])
+	if navigation_disabled and player.position.distance_to(start) < 1.5:
+		print("ONBOARDING_NAVIGATION_DISABLED_CONFIRMED")
+	return false
+
+
+func _route(target: Vector2) -> PackedVector2Array:
 	# QA 조작기의 경로 탐색. 제품 Ground/충돌은 읽기만 하고 이동은 기존 액션으로 수행한다.
 	var ground: TileMapLayer = world.get_node("Ground")
 	var grid := AStarGrid2D.new()
@@ -172,22 +222,12 @@ func _walk(target: Vector2) -> bool:
 	var start := Vector2i((player.position / 16.0).floor())
 	var end := Vector2i((target / 16.0).floor())
 	if not grid.region.has_point(start) or not grid.region.has_point(end):
-		_check(false, "맵 밖 조작기 경로: " + str(player.position))
-		return false
+		return PackedVector2Array()
 	grid.set_point_solid(start, false)
 	var path := grid.get_point_path(start, end)
-	if path.is_empty():
-		_check(false, "충돌을 피하는 경로 없음: " + str(target))
-		return false
-	for i in range(1, path.size()):
-		if (
-			i + 1 < path.size()
-			and (path[i] - path[i - 1]).normalized() == (path[i + 1] - path[i]).normalized()
-		):
-			continue
-		if not await super._walk(path[i]):
-			return false
-	return await super._walk(target)
+	if not path.is_empty():
+		path.append(target)
+	return path
 
 
 func _input_action(action: String) -> void:
@@ -228,6 +268,93 @@ func _home_report() -> bool:
 	return await _choose("보고하고 보상 받기")
 
 
+func _nearest_enemy(radius: float, source: String = "") -> Node2D:
+	var nearest: Node2D = null
+	for enemy in world.get_node("MonsterSpawner").get_children():
+		if not enemy is Node2D or not enemy.has_method("is_dead") or enemy.is_dead():
+			continue
+		if not source.is_empty() and enemy.get_meta("spawn_source_id", "") != source:
+			continue
+		var distance: float = player.global_position.distance_to(enemy.global_position)
+		if distance < radius:
+			radius = distance
+			nearest = enemy
+	return nearest
+
+
+func _move_toward(target: Vector2, tolerance: float) -> void:
+	var delta := target - player.position
+	if absf(delta.x) > tolerance:
+		Input.action_press("move_right" if delta.x > 0 else "move_left")
+	if absf(delta.y) > tolerance:
+		Input.action_press("move_down" if delta.y > 0 else "move_up")
+
+
+func _combat_step(enemy: Node2D, allow_attack: bool) -> void:
+	var mouse := InputEventMouseMotion.new()
+	mouse.position = (
+		player.get_global_transform_with_canvas() * (enemy.global_position - player.global_position)
+	)
+	Input.parse_input_event(mouse)
+	root.warp_mouse(mouse.position)
+	var distance := player.position.distance_to(enemy.position)
+	if distance > 16.0:
+		_move_toward(enemy.position, 2.0)
+	if distance < 32.0 and allow_attack:
+		Input.action_press("attack")
+	var stats = player.get_node("PlayerStats")
+	if (
+		allow_attack
+		and stats.current_hp < stats.stats.max_hp * 0.5
+		and stats.get_potion_cooldown_remaining_sec() <= 0.0
+		and player.get_node("Inventory").get_quickslot_potion() != null
+	):
+		Input.action_press("quickslot_1")
+
+
+func _release() -> void:
+	super._release()
+	Input.action_release("attack")
+	Input.action_release("quickslot_1")
+
+
+func _bag_counts() -> Dictionary:
+	var result := {}
+	for entry in player.get_node("Inventory").bag:
+		result[entry.item.item_id] = entry.quantity
+	return result
+
+
+func _pickup_drop() -> bool:
+	# 실제 사냥에서 생긴 WorldItem만 사용한다. 드롭/가방에 테스트 아이템을 넣지 않는다.
+	var drops := world.find_children("*", "WorldItem", false, false)
+	if drops.is_empty():
+		_check(false, "실제 드롭 없음: 줍기 검증 생략 불가")
+		return false
+	drops.sort_custom(
+		func(a, b):
+			return player.position.distance_to(a.position) < player.position.distance_to(b.position)
+	)
+	var drop = drops[0]
+	var id: String = drop.item_data.item_id
+	var quantity: int = drop.quantity
+	var before: int = player.get_node("Inventory").get_bag_quantity(id)
+	if not await _walk(drop.position):
+		return false
+	_release()
+	Input.action_release("attack")
+	# 위치 진입의 body_entered 및 UI 갱신을 기다린 뒤 F 액션을 보낸다.
+	await physics_frame
+	await process_frame
+	_check(drop.get_node("PickupPrompt").visible, "실제 줍기 프롬프트")
+	await _input_action("interact")
+	await physics_frame
+	var after: int = player.get_node("Inventory").get_bag_quantity(id)
+	_check(after >= before + quantity and not is_instance_valid(drop), "F 입력 드롭 소멸·가방 수량 증가")
+	print("ONBOARDING_PICKUP: ", id, " ", before, " → ", after)
+	return not failed
+
+
 func _hunt(id: String, source: String, blocked: bool) -> bool:
 	var limit := 180 if blocked else 5400
 	for tick in range(limit):
@@ -239,48 +366,25 @@ func _hunt(id: String, source: String, blocked: bool) -> bool:
 		if player.get_node("PlayerStats").is_dead():
 			_check(false, "사냥 중 사망: " + id)
 			return false
-		var nearest: Node2D = null
-		var distance := INF
-		for enemy in world.get_node("MonsterSpawner").get_children():
-			if not enemy is Node2D or not enemy.has_method("is_dead") or enemy.is_dead():
-				continue
-			if enemy.get_meta("spawn_source_id", "") != source:
-				continue
-			var gap: float = player.position.distance_to(enemy.position)
-			if gap < distance:
-				distance = gap
-				nearest = enemy
+		var nearest := _nearest_enemy(INF, source)
+		# 의뢰 대상만 보며 달리면 옆의 다른 종에게 계속 맞는다. 가까운 교전부터 처리한다.
+		if not blocked:
+			var threat := _nearest_enemy(48.0)
+			if threat != null:
+				nearest = threat
 		if nearest != null:
+			_combat_step(nearest, not blocked)
 			if tick % 120 == 0:
 				print(
-					"추격 표본: ",
-					tick,
-					" 거리 ",
-					distance,
+					"사냥 표본: ",
+					id,
 					" HP ",
 					player.get_node("PlayerStats").current_hp,
 					" 조준 ",
 					player.get_global_mouse_position(),
-					" 적 ",
-					nearest.position,
-					" 공격 ",
-					player.attack_state
+					" 대상 ",
+					nearest.position
 				)
-			var mouse := InputEventMouseMotion.new()
-			mouse.position = (
-				player.get_global_transform_with_canvas()
-				* (nearest.global_position - player.global_position)
-			)
-			Input.parse_input_event(mouse)
-			root.warp_mouse(mouse.position)
-			if distance > 16.0:
-				var delta: Vector2 = nearest.position - player.position
-				if absf(delta.x) > 2.0:
-					Input.action_press("move_right" if delta.x > 0 else "move_left")
-				if absf(delta.y) > 2.0:
-					Input.action_press("move_down" if delta.y > 0 else "move_up")
-			if distance < 32.0 and not blocked:
-				Input.action_press("attack")
 		await physics_frame
 		await process_frame
 	_release()
