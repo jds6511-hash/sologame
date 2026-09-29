@@ -4,6 +4,10 @@
 (`Rect2(c*W, r*H, W, H)`, 행 0 front / 1 side / 2 back)으로 잘라
 **AnimatedSprite2D 에 그대로 물릴 수 있는 SpriteFrames** 를 써낸다.
 
+좌측 전용 원화는 <기존 PNG 이름>_left.png의 한 행 시트로 선택 공급한다.
+한 상태라도 있으면 전 상태가 필요하며, 모두 규격 검증한 뒤 리소스를 기록한다.
+이 검증은 원화의 해부학적 손 일관성을 대신하지 않는다.
+
 애니메이션 이름은 기존 `player.tscn` 규약을 그대로 계승한다 — `<상태>_<방향>`
 (예: `idle_front`, `attack2_side`). 씬 배선은 하지 않는다(pixel-artist 범위 밖):
 오케스트레이터가 `Sprite`(AnimatedSprite2D)의 `sprite_frames` 를 여기서 나온
@@ -17,6 +21,7 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
+from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).parent))
 from lpc_common import ASSETS_DIR, DIRECTIONS, FRAME_H, FRAME_W  # noqa: E402
@@ -47,7 +52,26 @@ JOBS = {
 }
 
 
-def build(prefix: str, states: list[str]) -> str:
+def validate_left_sheets(prefix: str, states: list[str], folder: Path) -> bool:
+    expected = []
+    for state in states:
+        sweep = prefix == "player_warrior_v2" and state in ("attack", "attack2")
+        cols = 8 if sweep else STATES[state][0]
+        width, height = (64, 64) if sweep else (FRAME_W, FRAME_H)
+        suffix = "_sweep" if sweep else ""
+        expected.append((folder / f"{prefix}_{state}{suffix}_left.png", (cols * width, height)))
+    if not any(path.exists() for path, _ in expected):
+        return False
+    for path, size in expected:
+        if not path.exists():
+            raise ValueError(f"왼쪽 전 상태 필요: {path.name} 누락")
+        with Image.open(path) as image:
+            if image.size != size:
+                raise ValueError(f"왼쪽 시트 규격: {path.name} {image.size} != {size}")
+    return True
+
+
+def build(prefix: str, states: list[str], with_left: bool = False) -> str:
     ext: list[str] = []
     sub: list[str] = []
     anims: list[str] = []
@@ -64,14 +88,22 @@ def build(prefix: str, states: list[str]) -> str:
             f'[ext_resource type="Texture2D" '
             f'path="{RES_PREFIX}/{filename}.png" id="{ext_id}"]'
         )
-        for row, direction in enumerate(DIRECTIONS):
+        if with_left:
+            ext.append(
+                f'[ext_resource type="Texture2D" '
+                f'path="{RES_PREFIX}/{filename}_left.png" id="{ext_id}_left"]'
+            )
+        directions = list(DIRECTIONS) + (["left"] if with_left else [])
+        for row, direction in enumerate(directions):
+            texture_id = ext_id + "_left" if direction == "left" else ext_id
+            source_row = 0 if direction == "left" else row
             frame_ids = []
             for col in range(cols):
                 aid = f"Atlas_{state}_{direction}{col}"
                 sub.append(
                     f'[sub_resource type="AtlasTexture" id="{aid}"]\n'
-                    f'atlas = ExtResource("{ext_id}")\n'
-                    f"region = Rect2({col * width}, {row * height}, {width}, {height})\n"
+                    f'atlas = ExtResource("{texture_id}")\n'
+                    f"region = Rect2({col * width}, {source_row * height}, {width}, {height})\n"
                 )
                 frame_ids.append(f'SubResource("{aid}")')
             anims.append(
@@ -99,19 +131,28 @@ def build(prefix: str, states: list[str]) -> str:
 
 
 def main() -> int:
+    pending = []
     for prefix, states in JOBS.items():
         missing = [s for s in states if not (OUT_DIR / (
             f"{prefix}_{s}" + ("_sweep" if prefix == "player_warrior_v2"
                               and s in ("attack", "attack2") else "") + ".png"
         )).exists()]
         if missing:
-            print(f"[실패] {prefix}: 시트 없음 {missing} — gen_player_lpc.py와 gen_sword_sweep.py 실행 필요")
+            print(f"[실패] {prefix}: 시트 없음 {missing} - gen_player_lpc.py와 gen_sword_sweep.py 실행 필요")
             return 1
         path = OUT_DIR / f"{prefix}_frames.tres"
-        path.write_text(build(prefix, states), encoding="utf-8")
+        try:
+            with_left = validate_left_sheets(prefix, states, OUT_DIR)
+        except ValueError as error:
+            print(f"[실패] {error}")
+            return 1
+        pending.append((path, build(prefix, states, with_left)))
         total = sum(8 if prefix == "player_warrior_v2" and s in ("attack", "attack2")
-                    else STATES[s][0] for s in states) * len(DIRECTIONS)
-        print(f"  {path.name}  애니메이션 {len(states) * 3}개 / 프레임 {total}개")
+                    else STATES[s][0] for s in states) * (4 if with_left else 3)
+        print(f"  {path.name}  애니메이션 {len(states) * (4 if with_left else 3)}개 / 프레임 {total}개")
+    # 어느 직업의 입력이라도 잘못됐으면 다른 직업 리소스도 갱신하지 않는다.
+    for path, text in pending:
+        path.write_text(text, encoding="utf-8")
     return 0
 
 

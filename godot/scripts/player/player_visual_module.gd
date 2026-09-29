@@ -7,7 +7,8 @@
 ##
 ## 시트는 상태별로 정면(front)/측면(side)/후면(back) 3방향으로 구성되어 있다
 ## (STYLE_GUIDE.md 3-3장). 좌우는 별도 프레임 없이 측면 애니메이션의 flip_h로 근사한다
-## (문서 "좌우는 미러 허용" 원칙).
+## 현행 배포 시트는 이 경로를 유지한다. 모든 side 상태와 같은 길이/속도/루프를 가진
+## left 세트가 공급되면 왼쪽은 전용 프레임으로 재생하고 flip_h를 쓰지 않는다.
 ##
 ## M3 3-A 정식 시트(직업당 9상태 27종)부터는 상태가 직업마다 다르다 — 전사는
 ## attack2/charge, 궁수는 aim/rollshot을 갖고 서로 없는 쪽이 있다. 그래서 상태 하나에
@@ -76,6 +77,8 @@ func update(
 	_attack_step_index = attack_step_index
 	var direction := _facing_vector(is_charging, move_input, last_move_direction, aim_rotation)
 	var suffix := _facing_suffix(direction)
+	if suffix == "side" and direction.x < 0.0 and _has_complete_left():
+		suffix = "left"
 	_sprite.flip_h = suffix == "side" and direction.x < 0.0
 	var anim_name := _resolve_action(_action_candidates(is_charging, move_input), suffix)
 	if anim_name.is_empty():
@@ -160,6 +163,28 @@ func _resolve_action(candidates: PackedStringArray, suffix: String) -> String:
 		if _sprite.sprite_frames.has_animation(anim_name):
 			return anim_name
 	return ""
+
+
+## 이동만 전용 원화, 공격은 미러인 혼합 상태를 허용하지 않는다.
+## 실제 손/무기 접점은 원화 검수 대상이며 이 검사는 리소스 계약만 확인한다.
+func _has_complete_left() -> bool:
+	var frames := _sprite.sprite_frames
+	var found := false
+	for animation in frames.get_animation_names():
+		if not animation.ends_with("_side"):
+			continue
+		found = true
+		var left := animation.trim_suffix("_side") + "_left"
+		if not frames.has_animation(left):
+			return false
+		var count := frames.get_frame_count(animation)
+		if count == 0 or frames.get_frame_count(left) != count:
+			return false
+		if frames.get_animation_loop(left) != frames.get_animation_loop(animation):
+			return false
+		if frames.get_animation_speed(left) != frames.get_animation_speed(animation):
+			return false
+	return found
 
 
 ## 현재 재생해야 할 상태(동작) 이름 후보 — 앞이 우선이고, 뒤로 갈수록 "시트에 전용 상태가
