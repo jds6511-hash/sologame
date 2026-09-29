@@ -372,6 +372,16 @@ func _spawn_item(item: ItemData, quantity: int, pos: Vector2) -> void:
 	item_dropped.emit(item, quantity, pos)
 	if world_item_scene == null or not is_inside_tree():
 		return
+	# died는 물리 질의 콜백에서도 발생한다. 충돌 Area 추가는 질의 종료 후 수행한다.
+	# 인스턴스도 그때 생성해야 월드가 먼저 해제된 경우 고아 노드가 남지 않는다.
+	_add_world_item.call_deferred(item, quantity, pos)
+
+
+func _add_world_item(item: ItemData, quantity: int, pos: Vector2) -> void:
+	if world_item_scene == null:
+		return
+	if not is_inside_tree() or is_queued_for_deletion() or get_parent().is_queued_for_deletion():
+		return
 	var instance: Node = world_item_scene.instantiate()
 	instance.item_data = item
 	instance.quantity = quantity

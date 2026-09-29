@@ -83,7 +83,8 @@ func _build_arc(reveal: float) -> void:
 	var sweep_sign := -1.0 if _player._attack_step_index % 2 == 1 else 1.0
 	var direction := Vector2.RIGHT.rotated(facing_angle)
 	if absf(direction.x) > absf(direction.y) and direction.x < 0.0:
-		# 측면 몸/검은 flip_h로 반전되므로 잔상의 회전 순서도 함께 반전한다.
+		# 왼쪽을 향하는 베기의 화면상 회전 순서. flip_h 사용 여부와는 독립이다.
+		# 전용 좌측 원화 공급 시 실제 칼날 궤적과 이 회전 방향을 다시 대조한다.
 		sweep_sign *= -1.0
 	var start_angle := facing_angle - ARC_HALF_ANGLE * sweep_sign
 	var sweep_angle := ARC_HALF_ANGLE * 2.0 * reveal * sweep_sign
