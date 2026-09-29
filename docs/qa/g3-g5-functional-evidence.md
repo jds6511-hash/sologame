@@ -1,6 +1,7 @@
 # G3~G5 기능 증거와 리디자인 검수의 구분
 
 - 최종 수정: 2026-09-29 / 담당: Codex
+- 구현·검증 기록 커밋: `3bc6795` (로컬 완료, 원격 미푸시). 마지막 QA cleanup은 exit 0 / YEOULMOK_JOURNEY_PASS로 전용 fixture를 정리했다.
 - 변경 이력: 디렉터의 미감 검수 시점 지시와 전사 손 전환·궁수 비례 관찰을 반영하고 자동 재실행 경로를 통합했다.
 - 의존: [G3 체크리스트](m3-gate-checklist.md), [저장 G4](../design/systems/save-load.md), [연속 플레이](yeoulmok-play-session-review-request.md)
 
