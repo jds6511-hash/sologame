@@ -157,9 +157,37 @@ func _save(slot: int) -> bool:
 			print("안전 조건 충족 저장: ", slot, " 위치 ", player.position)
 			return true
 		print("저장 대기: ", result.code)
+		if result.code == "enemy_nearby":
+			_log_save_blockers()
 		await create_timer(1.0).timeout
 	_check(false, "안전 조건 저장 시간 초과")
 	return false
+
+
+func _log_save_blockers() -> void:
+	var safety = load("res://scripts/save/save_safety.gd")
+	var radius: float = safety.ENEMY_DISTANCE
+	for enemy in world.get_node("MonsterSpawner").get_children():
+		if not enemy is Node2D:
+			continue
+		var distance := player.global_position.distance_to(enemy.global_position)
+		if distance >= radius:
+			continue
+		var details := {
+			"node": str(enemy.name),
+			"position": str(enemy.global_position),
+			"player": str(player.global_position),
+			"distance": distance,
+			"threshold": radius,
+			"blocks_save": safety.enemy_blocks_save(enemy, player.global_position),
+		}
+		if enemy.has_method("is_dead") and "stats" in enemy:
+			details["dead"] = enemy.is_dead()
+			details["perception_px"] = enemy.stats.tiles_to_px(enemy.stats.perception_range_tiles)
+			details["script"] = enemy.get_script().resource_path
+		if "state" in enemy:
+			details["state"] = enemy.state
+		print("저장 차단 개체: ", JSON.stringify(details))
 
 
 func _write(name: String, text: String) -> void:

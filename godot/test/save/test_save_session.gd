@@ -1,7 +1,8 @@
-extends GutTest
 # gdlint: disable=max-public-methods
+extends GutTest
 
 const Session = preload("res://scripts/save/save_session.gd")
+const RABBIT = preload("res://scenes/monsters/rabbit.tscn")
 const WORLD = preload("res://scenes/world/eastern_frontier_starting_area.tscn")
 var world: Node
 var session: Node
@@ -156,6 +157,135 @@ func test_death_cooldown_and_nearby_enemy_block_saving() -> void:
 	world.get_node("MonsterSpawner").add_child(enemy)
 	enemy.global_position = player.global_position
 	assert_false(session.save_slot(1).ok)
+
+
+func test_nearby_failure_explains_nearest_blocker_without_writing() -> void:
+	assert_true(session.save_slot(1).ok)
+	var path := directory.path_join("character_01.json")
+	var digest := FileAccess.get_sha256(path)
+	var enemy := Node2D.new()
+	enemy.name = "UnknownEnemy"
+	world.get_node("MonsterSpawner").add_child(enemy)
+	enemy.global_position = world.get_node("Player").global_position + Vector2(80, 0)
+	var result: Dictionary = session.save_slot(1)
+	assert_eq(result.code, "enemy_nearby")
+	assert_true(result.has("blocker"))
+	if not result.has("blocker"):
+		return
+	assert_eq(result.blocker.distance, 80.0)
+	assert_eq(result.blocker.offset, Vector2(80, 0))
+	var message: String = world.get_node("SaveMenu").failure_text(result)
+	assert_true("동쪽" in message and "5.0칸" in message)
+	assert_true("메뉴를 닫고" in message)
+	assert_eq(FileAccess.get_sha256(path), digest)
+
+
+func test_autosave_wait_is_visible_deduplicated_and_resumes_without_new_interval() -> void:
+	assert_true(session.save_slot(1).ok)
+	var path := directory.path_join("character_01.json")
+	var digest := FileAccess.get_sha256(path)
+	var enemy := Node2D.new()
+	world.get_node("MonsterSpawner").add_child(enemy)
+	enemy.global_position = world.get_node("Player").global_position
+	watch_signals(session)
+	session.advance(180.0)
+	assert_true("자동 저장 대기" in world.get_node("SaveMenu").badge.text)
+	assert_eq(session.get("auto_wait_reason"), "enemy_nearby")
+	assert_eq(FileAccess.get_sha256(path), digest)
+	for frame in range(10):
+		session.advance(0.01)
+	assert_signal_emit_count(session, "auto_wait_changed", 1)
+	world.get_node("Player/PlayerStats").start_boss_encounter()
+	session.advance(0.01)
+	assert_eq(session.get("auto_wait_reason"), "boss_encounter")
+	assert_true("보스전" in world.get_node("SaveMenu").badge.text)
+	enemy.free()
+	session.advance(0.01)
+	assert_eq(FileAccess.get_sha256(path), digest)
+	world.get_node("Player/PlayerStats").end_boss_encounter()
+	world.get_node("Player/PlayerStats")._time_since_combat_action_sec = 10.0
+	world.get_node("Player/Inventory").gold = 81
+	session.advance(0.01)
+	assert_eq(session.get("auto_wait_reason"), "")
+	assert_eq(int(session.store.read_save("character", 1).data.inventory.gold), 81)
+	assert_true("자동 저장 완료" in world.get_node("SaveMenu").badge.text)
+
+
+func test_blocker_detail_uses_named_nearest_enemy_and_exact_radius() -> void:
+	var safety = load("res://scripts/save/save_safety.gd")
+	var player = world.get_node("Player")
+	var spawner = world.get_node("MonsterSpawner")
+	var rabbit = RABBIT.instantiate()
+	spawner.add_child(rabbit)
+	rabbit.state = RabbitMonster.State.FLEE
+	rabbit.global_position = player.global_position + Vector2(160, 0)
+	assert_eq(safety.blocked_reason(world), "")
+	assert_eq(safety.nearby_enemy_details(world), {})
+	rabbit.global_position = player.global_position + Vector2(159, 0)
+	assert_eq(safety.blocked_reason(world), "enemy_nearby")
+	assert_eq(safety.nearby_enemy_details(world).name, "뿔토끼")
+	var closer := Node2D.new()
+	spawner.add_child(closer)
+	closer.global_position = player.global_position + Vector2(0, -40)
+	var result: Dictionary = session.save_slot(1)
+	assert_eq(result.blocker.distance, 40.0)
+	assert_true("북쪽" in world.get_node("SaveMenu").failure_text(result))
+
+
+func test_manual_save_clears_wait_and_pause_does_not_advance_it() -> void:
+	assert_true(session.save_slot(1).ok)
+	var player = world.get_node("Player")
+	player.is_dashing = true
+	session.advance(180.0)
+	assert_eq(session.auto_wait_reason, "action_in_progress")
+	var menu = world.get_node("SaveMenu")
+	menu.open_menu()
+	assert_true("자동 저장 대기" in menu.status.text)
+	var elapsed: float = session._auto_elapsed
+	session.advance(20.0)
+	assert_eq(session._auto_elapsed, elapsed)
+	menu.close_menu()
+	player.is_dashing = false
+	assert_true(session.save_slot(1).ok)
+	assert_eq(session.auto_wait_reason, "")
+	assert_eq(session._auto_elapsed, 0.0)
+	assert_false("자동 저장 대기" in menu.badge.text)
+
+
+func test_unaware_wandering_rabbit_does_not_block_but_encounter_states_do() -> void:
+	var rabbit = RABBIT.instantiate()
+	world.get_node("MonsterSpawner").add_child(rabbit)
+	var origin: Vector2 = world.get_node("Player").global_position
+	rabbit.global_position = origin + Vector2(100, 0)
+	assert_true(session.save_slot(1).ok, "인지 밖 배회 토끼 허용")
+	rabbit.global_position = origin + Vector2(48, 0)
+	assert_eq(session.save_slot(1).code, "enemy_nearby", "인지 경계 포함")
+	rabbit.global_position = origin + Vector2(49, 0)
+	for state in [
+		RabbitMonster.State.FLEE, RabbitMonster.State.REST, RabbitMonster.State.MELEE_SWING
+	]:
+		rabbit.state = state
+		assert_eq(session.save_slot(1).code, "enemy_nearby", "조우 상태 유지")
+	rabbit.state = RabbitMonster.State.WANDER
+	assert_true(session.save_slot(1).ok)
+	world.get_node("Player/PlayerStats").start_boss_encounter()
+	assert_eq(session.save_slot(1).code, "boss_encounter")
+
+
+func test_pending_auto_save_resumes_when_rabbit_returns_to_unaware_wander() -> void:
+	assert_true(session.save_slot(1).ok)
+	var rabbit = RABBIT.instantiate()
+	world.get_node("MonsterSpawner").add_child(rabbit)
+	rabbit.global_position = world.get_node("Player").global_position + Vector2(100, 0)
+	rabbit.state = RabbitMonster.State.REST
+	world.get_node("Player/Inventory").gold = 82
+	session.advance(180.0)
+	assert_eq(session.auto_wait_reason, "enemy_nearby")
+	assert_eq(int(session.store.read_save("character", 1).data.inventory.gold), 0)
+	rabbit.state = RabbitMonster.State.WANDER
+	session.advance(0.01)
+	assert_eq(session.auto_wait_reason, "")
+	assert_eq(int(session.store.read_save("character", 1).data.inventory.gold), 82)
 
 
 func test_boss_encounter_blocks_manual_and_defers_due_autosave_until_safe() -> void:

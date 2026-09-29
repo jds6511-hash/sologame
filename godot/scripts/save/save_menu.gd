@@ -78,6 +78,7 @@ func setup(owner_session: Node) -> void:
 	add_child(confirmation)
 	panel.hide()
 	session.status_changed.connect(_show_status)
+	session.auto_wait_changed.connect(_show_auto_wait)
 	_show_status(session.last_message)
 
 
@@ -102,7 +103,7 @@ func open_menu() -> void:
 		return
 	refresh_slots()
 	panel.show()
-	_show_status(session.last_message)
+	_show_auto_wait(session.auto_wait_reason)
 
 
 func close_menu() -> void:
@@ -160,7 +161,7 @@ func _confirm_action() -> void:
 		_:
 			return
 	if not result.ok:
-		var message: String = error_text(result.code)
+		var message: String = failure_text(result)
 		if result.has("main_code"):
 			message += (
 				"\n주 파일: %s / 백업: %s"
@@ -180,6 +181,41 @@ func _show_status(message: String) -> void:
 		badge.text = "저장 [F6] · 이전 버전: 수동 저장 필요"
 	if message.begins_with("자동 저장"):
 		badge.text = "[F6] " + message
+	if not session.auto_wait_reason.is_empty():
+		var short: String = (
+			{
+				"enemy_nearby": "주변 개체",
+				"boss_encounter": "보스전",
+				"moving": "이동 중",
+				"recent_combat": "전투 직후",
+				"cooldown_or_buff": "재사용 대기·효과",
+			}
+			. get(session.auto_wait_reason, "안전 상태 필요")
+		)
+		badge.text = "[F6] 자동 저장 대기 · " + short
+
+
+func _show_auto_wait(reason: String) -> void:
+	_show_status(
+		(
+			session.last_message
+			if reason.is_empty()
+			else "자동 저장 대기: " + error_text(reason) + "\n메뉴를 닫고 안전해지면 추가 3분 대기 없이 저장합니다."
+		)
+	)
+
+
+static func failure_text(result: Dictionary) -> String:
+	var message := error_text(result.code)
+	var detail: Dictionary = result.get("blocker", {})
+	if result.code == "enemy_nearby" and not detail.is_empty():
+		var offset: Vector2 = detail.offset
+		var directions := ["동쪽", "남동쪽", "남쪽", "남서쪽", "서쪽", "북서쪽", "북쪽", "북동쪽"]
+		var direction: String = directions[posmod(roundi(offset.angle() / (PI / 4.0)), 8)]
+		message += "\n%s 약 %.1f칸: %s" % [direction, detail.distance / 16.0, detail.name]
+		message += "\n이 개체가 가까이 있어 지금은 저장할 수 없습니다."
+		message += "\n메뉴를 닫고 거리를 벌린 뒤 다시 시도하세요."
+	return message
 
 
 static func error_text(code: String) -> String:

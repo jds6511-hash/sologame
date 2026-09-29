@@ -28,6 +28,15 @@ var _flee_timer: float = 0.0
 var _rest_timer: float = 0.0
 
 
+func blocks_save_from(position: Vector2, radius: float) -> bool:
+	if not super.blocks_save_from(position, radius):
+		return false
+	# 인지 밖 평시 배회만 제외한다. 도주/휴식/박치기 또는 피격 중에는 거리 계약 유지.
+	if state != State.WANDER or stats == null or is_staggered() or is_dead():
+		return true
+	return global_position.distance_to(position) <= stats.tiles_to_px(stats.perception_range_tiles)
+
+
 func _ready() -> void:
 	super._ready()
 	_init_melee_swing()

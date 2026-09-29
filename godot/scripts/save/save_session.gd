@@ -2,6 +2,7 @@
 extends Node
 
 signal status_changed(message: String)
+signal auto_wait_changed(reason: String)
 
 const Store = preload("res://scripts/save/save_file_store.gd")
 const Codec = preload("res://scripts/save/character_save_codec.gd")
@@ -19,6 +20,7 @@ var loaded_source_version := 0
 var world: Node
 var account_error := ""
 var last_message := "슬롯을 선택해 저장하세요. 자동 저장은 첫 저장 후 시작됩니다."
+var auto_wait_reason := ""
 var _auto_elapsed := 0.0
 var _play_seconds := 0.0
 var _destination := Regions.START
@@ -109,7 +111,11 @@ func advance(delta: float) -> void:
 	if active_slot == 0 or migration_pending:
 		return
 	_auto_elapsed += delta
-	if _auto_elapsed < AUTO_SECONDS or not Safety.blocked_reason(world).is_empty():
+	if _auto_elapsed < AUTO_SECONDS:
+		return
+	var reason: String = Safety.blocked_reason(world)
+	_set_auto_wait(reason)
+	if not reason.is_empty():
 		return
 	_auto_elapsed = 0.0
 	var existing: Dictionary = store.read_save("character", active_slot)
@@ -134,7 +140,10 @@ func save_slot(slot: int) -> Dictionary:
 		return _failure(account_error)
 	var reason: String = Safety.blocked_reason(world)
 	if not reason.is_empty():
-		return _failure(reason)
+		var failure := _failure(reason)
+		if reason == "enemy_nearby":
+			failure["blocker"] = Safety.nearby_enemy_details(world)
+		return failure
 	# 외부에서 계정 파일이 바뀐 경우 기존 상태로 덮어쓰지 않는다.
 	var disk: Dictionary = store.read_save("account")
 	if disk.ok:
@@ -165,6 +174,7 @@ func save_slot(slot: int) -> Dictionary:
 		migration_pending = false
 		active_slot = slot
 		_auto_elapsed = 0.0
+		_set_auto_wait("")
 		_report("저장 완료 · 슬롯 %d" % slot)
 	return result
 
@@ -327,6 +337,13 @@ func travel(destination: String) -> Dictionary:
 func _report(message: String) -> void:
 	last_message = message
 	status_changed.emit(message)
+
+
+func _set_auto_wait(reason: String) -> void:
+	if auto_wait_reason == reason:
+		return
+	auto_wait_reason = reason
+	auto_wait_changed.emit(reason)
 
 
 func _failure(code: String) -> Dictionary:

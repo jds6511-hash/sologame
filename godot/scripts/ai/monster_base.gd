@@ -188,6 +188,11 @@ func is_dead() -> bool:
 	return hp <= 0.0
 
 
+## 저장 차단의 기본 거리 계약. 종별 예외는 해당 AI가 상태를 소유한 채 판정한다.
+func blocks_save_from(position: Vector2, radius: float) -> bool:
+	return global_position.distance_to(position) < radius
+
+
 ## 행동 불가 상태 — 피격 경직(MobStagger 자식 노드가 있는 동안) 또는 정예 그로기.
 ## 상태머신은 이 값이 true인 동안 자신의 배회/추적/공격 로직을 건너뛰고 경직 이동만
 ## 적용해야 한다(각 하위 클래스 _physics_process 최상단, is_dead() 다음 순서로 확인).
