@@ -8,7 +8,7 @@ const PLACEMENTS := {
 	"logs": [Vector2(65, 456)],
 	"basket": [Vector2(259, 488)],
 	"bench": [Vector2(218, 488)],
-	"well": [Vector2(114, 452)],
+	"well": [Vector2(107, 452)],
 	"rack": [Vector2(115, 493)],
 	"sign": [Vector2(286, 396)]
 }

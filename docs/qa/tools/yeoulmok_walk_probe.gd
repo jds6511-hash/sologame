@@ -5,6 +5,7 @@ const ART = preload("res://scripts/tools/yeoulmok_art_pilot.gd")
 const KIT = preload("res://scripts/tools/yeoulmok_native_kit.gd")
 const ACTIONS := ["move_left", "move_right", "move_up", "move_down"]
 var failed := false
+var completed_dialogues := 0
 var world: Node2D
 var player: CharacterBody2D
 
@@ -53,6 +54,7 @@ func _run() -> void:
 		await _dialogue("yeoulmok_receptionist", "return")
 		_check(player.position.distance_to(Vector2(152, 504)) <= 1.5, "도보 왕복 도착")
 		_check(not player.get_node("PlayerStats").is_dead(), "왕복 생존")
+		_check(completed_dialogues == 3, "대화 검사 3회 끝까지 실행")
 	_check(world.get_node("Ground").tile_map_data == original_cells, "원본 타일 불변")
 	_release()
 	paused = false
@@ -94,6 +96,23 @@ func _dialogue(expected: String, capture: String) -> void:
 	_check(correct, "근접·레이캐스트·선택: " + expected)
 	if not correct:
 		return
+	var name_label: Label = selection.selected.get_node("Name")
+	var prompt: Label = selection.hud.get_node("InteractionPrompt")
+	var name_screen: Rect2 = (
+		name_label.get_global_transform_with_canvas() * Rect2(Vector2.ZERO, name_label.size)
+	)
+	_check(not name_screen.intersects(prompt.get_global_rect()), "이름표·프롬프트 분리")
+	var art = world.get_node_or_null("ArtPilot")
+	if art != null:
+		for prop in art.get_children():
+			if not prop.has_meta("native_decoration"):
+				continue
+			var sprite: Sprite2D = prop.get_node("NativeSprite")
+			var bounds := Rect2(sprite.texture.get_image().get_used_rect())
+			bounds.position += sprite.position
+			var screen: Rect2 = prop.get_global_transform_with_canvas() * bounds
+			_check(not screen.intersects(name_screen), "장식·실제 이름표 분리")
+			_check(not screen.intersects(prompt.get_global_rect()), "장식·실제 프롬프트 분리")
 	await _capture(capture + "-prompt")
 	var event := InputEventAction.new()
 	event.action = "interact"
@@ -117,6 +136,7 @@ func _dialogue(expected: String, capture: String) -> void:
 	event.pressed = false
 	Input.parse_input_event(event)
 	_check(not paused and not dialog.panel.visible, "대화 닫기·재개")
+	completed_dialogues += 1
 
 
 func _capture(label: String) -> void:

@@ -31,9 +31,10 @@ func refresh() -> void:
 		player.set_meta("world_interaction_available", selected != null)
 	if is_instance_valid(hud):
 		if selected != null:
-			hud.show_interaction_prompt(
-				selected.interaction_verb(), selected.global_position - Vector2(0, 24), "F", self
-			)
+			var anchor := selected.global_position - Vector2(0, 24)
+			if selected.has_method("interaction_prompt_position"):
+				anchor = selected.interaction_prompt_position()
+			hud.show_interaction_prompt(selected.interaction_verb(), anchor, "F", self)
 		else:
 			hud.hide_interaction_prompt(self)
 

@@ -63,3 +63,9 @@ func interaction_priority() -> int:
 
 func interaction_verb() -> String:
 	return "대화"
+
+
+## 이름표의 실제 레이아웃 상단을 기준으로 HUD 안내를 배치한다.
+func interaction_prompt_position() -> Vector2:
+	var label: Label = get_node("Name")
+	return label.global_position + Vector2(label.size.x * 0.5, 0)
