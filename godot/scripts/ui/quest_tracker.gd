@@ -43,7 +43,12 @@ func _refresh() -> void:
 		if selected_id not in choices and not choices.is_empty():
 			selected_id = choices[0]
 		if selected_id in choices:
-			npc_id = journal.catalog.definitions[selected_id].npc_id
+			var definition: QuestData = journal.catalog.definitions[selected_id]
+			npc_id = (
+				definition.npc_id
+				if journal.export_state().has(selected_id)
+				else definition.giver_id()
+			)
 	_label.text = (Presentation.for_journal(journal, npc_id).tracker)
 	_label.text += "\n[J] 의뢰 목록·상세"
 

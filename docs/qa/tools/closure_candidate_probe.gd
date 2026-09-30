@@ -91,7 +91,9 @@ func snapshot() -> Dictionary:
 
 
 func travel(destination: String) -> void:
-	var selected: String = world.get_node("QuestController").journal.get_meta("selected_quest_id", "")
+	var selected: String = world.get_node("QuestController").journal.get_meta(
+		"selected_quest_id", ""
+	)
 	var journal = world.get_node("QuestController").journal
 	if selected not in journal.catalog.available_ids(journal.export_state()):
 		selected = ""
@@ -134,7 +136,12 @@ func seed_session() -> void:
 		check(journal.accept(id) == "", "순차 수락 fixture " + id)
 		var definition: QuestData = journal.catalog.definitions[id]
 		if id == "MQ-02-05":
-			check(load("res://scripts/chapter_two_closure/closure_selection.gd").select_quest(journal, id), "지역 이동 전 의뢰 선택")
+			check(
+				load("res://scripts/chapter_two_closure/closure_selection.gd").select_quest(
+					journal, id
+				),
+				"지역 이동 전 의뢰 선택"
+			)
 			await travel("novera_outskirts")
 			await travel("novera_rift")
 			controller = world.get_node("QuestController")

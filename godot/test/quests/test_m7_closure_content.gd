@@ -3,6 +3,34 @@ const Catalog = preload("res://scripts/chapter_two_closure/closure_catalog.gd")
 const Regions = preload("res://scripts/chapter_two_closure/closure_regions.gd")
 const Layout = preload("res://scripts/chapter_two_closure/closure_layout.gd")
 const Env = preload("res://scripts/chapter_two_closure/closure_environment.gd")
+const Presentation = preload("res://scripts/quests/quest_presentation.gd")
+const Selection = preload("res://scripts/chapter_two_closure/closure_selection.gd")
+
+
+func test_unaccepted_gareth_quest_tracks_giver_before_report_npc() -> void:
+	var world: Node = Env.instantiate_world("novera_commons")
+	world.set_meta("save_directory", "user://m7_closure_candidate_giver_test")
+	add_child_autofree(world)
+	world.process_mode = Node.PROCESS_MODE_DISABLED
+	var journal: QuestJournal = world.get_node("QuestController").journal
+	completed_first(journal)
+	var states := journal.export_state()
+	states["MQ-02-05"] = {"state": "completed", "counts": [1, 3, 1]}
+	assert_eq(journal.restore_state(states), "")
+	for explicit_selection in [false, true]:
+		if explicit_selection:
+			assert_true(Selection.select_quest(journal, "MQ-02-06"))
+		var offer := Presentation.for_journal(journal, "novera_receptionist")
+		assert_eq(offer.quest_id, "MQ-02-06")
+		assert_eq(offer.action, "accept")
+		assert_eq(world.get_node("QuestTracker")._label.text, offer.tracker + "\n[J] 의뢰 목록·상세")
+		assert_eq(world.quest_targets()[0].position, Vector2(480, 320))
+	assert_eq(journal.accept("MQ-02-06"), "")
+	assert_eq(world.quest_targets()[0].position, Layout.GARETH)
+	assert_eq(
+		world.get_node("QuestTracker")._label.text,
+		Presentation.for_journal(journal, "novera_gareth").tracker + "\n[J] 의뢰 목록·상세"
+	)
 
 
 func test_selection_is_journal_local_and_never_changes_catalog_or_save_state() -> void:
@@ -16,23 +44,30 @@ func test_selection_is_journal_local_and_never_changes_catalog_or_save_state() -
 	assert_true(catalog.has_method("selected_view"))
 	if not catalog.has_method("selected_view"):
 		return
-	var selection = load("res://scripts/chapter_two_closure/closure_selection.gd")
-	assert_true(selection.select_quest(first, "SQ-NOV-002"))
-	assert_eq(selection.selected_id(first), "SQ-NOV-002")
-	assert_eq(selection.selected_id(second), "")
+
+	assert_true(Selection.select_quest(first, "SQ-NOV-002"))
+	assert_eq(Selection.selected_id(first), "SQ-NOV-002")
+	assert_eq(Selection.selected_id(second), "")
 	assert_eq(first.export_state(), before)
 	assert_eq(catalog.definition_errors(), {})
-	var presentation = load("res://scripts/quests/quest_presentation.gd")
-	assert_eq(presentation.for_journal(first, "novera_receptionist").quest_id, "SQ-NOV-002")
-	assert_eq(presentation.for_journal(second, "novera_receptionist").quest_id, "MQ-02-05")
-	assert_false(selection.select_quest(first, "invalid"))
-	assert_eq(selection.selected_id(first), "SQ-NOV-002")
+
+	assert_eq(Presentation.for_journal(first, "novera_receptionist").quest_id, "SQ-NOV-002")
+	assert_eq(Presentation.for_journal(second, "novera_receptionist").quest_id, "MQ-02-05")
+	assert_false(Selection.select_quest(first, "invalid"))
+	assert_eq(Selection.selected_id(first), "SQ-NOV-002")
 
 
 func test_outskirts_uses_field_music_in_both_candidates() -> void:
 	for environment in [load("res://scripts/chapter_two/m7_environment.gd"), Env]:
 		var world: Node = environment.instantiate_world("novera_outskirts")
-		world.set_meta("save_directory", "user://m7_closure_candidate_music_test" if environment == Env else "user://m7_candidate_music_test")
+		world.set_meta(
+			"save_directory",
+			(
+				"user://m7_closure_candidate_music_test"
+				if environment == Env
+				else "user://m7_candidate_music_test"
+			)
+		)
 		add_child_autofree(world)
 		assert_eq(String(BgmManager.current_track_id), "field_eastern_frontier_south")
 		GameClock.debug_jump_hours(17.0)
@@ -63,13 +98,21 @@ func test_dialog_map_tracker_and_travel_selection_share_journal_state() -> void:
 	assert_true(dialog.open_dialog("novera_receptionist"))
 	dialog._select("SQ-NOV-002")
 	assert_eq(dialog._selection.quest_id, "SQ-NOV-002")
-	assert_true(world.get_node("QuestTracker")._label.text.contains(journal.catalog.definitions["SQ-NOV-002"].title))
-	assert_true(world.quest_targets()[0].label.contains(journal.catalog.definitions["SQ-NOV-002"].title))
+	assert_true(
+		world.get_node("QuestTracker")._label.text.contains(
+			journal.catalog.definitions["SQ-NOV-002"].title
+		)
+	)
+	assert_true(
+		world.quest_targets()[0].label.contains(journal.catalog.definitions["SQ-NOV-002"].title)
+	)
 	dialog.choose("accept", "SQ-NOV-002")
 	assert_eq(journal.export_state()["SQ-NOV-002"].state, "active")
 	assert_eq(world.quest_targets()[0].position, Regions.EDGES.commons_east_gate[2])
 	var session = world.get_node("SaveSession")
-	var snapshot: Dictionary = session.codec.capture(world.get_node("Player"), session.account.account_id)
+	var snapshot: Dictionary = session.codec.capture(
+		world.get_node("Player"), session.account.account_id
+	)
 	assert_eq(session.codec.schema.character_error(snapshot, session.account), "")
 	assert_false(JSON.stringify(snapshot).contains("selected_quest_id"))
 	session._destination = "novera_outskirts"
@@ -80,7 +123,9 @@ func test_dialog_map_tracker_and_travel_selection_share_journal_state() -> void:
 	next.set_meta("save_directory", directory)
 	snapshot.world.map_id = "novera_outskirts"
 	snapshot.world.position = [144, 320]
-	next.set_meta("save_boot", {"account": session.account, "character": snapshot, "slot": 0, "message": ""})
+	next.set_meta(
+		"save_boot", {"account": session.account, "character": snapshot, "slot": 0, "message": ""}
+	)
 	add_child_autofree(next)
 	assert_eq(next.get_meta("save_boot_error"), "")
 	var next_journal: QuestJournal = next.get_node("QuestController").journal
@@ -98,7 +143,11 @@ func test_dialog_map_tracker_and_travel_selection_share_journal_state() -> void:
 	dialog._select("MQ-02-06")
 	assert_eq(dialog._selection.quest_id, "MQ-02-06")
 	assert_eq(dialog._selection.action, "report")
-	assert_true(world.get_node("QuestTracker")._label.text.contains(journal.catalog.definitions["MQ-02-06"].title))
+	assert_true(
+		world.get_node("QuestTracker")._label.text.contains(
+			journal.catalog.definitions["MQ-02-06"].title
+		)
+	)
 	assert_eq(world.quest_targets()[0].position, Layout.GARETH)
 	dialog.close_dialog()
 	for file in DirAccess.get_files_at(directory):
@@ -107,11 +156,16 @@ func test_dialog_map_tracker_and_travel_selection_share_journal_state() -> void:
 
 
 func test_regular_journal_presentation_keeps_existing_selection() -> void:
-	var presentation = load("res://scripts/quests/quest_presentation.gd")
-	for catalog in [QuestCatalog.new(), load("res://scripts/economy/economy_environment.gd").CandidateSchema.new().quest_catalog]:
+	for catalog in [
+		QuestCatalog.new(),
+		load("res://scripts/economy/economy_environment.gd").CandidateSchema.new().quest_catalog
+	]:
 		var journal := QuestJournal.new(catalog)
 		journal.set_meta("selected_quest_id", "SQ-NOV-002")
-		assert_eq(presentation.for_journal(journal, "yeoulmok_receptionist"), presentation.select(catalog, {}, "yeoulmok_receptionist"))
+		assert_eq(
+			Presentation.for_journal(journal, "yeoulmok_receptionist"),
+			Presentation.select(catalog, {}, "yeoulmok_receptionist")
+		)
 
 
 func test_unselected_and_completed_selection_fallback_matches_map_and_tracker() -> void:
@@ -122,27 +176,38 @@ func test_unselected_and_completed_selection_fallback_matches_map_and_tracker() 
 	var journal: QuestJournal = world.get_node("QuestController").journal
 	completed_first(journal)
 	assert_eq(journal.accept("SQ-NOV-001"), "")
-	var presentation = load("res://scripts/quests/quest_presentation.gd")
-	var selection = load("res://scripts/chapter_two_closure/closure_selection.gd")
+
 	assert_false(journal.has_meta("selected_quest_id"))
-	assert_eq(presentation.for_journal(journal, "novera_receptionist").quest_id, "SQ-NOV-001")
+	assert_eq(Presentation.for_journal(journal, "novera_receptionist").quest_id, "SQ-NOV-001")
 	assert_eq(world.quest_targets()[0].position, Layout.SITES.novera_return_record_a[0])
-	assert_true(world.get_node("QuestTracker")._label.text.contains(journal.catalog.definitions["SQ-NOV-001"].title))
-	assert_true(selection.select_quest(journal, "MQ-02-05"))
-	assert_eq(presentation.for_journal(journal, "novera_receptionist").quest_id, "MQ-02-05")
-	assert_true(world.quest_targets()[0].label.contains(journal.catalog.definitions["MQ-02-05"].title))
-	assert_true(selection.select_quest(journal, "SQ-NOV-002"))
+	assert_true(
+		world.get_node("QuestTracker")._label.text.contains(
+			journal.catalog.definitions["SQ-NOV-001"].title
+		)
+	)
+	assert_true(Selection.select_quest(journal, "MQ-02-05"))
+	assert_eq(Presentation.for_journal(journal, "novera_receptionist").quest_id, "MQ-02-05")
+	assert_true(
+		world.quest_targets()[0].label.contains(journal.catalog.definitions["MQ-02-05"].title)
+	)
+	assert_true(Selection.select_quest(journal, "SQ-NOV-002"))
 	assert_eq(journal.accept("SQ-NOV-002"), "")
 	journal.record_event("INTERACT", "novera_rift_record_a", "novera_rift_record_a_site", 0)
 	journal.record_event("INTERACT", "novera_rift_record_b", "novera_rift_record_b_site", 0)
 	journal.complete("SQ-NOV-002")
-	assert_eq(presentation.for_journal(journal, "novera_receptionist").quest_id, "SQ-NOV-001")
+	assert_eq(Presentation.for_journal(journal, "novera_receptionist").quest_id, "SQ-NOV-001")
 	assert_eq(world.quest_targets()[0].position, Layout.SITES.novera_return_record_a[0])
-	assert_true(world.get_node("QuestTracker")._label.text.contains(journal.catalog.definitions["SQ-NOV-001"].title))
+	assert_true(
+		world.get_node("QuestTracker")._label.text.contains(
+			journal.catalog.definitions["SQ-NOV-001"].title
+		)
+	)
 	journal.record_event("INTERACT", "novera_return_record_a", "novera_return_record_a_site", 0)
 	journal.record_event("INTERACT", "novera_return_record_b", "novera_return_record_b_site", 0)
-	assert_eq(presentation.for_journal(journal, "novera_receptionist").action, "report")
-	assert_true(world.quest_targets()[0].label.contains(journal.catalog.definitions["SQ-NOV-001"].title))
+	assert_eq(Presentation.for_journal(journal, "novera_receptionist").action, "report")
+	assert_true(
+		world.quest_targets()[0].label.contains(journal.catalog.definitions["SQ-NOV-001"].title)
+	)
 
 
 func after_each() -> void:
@@ -165,10 +230,8 @@ func test_catalog_budget_sources_and_side_selection() -> void:
 	assert_eq(gold_sum, 22680)
 	var journal := QuestJournal.new(catalog)
 	completed_first(journal)
-	assert_true(load("res://scripts/chapter_two_closure/closure_selection.gd").select_quest(journal, "SQ-NOV-002"))
-	assert_eq(
-		load("res://scripts/quests/quest_presentation.gd").for_journal(journal, "novera_receptionist").quest_id, "SQ-NOV-002"
-	)
+	assert_true(Selection.select_quest(journal, "SQ-NOV-002"))
+	assert_eq(Presentation.for_journal(journal, "novera_receptionist").quest_id, "SQ-NOV-002")
 	assert_eq(journal.accept("SQ-NOV-001"), "")
 	assert_eq(journal.accept("SQ-NOV-002"), "")
 	assert_eq(journal.accept("MQ-02-05"), "")
@@ -189,10 +252,8 @@ func test_catalog_budget_sources_and_side_selection() -> void:
 	assert_eq(catalog.special_view(journal.export_state(), "novera_gareth").action, "report")
 	journal.complete("MQ-02-06")
 	assert_eq(journal.reputation(), 600)
-	assert_true(load("res://scripts/chapter_two_closure/closure_selection.gd").select_quest(journal, "SQ-NOV-001"))
-	assert_eq(
-		load("res://scripts/quests/quest_presentation.gd").for_journal(journal, "novera_receptionist").quest_id, "SQ-NOV-001"
-	)
+	assert_true(Selection.select_quest(journal, "SQ-NOV-001"))
+	assert_eq(Presentation.for_journal(journal, "novera_receptionist").quest_id, "SQ-NOV-001")
 
 
 func test_dungeon_boot_navigation_spawns_and_actual_capsule() -> void:

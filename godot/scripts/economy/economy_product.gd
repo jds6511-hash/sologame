@@ -17,7 +17,15 @@ class ProductSession:
 
 	func _allows_directory(directory: String) -> bool:
 		# 정식 저장과 명시한 QA 경로만 허용한다. 후보 접두사를 열지 않는다.
-		return directory in ["user://saves", "user://m6_product_test", "user://m6_product_process", "user://m6_product_combat"]
+		return (
+			directory
+			in [
+				"user://saves",
+				"user://m6_product_test",
+				"user://m6_product_process",
+				"user://m6_product_combat"
+			]
+		)
 
 	func _instantiate_world() -> Node:
 		return load("res://scripts/economy/economy_product.gd").instantiate_world(_destination)
