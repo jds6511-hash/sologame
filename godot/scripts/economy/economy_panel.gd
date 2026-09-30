@@ -291,14 +291,18 @@ func _make_button(parent: Node, text: String, callback: Callable) -> Button:
 	UiStyle.apply_action_button(button)
 	button.custom_minimum_size.y = 66
 	parent.add_child(button)
-	button.gui_input.connect(func(event):
-		if event is InputEventMouseButton and event.double_click:
-			button.set_meta("skip_double_click", true))
-	button.pressed.connect(func():
-		if button.get_meta("skip_double_click", false):
-			button.set_meta("skip_double_click", false)
-			return
-		callback.call())
+	button.gui_input.connect(
+		func(event):
+			if event is InputEventMouseButton and event.double_click:
+				button.set_meta("skip_double_click", true)
+	)
+	button.pressed.connect(
+		func():
+			if button.get_meta("skip_double_click", false):
+				button.set_meta("skip_double_click", false)
+				return
+			callback.call()
+	)
 	return button
 
 

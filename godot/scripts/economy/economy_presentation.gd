@@ -55,7 +55,7 @@ static func icon(item: ItemData) -> Texture2D:
 			'<path d="M4 12L16 5L28 12V25H4ZM4 12H28M16 5V25"/>'
 		]
 		var svg := '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32">'
-		svg += '<g fill="#263b50" stroke="#e9cb86" stroke-width="2">' + shapes[kind] + '</g></svg>'
+		svg += '<g fill="#263b50" stroke="#e9cb86" stroke-width="2">' + shapes[kind] + "</g></svg>"
 		var image := Image.new()
 		if image.load_svg_from_string(svg) == OK:
 			_icons[kind] = ImageTexture.create_from_image(image)

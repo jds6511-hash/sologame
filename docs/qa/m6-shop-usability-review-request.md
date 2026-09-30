@@ -1,36 +1,26 @@
-# 상점·가방·장비 분리 및 공통 글꼴 검토
+# 상점·가방·장비·ESC 재설계 통합 검토
 
-- 날짜: 2026-09-30 / 담당: Codex / 기준: `afcb001` / 대상: **`80e1294`** (`fda46a6`, `f21899e`, `e376818` 포함, 로컬 완료·원격 미푸시)
-- 변경 이력: 디렉터가 동시 배치와 거친 글씨를 반려해 [분리 설계](../design/systems/shop-inventory-typography.md)로 대체하고 인터넷에서 공식 무료 글꼴을 찾아 적용했다.
+- 날짜: 2026-09-30 / 담당: Codex / 기준: `a6fe2ff` / 대상: 후속 최종 커밋에 명시(구현 `7afbb04`, `d99736a` 포함). 로컬 완료, 원격 미푸시.
+- 변경 이력: 디렉터가 [재설계](../design/systems/shop-inventory-typography.md)의 적용을 지시해 한 기능 묶음으로 구현했다. 이전 요청서를 현행 변경 범위로 교체한다.
 
 ## 제품 변경
 
-- ESC 후속 수정: 후보 경제 패널(layer20)의 MQ01~05 안내가 통합 메뉴(layer10) 위에 남는 것을 재현해 메뉴 열기/닫기에 표시를 연동했다. TabContainer 자체에 Pretendard SemiBold30·여백·선택 밑줄·포커스 테두리를 적용했다. 가방/장비 추가 재설계는 설계 문서의 **미구현 제안**이며 이 코드 검토의 완료 기능에 포함하지 않는다.
+- 상점: 아이콘/종류 아이콘의 세로 상품 목록, 분류·검색·정렬, 고정 수량/금액/버튼. 구매는 한 번 확정, 판매는 명시 수량 확인/취소. 더블클릭 및 짧은 연속 구매 방지. 골드/가방에 따라 최대 수량 계산, 착용 불가 선구매 허용.
+- 가방/장비: 6열30칸, 보관품 별도 펼침, 선택 상세와 단일 장착/해제. 캐릭터8슬롯·부위별 후보·반지 독립 교체·현재/예상 능력치 비교. 기존 전용 아이콘이 없는 품목은 코드 작성 종류 아이콘이며 완성 원화 아님.
+- ESC: 계속하기·저장/불러오기·설정·종료만 표시. B/I 가방, C 캐릭터→장비 관리, K/J/M 기능 화면. ESC에서 연 저장/설정은 ESC로 돌아가고 F6 직접 저장은 플레이로 복귀한다. 성공한 월드 교체에서는 옛 ESC 메뉴를 다시 열지 않는다. 확인 취소는 저장 창을 유지한다.
+- 거래/착용/회수의 저장용 대기는 제거. 사망·입력 잠금·상인 거리·직업/레벨·소유/공간·재진입 검증 유지. 저장 안전 조건/가격/저장 형식은 불변. 새 경제 화면은 M6 후보, ESC 분리는 공통 제품 범위다. 기본 V4 인벤토리 자리 및 음량/그래픽 상세 설정은 이번에 새로 구현하지 않았다.
 
-- 후속 장비 수정: 장착·해제에 잘못 연결된 저장 안전 조건을 제거했다. 일시정지 중 대시 충전을 기다릴 필요가 없고 비용도 없다. 직업/레벨/소유/가방 공간 및 사망/입력 잠금/재진입 보호 유지. 저장·거래 조건은 그대로다. 같은 통합 검토에 포함한다.
+## 검증·재현
 
-- **상점(F)**: 구매/판매 전용. 판매는 가방 소지품만, 착용품 제외. 상품 분류/검색·수량·총액·확인/취소와 장비 읽기 전용 비교를 제공하며 장착 버튼은 없다.
-- **가방(B)**: 보유품·수량·장착·보관품 회수. 거래 버튼 없음. ‘장비 보기’로 별도 화면 전환.
-- **장비**: 캐릭터 주변8슬롯·실제 능력치. 슬롯 선택 시 해당 부위 가방 후보만 표시하고 독립 반지 칸까지 교체한다. 해제는 가방으로, ‘가방으로’는 화면 복귀. 화면 전환은 pending·검색·이전 메시지를 초기화하며 pause를 유지한다. 모든 쓰기는 기존 EconomyRuntime.act를 통한다.
-- **폰트**: Pretendard v1.3.9 Regular/SemiBold 공식 TTF와 SIL OFL 원문·출처·SHA-256을 [폰트 README](../../godot/assets/fonts/README.md)에 동봉했다. UI/HUD·대화 기본 폰트와 NPC 이름에 적용. 작은 픽셀 글자 확대 대신 MSDF와 선형 필터로 윤곽을 유지한다. 스프라이트 최근접 필터는 유지한다. 두 신규 `.import`를 명시 추적해 MSDF 설정을 보존한다.
-- 디렉터의 게임 전반 폰트 적용을 위해 `project.godot`은 **gui/theme/custom_font 한 키만** 의도적으로 변경했다. 입력·창·렌더 설정 유실 없음(diff 대조). 과거 일괄 스테이징 금지를 일반적으로 해제한 것은 아니다. 저장 형식·가격·전투 판정 변경 없음.
+- 전체 GUT **1117/1117**,128 scripts,13,557 asserts,exit0. SCRIPT ERROR/누수0, 기존 저장 I/O ExpectedError1. 충전 중 거래/착용, 중복 구매, 판매 취소, 반지2 교체, 사망/잠금/거리 거부, 메뉴 소유권/저장 복귀와 확인 취소를 포함한다.
+- 경제 **4/4 PASS**, `screenshots/m6/20260930-184620`: cleanup→seed→별도 프로세스 reload→cleanup. seed는 골드/완료 의뢰 준비 fixture이며 거래 버튼과 실제 착용/파일 복원을 검증한다.
+- 렌더 seed PASS, `screenshots/redesign-icons-render.log`. 상점/가방/장비/ESC PNG를 열어 확인했다. `M6 상점 테스트.exe`는 현재 소스를 읽는다. 자동 버튼 신호·메뉴 API 검증과 OS 물리 조작을 구분한다.
+- GD10개 형식/린트 및 diff check 통과. 재현: `godot --headless --path godot -s addons/gut/gut_cmdln.gd -gdir=res://test -ginclude_subdirs -gexit`; `powershell -ExecutionPolicy Bypass -File docs/qa/tools/run_m6_candidate.ps1`; 렌더는 `godot --path godot --script ../docs/qa/tools/m6_candidate_probe.gd -- seed`.
 
-## 검증
-
-ESC 최종 검증: GUT **1113/1113**,128 scripts,13,529 asserts,exit0. 기존 저장 I/O ExpectedError1 외 SCRIPT ERROR/누수0. 후보 안내 숨김/복원·탭 전환과 pause, 실제 탭 영역 높이를 검사했다. 1280×720 후보 렌더 전/후(`screenshots/esc-before.png`, `esc-after.png`)를 직접 확인했다. GD4개 형식/린트 통과. OS 물리 클릭을 새로 검증한 것은 아니다.
-
-후속 장비 수정 검증: GUT **1111/1111**, 128 scripts, 13,523 asserts, exit0. 충전 중 장비 창에서 해제→재장착 후 상태/골드 원복과 저장 차단 유지, 사망·입력 잠금 시 무변경을 검사했다. 경제 **4/4 PASS** (`screenshots/m6/20260930-180510`), GD3개 포맷/린트 통과. 아래 수치는 앞선 UI/폰트 검증 기록이다.
-
-전체 GUT **1109/1109**,128 scripts, 관측13,509 asserts, exit0. SCRIPT ERROR0, 기존 저장 I/O ExpectedError1. 새 검사는 화면별 액션 분리, 수량 거래, 착용품 판매 제외, 반지2 교체 시 반지1 불변과 가방 회수, 폰트/MSDF 설정을 포함한다. 첫 실행의 검색 초기화 API 오류는 수정 후 전체 재검증했다.
-
-경제 cleanup→seed→reload→cleanup **4/4 PASS** (`screenshots/m6/20260930-175207`). 최종 렌더 seed PASS, 상점·가방·장비·NPC 이름 PNG를 직접 확인했다. `M6 상점 테스트.exe --smoke` exit0. GD5개 포맷/린트·diff check 통과. 캡처는 ignored `screenshots/m6-{shop,bag,equipment,npc-names}.png`.
-
-이번 UI/폰트 변경에 전투3회 배치는 재실행하지 않았다. 직전1/3과 **M6 채택 미통과는 유지**한다. OS 입력·미감 승인이 아닌 자동 기능/정지 렌더 증거다. [공통 한계·게이트 기록](g3-g5-functional-evidence.md).
-
-재현: `godot --headless --path godot -s addons/gut/gut_cmdln.gd -gdir=res://test -ginclude_subdirs -gexit`; `powershell -ExecutionPolicy Bypass -File docs/qa/tools/run_m6_candidate.ps1`; 렌더 `godot --path godot --script ../docs/qa/tools/m6_candidate_probe.gd -- seed`.
+M6 전투 배치는 UI 작업에서 재실행하지 않았다. 기존1/3·M6 기본 채택 미통과를 유지한다. [공통 검증 한계](g3-g5-functional-evidence.md). 중간 포맷터의 람다 연쇄 호출 파싱 실패는 독립 취소 함수로 수정 후 최종 전체 검증했다.
 
 ## 검토 질문
 
-1. 상점의 구매/판매와 가방/장비의 장착/해제가 화면·확정 동작까지 분리되고 상태 유실·pause 회귀가 없는가?
-2. 슬롯 후보와 반지2 교체·수량·확인 취소가 기존 모델 계약을 지키는가?
-3. 공식 폰트 출처/라이선스·MSDF 재현 설정·전역 폰트 변경 범위와 검증 한정이 정확한가?
+1. 단일 구매/착용·판매 확인·수량/중복 입력과 기존 거래/소유/저장 보호가 양립하는가?
+2. ESC/B/I/C/K/J/M·저장 진입/복귀·월드 교체가 pause·확인 취소·중복 창에 회귀를 만들지 않는가?
+3. 슬롯 후보/반지 비교·가방 회수·능력치 갱신과 후보/기본 제품 범위 및 증거 한정이 정확한가?
