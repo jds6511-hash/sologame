@@ -14,6 +14,7 @@ const SLOT_NAMES := {
 const ERRORS := {
 	"busy": "다른 처리가 진행 중입니다",
 	"combat": "창을 닫고 행동과 재사용 대기가 끝난 뒤 시도하세요",
+	"player_unavailable": "사망 또는 캐릭터 전환 중에는 장비와 소지품을 변경할 수 없습니다",
 	"merchant_distance": "보급상 가까이에서만 거래할 수 있습니다",
 	"gold": "골드가 부족합니다",
 	"gold_limit": "골드 한도를 초과합니다",

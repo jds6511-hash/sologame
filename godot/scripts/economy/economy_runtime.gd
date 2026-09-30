@@ -89,7 +89,10 @@ func act(kind: String, id: String = "", slot: String = "", count: int = 1) -> St
 		)
 	):
 		return "merchant_distance"
-	if player.get_node("PlayerStats").is_dead() or not player.save_block_reason().is_empty():
+	if player.get_node("PlayerStats").is_dead() or player.is_input_locked:
+		return "player_unavailable"
+	# 착용은 저장이 아니다. 일시정지된 장비 창에서 재사용 대기를 기다리게 하지 않는다.
+	if kind not in ["equip", "unequip"] and not player.save_block_reason().is_empty():
 		return "combat"
 	busy = true
 	var next := state()

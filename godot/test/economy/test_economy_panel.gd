@@ -73,6 +73,37 @@ func test_equipment_and_overflow_have_separate_actions() -> void:
 	assert_true(economy.overflow.is_empty())
 
 
+func test_equipment_ignores_recharge_while_save_remains_blocked() -> void:
+	var player = economy.player
+	player._dash_recharge_timers.append(10.0)
+	var before: Dictionary = economy.state()
+	assert_true(get_tree().paused)
+	assert_ne(player.save_block_reason(), "")
+	display._switch("gear")
+	display.select_item("weapon")
+	press("해제 → 가방으로")
+	press("확정")
+	assert_eq(economy.state().equipment.weapon, "")
+	display._switch("bag")
+	display.select_item(before.equipment.weapon)
+	press("무기에 장착")
+	press("확정")
+	assert_eq(economy.state(), before)
+	assert_ne(player.save_block_reason(), "")
+	assert_eq(player._dash_recharge_timers[0], 10.0)
+
+
+func test_equipment_rejects_death_and_input_lock_without_mutation() -> void:
+	var before: Dictionary = economy.state()
+	economy.player.is_input_locked = true
+	assert_eq(economy.act("unequip", "", "weapon"), "player_unavailable")
+	assert_eq(economy.state(), before)
+	economy.player.is_input_locked = false
+	economy.player.get_node("PlayerStats").current_hp = 0
+	assert_eq(economy.act("unequip", "", "weapon"), "player_unavailable")
+	assert_eq(economy.state(), before)
+
+
 func test_bag_outside_shop_does_not_offer_purchase() -> void:
 	display.close()
 	economy.player.position = Vector2(152, 504)
