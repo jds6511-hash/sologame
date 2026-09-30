@@ -35,6 +35,10 @@
 		}
 	},
 	"scenes": {
+		"novera_outskirts": {
+			"day": "field_eastern_frontier_south",
+			"night": "field_night_common"
+		},
 		"res://scenes/world/novera_gate.tscn": {
 			"day": "town_novera"
 		},

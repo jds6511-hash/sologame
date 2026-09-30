@@ -65,9 +65,7 @@ func choose(action: String, quest_id: String = "") -> void:
 	if action == "close":
 		close_dialog()
 		return
-	var current := Presentation.select(
-		controller.journal.catalog, controller.journal.export_state(), _npc_id
-	)
+	var current := Presentation.for_journal(controller.journal, _npc_id)
 	if (
 		quest_id.is_empty()
 		or quest_id != _selection.get("quest_id")
@@ -127,9 +125,7 @@ func _refresh() -> void:
 	_message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_message.custom_minimum_size = Vector2(960, 180)
 	_box.add_child(_message)
-	_selection = Presentation.select(
-		controller.journal.catalog, controller.journal.export_state(), _npc_id
-	)
+	_selection = Presentation.for_journal(controller.journal, _npc_id)
 	_message.text = _selection.message
 	if not _selection.action.is_empty():
 		_button(_selection.button, _selection.action, _selection.quest_id)

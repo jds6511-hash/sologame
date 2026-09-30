@@ -17,6 +17,5 @@ func _refresh() -> void:
 
 
 func _select(id: String) -> void:
-	if controller.journal.catalog.select_quest(id, controller.journal.export_state()):
-		controller.journal.changed.emit()
+	if load("res://scripts/chapter_two_closure/closure_selection.gd").select_quest(controller.journal, id):
 		_refresh()

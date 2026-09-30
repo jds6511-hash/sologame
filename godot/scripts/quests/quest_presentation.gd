@@ -4,6 +4,17 @@ extends RefCounted
 const Npcs = preload("res://scripts/npc/npc_registry.gd")
 
 
+static func for_journal(journal: QuestJournal, npc_id: String) -> Dictionary:
+	var states := journal.export_state()
+	if journal.catalog.has_method("selected_view"):
+		var special: Dictionary = journal.catalog.selected_view(
+			states, npc_id, String(journal.get_meta("selected_quest_id", ""))
+		)
+		if not special.is_empty():
+			return special
+	return select(journal.catalog, states, npc_id)
+
+
 static func select(catalog: QuestCatalog, states: Dictionary, npc_id: String) -> Dictionary:
 	if catalog.has_method("special_view"):
 		var special: Dictionary = catalog.special_view(states, npc_id)

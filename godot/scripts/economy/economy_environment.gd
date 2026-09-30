@@ -96,9 +96,12 @@ class CandidateSession:
 
 	func setup(owner_world: Node) -> String:
 		var directory: String = owner_world.get_meta("save_directory", "")
-		if not directory.begins_with("user://m6_candidate_") or ".." in directory:
+		if not _allows_directory(directory):
 			return "candidate_directory"
 		return super.setup(owner_world)
+
+	func _allows_directory(directory: String) -> bool:
+		return directory.begins_with("user://m6_candidate_") and ".." not in directory
 
 	func _create_store(directory: String) -> RefCounted:
 		return CandidateStore.new(directory)
@@ -107,19 +110,22 @@ class CandidateSession:
 		return load("res://scripts/economy/economy_environment.gd").instantiate_world(_destination)
 
 	func save_slot(slot: int) -> Dictionary:
-		if world.get_node("Player").get_meta("economy_candidate").busy:
+		if _economy_busy():
 			return _failure("transaction_busy")
 		return super.save_slot(slot)
 
 	func travel(destination: String) -> Dictionary:
-		if world.get_node("Player").get_meta("economy_candidate").busy:
+		if _economy_busy():
 			return _failure("transaction_busy")
 		return super.travel(destination)
 
 	func _change_blocked() -> bool:
-		return (
-			world.get_node("Player").get_meta("economy_candidate").busy or super._change_blocked()
-		)
+		return _economy_busy() or super._change_blocked()
+
+	func _economy_busy() -> bool:
+		# 계정 오류 시 런타임 설치 전에 종료된다. 기존 세션의 오류 안내를 보존한다.
+		var actor := world.get_node("Player")
+		return actor.has_meta("economy_candidate") and actor.get_meta("economy_candidate").busy
 
 
 class CandidateWorld:
@@ -142,6 +148,16 @@ class CandidateWorld:
 		panel.name = "EconomyPanel"
 		add_child(panel)
 		panel.setup(actor.get_meta("economy_candidate"))
+		_install_session_hint(panel)
+		if map_id == "novera_gate":
+			var merchant = load("res://scripts/economy/economy_merchant.gd").new()
+			merchant.name = "Merchant"
+			merchant.position = Vector2(216, 440)
+			add_child(merchant)
+			merchant.configure(actor, panel)
+			get_node("WorldInteraction").candidates.append(merchant)
+
+	func _install_session_hint(panel: Node) -> void:
 		var hint := Label.new()
 		hint.position = Vector2(40, 250)
 		hint.text = "M6 후보 · 가방 [B]\n상점: MQ01~05 후 노베라 입구 보급상 [F]\n지도 [M] · 설정/종료 [Esc]"
@@ -153,10 +169,3 @@ class CandidateWorld:
 		# 후보 안내는 ESC 메뉴보다 높은 경제 패널 소속이므로 메뉴 중에는 숨긴다.
 		get_node("IntegratedMenu").menu_opened.connect(func(): hint.hide())
 		get_node("IntegratedMenu").menu_closed.connect(func(): hint.show())
-		if map_id == "novera_gate":
-			var merchant = load("res://scripts/economy/economy_merchant.gd").new()
-			merchant.name = "Merchant"
-			merchant.position = Vector2(216, 440)
-			add_child(merchant)
-			merchant.configure(actor, panel)
-			get_node("WorldInteraction").candidates.append(merchant)

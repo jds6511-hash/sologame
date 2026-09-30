@@ -11,17 +11,10 @@ static func targets(world: Node) -> Array:
 		return load("res://scripts/quests/quest_navigation.gd").local_targets(world)
 	var catalog = journal.catalog
 	var ids: Array = catalog.available_ids(states)
-	var active := []
-	for id in ids:
-		if states.has(id):
-			active.append(id)
-	for id in ids:
-		if not states.has(id):
-			active.append(id)
-	ids = active
-	if catalog.selected_quest_id in ids:
-		ids.erase(catalog.selected_quest_id)
-		ids.push_front(catalog.selected_quest_id)
+	var selected_id := String(journal.get_meta("selected_quest_id", ""))
+	if selected_id in ids:
+		ids.erase(selected_id)
+		ids.push_front(selected_id)
 	if ids.is_empty():
 		return _project(world, "novera_commons", [LayoutClosure.GARETH], "2장 메인 완료 · 후속 이야기 준비 중")
 	var id: String = ids[0]

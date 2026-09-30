@@ -71,8 +71,8 @@ class SessionClosure:
 			. instantiate_world(_destination)
 		)
 		if _carrying_tracking:
-			var catalog = world.get_node("QuestController").journal.catalog
-			next.set_meta("closure_tracking", catalog.selected_quest_id)
+			var journal: QuestJournal = world.get_node("QuestController").journal
+			next.set_meta("closure_tracking", journal.get_meta("selected_quest_id", ""))
 		return next
 
 	func _change_blocked() -> bool:

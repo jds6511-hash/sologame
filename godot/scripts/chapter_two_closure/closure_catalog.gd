@@ -3,7 +3,6 @@ extends "res://scripts/chapter_two/m7_catalog.gd"
 
 const RegionsClosure = preload("res://scripts/chapter_two_closure/closure_regions.gd")
 const CLOSURE_IDS := ["MQ-02-05", "MQ-02-06", "SQ-NOV-001", "SQ-NOV-002"]
-var selected_quest_id := ""
 
 
 func _init(content_registry: RefCounted = null) -> void:
@@ -23,7 +22,8 @@ func ordered_ids() -> Array:
 
 
 func available_ids(states: Dictionary, npc: String = "") -> Array:
-	var result := []
+	var current := []
+	var offers := []
 	for id in ordered_ids():
 		var definition: QuestData = definitions[id]
 		if npc != "" and npc not in [definition.giver_id(), definition.npc_id]:
@@ -37,15 +37,11 @@ func available_ids(states: Dictionary, npc: String = "") -> Array:
 			continue
 		if not states.has(id) and npc != "" and npc != definition.giver_id():
 			continue
-		result.append(id)
-	return result
-
-
-func select_quest(id: String, states: Dictionary) -> bool:
-	if id not in available_ids(states):
-		return false
-	selected_quest_id = id
-	return true
+		if states.has(id):
+			current.append(id)
+		else:
+			offers.append(id)
+	return current + offers
 
 
 func travel_destination(npc: String) -> String:
@@ -53,6 +49,10 @@ func travel_destination(npc: String) -> String:
 
 
 func special_view(states: Dictionary, npc: String) -> Dictionary:
+	return selected_view(states, npc, "")
+
+
+func selected_view(states: Dictionary, npc: String, selected_quest_id: String) -> Dictionary:
 	if states.get("MQ-01-05", {}).get("state") != "completed":
 		return {}
 	if RegionsClosure.EDGES.has(npc):

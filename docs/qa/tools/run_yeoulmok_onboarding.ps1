@@ -1,16 +1,17 @@
-param([string]$Godot = 'godot', [ValidateRange(1, 10)][int]$Runs = 3)
+param([string]$Godot = 'godot', [ValidateRange(1, 10)][int]$Runs = 3, [switch]$Product)
 $ErrorActionPreference = 'Stop'
 $repo = (Resolve-Path (Join-Path $PSScriptRoot '../../..')).Path
 $output = Join-Path $repo ('docs/qa/screenshots/onboarding/batch-' + (Get-Date -Format 'yyyyMMdd-HHmmss-fff'))
 New-Item -ItemType Directory -Force -Path $output | Out-Null
 $engine = (Get-Command $Godot).Source
+$probe = if ($Product) { 'm6_product_combat_probe.gd' } else { 'yeoulmok_onboarding_probe.gd' }
 $results = [System.Collections.Generic.List[object]]::new()
 $trials = [System.Collections.Generic.List[object]]::new()
 
 function Run-Phase([string]$Phase, [int]$Expected, [bool]$Rendered) {
     $log = Join-Path $output ($Phase + '-' + $results.Count + '.log')
     $mode = if ($Rendered) { '' } else { '--headless ' }
-    $arguments = $mode + '--path godot --fixed-fps 60 --log-file "' + $log + '" --script ../docs/qa/tools/yeoulmok_onboarding_probe.gd -- ' + $Phase
+    $arguments = $mode + '--path godot --fixed-fps 60 --log-file "' + $log + '" --script ../docs/qa/tools/' + $probe + ' -- ' + $Phase
     $process = Start-Process -FilePath $engine -WorkingDirectory $repo -WindowStyle Hidden -PassThru -ArgumentList $arguments
     if (-not $process.WaitForExit(300000)) {
         $process.Kill()
@@ -41,6 +42,7 @@ function Run-Phase([string]$Phase, [int]$Expected, [bool]$Rendered) {
 
 try {
     Write-Output "Logs: $output"
+    Write-Output "Probe: $probe"
     for ($trial = 1; $trial -le $Runs; $trial++) {
         @{status='running'; planned=$Runs; trials=$trials.ToArray(); results=$results.ToArray()} | ConvertTo-Json -Depth 6 | Set-Content (Join-Path $output 'result.json') -Encoding UTF8
         try {

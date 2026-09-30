@@ -37,7 +37,14 @@ func _refresh() -> void:
 	)
 	if journal.catalog.has_method("tracking_npc"):
 		npc_id = journal.catalog.tracking_npc(journal.export_state())
-	_label.text = (Presentation.select(journal.catalog, journal.export_state(), npc_id).tracker)
+	if journal.catalog.has_method("selected_view"):
+		var selected_id := String(journal.get_meta("selected_quest_id", ""))
+		var choices: Array = journal.catalog.available_ids(journal.export_state())
+		if selected_id not in choices and not choices.is_empty():
+			selected_id = choices[0]
+		if selected_id in choices:
+			npc_id = journal.catalog.definitions[selected_id].npc_id
+	_label.text = (Presentation.for_journal(journal, npc_id).tracker)
 	_label.text += "\n[J] 의뢰 목록·상세"
 
 

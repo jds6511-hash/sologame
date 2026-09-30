@@ -3,6 +3,11 @@ const RegionsM7 = preload("res://scripts/chapter_two/m7_regions.gd")
 const LayoutM7 = preload("res://scripts/chapter_two/m7_layout.gd")
 
 
+func _init_bgm() -> void:
+	BgmManager.play_for_scene(map_id if map_id == "novera_outskirts" else scene_file_path)
+	BgmManager.bind_job_transition(_player.get_node_or_null("PlayerJobTransition"))
+
+
 func _create_save_session() -> Node:
 	return load("res://scripts/chapter_two/m7_environment.gd").SessionM7.new()
 

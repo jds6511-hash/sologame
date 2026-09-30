@@ -32,7 +32,8 @@ internal static class LocalGameLauncher
             string entry = " --script ../docs/qa/tools/m6_candidate_probe.gd -- play";
 #else
             string mode = "game";
-            string entry = " res://scenes/world/eastern_frontier_starting_area.tscn";
+            string entry = " res://scenes/world/game_bootstrap.tscn";
+            if (smoke) entry += " -- --product-smoke";
 #endif
             string logs = Path.Combine(root, "docs/qa/screenshots/launcher");
             Directory.CreateDirectory(logs);
@@ -57,6 +58,8 @@ internal static class LocalGameLauncher
                 if (!output.Contains("M6_SHOP_READY")) return 4;
 #elif M6
                 if (!output.Contains("M6_CANDIDATE_READY")) return 4;
+#else
+                if (!output.Contains("M6_PRODUCT_READY")) return 4;
 #endif
                 return process.ExitCode;
             }

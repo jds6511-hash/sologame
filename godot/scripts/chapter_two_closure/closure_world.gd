@@ -5,6 +5,11 @@ const LayoutM7 = preload("res://scripts/chapter_two/m7_layout.gd")
 const Site = preload("res://scripts/chapter_two/m7_site.gd")
 
 
+func _init_bgm() -> void:
+	BgmManager.play_for_scene(map_id if map_id == "novera_outskirts" else scene_file_path)
+	BgmManager.bind_job_transition(_player.get_node_or_null("PlayerJobTransition"))
+
+
 func _create_save_session() -> Node:
 	return load("res://scripts/chapter_two_closure/closure_environment.gd").SessionClosure.new()
 
@@ -21,8 +26,8 @@ func _prepare_region() -> void:
 
 func _setup_quest_ui(quests: QuestController) -> void:
 	# 화면 선택만 전달한다. 새 게임/로드에서 유효하지 않은 선택은 받아들이지 않는다.
-	quests.journal.catalog.select_quest(
-		String(get_meta("closure_tracking", "")), quests.journal.export_state()
+	load("res://scripts/chapter_two_closure/closure_selection.gd").select_quest(
+		quests.journal, String(get_meta("closure_tracking", ""))
 	)
 	if map_id in ["eastern_frontier_start", "novera_gate"]:
 		super._setup_quest_ui(quests)
