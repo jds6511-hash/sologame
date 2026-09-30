@@ -1,5 +1,7 @@
 # 인수인계 — 세션 이어받기용
 
+긴급 저장 수정(2026-09-30): `bc3d31b` 및 후속. 실제 `m6_candidate_shop_play/character_01.json.tmp`가 존재하며 validate=vitals, 메모리 최대 HP는 통과/기본 JSON 왕복은 실패/full_precision 왕복은 통과로 확정했다. SaveFileStore JSON payload만 정밀 출력, 검증 완화 없음. 사용자 계정/임시/슬롯 파일을 수정하거나 삭제하지 않았다. 첫 추가 테스트의 CandidateCodec.validate 호출 오류를 conversion.validate로 수정 후 GUT1120/1120·13,571 asserts, 경제4/4(`201318`), GD3개 검사 통과. 최종 로그 `screenshots/save-precision-final2.log`, 진단 `save-diagnose.log`. 사용자에게 게임 재실행 후 다시 저장 안내. 현재 켜진 프로세스/실패한 저장이 자동 복구됐다고 말하지 않는다. 기존 장착 UI 선택 대기는 유지한다.
+
 후속 인계(2026-09-30): `d23ddf3` 독립 검토 통과 수용. 빈 장비 버튼/취소 더블클릭을 실패 테스트로 재현 후 수정, 카드 hover 설명 추가. 체크포인트 `d773601`, 후속 형식/문서 포함. GUT1118/1118·13,559 asserts·GD5개 검사·`item-hover-preview-final.log` 렌더 PASS. 렌더는 임시 위치 fixture와 위젯 직접 생성으로 OS hover 증거 아님. 최초 미리보기는 상점 거리 부족으로 실패, 자체 프로세스 종료 후 재검증. 별도 작은 리뷰 요청 없음.
 
 사용자 추가 요청 중 툴팁 적용, 직업별 상품 제한은 미래 설계 기록. 장착/장비 화면은 더블클릭+슬롯 후보 / 드래그 / 기존 버튼 중 선택 질문 대기, 임의 적용하지 않았다. 포션 재사용 대기는 그대로. 설정/임포트 규칙은 AGENTS 기준으로 정정. M6 저장 가능, 상점 실행기의 준비 상태와 직접 저장/로드 구분. M6 채택·전투1/3은 별도다.

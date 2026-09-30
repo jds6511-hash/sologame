@@ -198,7 +198,7 @@ func test_shop_level_ten_full_hp_file_roundtrip() -> void:
 	var maximum: CombatantStats = model.stats(10, "adventurer", data.inventory.equipment)
 	data.player.hp = maximum.max_hp
 	data.player.mp = maximum.max_mp
-	assert_eq(candidate_codec.validate(data, account), "")
+	assert_eq(candidate_codec.schema.conversion.validate(data, account), "")
 	assert_true(store.write_save("character", 1, data).ok)
 	var loaded: Dictionary = store.read_save("character", 1)
 	assert_true(loaded.ok)
