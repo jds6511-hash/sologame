@@ -1,6 +1,6 @@
 # 상점·가방·장비·ESC 재설계 통합 검토
 
-- 날짜: 2026-09-30 / 담당: Codex / 기준: `a6fe2ff` / 대상: 후속 최종 커밋에 명시(구현 `7afbb04`, `d99736a` 포함). 로컬 완료, 원격 미푸시.
+- 날짜: 2026-09-30 / 담당: Codex / 기준: `a6fe2ff` / 대상: **`d23ddf3`**(구현 `7afbb04`, `d99736a` 포함). 후속 인계 커밋은 문서만 변경. 로컬 완료, 원격 미푸시.
 - 변경 이력: 디렉터가 [재설계](../design/systems/shop-inventory-typography.md)의 적용을 지시해 한 기능 묶음으로 구현했다. 이전 요청서를 현행 변경 범위로 교체한다.
 
 ## 제품 변경
@@ -14,7 +14,7 @@
 
 - 전체 GUT **1117/1117**,128 scripts,13,557 asserts,exit0. SCRIPT ERROR/누수0, 기존 저장 I/O ExpectedError1. 충전 중 거래/착용, 중복 구매, 판매 취소, 반지2 교체, 사망/잠금/거리 거부, 메뉴 소유권/저장 복귀와 확인 취소를 포함한다.
 - 경제 **4/4 PASS**, `screenshots/m6/20260930-184620`: cleanup→seed→별도 프로세스 reload→cleanup. seed는 골드/완료 의뢰 준비 fixture이며 거래 버튼과 실제 착용/파일 복원을 검증한다.
-- 렌더 seed PASS, `screenshots/redesign-icons-render.log`. 상점/가방/장비/ESC PNG를 열어 확인했다. `M6 상점 테스트.exe`는 현재 소스를 읽는다. 자동 버튼 신호·메뉴 API 검증과 OS 물리 조작을 구분한다.
+- 렌더 seed PASS, `screenshots/redesign-icons-render.log`. 상점/가방/장비/ESC PNG를 열어 확인했다. `M6 상점 테스트.exe --smoke` exit0, 실행기는 현재 소스를 읽는다. 자동 버튼 신호·메뉴 API 검증과 OS 물리 조작을 구분한다.
 - GD10개 형식/린트 및 diff check 통과. 재현: `godot --headless --path godot -s addons/gut/gut_cmdln.gd -gdir=res://test -ginclude_subdirs -gexit`; `powershell -ExecutionPolicy Bypass -File docs/qa/tools/run_m6_candidate.ps1`; 렌더는 `godot --path godot --script ../docs/qa/tools/m6_candidate_probe.gd -- seed`.
 
 M6 전투 배치는 UI 작업에서 재실행하지 않았다. 기존1/3·M6 기본 채택 미통과를 유지한다. [공통 검증 한계](g3-g5-functional-evidence.md). 중간 포맷터의 람다 연쇄 호출 파싱 실패는 독립 취소 함수로 수정 후 최종 전체 검증했다.
