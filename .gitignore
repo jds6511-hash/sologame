@@ -1,4 +1,6 @@
 # Godot
+/게임 실행.exe
+/M6 후보 실행.exe
 godot/.godot/
 *.import
 # Python
