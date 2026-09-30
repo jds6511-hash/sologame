@@ -255,8 +255,9 @@ func _route(target: Vector2) -> PackedVector2Array:
 func _forward_route(path: PackedVector2Array) -> PackedVector2Array:
 	# 현재 칸 중앙으로 되돌아가지 않는다. 실제 몸 전체가 다음 점까지 통과할 때만
 	# 첫 점을 생략하므로 장애물 모서리나 이동 중 적을 가로질러 잘라 가지 않는다.
-	if path.size() > 1 and not player.test_move(
-		player.global_transform, path[1] - player.global_position
+	if (
+		path.size() > 1
+		and not player.test_move(player.global_transform, path[1] - player.global_position)
 	):
 		return path.slice(1)
 	return path
