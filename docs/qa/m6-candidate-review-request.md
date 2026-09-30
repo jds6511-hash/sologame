@@ -1,7 +1,7 @@
 # M6 공급·거래·실착·V5·플레이 통합 후보 검토
 
 - 날짜: 2026-09-30 / 담당: Codex
-- 기준: `d53bd25` / 대상 커밋: 인계 상단 기록
+- 기준: `d53bd25` / 대상 커밋: **`c797d8a`** (27파일, 로컬 완료·원격 미푸시)
 - 변경 이력: `4c30841` 리뷰를 반영하고 M6를 하나의 통합 후보로 구현.
 - 설계: [통합 계약](../design/systems/m6-economy-equipment-loop.md), [실행 계획](../design/systems/m6-implementation-plan.md)
 
