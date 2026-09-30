@@ -27,8 +27,15 @@ const KEY_LABELS := {
 }
 
 const JOB_ICONS := {
-	"archer": {"slot4": "rapid_shot", "slot_q": "acrobatic_shot", "slot_e": "hawk_eye", "ultimate": "ultimate_piercing_burst"},
-	"gladiator": {"slot4": "cleave", "slot_q": "charge_slam", "slot_e": "blood_shout", "ultimate": "execution"}
+	"archer":
+	{
+		"slot4": "rapid_shot",
+		"slot_q": "acrobatic_shot",
+		"slot_e": "hawk_eye",
+		"ultimate": "ultimate_piercing_burst"
+	},
+	"gladiator":
+	{"slot4": "cleave", "slot_q": "charge_slam", "slot_e": "blood_shout", "ultimate": "execution"}
 }
 
 var _player: PlayerController = null

@@ -26,7 +26,14 @@ func _draw() -> void:
 	if scale_factor <= 0:
 		return
 	var origin := Vector2(50, 90)
-	draw_string(font, Vector2(50, 40), "현재 지역 지도 · 노랑: 목표 / 하늘색: 나 / 초록: 상점", HORIZONTAL_ALIGNMENT_LEFT, -1, 26)
+	draw_string(
+		font,
+		Vector2(50, 40),
+		"현재 지역 지도 · 노랑: 목표 / 하늘색: 나 / 초록: 상점",
+		HORIZONTAL_ALIGNMENT_LEFT,
+		-1,
+		26
+	)
 	var ground: TileMapLayer = world.get_node("Ground")
 	for cell in ground.get_used_cells():
 		var atlas := ground.get_cell_atlas_coords(cell)
@@ -37,11 +44,25 @@ func _draw() -> void:
 			color = Color("ae9875")
 		elif atlas in [Vector2i(1, 2), Vector2i(2, 3)]:
 			color = Color("666877")
-		draw_rect(Rect2(origin + (Vector2(cell) * 16 - bounds.position) * scale_factor, Vector2.ONE * 16 * scale_factor), color)
+		draw_rect(
+			Rect2(
+				origin + (Vector2(cell) * 16 - bounds.position) * scale_factor,
+				Vector2.ONE * 16 * scale_factor
+			),
+			color
+		)
 	for target in Navigation.targets(world):
 		var point: Vector2 = origin + (target.position - bounds.position) * scale_factor
 		draw_circle(point, 9, UiStyle.COLOR_QUEST_DOT)
-		draw_string(font, point + Vector2(12, -12), target.label, HORIZONTAL_ALIGNMENT_LEFT, -1, 22, Color.WHITE)
+		draw_string(
+			font,
+			point + Vector2(12, -12),
+			target.label,
+			HORIZONTAL_ALIGNMENT_LEFT,
+			-1,
+			22,
+			Color.WHITE
+		)
 	var merchant := world.get_node_or_null("Merchant") as Node2D
 	if merchant != null:
 		var point := origin + (merchant.position - bounds.position) * scale_factor

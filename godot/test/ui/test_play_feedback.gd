@@ -72,7 +72,10 @@ func test_archer_range_and_job_skill_labels() -> void:
 	player.get_node("PlayerJobTransition").perform_transition(&"archer")
 	var bar = world.get_node("Hud/SkillSlotBar")
 	assert_true(bar.get_node("Slot4").tooltip_text.contains(player.skill_slot_4.skill_name))
-	assert_eq(bar.get_node("Slot4/Icon").texture.resource_path, "res://assets/icons/skills/skill_rapid_shot.png")
+	assert_eq(
+		bar.get_node("Slot4/Icon").texture.resource_path,
+		"res://assets/icons/skills/skill_rapid_shot.png"
+	)
 
 
 func test_navigation_follows_objective_then_report_without_mutation() -> void:
@@ -80,7 +83,10 @@ func test_navigation_follows_objective_then_report_without_mutation() -> void:
 	var journal = world.get_node("QuestController").journal
 	var states := {}
 	for id in ["MQ-01-01", "MQ-01-02", "MQ-01-03"]:
-		states[id] = {"state": "completed", "counts": journal.catalog.definitions[id].objective_counts.duplicate()}
+		states[id] = {
+			"state": "completed",
+			"counts": journal.catalog.definitions[id].objective_counts.duplicate()
+		}
 	states["MQ-01-04"] = {"state": "active", "counts": [0, 0]}
 	assert_eq(journal.restore_state(states), "")
 	var targets: Array = navigation.targets(world)

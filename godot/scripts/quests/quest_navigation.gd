@@ -39,7 +39,11 @@ static func targets(world: Node) -> Array:
 			if target in ["yeoulmok_old_rift_entrance", "yeoulmok_rift_mark"]:
 				var site := world.get_node_or_null("RiftInvestigation")
 				if site != null:
-					var point: Vector2 = site.reach_position if target.ends_with("entrance") else site.global_position
+					var point: Vector2 = (
+						site.reach_position
+						if target.ends_with("entrance")
+						else site.global_position
+					)
 					return [{"position": point, "label": label}]
 			return _npc(world, target, label)
 	if states.get("MQ-01-05", {}).get("state") == "completed":

@@ -30,13 +30,18 @@ func run() -> void:
 			menu.confirmation.hide()
 	if DisplayServer.get_name() != "headless":
 		await RenderingServer.frame_post_draw
-		root.get_texture().get_image().save_png("res://../docs/qa/screenshots/play-feedback-save.png")
+		root.get_texture().get_image().save_png(
+			"res://../docs/qa/screenshots/play-feedback-save.png"
+		)
 	menu.close_menu()
 	var dialog = world.get_node("QuestDialog")
 	var journal = world.get_node("QuestController").journal
 	var reward_clicks := 0
 	for ratio in [0.1, 0.5, 0.9]:
-		check(journal.restore_state({"MQ-01-01": {"state": "active", "counts": [1, 0]}}) == "", "보상 검사 준비")
+		check(
+			journal.restore_state({"MQ-01-01": {"state": "active", "counts": [1, 0]}}) == "",
+			"보상 검사 준비"
+		)
 		dialog.open_dialog("yeoulmok_receptionist")
 		await process_frame
 		await process_frame
