@@ -61,6 +61,9 @@ func test_character_shortcut_opens_menu_on_character_tab() -> void:
 	_menu._on_tab_shortcut(IntegratedMenu.Tab.CHARACTER)
 	assert_true(_menu.is_open())
 	assert_eq(_menu.get_node("Tabs").current_tab, int(IntegratedMenu.Tab.CHARACTER))
+	for child in _menu.get_node("Tabs/CharacterTab/VBox").get_children():
+		if child is Button and child.text == "장비 관리":
+			assert_false(child.visible, "경제 화면 없는 기본 게임에는 빈 진입 버튼을 표시하지 않는다")
 
 
 func test_same_shortcut_twice_closes_menu() -> void:

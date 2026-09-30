@@ -286,15 +286,15 @@ func _label(parent: Node, text: String, font_size: int = 27) -> Label:
 
 
 func _make_button(parent: Node, text: String, callback: Callable) -> Button:
-	var button := Button.new()
+	var button := preload("res://scripts/economy/economy_item_button.gd").new()
 	button.text = text
 	UiStyle.apply_action_button(button)
 	button.custom_minimum_size.y = 66
 	parent.add_child(button)
 	button.gui_input.connect(
 		func(event):
-			if event is InputEventMouseButton and event.double_click:
-				button.set_meta("skip_double_click", true)
+			if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+				button.set_meta("skip_double_click", event.double_click)
 	)
 	button.pressed.connect(
 		func():
@@ -564,7 +564,7 @@ func _card(
 	)
 	button.custom_minimum_size = Vector2(width, 104 if view == "bag" else (92 if compact else 116))
 	button.set_meta("item_key", key)
-	button.tooltip_text = caption + ("" if item == null else " · " + item.item_name)
+	button.tooltip_text = caption if item == null else _item_tooltip(item)
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color("294758") if mode == view and selected == key else Color("203044")
 	style.border_color = Color("dfbd79") if mode == view and selected == key else Color("40556b")
@@ -615,6 +615,22 @@ func _card(
 		var kind := _label(box, View.effect(item) + " · " + View.condition(item), 24)
 		kind.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return button
+
+
+func _item_tooltip(item: ItemData) -> String:
+	var text := "%s\n%s · %s\n%s" % [View.item_name(item), View.KINDS[item.item_type], View.condition(item), View.effect(item)]
+	if item.move_speed_bonus != 0:
+		text += "\n이동 속도 %+.2f" % item.move_speed_bonus
+	if item.heal_amount > 0:
+		text += "\n창을 닫고 퀵슬롯 [5]로 사용 · 포션 재사용 대기 적용"
+	elif item.equip_slot == ItemData.EquipSlot.NONE:
+		text += "\n보유 재료 · 판매는 상점에서 가능합니다."
+	else:
+		var state: Dictionary = runtime.state()
+		for slot in state.equipment:
+			if runtime.model.registry.slots[slot] == item.equip_slot:
+				text += "\n\n" + SLOT_NAMES[slot] + " 비교\n" + View.comparison(runtime, item.item_id, slot)
+	return text
 
 
 func _show_details(state: Dictionary) -> void:

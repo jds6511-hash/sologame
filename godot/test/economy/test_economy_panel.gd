@@ -124,6 +124,20 @@ func test_bag_outside_shop_does_not_offer_purchase() -> void:
 	assert_eq(display.bag_rows.get_child_count(), 30)
 
 
+func test_item_hover_describes_effect_without_changing_selection() -> void:
+	var before: Dictionary = economy.state()
+	var card: Button
+	for child in display.rows.get_children():
+		if child.get_meta("item_key", "") == "POT-HP-1":
+			card = child
+	assert_not_null(card)
+	assert_true(card.tooltip_text.contains("HP"))
+	assert_true(card.tooltip_text.contains("회복"))
+	assert_true(card.tooltip_text.contains("재사용"))
+	card.mouse_entered.emit()
+	assert_eq(economy.state(), before)
+
+
 func test_quantity_purchase_cancel_sell_and_affordability() -> void:
 	display.select_item("POT-HP-1")
 	display.set_quantity(3)
@@ -205,6 +219,12 @@ func test_double_click_and_save_confirmation_cancel_do_not_repeat_actions() -> v
 	buy.gui_input.emit(event)
 	buy.pressed.emit()
 	assert_eq(economy.state().gold, 1000)
+	# 두 번째 누름을 버튼 밖에서 놓아 pressed가 없었던 뒤의 정상 클릭.
+	buy.gui_input.emit(event)
+	event.double_click = false
+	buy.gui_input.emit(event)
+	buy.pressed.emit()
+	assert_eq(economy.state().gold, 700, "취소된 더블클릭이 다음 클릭을 삼키지 않는다")
 	display.close()
 	var save = world.get_node("SaveMenu")
 	save.open_menu()

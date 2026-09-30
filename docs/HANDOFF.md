@@ -293,8 +293,8 @@ python validate_clipping.py          # 단면 잘림 — 현재 40파일 중 1�
 - **싱글플레이 PC 전용.** 멀티플레이·서버·PvP·수익 모델 작업 금지.
 - **API 키는 환경 변수만** (`GEMINI_API_KEY`, `PIXELLAB_API_KEY`). 이 프로젝트는 `.env` 파일을 쓰지 않고 `.gitignore`에도 없다. 코드·문서·커밋에 하드코딩 금지.
 - **`git add .` 절대 금지.** 에이전트마다 `git commit --only <자기 경로>`로 범위를 못박는다. 이 프로젝트에서 다른 에이전트의 스테이징을 흡수한 사고가 2번 있었다. 미추적 파일은 같은 명령에 `git add -N <경로>`를 먼저 붙여야 한다(`--only`가 미추적 경로를 거부한다).
-- **`godot/project.godot`은 어떤 경우에도 스테이징하지 않는다.** `godot --import`가 설정 키를 지운 이력이 있다. 임포트 전 백업 복사 → 실행 후 diff 확인이 절차다.
-- **커밋 금지 경로**: `godot/assets/tools/_raw_src/`, `docs/qa/screenshots/`, `_preview_*.png`, `.import` 파일.
+- **설정/임포트 파일**: `project.godot`·자산 `.import`의 의도한 필요 변경은 diff 확인 후 허용한다. 절차의 정본은 [AGENTS.md](../AGENTS.md)이며, 임포트 전 백업·실행 후 무관한 변경 확인은 유지한다(2026-09-30 디렉터 확인 반영).
+- **커밋 금지 경로**: `godot/assets/tools/_raw_src/`, `docs/qa/screenshots/`, `_preview_*.png`.
   - 임시 화면은 위 금지 경로에 두고, 보고서가 참조하는 재현 증거만 `docs/qa/evidence/`에 보관한다. MQ04 자체 증거4개·렌더 출력·링크를 이동했다. 이미 추적된 다른 작업자의 과거 화면9개는 이번 수정·이동·커밋에서 제외한다.
 - **서브에이전트에 `model:` 프론트매터를 넣지 않는다** — 디렉터가 설정한 세션 모델을 상속한다(2026-08-20 확정).
 - **QA 리포트는 휘발성** — 지적 사항이 전부 반영되면 리포트 파일을 삭제한다.

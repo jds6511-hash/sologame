@@ -25,6 +25,7 @@ var pause_arbiter: UiPauseArbiter
 var screen := "feature"
 var pause_box: VBoxContainer
 var heading: Label
+var _equipment_button: Button
 var _is_open: bool = false
 
 ## M3 B-4: 캐릭터/스킬 탭 실값 바인딩용 참조(bind_player가 채운다).
@@ -150,15 +151,17 @@ func _create_pause_menu() -> void:
 	_menu_button(pause_box, "설정", _show_settings)
 	_menu_button(pause_box, "게임 종료", _ask_quit)
 	pause_box.hide()
-	_menu_button(_character_tab.get_node("VBox"), "장비 관리", _open_equipment)
+	_equipment_button = _menu_button(_character_tab.get_node("VBox"), "장비 관리", _open_equipment)
+	_equipment_button.hide()
 
 
-func _menu_button(parent: Node, text: String, callback: Callable) -> void:
+func _menu_button(parent: Node, text: String, callback: Callable) -> Button:
 	var button := Button.new()
 	button.text = text
 	UiStyle.apply_action_button(button)
 	parent.add_child(button)
 	button.pressed.connect(callback)
+	return button
 
 
 func _show_settings() -> void:
@@ -329,6 +332,7 @@ func _on_job_changed(_job_id: StringName) -> void:
 
 ## 캐릭터 탭 실값 갱신 — 치명타%는 공유 CombatantStats에 없어 formula로 산출한다(spec 5-2).
 func _refresh_character_tab() -> void:
+	_equipment_button.visible = get_parent().has_node("EconomyPanel")
 	if _combat_stats == null:
 		return
 	var level: int = _progression.current_level if _progression else 1
