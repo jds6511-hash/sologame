@@ -9,7 +9,9 @@ func _initialize() -> void:
 
 
 func start() -> void:
-	var world = load("res://scripts/economy/economy_environment.gd").instantiate_world("novera_gate")
+	var world = load("res://scripts/economy/economy_environment.gd").instantiate_world(
+		"novera_gate"
+	)
 	world.set_meta("save_directory", SAVE_ROOT)
 	root.add_child(world)
 	current_scene = world
