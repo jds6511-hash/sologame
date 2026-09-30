@@ -1,5 +1,7 @@
 # M7 균열 던전·후반 의뢰·V7 통합 구현 검토
 
+> 독립 검토 수신(2026-09-30): `3dead15` **제품 통과**, Claude GUT1139/1139·API5/5. 전투0/3은 장거리 도보의 현재 칸 중앙 재방문과 구간 한도로 좁혀졌다. [후속 채택 검증 기록](m6-m7-adoption-evidence.md)을 우선한다. 아래는 검토 당시 실행 결과다.
+
 - 2026-09-30 / Codex. 기준 `b715d84`, 대상 **`3dead15`** (`f3675a4` 포함). 로컬 커밋·원격 미푸시. 기본 제품 채택 아님.
 - [설계](../design/systems/m7-chapter-two-closure.md), [구현 계획·결정](../design/systems/m7-closure-implementation-plan.md). 조건부 지적은 메인 골드8,000/8,650·서브 각1,890, 별도 INTERACT 표식·접수원 보고로 반영했다.
 
