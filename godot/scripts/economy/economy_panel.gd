@@ -54,6 +54,7 @@ var quantity_input: SpinBox
 var actions: VBoxContainer
 var shade: ColorRect
 var overflow_rows: VBoxContainer
+var overflow_scroll: ScrollContainer
 var overflow_toggle: Button
 var comparison_slot := ""
 var show_overflow := false
@@ -128,16 +129,28 @@ func setup(controller: Node) -> void:
 			search = value
 			refresh()
 	)
-	_make_button(filter_row, "정렬 ↕", func():
-		sort_reverse = not sort_reverse
-		refresh())
+	_make_button(
+		filter_row,
+		"정렬 ↕",
+		func():
+			sort_reverse = not sort_reverse
+			refresh()
+	)
 	rows = _grid(stock, 1, 1100, 500)
 	bag_rows = _grid(stock, 6, 1100, 500)
-	overflow_toggle = _make_button(stock, "보관 대기", func():
-		show_overflow = not show_overflow
-		refresh())
+	overflow_toggle = _make_button(
+		stock,
+		"보관 대기",
+		func():
+			show_overflow = not show_overflow
+			refresh()
+	)
+	overflow_scroll = ScrollContainer.new()
+	overflow_scroll.custom_minimum_size = Vector2(1100, 132)
+	overflow_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	stock.add_child(overflow_scroll)
 	overflow_rows = VBoxContainer.new()
-	stock.add_child(overflow_rows)
+	overflow_scroll.add_child(overflow_rows)
 	gear_rows = Control.new()
 	gear_rows.custom_minimum_size = Vector2(1100, 550)
 	stock.add_child(gear_rows)
@@ -278,7 +291,14 @@ func _make_button(parent: Node, text: String, callback: Callable) -> Button:
 	UiStyle.apply_action_button(button)
 	button.custom_minimum_size.y = 66
 	parent.add_child(button)
-	button.pressed.connect(callback)
+	button.gui_input.connect(func(event):
+		if event is InputEventMouseButton and event.double_click:
+			button.set_meta("skip_double_click", true))
+	button.pressed.connect(func():
+		if button.get_meta("skip_double_click", false):
+			button.set_meta("skip_double_click", false)
+			return
+		callback.call())
 	return button
 
 
@@ -290,8 +310,12 @@ func _clear(parent: Node) -> void:
 
 func _switch(view: String) -> void:
 	if mode == "bag" and view == "gear":
-		_bag_memory = {"selected": selected, "category": category, "search": search,
-			"scroll": bag_rows.get_parent().scroll_vertical}
+		_bag_memory = {
+			"selected": selected,
+			"category": category,
+			"search": search,
+			"scroll": bag_rows.get_parent().scroll_vertical
+		}
 	mode = view
 	_message = ""
 	category = 0
@@ -376,17 +400,21 @@ func refresh() -> void:
 	filter_row.visible = not equipment
 	bag_rows.columns = 1 if mode == "sell" else 6
 	overflow_toggle.visible = mode == "bag" and not state.overflow.is_empty()
-	overflow_toggle.text = "보관 대기 %d건 %s" % [state.overflow.size(), "접기" if show_overflow else "펼치기"]
-	overflow_rows.visible = overflow_toggle.visible and show_overflow
+	overflow_toggle.text = (
+		"보관 대기 %d건 %s" % [state.overflow.size(), "접기" if show_overflow else "펼치기"]
+	)
+	overflow_scroll.visible = overflow_toggle.visible and show_overflow
 	var item_ids: Array = runtime.model.items.keys()
-	item_ids.sort_custom(func(a, b):
-		var x: ItemData = runtime.model.items[a]
-		var y: ItemData = runtime.model.items[b]
-		var rx := _rank(x)
-		var ry := _rank(y)
-		var left := "%02d:%03d:%s:%s" % [rx, x.level_limit, x.item_name, a]
-		var right := "%02d:%03d:%s:%s" % [ry, y.level_limit, y.item_name, b]
-		return left > right if sort_reverse else left < right)
+	item_ids.sort_custom(
+		func(a, b):
+			var x: ItemData = runtime.model.items[a]
+			var y: ItemData = runtime.model.items[b]
+			var rx := _rank(x)
+			var ry := _rank(y)
+			var left := "%02d:%03d:%s:%s" % [rx, x.level_limit, x.item_name, a]
+			var right := "%02d:%03d:%s:%s" % [ry, y.level_limit, y.item_name, b]
+			return left > right if sort_reverse else left < right
+	)
 	if mode == "shop" and trading():
 		for id in item_ids:
 			if not runtime.model.catalog.prices.has(id):
@@ -416,7 +444,14 @@ func refresh() -> void:
 				)
 			):
 				continue
-			_card(bag_rows, entry.item_id, item, "보유 %d개" % entry.quantity, mode, 1080 if mode == "sell" else 172)
+			_card(
+				bag_rows,
+				entry.item_id,
+				item,
+				"보유 %d개" % entry.quantity,
+				mode,
+				1080 if mode == "sell" else 172
+			)
 		if mode == "bag":
 			for index in state.overflow.size():
 				_card(
@@ -428,13 +463,21 @@ func refresh() -> void:
 					1080
 				)
 		if bag_rows.get_child_count() == 0:
-			_empty(
-				bag_rows, "판매할 물건이 없습니다." if mode == "sell" else "가방이 비어 있거나 검색 조건에 맞는 물건이 없습니다."
-			)
+			if mode == "sell":
+				_empty(bag_rows, "판매할 물건이 없습니다.")
+			else:
+				explanation.text = "가방이 비어 있거나 검색 조건에 맞는 물건이 없습니다."
 	if mode in ["bag", "sell"] and not selected.begins_with("overflow:"):
-		if not runtime.model.items.has(selected) or runtime.model.quantity(state.bag, selected) == 0 or not _matches(runtime.model.items[selected]):
+		if (
+			not runtime.model.items.has(selected)
+			or runtime.model.quantity(state.bag, selected) == 0
+			or not _matches(runtime.model.items[selected])
+		):
 			selected = ""
-	if mode == "bag" and not state.bag.is_empty():
+	if mode == "shop" and runtime.model.items.has(selected):
+		if not _matches(runtime.model.items[selected]):
+			selected = ""
+	if mode == "bag":
 		for _index in range(bag_rows.get_child_count(), 30):
 			var empty := Panel.new()
 			empty.custom_minimum_size = Vector2(172, 104)
@@ -574,13 +617,8 @@ func _show_details(state: Dictionary) -> void:
 	if not _pending.is_empty():
 		_label(details, _pending.label + "\n판매하시겠습니까?", 28)
 		_make_button(actions, "%d개 판매" % _pending.count, _confirm)
-		_make_button(
-			actions,
-			"취소",
-			func():
-				_pending.clear()
-				refresh()
-		).grab_focus()
+		var cancel := _make_button(actions, "취소", _cancel_sale)
+		cancel.grab_focus()
 		return
 	if selected.begins_with("overflow:"):
 		var index := int(selected.get_slice(":", 1))
@@ -623,9 +661,13 @@ func _show_details(state: Dictionary) -> void:
 				comparison_slot = available[0]
 			if available.size() > 1:
 				for slot in available:
-					_make_button(details, SLOT_NAMES[slot] + " 비교", func():
-						comparison_slot = slot
-						refresh())
+					_make_button(
+						details,
+						SLOT_NAMES[slot] + " 비교",
+						func():
+							comparison_slot = slot
+							refresh()
+					)
 			_label(details, View.comparison(runtime, id, comparison_slot))
 	elif mode == "sell":
 		_quantity_picker(state, id, false)
@@ -659,6 +701,11 @@ func _show_details(state: Dictionary) -> void:
 			_label(details, "사냥과 제작에 쓰이는 보유 재료입니다. 판매는 상점에서 할 수 있습니다.")
 		if mode == "equip_choice":
 			_replacements(state, gear_target)
+
+
+func _cancel_sale() -> void:
+	_pending.clear()
+	refresh()
 
 
 func _replacements(state: Dictionary, slot: String) -> void:
@@ -712,7 +759,10 @@ func _action(
 	if error != "":
 		var reason: String = ERRORS.get(error, "현재 실행할 수 없습니다")
 		if error == "gold" and runtime.model.catalog.prices.has(id):
-			reason = "%d G 부족합니다" % (runtime.model.catalog.prices[id].buy * maxi(1, count) - runtime.state().gold)
+			reason = (
+				"%d G 부족합니다"
+				% (runtime.model.catalog.prices[id].buy * maxi(1, count) - runtime.state().gold)
+			)
 		elif error == "bag_full":
 			reason = "물건을 넣을 가방 공간이 부족합니다. 판매하거나 칸을 비워 주세요."
 		_label(actions, reason)
@@ -770,7 +820,10 @@ func set_quantity(value: int) -> void:
 func _quantity_picker(state: Dictionary, id: String, buy: bool) -> void:
 	var limit: int = runtime.model.quantity(state.bag, id)
 	if buy:
-		limit = mini(int(state.gold / runtime.model.catalog.prices[id].buy), runtime.model.LIMIT - runtime.model.quantity(state.bag, id))
+		limit = mini(
+			int(state.gold / runtime.model.catalog.prices[id].buy),
+			runtime.model.LIMIT - runtime.model.quantity(state.bag, id)
+		)
 		if state.bag.size() >= 30 and runtime.model.quantity(state.bag, id) == 0:
 			limit = 0
 	quantity = clampi(quantity, 1 if limit > 0 else 0, limit)

@@ -120,7 +120,8 @@ func test_bag_outside_shop_does_not_offer_purchase() -> void:
 	display.open("bag")
 	assert_eq(display.mode, "bag")
 	assert_false(display.rows.get_parent().visible)
-	assert_true(display.bag_rows.get_child(0).text.contains("비어"))
+	assert_true(display.explanation.text.contains("비어"))
+	assert_eq(display.bag_rows.get_child_count(), 30)
 
 
 func test_quantity_purchase_cancel_sell_and_affordability() -> void:
@@ -188,6 +189,34 @@ func test_pause_save_return_and_direct_save_close() -> void:
 	save.close_menu()
 	assert_false(menu.is_open())
 	assert_false(get_tree().paused)
+
+
+func test_double_click_and_save_confirmation_cancel_do_not_repeat_actions() -> void:
+	display.select_item("POT-HP-1")
+	var buy: Button
+	for child in display.actions.get_children():
+		if child is Button and child.text == "1개 구매 · 300 G":
+			buy = child
+	assert_not_null(buy)
+	var event := InputEventMouseButton.new()
+	event.double_click = true
+	event.pressed = true
+	event.button_index = MOUSE_BUTTON_LEFT
+	buy.gui_input.emit(event)
+	buy.pressed.emit()
+	assert_eq(economy.state().gold, 1000)
+	display.close()
+	var save = world.get_node("SaveMenu")
+	save.open_menu()
+	save.request_action("new")
+	var escape := InputEventKey.new()
+	escape.keycode = KEY_ESCAPE
+	escape.pressed = true
+	save._input(escape)
+	assert_false(save.confirmation.visible)
+	assert_true(save.panel.visible)
+	assert_true(get_tree().paused)
+	save.close_menu()
 
 
 func test_character_equipment_and_bag_share_pause_owner() -> void:

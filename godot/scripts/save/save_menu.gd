@@ -109,7 +109,10 @@ func _input(event: InputEvent) -> void:
 			open_menu()
 		get_viewport().set_input_as_handled()
 	elif event.keycode == KEY_ESCAPE and panel.visible:
-		close_menu()
+		if confirmation.visible:
+			confirmation.hide()
+		else:
+			close_menu()
 		get_viewport().set_input_as_handled()
 
 
@@ -137,7 +140,11 @@ func close_menu(return_to_parent: bool = true) -> void:
 	_arbiter.release(self)
 	var previous := _return_menu
 	_return_menu = null
-	if return_to_parent and is_instance_valid(previous) and not session.world.is_queued_for_deletion():
+	if (
+		return_to_parent
+		and is_instance_valid(previous)
+		and not session.world.is_queued_for_deletion()
+	):
 		previous.open_settings()
 
 

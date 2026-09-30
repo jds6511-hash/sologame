@@ -3,6 +3,7 @@ extends RefCounted
 
 const KINDS := ["무기", "방어구", "장신구", "회복약", "특수 무기", "재료"]
 const STATS := ["옵션 없음", "공격력", "방어력", "치명타 확률", "최대 HP", "최대 MP", "공격 속도"]
+static var _icons: Dictionary = {}
 
 
 static func item_name(item: ItemData) -> String:
@@ -18,8 +19,14 @@ static func effect(item: ItemData) -> String:
 		return "HP %d 회복" % item.heal_amount
 	if item.main_stat_type == ItemData.MainStatType.NONE:
 		return KINDS[item.item_type]
-	return "%s +%.2f%s" % [STATS[item.main_stat_type], item.main_stat_value,
-		"%" if item.main_stat_type in [3, 4, 6] else ""]
+	return (
+		"%s +%.2f%s"
+		% [
+			STATS[item.main_stat_type],
+			item.main_stat_value,
+			"%" if item.main_stat_type in [3, 4, 6] else ""
+		]
+	)
 
 
 static func condition(item: ItemData) -> String:
@@ -37,7 +44,22 @@ static func icon(item: ItemData) -> Texture2D:
 	var exact := "res://assets/icons/items/" + item.item_id.to_lower().replace("-", "_") + ".png"
 	if ResourceLoader.exists(exact):
 		return load(exact)
-	return null
+	var kind := int(item.item_type)
+	if not _icons.has(kind):
+		var shapes := [
+			'<path d="M7 25L25 7M18 6L26 6L26 14M6 19L13 26"/>',
+			'<path d="M6 6L16 3L26 6V17L16 28L6 17Z"/>',
+			'<circle cx="16" cy="18" r="9"/><path d="M11 6L16 2L21 6L16 11Z"/>',
+			'<path d="M12 3H20V11L25 18V27H7V18L12 11Z"/><path d="M8 20H24"/>',
+			'<path d="M7 25L25 7M18 6L26 6L26 14M6 19L13 26"/>',
+			'<path d="M4 12L16 5L28 12V25H4ZM4 12H28M16 5V25"/>'
+		]
+		var svg := '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32">'
+		svg += '<g fill="#263b50" stroke="#e9cb86" stroke-width="2">' + shapes[kind] + '</g></svg>'
+		var image := Image.new()
+		if image.load_svg_from_string(svg) == OK:
+			_icons[kind] = ImageTexture.create_from_image(image)
+	return _icons.get(kind)
 
 
 static func comparison(runtime: Node, id: String, slot: String) -> String:
@@ -55,9 +77,16 @@ static func comparison(runtime: Node, id: String, slot: String) -> String:
 		text += "\n상품 이동 속도 +%.2f" % item.move_speed_bonus
 	var next: Dictionary = state.equipment.duplicate()
 	next[slot] = id
-	var before: CombatantStats = runtime.model.stats(runtime.level(), runtime.job_id(), state.equipment)
+	var before: CombatantStats = runtime.model.stats(
+		runtime.level(), runtime.job_id(), state.equipment
+	)
 	var after: CombatantStats = runtime.model.stats(runtime.level(), runtime.job_id(), next)
 	for key in ["attack_power", "defense", "max_hp", "max_mp"]:
-		var title: String = {"attack_power": "공격력", "defense": "방어력", "max_hp": "최대 HP", "max_mp": "최대 MP"}[key]
-		text += "\n%s %.1f → %.1f (%+.1f)" % [title, before.get(key), after.get(key), after.get(key) - before.get(key)]
+		var title: String = {
+			"attack_power": "공격력", "defense": "방어력", "max_hp": "최대 HP", "max_mp": "최대 MP"
+		}[key]
+		text += (
+			"\n%s %.1f → %.1f (%+.1f)"
+			% [title, before.get(key), after.get(key), after.get(key) - before.get(key)]
+		)
 	return text
