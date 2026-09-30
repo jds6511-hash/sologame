@@ -83,9 +83,7 @@ func act(kind: String, id: String = "", slot: String = "", count: int = 1) -> St
 		return "economy_content_error"
 	if (
 		kind in ["buy", "sell"]
-		and (
-			preload("res://scripts/economy/economy_merchants.gd").nearest(player) == null
-		)
+		and (preload("res://scripts/economy/economy_merchants.gd").nearest(player) == null)
 	):
 		return "merchant_distance"
 	if player.get_node("PlayerStats").is_dead() or player.is_input_locked:

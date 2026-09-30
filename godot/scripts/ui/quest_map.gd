@@ -21,7 +21,9 @@ func _draw() -> void:
 	if not is_instance_valid(world):
 		return
 	var font = load(UiStyle.FONT_BODY_PATH)
-	var bounds: Rect2 = world.get_meta("region_bounds", Regions.BOUNDS.get(world.map_id, Rect2(0, 0, 768, 576)))
+	var bounds: Rect2 = world.get_meta(
+		"region_bounds", Regions.BOUNDS.get(world.map_id, Rect2(0, 0, 768, 576))
+	)
 	var scale_factor := minf((size.x - 100) / bounds.size.x, (size.y - 160) / bounds.size.y)
 	if scale_factor <= 0:
 		return

@@ -21,9 +21,9 @@ var world: Node
 var account_error := ""
 var last_message := "슬롯을 선택해 저장하세요. 자동 저장은 첫 저장 후 시작됩니다."
 var auto_wait_reason := ""
+var regions = Regions
 var _auto_elapsed := 0.0
 var _play_seconds := 0.0
-var regions = Regions
 var _destination := Regions.START
 
 

@@ -7,9 +7,11 @@ var legacy = Economy.new()
 var expanded = Economy.new()
 var model = legacy.model
 
+
 func _init() -> void:
 	expanded.expanded.quest_catalog = CatalogM7.new(expanded.expanded.registry)
 	expanded.expanded.regions = RegionsM7
+
 
 func validate(data: Dictionary, account: Dictionary) -> String:
 	if data.get("character_save_version") != 6:
@@ -23,6 +25,7 @@ func validate(data: Dictionary, account: Dictionary) -> String:
 		if data.progress.quests.get("MQ-01-05", {}).get("state") != "completed":
 			return "region_locked"
 	return ""
+
 
 func upgrade(data: Dictionary, account: Dictionary) -> Dictionary:
 	var error := validate(data, account)

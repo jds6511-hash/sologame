@@ -2,16 +2,19 @@ extends "res://scripts/npc/quest_npc.gd"
 var source := ""
 var kind := "REACH"
 
+
 func update_target() -> void:
 	_available = _can_interact()
 	if _available and kind == "REACH":
 		_controller.journal.record_event(kind, npc_id, source, 0)
+
 
 func interact() -> bool:
 	if not can_interact():
 		return false
 	_controller.journal.record_event(kind, npc_id, source, 0)
 	return true
+
 
 func can_interact() -> bool:
 	# REACH는 자동 관측만 한다. 미수락/완료 표식은 드롭의 F 입력을 가로채지 않는다.
@@ -22,8 +25,10 @@ func can_interact() -> bool:
 			return true
 	return false
 
+
 func interaction_verb() -> String:
 	return "조사" if kind == "INTERACT" else "표식 확인"
+
 
 func _draw() -> void:
 	draw_circle(Vector2.ZERO, 6, Color("41a6f6"))

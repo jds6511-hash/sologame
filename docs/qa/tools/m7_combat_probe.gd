@@ -1,6 +1,8 @@
 ## 1장 완료·누적3820 EXP만 준비한다. 2장 수락/처치/조사/보고는 제품 입력 경로.
+# gdlint: disable=max-returns
 extends "res://../docs/qa/tools/m6_combat_probe.gd"
 const RegionsM7 = preload("res://scripts/chapter_two/m7_regions.gd")
+
 
 func _initialize() -> void:
 	save_root = "user://m7_candidate_combat"
@@ -8,8 +10,10 @@ func _initialize() -> void:
 	create_timer(240).timeout.connect(_timeout)
 	_run.call_deferred()
 
+
 func _instantiate_onboarding_world() -> Node:
 	return load("res://scripts/chapter_two/m7_environment.gd").instantiate_world("novera_commons")
+
 
 func _play(phase: String) -> void:
 	if phase not in ["play", "reload"]:
@@ -24,14 +28,18 @@ func _play(phase: String) -> void:
 	if phase == "reload":
 		_check(world.get_node("SaveSession").load_slot(1).ok, "M7 별도 프로세스 복원")
 		await _refresh_world()
-		var expected = JSON.parse_string(FileAccess.get_file_as_string(save_root.path_join("expected.json")))
+		var expected = JSON.parse_string(
+			FileAccess.get_file_as_string(save_root.path_join("expected.json"))
+		)
 		_check(expected == JSON.parse_string(JSON.stringify(_snapshot())), "M7 전투 진행 스냅샷 복원")
 		completed_flow = true
 		return
 	var journal = world.get_node("QuestController").journal
 	var fixture := {}
 	for id in QuestCatalog.ORDER:
-		fixture[id] = {"state": "completed", "counts": Array(journal.catalog.definitions[id].objective_counts)}
+		fixture[id] = {
+			"state": "completed", "counts": Array(journal.catalog.definitions[id].objective_counts)
+		}
 	_check(journal.restore_state(fixture) == "", "1장 완료 준비 fixture")
 	player.get_node("PlayerProgression").add_exp(3820)
 	for number in range(1, 5):
@@ -43,11 +51,15 @@ func _play(phase: String) -> void:
 		if not await _gate("novera_outskirts"):
 			return
 		if number <= 3:
-			var source: String = ["novera_dog_habitat", "novera_water_habitat", "novera_rift_habitat"][number - 1]
+			var source: String = [
+				"novera_dog_habitat", "novera_water_habitat", "novera_rift_habitat"
+			][number - 1]
 			if not await _kills(id, source):
 				return
 		if number > 1:
-			var point: Vector2 = [Vector2(352, 272), Vector2(1120, 272), Vector2(272, 128)][number - 2]
+			var point: Vector2 = [Vector2(352, 272), Vector2(1120, 272), Vector2(272, 128)][
+				number - 2
+			]
 			if not await _walk(point):
 				return
 			if number == 3:
@@ -72,6 +84,7 @@ func _play(phase: String) -> void:
 	file.close()
 	completed_flow = true
 
+
 func _gate(destination: String) -> bool:
 	var edge := RegionsM7.edge(world.map_id, destination)
 	if not await _walk(edge[2] + Vector2(0, 24)):
@@ -81,6 +94,7 @@ func _gate(destination: String) -> bool:
 	await _refresh_world()
 	_check(world.map_id == destination, "입력 지역 이동 " + destination)
 	return world.map_id == destination
+
 
 func _kills(id: String, source: String) -> bool:
 	for tick in 5400:

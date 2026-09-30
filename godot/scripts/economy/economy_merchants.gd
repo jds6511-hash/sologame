@@ -1,4 +1,6 @@
 extends RefCounted
+
+
 ## UI와 확정 거래가 같은 월드의 실제 상인 위치를 사용한다.
 static func nearest(player: Node2D) -> Node2D:
 	if not is_instance_valid(player) or not player.is_inside_tree():

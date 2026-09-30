@@ -302,10 +302,7 @@ func world_error(data: Variant) -> String:
 		]
 	):
 		return "world_fields"
-	if (
-		not data.map_id is String
-		or not regions.SCENES.has(data.map_id)
-	):
+	if not data.map_id is String or not regions.SCENES.has(data.map_id):
 		return "unknown_map"
 	if not data.position is Array or data.position.size() != 2:
 		return "position"

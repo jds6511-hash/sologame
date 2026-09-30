@@ -2,6 +2,7 @@ extends RefCounted
 const RegionsM7 = preload("res://scripts/chapter_two/m7_regions.gd")
 const LayoutM7 = preload("res://scripts/chapter_two/m7_layout.gd")
 
+
 static func targets(world: Node) -> Array:
 	var controller := world.get_node_or_null("QuestController")
 	if controller == null:
@@ -19,7 +20,12 @@ static func targets(world: Node) -> Array:
 			continue
 		var definition: QuestData = journal.catalog.definitions[id]
 		if state.is_empty() or state.state == "ready":
-			return _project(world, "novera_commons", [Vector2(480, 320)], ("수락: " if state.is_empty() else "보고: ") + definition.title)
+			return _project(
+				world,
+				"novera_commons",
+				[Vector2(480, 320)],
+				("수락: " if state.is_empty() else "보고: ") + definition.title
+			)
 		for index in definition.objective_counts.size():
 			if state.counts[index] >= definition.objective_counts[index]:
 				continue
@@ -34,12 +40,18 @@ static func targets(world: Node) -> Array:
 				return _project(world, "novera_commons", [Vector2(544, 320)], label)
 	return _project(world, "novera_commons", [Vector2(544, 320)], "이번 구간 완료 · 전직 [V] / 정비")
 
+
 static func _project(world: Node, region: String, points: Array, label: String) -> Array:
 	if region != world.map_id:
 		var gate := RegionsM7.next_gate(world.map_id, region)
 		if gate == "":
 			return []
-		return [{"position": RegionsM7.EDGES[gate][2], "label": RegionsM7.NAMES[region] + " 방향 · " + label}]
+		return [
+			{
+				"position": RegionsM7.EDGES[gate][2],
+				"label": RegionsM7.NAMES[region] + " 방향 · " + label
+			}
+		]
 	var result := []
 	for point in points:
 		result.append({"position": point, "label": label})

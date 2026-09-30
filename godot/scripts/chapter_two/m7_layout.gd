@@ -3,13 +3,15 @@ const RegionsM7 = preload("res://scripts/chapter_two/m7_regions.gd")
 const HABITATS := {
 	"novera_dog_habitat": [Vector2(384, 560), Vector2(608, 560), Vector2(832, 560)],
 	"novera_water_habitat": [Vector2(448, 352), Vector2(672, 352), Vector2(896, 352)],
-	"novera_rift_habitat": [Vector2(544, 128), Vector2(736, 128), Vector2(928, 128), Vector2(1120, 128)],
+	"novera_rift_habitat":
+	[Vector2(544, 128), Vector2(736, 128), Vector2(928, 128), Vector2(1120, 128)],
 }
 const SITES := {
 	"novera_water_marker": [Vector2(352, 272), "novera_water_site", "REACH", "물가 통행 표식"],
 	"novera_rift_marker": [Vector2(1120, 272), "novera_rift_site", "INTERACT", "균열 흔적 조사"],
 	"novera_patrol_marker": [Vector2(272, 128), "novera_patrol_site", "REACH", "외곽 정찰 표식"],
 }
+
 
 static func prepare(world: Node2D) -> void:
 	var bounds: Rect2 = RegionsM7.BOUNDS[world.map_id]

@@ -41,7 +41,11 @@ func setup(quests: QuestController) -> void:
 
 
 func open_dialog(npc_id: String) -> bool:
-	if not controller.journal.catalog.npc_scenes.has(npc_id) or panel.visible or not _arbiter.acquire(self):
+	if (
+		not controller.journal.catalog.npc_scenes.has(npc_id)
+		or panel.visible
+		or not _arbiter.acquire(self)
+	):
 		return false
 	_npc_id = npc_id
 	controller.journal.record_event("TALK", npc_id, "", 0)

@@ -268,9 +268,7 @@ func _show_hint(value: bool) -> void:
 
 
 func trading() -> bool:
-	return (
-		preload("res://scripts/economy/economy_merchants.gd").nearest(runtime.player) != null
-	)
+	return preload("res://scripts/economy/economy_merchants.gd").nearest(runtime.player) != null
 
 
 func _label(parent: Node, text: String, font_size: int = 27) -> Label:

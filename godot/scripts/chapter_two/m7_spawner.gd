@@ -3,6 +3,7 @@ const LayoutM7 = preload("res://scripts/chapter_two/m7_layout.gd")
 var world: Node2D
 var slots: Array[Dictionary] = []
 
+
 func start(owner_world: Node2D) -> void:
 	world = owner_world
 	for source in LayoutM7.HABITATS:
@@ -11,6 +12,7 @@ func start(owner_world: Node2D) -> void:
 			slots.append(slot)
 			_spawn(slot)
 
+
 func _process(delta: float) -> void:
 	if not is_instance_valid(world) or world.is_queued_for_deletion():
 		return
@@ -18,8 +20,12 @@ func _process(delta: float) -> void:
 		if is_instance_valid(slot.monster):
 			continue
 		slot.wait += delta
-		if slot.wait >= 30 and world.get_node("Player").global_position.distance_to(slot.point) > 160:
+		if (
+			slot.wait >= 30
+			and world.get_node("Player").global_position.distance_to(slot.point) > 160
+		):
 			_spawn(slot)
+
 
 func _spawn(slot: Dictionary) -> void:
 	var dog: bool = slot.source == "novera_dog_habitat"

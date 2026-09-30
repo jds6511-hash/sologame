@@ -2,8 +2,10 @@ extends "res://scripts/economy/economy_environment.gd".CandidateWorld
 const RegionsM7 = preload("res://scripts/chapter_two/m7_regions.gd")
 const LayoutM7 = preload("res://scripts/chapter_two/m7_layout.gd")
 
+
 func _create_save_session() -> Node:
 	return load("res://scripts/chapter_two/m7_environment.gd").SessionM7.new()
+
 
 func _prepare_region() -> void:
 	if map_id in ["eastern_frontier_start", "novera_gate"]:
@@ -11,6 +13,7 @@ func _prepare_region() -> void:
 	else:
 		LayoutM7.prepare(self)
 	set_meta("region_bounds", RegionsM7.BOUNDS[map_id])
+
 
 func _setup_quest_ui(quests: QuestController) -> void:
 	if map_id in ["eastern_frontier_start", "novera_gate"]:
@@ -30,7 +33,10 @@ func _setup_quest_ui(quests: QuestController) -> void:
 		add_child(selection)
 		selection.setup(_player, _hud)
 	for id in RegionsM7.EDGES:
-		if RegionsM7.EDGES[id][0] == map_id and id not in ["yeoulmok_gatewarden", "novera_gatewarden"]:
+		if (
+			RegionsM7.EDGES[id][0] == map_id
+			and id not in ["yeoulmok_gatewarden", "novera_gatewarden"]
+		):
 			var npc := _npc(id, RegionsM7.EDGES[id][2], quests.journal.catalog.npc_names[id])
 			npc.set_meta("region_gate", true)
 	if map_id == "novera_commons":
@@ -49,6 +55,7 @@ func _setup_quest_ui(quests: QuestController) -> void:
 			site.setup(_player, quests, get_node("QuestDialog"), _hud)
 			get_node("WorldInteraction").candidates.append(site)
 
+
 func _npc(id: String, point: Vector2, title: String) -> Node2D:
 	var npc = load("res://scenes/npc/quest_receptionist.tscn").instantiate()
 	npc.npc_id = id
@@ -59,6 +66,7 @@ func _npc(id: String, point: Vector2, title: String) -> Node2D:
 	get_node("WorldInteraction").candidates.append(npc)
 	return npc
 
+
 func _name_label(node: Node2D, title: String) -> void:
 	var label := Label.new()
 	label.name = "Name"
@@ -67,6 +75,7 @@ func _name_label(node: Node2D, title: String) -> void:
 	label.size = Vector2(80, 16)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	node.add_child(label)
+
 
 func _ready() -> void:
 	super._ready()
@@ -91,6 +100,7 @@ func _ready() -> void:
 		spawns.name = "OutskirtsSpawner"
 		add_child(spawns)
 		spawns.start(self)
+
 
 func quest_targets() -> Array:
 	return load("res://scripts/chapter_two/m7_navigation.gd").targets(self)
