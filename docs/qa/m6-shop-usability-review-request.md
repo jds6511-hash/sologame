@@ -1,25 +1,28 @@
-# M6 거래 화면 재구성·수량 거래·지역 이동 통합 검토
+# 상점·가방·장비 분리 및 공통 글꼴 검토
 
-- 날짜: 2026-09-30 / 담당: Codex / 기준: `6dc71c5` / 대상: **`d4e2e48`** (`549a9bb` 포함, 로컬·원격 미푸시)
-- 변경 이력: `b1523ae` 제품 검토 통과를 수용하고 디렉터의 NPC 이름·다중 구매·UI 재설계·이동 대기 제거 요청을 통합했다.
+- 날짜: 2026-09-30 / 담당: Codex / 기준: `afcb001` / 대상: **`f21899e`** (`e376818` 포함, 로컬 완료·원격 미푸시)
+- 변경 이력: 디렉터가 동시 배치와 거친 글씨를 반려해 [분리 설계](../design/systems/shop-inventory-typography.md)로 대체하고 인터넷에서 공식 무료 글꼴을 찾아 적용했다.
 
 ## 제품 변경
 
-- 기존 세 탭을 상품 / 착용 장비와 가방 / 선택 상세의 동시 배치로 바꿨다. 상품 분류·이름 검색, 선택 강조, 현재 보유품·슬롯 표시를 제공한다. 가방 클릭은 장착/판매, 장비 클릭은 해제이며 빈 칸·보관품 회수도 구분한다.
-- 구매·판매 수량 직접 입력, −/+/최대, 총액·구매 후 잔액을 표시한다. 보유 골드/수량/가방 공간에 맞춰 수량을 제한하고 확정 시 기존 `EconomyRuntime.act`가 재검증한다. 선택·취소는 상태를 바꾸지 않는다.
-- NPC는 기본 8px 글꼴 대신 Galmuri9를 명시한다. 첫 렌더에서 글꼴 지정만으로 흐림이 남아 NPC 전용 FontFile 사본에 oversampling=1·안티앨리어싱/서브픽셀 끄기를 적용했다. 최종 화면에서 노베라 안내인·보급상 이름을 직접 확인했다. 공용 UI 글꼴 리소스는 바꾸지 않는다.
-- 디렉터 최신 지시대로 지역 이동의 전투 5초·스킬/포션 재사용 대기·버프·공격/피격/대시·보스 교전 제한을 제거했다. 관문 대화도 교전 중 가능하다. 사망/부활·입력 잠금·보상/거래 처리·의뢰 개방·관문 거리 검사는 유지한다. **수동/자동 저장 안전 판정은 그대로다.**
+- **상점(F)**: 구매/판매 전용. 판매는 가방 소지품만, 착용품 제외. 상품 분류/검색·수량·총액·확인/취소와 장비 읽기 전용 비교를 제공하며 장착 버튼은 없다.
+- **가방(B)**: 보유품·수량·장착·보관품 회수. 거래 버튼 없음. ‘장비 보기’로 별도 화면 전환.
+- **장비**: 캐릭터 주변8슬롯·실제 능력치. 슬롯 선택 시 해당 부위 가방 후보만 표시하고 독립 반지 칸까지 교체한다. 해제는 가방으로, ‘가방으로’는 화면 복귀. 화면 전환은 pending·검색·이전 메시지를 초기화하며 pause를 유지한다. 모든 쓰기는 기존 EconomyRuntime.act를 통한다.
+- **폰트**: Pretendard v1.3.9 Regular/SemiBold 공식 TTF와 SIL OFL 원문·출처·SHA-256을 [폰트 README](../../godot/assets/fonts/README.md)에 동봉했다. UI/HUD·대화 기본 폰트와 NPC 이름에 적용. 작은 픽셀 글자 확대 대신 MSDF와 선형 필터로 윤곽을 유지한다. 스프라이트 최근접 필터는 유지한다. 두 신규 `.import`를 명시 추적해 MSDF 설정을 보존한다.
+- 디렉터의 게임 전반 폰트 적용을 위해 `project.godot`은 **gui/theme/custom_font 한 키만** 의도적으로 변경했다. 입력·창·렌더 설정 유실 없음(diff 대조). 과거 일괄 스테이징 금지를 일반적으로 해제한 것은 아니다. 저장 형식·가격·전투 판정 변경 없음.
 
-## 검증과 QA 변경
+## 검증
 
-전체 GUT **1107/1107**, 128 scripts, 관측 13,489 asserts, exit0. SCRIPT ERROR 0, 기존 저장 I/O ExpectedError 1. GD10개 gdformat/gdlint·diff check 통과. 3개 구매→취소 불변→확정/골드→2개 판매, 장착/해제/회수, 한글 글꼴/렌더 설정, 교전 중 관문 대화와 저장 제한을 검사했다. 렌더 경제 seed PASS, 상점·가방·NPC 화면 확인, **M6 상점 테스트.exe** smoke exit0. 캡처는 ignored `screenshots/m6-{shop,bag,npc-names}.png`. [공통 기능 증거와 자동 조작 한계](g3-g5-functional-evidence.md).
+전체 GUT **1109/1109**,128 scripts, 관측13,509 asserts, exit0. SCRIPT ERROR0, 기존 저장 I/O ExpectedError1. 새 검사는 화면별 액션 분리, 수량 거래, 착용품 판매 제외, 반지2 교체 시 반지1 불변과 가방 회수, 폰트/MSDF 설정을 포함한다. 첫 실행의 검색 초기화 API 오류는 수정 후 전체 재검증했다.
 
-QA는 후보 격자를16px로 복귀하고 드롭이 없으면 최대5400틱 정상 공격으로 추가 사냥한다(전체240초 제한 유지). 드롭 생성·상태 주입·검사 생략은 없다. 고정3회 결과: 경제 각4/4, 전투 **1/3**, 배치 종료 **1,1,0**. `screenshots/m6/20260930-165457`은 MQ02 사망, `165532`는 드롭 접근 후 프롬프트/가방 증가 실패, `165629`는 실제 줍기·5개 의뢰·별도 프로세스 복원 통과. 두 새 실패의 제품/조작기 원인은 미확정이다. M6 채택 조건3/3 미달이며 추가 성공 표본을 골라 합격시키지 않았다. 이후 NPC 글꼴 렌더 수정은 별도 렌더·GUT로 검증했다.
+경제 cleanup→seed→reload→cleanup **4/4 PASS** (`screenshots/m6/20260930-175207`). 최종 렌더 seed PASS, 상점·가방·장비·NPC 이름 PNG를 직접 확인했다. `M6 상점 테스트.exe --smoke` exit0. GD5개 포맷/린트·diff check 통과. 캡처는 ignored `screenshots/m6-{shop,bag,equipment,npc-names}.png`.
 
-재현: `godot --headless --path godot -s addons/gut/gut_cmdln.gd -gdir=res://test -ginclude_subdirs -gexit`; `godot --path godot --script ../docs/qa/tools/m6_candidate_probe.gd -- seed`; `powershell -ExecutionPolicy Bypass -File docs/qa/tools/run_m6_candidate.ps1 -Combat`(실제 포인터 이동).
+이번 UI/폰트 변경에 전투3회 배치는 재실행하지 않았다. 직전1/3과 **M6 채택 미통과는 유지**한다. OS 입력·미감 승인이 아닌 자동 기능/정지 렌더 증거다. [공통 한계·게이트 기록](g3-g5-functional-evidence.md).
+
+재현: `godot --headless --path godot -s addons/gut/gut_cmdln.gd -gdir=res://test -ginclude_subdirs -gexit`; `powershell -ExecutionPolicy Bypass -File docs/qa/tools/run_m6_candidate.ps1`; 렌더 `godot --path godot --script ../docs/qa/tools/m6_candidate_probe.gd -- seed`.
 
 ## 검토 질문
 
-1. 수량·검색·선택·확정/취소와 동시 배치가 거래 원자성·장착·가방/overflow·pause 계약을 유지하는가?
-2. 관문 도주는 허용하면서 사망/거래/보상과 저장 안전 경계는 유지되는가?
-3. 한글 글꼴 변경 범위와 반복 실패·단일 완주 증거를 실제 확인한 범위로 보고했는가?
+1. 상점의 구매/판매와 가방/장비의 장착/해제가 화면·확정 동작까지 분리되고 상태 유실·pause 회귀가 없는가?
+2. 슬롯 후보와 반지2 교체·수량·확인 취소가 기존 모델 계약을 지키는가?
+3. 공식 폰트 출처/라이선스·MSDF 재현 설정·전역 폰트 변경 범위와 검증 한정이 정확한가?
