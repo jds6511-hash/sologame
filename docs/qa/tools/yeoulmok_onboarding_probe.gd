@@ -178,10 +178,11 @@ func _state(id: String) -> String:
 
 func _walk(target: Vector2) -> bool:
 	var start := player.position
-	var path := PackedVector2Array()
+	var path := _route(target)
 	var index := 0
 	var rebuild := true
-	var limit := 120 if navigation_disabled else 2400
+	var limit := 120 if navigation_disabled else _walk_tick_budget(path, target)
+	print("도보 구간 한도(tick): ", limit)
 	for tick in range(limit):
 		_release()
 		Input.action_release("attack")
@@ -248,7 +249,31 @@ func _route(target: Vector2) -> PackedVector2Array:
 	var path := grid.get_point_path(start, end)
 	if not path.is_empty():
 		path.append(target)
+	return _forward_route(path)
+
+
+func _forward_route(path: PackedVector2Array) -> PackedVector2Array:
+	# 현재 칸 중앙으로 되돌아가지 않는다. 실제 몸 전체가 다음 점까지 통과할 때만
+	# 첫 점을 생략하므로 장애물 모서리나 이동 중 적을 가로질러 잘라 가지 않는다.
+	if path.size() > 1 and not player.test_move(
+		player.global_transform, path[1] - player.global_position
+	):
+		return path.slice(1)
 	return path
+
+
+func _walk_tick_budget(path: PackedVector2Array, target: Vector2) -> int:
+	var distance := 0.0
+	var previous: Vector2 = player.position
+	for point in path:
+		distance += previous.distance_to(point)
+		previous = point
+	if path.is_empty():
+		distance = previous.distance_to(target)
+	var speed: float = player.movement_data.get_walk_speed_px_per_sec()
+	# 시작 시 한 번만 확정한다. 재탐색/교전이 기한을 계속 연장하지 않는다.
+	# 정상 도보 예상 시간의 3배 + 교전 여유 10초, 최소40초/최대180초.
+	return clampi(ceili((distance / maxf(speed, 1.0) * 3.0 + 10.0) * 60.0), 2400, 10800)
 
 
 func _input_action(action: String) -> void:
