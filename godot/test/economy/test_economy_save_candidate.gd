@@ -184,6 +184,32 @@ func test_four_jobs_candidate_restore_uses_same_stats_and_no_extra_items() -> vo
 		assert_eq(target.get_node("PlayerStats").stats.attack_power, maximum.attack_power)
 
 
+func test_shop_level_ten_full_hp_file_roundtrip() -> void:
+	var directory := "user://m6_candidate_precision_%d" % Time.get_ticks_usec()
+	var store := Candidate.CandidateStore.new(directory)
+	var candidate_codec := Candidate.CandidateCodec.new()
+	assert_eq(candidate_codec.bind_store(store, account), "")
+	var original: Dictionary = codec.capture(source, account.account_id)
+	original.player.level = 10
+	original.player.skill_points = 9
+	var data: Dictionary = candidate_codec.prepare_loaded(original, account).data
+	var model = candidate_codec.schema.conversion.model
+	data.inventory.equipment = model.starter(1, "adventurer")
+	var maximum: CombatantStats = model.stats(10, "adventurer", data.inventory.equipment)
+	data.player.hp = maximum.max_hp
+	data.player.mp = maximum.max_mp
+	assert_eq(candidate_codec.validate(data, account), "")
+	assert_true(store.write_save("character", 1, data).ok)
+	var loaded: Dictionary = store.read_save("character", 1)
+	assert_true(loaded.ok)
+	if loaded.ok:
+		assert_eq(loaded.data.player.hp, data.player.hp)
+		assert_eq(loaded.data.player.mp, data.player.mp)
+	for file in DirAccess.get_files_at(directory):
+		DirAccess.remove_absolute(directory.path_join(file))
+	DirAccess.remove_absolute(directory)
+
+
 func test_notifications_cannot_reenter_trade_or_save() -> void:
 	var world: Node = Candidate.instantiate_world()
 	world.set_meta("save_directory", "user://m6_candidate_test")

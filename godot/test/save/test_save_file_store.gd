@@ -60,6 +60,17 @@ func test_bad_slot_and_kind_cannot_escape_directory() -> void:
 	assert_false(store.write_save("account", 1, {"account_save_version": 1}).ok)
 
 
+func test_decimal_vitals_roundtrip_preserves_exact_maximum() -> void:
+	var maximum := 315.0 * (1.0 + 0.0006)
+	store.validators["character"] = func(data): return "" if data.hp <= maximum else "vitals"
+	var data := {"character_save_version": 4, "hp": maximum}
+	assert_true(store.write_save("character", 1, data).ok)
+	var loaded: Dictionary = store.read_save("character", 1)
+	assert_true(loaded.ok)
+	if loaded.ok:
+		assert_eq(loaded.data.hp, maximum)
+
+
 func test_corruption_recovers_previous_good_generation() -> void:
 	store.write_save("character", 1, {"character_save_version": 4, "gold": 10})
 	store.write_save("character", 1, {"character_save_version": 4, "gold": 20})

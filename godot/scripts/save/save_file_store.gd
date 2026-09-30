@@ -61,7 +61,9 @@ func write_save(kind: String, slot: int, data: Dictionary) -> Dictionary:
 		return current
 	if DirAccess.make_dir_recursive_absolute(root) != OK:
 		return _failure("io_error")
-	var payload := JSON.stringify(data)
+	# 기본 JSON 소수점 반올림이 최대 HP보다 큰 값으로 변환될 수 있다.
+	# 검증 허용치를 넓히지 않고 메모리의 실수 값을 그대로 왕복시킨다.
+	var payload := JSON.stringify(data, "", true, true)
 	if payload.to_utf8_buffer().size() > MAX_BYTES:
 		return _failure("too_large")
 	var envelope := {
