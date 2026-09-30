@@ -44,6 +44,7 @@ var _formula: DamageFormulaData = null
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_background.color = Color(UiStyle.COLOR_OUTLINE, 1.0)
+	_style_tabs()
 	_tabs.set_tab_title(Tab.INVENTORY, "인벤토리")
 	_tabs.set_tab_title(Tab.CHARACTER, "캐릭터")
 	_tabs.set_tab_title(Tab.SKILL, "스킬")
@@ -55,6 +56,33 @@ func _ready() -> void:
 	_create_settings()
 	_codex_tab.set_message("도감 (도감 데이터 스키마 확정 후 구현 — M2 이후)")
 	visible = false
+
+
+func _style_tabs() -> void:
+	UiStyle.apply_body_font(_tabs, 30)
+	_tabs.add_theme_font_override("font", load(UiStyle.FONT_HEADING_PATH))
+	for key in ["font_selected_color", "font_hovered_color", "font_unselected_color"]:
+		_tabs.add_theme_color_override(key, Color.WHITE)
+	for state in ["tab_selected", "tab_unselected", "tab_hovered", "tab_focus"]:
+		var box := StyleBoxFlat.new()
+		box.bg_color = Color("34465d") if state == "tab_selected" else Color("202938")
+		box.content_margin_left = 24
+		box.content_margin_right = 24
+		box.content_margin_top = 18
+		box.content_margin_bottom = 18
+		if state == "tab_selected":
+			box.border_color = Color("f9cf75")
+			box.border_width_bottom = 4
+		if state == "tab_focus":
+			box.bg_color = Color.TRANSPARENT
+			box.border_color = Color.WHITE
+			box.set_border_width_all(2)
+		_tabs.add_theme_stylebox_override(state, box)
+	var body := StyleBoxFlat.new()
+	body.bg_color = Color("111d2c")
+	for side in ["left", "right", "top", "bottom"]:
+		body.set("content_margin_" + side, 24)
+	_tabs.add_theme_stylebox_override("panel", body)
 
 
 func _unhandled_input(event: InputEvent) -> void:

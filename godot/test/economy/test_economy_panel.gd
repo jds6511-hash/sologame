@@ -104,6 +104,25 @@ func test_equipment_rejects_death_and_input_lock_without_mutation() -> void:
 	assert_eq(economy.state(), before)
 
 
+func test_candidate_hint_does_not_cover_escape_menu() -> void:
+	display.close()
+	var hints: Array = []
+	for child in display.get_children():
+		if child is Label:
+			hints.append(child)
+	assert_eq(hints.size(), 1)
+	assert_true(hints[0].visible)
+	var menu = world.get_node("IntegratedMenu")
+	menu.open_settings()
+	assert_true(menu.is_open())
+	assert_false(hints[0].visible)
+	menu._on_tab_shortcut(IntegratedMenu.Tab.CHARACTER)
+	assert_false(hints[0].visible)
+	menu.close_menu()
+	assert_true(hints[0].visible)
+	assert_false(get_tree().paused)
+
+
 func test_bag_outside_shop_does_not_offer_purchase() -> void:
 	display.close()
 	economy.player.position = Vector2(152, 504)

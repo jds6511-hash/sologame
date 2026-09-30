@@ -150,6 +150,9 @@ class CandidateWorld:
 		hint.add_theme_color_override("font_outline_color", Color.BLACK)
 		hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		panel.add_child(hint)
+		# 후보 안내는 ESC 메뉴보다 높은 경제 패널 소속이므로 메뉴 중에는 숨긴다.
+		get_node("IntegratedMenu").menu_opened.connect(func(): hint.hide())
+		get_node("IntegratedMenu").menu_closed.connect(func(): hint.show())
 		if map_id == "novera_gate":
 			var merchant = load("res://scripts/economy/economy_merchant.gd").new()
 			merchant.name = "Merchant"
