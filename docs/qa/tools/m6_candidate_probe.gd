@@ -97,12 +97,15 @@ func seed_save() -> void:
 			),
 			"거래창 렌더 기록"
 		)
-	var before_cancel: Dictionary = economy.state()
+	var before_purchase: Dictionary = economy.state()
 	world.get_node("EconomyPanel").select_item("POT-HP-1")
-	check(click_button("1개 구매 · 300 G"), "포션 구매 선택")
-	check(click_button("취소"), "구매 취소")
+	check(economy.state() == before_purchase, "선택만으로 상태 불변")
+	check(click_button("1개 구매 · 300 G"), "포션 단일 구매 버튼")
+	world.get_node("EconomyPanel")._switch("sell")
+	world.get_node("EconomyPanel").select_item("POT-HP-1")
+	var before_cancel: Dictionary = economy.state()
+	check(click_button("1개 판매 · 30 G") and click_button("취소"), "판매 취소")
 	check(economy.state() == before_cancel, "취소 시 경제 상태 불변")
-	check(click_button("1개 구매 · 300 G") and click_button("확정"), "포션 구매 확정 버튼")
 	check(economy.model.quantity(economy.state().bag, "POT-HP-1") == 1, "포션 구매")
 	world.get_node("EconomyPanel")._switch("bag")
 	world.get_node("EconomyPanel").select_item("POT-HP-1")
@@ -121,6 +124,17 @@ func seed_save() -> void:
 	check(economy.act("sell", "WPN-SW-01-C") == "", "여분 무기 판매")
 	check(player.get_node("Inventory").gold == 592, "명시 구매 판매가 결과")
 	world.get_node("EconomyPanel").close()
+	var menu = world.get_node("IntegratedMenu")
+	menu.open_settings()
+	check(menu.screen == "pause" and not menu.get_node("Tabs").visible, "ESC 관리 메뉴 분리")
+	if DisplayServer.get_name() != "headless":
+		await RenderingServer.frame_post_draw
+		root.get_texture().get_image().save_png("res://../docs/qa/screenshots/m6-pause.png")
+	menu._open_save()
+	check(world.get_node("SaveMenu").panel.visible and paused, "ESC 저장 메뉴 진입")
+	world.get_node("SaveMenu").close_menu()
+	check(menu.is_open() and menu.screen == "pause" and paused, "저장 화면에서 ESC 복귀")
+	menu.close_menu()
 	if DisplayServer.get_name() != "headless":
 		await RenderingServer.frame_post_draw
 		root.get_texture().get_image().save_png("res://../docs/qa/screenshots/m6-npc-names.png")

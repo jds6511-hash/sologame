@@ -91,9 +91,7 @@ func act(kind: String, id: String = "", slot: String = "", count: int = 1) -> St
 		return "merchant_distance"
 	if player.get_node("PlayerStats").is_dead() or player.is_input_locked:
 		return "player_unavailable"
-	# 착용은 저장이 아니다. 일시정지된 장비 창에서 재사용 대기를 기다리게 하지 않는다.
-	if kind not in ["equip", "unequip"] and not player.save_block_reason().is_empty():
-		return "combat"
+	# 거래/착용은 저장이 아니다. 메뉴에서 멈춘 재사용 대기를 요구하지 않는다.
 	busy = true
 	var next := state()
 	var error := "action"

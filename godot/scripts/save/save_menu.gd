@@ -12,6 +12,7 @@ var _last_toast := ""
 var _action := ""
 var _slot := 0
 var _arbiter: UiPauseArbiter
+var _return_menu: Node
 
 
 func setup(owner_session: Node) -> void:
@@ -122,10 +123,22 @@ func open_menu() -> void:
 	_show_auto_wait(session.auto_wait_reason)
 
 
-func close_menu() -> void:
+func open_from_pause(menu: Node) -> void:
+	open_menu()
+	if panel.visible:
+		_return_menu = menu
+	elif is_instance_valid(menu):
+		menu.open_settings()
+
+
+func close_menu(return_to_parent: bool = true) -> void:
 	confirmation.hide()
 	panel.hide()
 	_arbiter.release(self)
+	var previous := _return_menu
+	_return_menu = null
+	if return_to_parent and is_instance_valid(previous) and not session.world.is_queued_for_deletion():
+		previous.open_settings()
 
 
 func refresh_slots() -> void:

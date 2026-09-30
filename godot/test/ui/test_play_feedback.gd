@@ -76,7 +76,7 @@ func test_map_and_settings_are_available() -> void:
 	assert_true(menu.has_method("open_settings"))
 	assert_true(menu.get_node("Tabs/MapTab").has_method("bind_world"))
 	menu.open_settings()
-	assert_eq(menu.get_node("Tabs").current_tab, 6)
+	assert_eq(menu.screen, "pause")
 	assert_true(menu.has_node("QuitConfirmation"))
 	menu.get_node("QuitConfirmation").popup_centered()
 	menu.close_menu()

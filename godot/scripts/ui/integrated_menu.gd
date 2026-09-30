@@ -19,10 +19,12 @@ const ACTION_TO_TAB := {
 	"menu_skill": Tab.SKILL,
 	"menu_journal": Tab.JOURNAL,
 	"menu_map": Tab.MAP,
-	"menu_codex": Tab.CODEX,
 }
 
 var pause_arbiter: UiPauseArbiter
+var screen := "feature"
+var pause_box: VBoxContainer
+var heading: Label
 var _is_open: bool = false
 
 ## M3 B-4: 캐릭터/스킬 탭 실값 바인딩용 참조(bind_player가 채운다).
@@ -54,6 +56,9 @@ func _ready() -> void:
 	## 8장 M2 이후 과제(5·6·4번) — 의존 시스템 확정 전까지 빈 자리임을 명시.
 	## 스킬 탭(3번)은 M3 B-4에서 실탭(스킬 포인트·강화 화면)으로 구현됐다.
 	_create_settings()
+	_create_pause_menu()
+	_tabs.tabs_visible = false
+	_tabs.offset_top = 130
 	_codex_tab.set_message("도감 (도감 데이터 스키마 확정 후 구현 — M2 이후)")
 	visible = false
 
@@ -88,21 +93,102 @@ func _style_tabs() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_echo():
 		return
+	if event.is_action_pressed("menu_pause"):
+		if _is_open:
+			if screen == "settings":
+				open_settings()
+			else:
+				close_menu()
+		else:
+			open_settings()
+		get_viewport().set_input_as_handled()
+		return
+	if get_viewport().gui_get_focus_owner() is LineEdit:
+		return
+	if _is_open and screen != "feature":
+		return
+	if event is InputEventKey and event.pressed and event.physical_keycode == KEY_B:
+		_on_tab_shortcut(Tab.INVENTORY)
+		get_viewport().set_input_as_handled()
+		return
 	for action_name in ACTION_TO_TAB.keys():
 		if event.is_action_pressed(action_name):
 			_on_tab_shortcut(ACTION_TO_TAB[action_name])
 			get_viewport().set_input_as_handled()
 			return
-	if _is_open and event.is_action_pressed("menu_pause"):
-		close_menu()
-		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed("menu_pause"):
-		open_settings()
-		get_viewport().set_input_as_handled()
 
 
 func open_settings() -> void:
-	_on_tab_shortcut(Tab.SETTINGS)
+	if not _is_open:
+		open_menu()
+	if not _is_open:
+		return
+	screen = "pause"
+	_tabs.hide()
+	heading.hide()
+	pause_box.show()
+	pause_box.get_child(1).grab_focus()
+
+
+func _create_pause_menu() -> void:
+	heading = Label.new()
+	heading.position = Vector2(84, 55)
+	UiStyle.apply_body_font(heading, 36)
+	add_child(heading)
+	pause_box = VBoxContainer.new()
+	pause_box.position = Vector2(650, 260)
+	pause_box.size = Vector2(620, 500)
+	pause_box.add_theme_constant_override("separation", 24)
+	add_child(pause_box)
+	var title := Label.new()
+	title.text = "일시정지"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	UiStyle.apply_body_font(title, 40)
+	pause_box.add_child(title)
+	_menu_button(pause_box, "계속하기", close_menu)
+	_menu_button(pause_box, "저장 / 불러오기", _open_save)
+	_menu_button(pause_box, "설정", _show_settings)
+	_menu_button(pause_box, "게임 종료", _ask_quit)
+	pause_box.hide()
+	_menu_button(_character_tab.get_node("VBox"), "장비 관리", _open_equipment)
+
+
+func _menu_button(parent: Node, text: String, callback: Callable) -> void:
+	var button := Button.new()
+	button.text = text
+	UiStyle.apply_action_button(button)
+	parent.add_child(button)
+	button.pressed.connect(callback)
+
+
+func _show_settings() -> void:
+	screen = "settings"
+	pause_box.hide()
+	_tabs.show()
+	_tabs.current_tab = Tab.SETTINGS
+	heading.text = "설정"
+	heading.show()
+
+
+func _ask_quit() -> void:
+	var confirm: ConfirmationDialog = get_node("QuitConfirmation")
+	confirm.popup_centered(Vector2i(580, 180))
+	confirm.get_cancel_button().grab_focus()
+
+
+func _open_save() -> void:
+	var save = get_parent().get_node_or_null("SaveMenu")
+	if save == null:
+		return
+	close_menu()
+	save.open_from_pause(self)
+
+
+func _open_equipment() -> void:
+	var economy = get_parent().get_node_or_null("EconomyPanel")
+	if economy != null:
+		close_menu()
+		economy.open("gear")
 
 
 func _create_settings() -> void:
@@ -112,14 +198,10 @@ func _create_settings() -> void:
 	_tabs.add_child(box)
 	_tabs.set_tab_title(Tab.SETTINGS, "설정")
 	var label := Label.new()
-	label.text = "게임 종료 전 F6에서 저장하세요.\n저장하지 않은 진행은 종료하면 사라집니다."
+	label.text = "B 가방 · C 캐릭터/장비 · K 스킬 · J 의뢰 · M 지도\n음량·그래픽 세부 설정은 준비 중입니다."
 	UiStyle.apply_body_font(label, 26)
 	box.add_child(label)
-	var leave := Button.new()
-	leave.text = "게임 종료"
-	UiStyle.apply_body_font(leave, 26)
-	leave.custom_minimum_size.y = 64
-	box.add_child(leave)
+	_menu_button(box, "뒤로", open_settings)
 	var confirm := ConfirmationDialog.new()
 	confirm.name = "QuitConfirmation"
 	confirm.title = "게임 종료"
@@ -127,12 +209,19 @@ func _create_settings() -> void:
 	confirm.ok_button_text = "종료"
 	confirm.cancel_button_text = "돌아가기"
 	add_child(confirm)
-	leave.pressed.connect(func(): confirm.popup_centered(Vector2i(580, 180)))
 	confirm.confirmed.connect(func(): get_tree().quit())
 
 
 ## 같은 탭 단축키를 다시 누르면 닫힘, 다른 탭 단축키면 그 탭으로 즉시 전환(ux 4장 규칙).
 func _on_tab_shortcut(tab: int) -> void:
+	var economy = get_parent().get_node_or_null("EconomyPanel")
+	if tab == Tab.INVENTORY and economy != null:
+		if is_menu_blocked():
+			return
+		if _is_open:
+			close_menu()
+		economy.open("bag")
+		return
 	if _is_open and _tabs.current_tab == tab:
 		close_menu()
 		return
@@ -141,6 +230,12 @@ func _on_tab_shortcut(tab: int) -> void:
 	if not _is_open and is_menu_blocked():
 		return
 	_tabs.current_tab = tab
+	screen = "feature"
+	pause_box.hide()
+	_tabs.show()
+	heading.text = _tabs.get_tab_title(tab) + "    ·    Esc 닫기"
+	heading.show()
+	_refresh_character_tab()
 	if not _is_open:
 		open_menu()
 

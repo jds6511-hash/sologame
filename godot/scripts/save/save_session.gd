@@ -273,7 +273,7 @@ func _replace_world(
 		return _failure(error)
 	if tree.current_scene == world:
 		tree.current_scene = next_world
-	world.get_node("SaveMenu").close_menu()
+	world.get_node("SaveMenu").close_menu(false)
 	world.process_mode = Node.PROCESS_MODE_DISABLED
 	world.hide()
 	world.queue_free()

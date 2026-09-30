@@ -33,16 +33,20 @@ func test_menu_starts_closed() -> void:
 	assert_false(_menu.visible)
 
 
-func test_tabs_have_readable_font_and_distinct_selection() -> void:
+func test_escape_shows_only_game_management() -> void:
 	_menu.open_settings()
-	await wait_process_frames(3)
-	var tabs: TabContainer = _menu.get_node("Tabs")
-	assert_gte(tabs.get_tab_bar().get_tab_rect(0).size.y, 66.0)
-	assert_gt(tabs.get_theme_stylebox("tab_selected").border_width_bottom, 0)
-	assert_ne(
-		tabs.get_theme_stylebox("tab_selected").bg_color,
-		tabs.get_theme_stylebox("tab_unselected").bg_color
-	)
+	assert_eq(_menu.screen, "pause")
+	assert_false(_menu.get_node("Tabs").visible)
+	var names: Array = []
+	for child in _menu.pause_box.get_children():
+		if child is Button:
+			names.append(child.text)
+	assert_eq(names, ["계속하기", "저장 / 불러오기", "설정", "게임 종료"])
+	_menu._show_settings()
+	assert_eq(_menu.screen, "settings")
+	assert_true(get_tree().paused)
+	_menu.open_settings()
+	assert_eq(_menu.screen, "pause")
 
 
 func test_inventory_shortcut_opens_menu_and_pauses_tree() -> void:
