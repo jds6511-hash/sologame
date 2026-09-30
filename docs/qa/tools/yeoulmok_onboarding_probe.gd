@@ -4,6 +4,7 @@
 extends "res://../docs/qa/tools/yeoulmok_journey_probe.gd"
 
 const SAVE_ROOT := "user://yeoulmok_onboarding_probe"
+var save_root := SAVE_ROOT
 var completed_flow := false
 var navigation_disabled := false
 var defense_enabled := true
@@ -43,9 +44,9 @@ func _run() -> void:
 		quit(2)
 		return
 	if args[0] == "cleanup":
-		if DirAccess.dir_exists_absolute(SAVE_ROOT):
-			for file in DirAccess.get_files_at(SAVE_ROOT):
-				_check(DirAccess.remove_absolute(SAVE_ROOT.path_join(file)) == OK, "격리 파일 정리")
+		if DirAccess.dir_exists_absolute(save_root):
+			for file in DirAccess.get_files_at(save_root):
+				_check(DirAccess.remove_absolute(save_root.path_join(file)) == OK, "격리 파일 정리")
 		completed_flow = true
 	else:
 		navigation_disabled = args[0] == "walk_blocked"
@@ -68,8 +69,8 @@ func _play(phase: String) -> void:
 		_check(false, "조준 포인터가 필요한 play/blocked는 렌더링 실행 필요")
 		return
 	root.size = Vector2i(1920, 1080)
-	world = load("res://scenes/world/eastern_frontier_starting_area.tscn").instantiate()
-	world.set_meta("save_directory", SAVE_ROOT)
+	world = _instantiate_onboarding_world()
+	world.set_meta("save_directory", save_root)
 	root.add_child(world)
 	current_scene = world
 	await _refresh_world()
@@ -78,7 +79,7 @@ func _play(phase: String) -> void:
 		var result: Dictionary = world.get_node("SaveSession").load_slot(1)
 		_check(result.ok, "별도 프로세스 로드")
 		if not result.ok:
-			if not prior and not FileAccess.file_exists(SAVE_ROOT.path_join("character_01.json")):
+			if not prior and not FileAccess.file_exists(save_root.path_join("character_01.json")):
 				print("ONBOARDING_MISSING_SAVE_CONFIRMED")
 			return
 		await _refresh_world()
@@ -86,7 +87,7 @@ func _play(phase: String) -> void:
 		for id in ["MQ-01-01", "MQ-01-02", "MQ-01-03", "MQ-01-04", "MQ-01-05"]:
 			_check(_state(id) == "completed", "완주 상태 복원: " + id)
 		var expected = JSON.parse_string(
-			FileAccess.get_file_as_string(SAVE_ROOT.path_join("expected.json"))
+			FileAccess.get_file_as_string(save_root.path_join("expected.json"))
 		)
 		# JSON 숫자는 float로 읽히므로 양쪽을 같은 직렬화 경계로 정규화한다.
 		var actual = JSON.parse_string(JSON.stringify(_snapshot()))
@@ -95,7 +96,7 @@ func _play(phase: String) -> void:
 			print("기대: ", expected, " 실제: ", actual)
 		completed_flow = true
 		return
-	if FileAccess.file_exists(SAVE_ROOT.path_join("character_01.json")):
+	if FileAccess.file_exists(save_root.path_join("character_01.json")):
 		_check(false, "기존 저장 존재: cleanup 먼저 실행")
 		return
 	if not await _choose("모험가 패 받기"):
@@ -149,7 +150,7 @@ func _play(phase: String) -> void:
 		return
 	for id in ["MQ-01-01", "MQ-01-02", "MQ-01-03", "MQ-01-04", "MQ-01-05"]:
 		_check(_state(id) == "completed", "fixture 없는 완주: " + id)
-	var file := FileAccess.open(SAVE_ROOT.path_join("expected.json"), FileAccess.WRITE)
+	var file := FileAccess.open(save_root.path_join("expected.json"), FileAccess.WRITE)
 	if file == null:
 		_check(false, "실제 진행 스냅샷 기록")
 		return
@@ -220,9 +221,12 @@ func _route(target: Vector2) -> PackedVector2Array:
 	# QA 조작기의 경로 탐색. 제품 Ground/충돌은 읽기만 하고 이동은 기존 액션으로 수행한다.
 	var ground: TileMapLayer = world.get_node("Ground")
 	var grid := AStarGrid2D.new()
-	grid.region = ground.get_used_rect()
-	grid.cell_size = Vector2(16, 16)
-	grid.offset = Vector2(8, 8)
+	var pitch := _navigation_pitch()
+	var scale := 16 / pitch
+	var used := ground.get_used_rect()
+	grid.region = Rect2i(used.position * scale, used.size * scale)
+	grid.cell_size = Vector2(pitch, pitch)
+	grid.offset = Vector2(pitch, pitch) / 2.0
 	grid.diagonal_mode = AStarGrid2D.DIAGONAL_MODE_NEVER
 	grid.update()
 	var query := PhysicsShapeQueryParameters2D.new()
@@ -234,8 +238,8 @@ func _route(target: Vector2) -> PackedVector2Array:
 			var cell := Vector2i(x, y)
 			query.transform = Transform2D(0, grid.get_point_position(cell))
 			grid.set_point_solid(cell, not space.intersect_shape(query, 1).is_empty())
-	var start := Vector2i((player.position / 16.0).floor())
-	var end := Vector2i((target / 16.0).floor())
+	var start := Vector2i((player.position / float(pitch)).floor())
+	var end := Vector2i((target / float(pitch)).floor())
 	if not grid.region.has_point(start) or not grid.region.has_point(end):
 		return PackedVector2Array()
 	grid.set_point_solid(start, false)
@@ -354,7 +358,7 @@ func _pickup_drop() -> bool:
 	var id: String = drop.item_data.item_id
 	var quantity: int = drop.quantity
 	var before: int = player.get_node("Inventory").get_bag_quantity(id)
-	if not await _walk(drop.position):
+	if not await _walk(_pickup_destination(drop)):
 		return false
 	_release()
 	Input.action_release("attack")
@@ -411,3 +415,15 @@ func _hunt(id: String, source: String, blocked: bool) -> bool:
 		if counts == [0]:
 			print("ONBOARDING_ATTACK_DISABLED_CONFIRMED")
 	return false
+
+
+func _instantiate_onboarding_world() -> Node:
+	return load("res://scenes/world/eastern_frontier_starting_area.tscn").instantiate()
+
+
+func _navigation_pitch() -> int:
+	return 16
+
+
+func _pickup_destination(drop: Node2D) -> Vector2:
+	return drop.position

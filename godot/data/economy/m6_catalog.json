@@ -1,0 +1,1748 @@
+{
+  "existing": {
+    "ACC-NECK-10-B": "res://data/items/acc_neck_10_b.tres",
+    "ACC-RING-10-B": "res://data/items/acc_ring_10_b.tres",
+    "ARM-BODY-01-B": "res://data/items/arm_body_01_b.tres",
+    "ARM-BODY-01-C": "res://data/items/arm_body_01_c.tres",
+    "ARM-BODY-10-B": "res://data/items/arm_body_10_b.tres",
+    "ARM-FOOT-01-B": "res://data/items/arm_foot_01_b.tres",
+    "ARM-FOOT-01-C": "res://data/items/arm_foot_01_c.tres",
+    "ARM-FOOT-10-C": "res://data/items/arm_foot_10_c.tres",
+    "ARM-HEAD-01-B": "res://data/items/arm_head_01_b.tres",
+    "ARM-HEAD-01-C": "res://data/items/arm_head_01_c.tres",
+    "ARM-HEAD-10-C": "res://data/items/arm_head_10_c.tres",
+    "ARM-LEG-01-B": "res://data/items/arm_leg_01_b.tres",
+    "ARM-LEG-01-C": "res://data/items/arm_leg_01_c.tres",
+    "ARM-LEG-10-C": "res://data/items/arm_leg_10_c.tres",
+    "MAT-DOG-FANG": "res://data/items/mat_dog_fang.tres",
+    "MAT-HIGHWAYMAN-BADGE": "res://data/items/mat_highwayman_badge.tres",
+    "MAT-IMP-HORN": "res://data/items/mat_imp_horn.tres",
+    "MAT-OUTLAW-MARK": "res://data/items/mat_outlaw_mark.tres",
+    "MAT-POACHER-PELT": "res://data/items/mat_poacher_pelt.tres",
+    "MAT-RABBIT-FOOT": "res://data/items/mat_rabbit_foot.tres",
+    "MAT-SLIME-CORE": "res://data/items/mat_slime_core.tres",
+    "MAT-SPIDER-SILK": "res://data/items/mat_spider_silk.tres",
+    "POT-HP-1": "res://data/items/pot_hp_1.tres",
+    "POT-HP-2": "res://data/items/pot_hp_2.tres",
+    "WPN-BW-10-B": "res://data/items/wpn_bw_10_b.tres",
+    "WPN-BW-10-C": "res://data/items/wpn_bw_10_c.tres",
+    "WPN-BW-20-B": "res://data/items/wpn_bw_20_b.tres",
+    "WPN-BW-20-C": "res://data/items/wpn_bw_20_c.tres",
+    "WPN-BW-30-B": "res://data/items/wpn_bw_30_b.tres",
+    "WPN-BW-30-C": "res://data/items/wpn_bw_30_c.tres",
+    "WPN-GS-01-B": "res://data/items/wpn_gs_01_b.tres",
+    "WPN-GS-01-C": "res://data/items/wpn_gs_01_c.tres",
+    "WPN-GS-10-B": "res://data/items/wpn_gs_10_b.tres",
+    "WPN-GS-10-C": "res://data/items/wpn_gs_10_c.tres",
+    "WPN-GS-20-B": "res://data/items/wpn_gs_20_b.tres",
+    "WPN-GS-20-C": "res://data/items/wpn_gs_20_c.tres",
+    "WPN-GS-30-B": "res://data/items/wpn_gs_30_b.tres",
+    "WPN-GS-30-C": "res://data/items/wpn_gs_30_c.tres",
+    "WPN-GS-40-B": "res://data/items/wpn_gs_40_b.tres",
+    "WPN-GS-40-C": "res://data/items/wpn_gs_40_c.tres",
+    "WPN-SW-01-B": "res://data/items/wpn_sw_01_b.tres",
+    "WPN-SW-01-C": "res://data/items/wpn_sw_01_c.tres"
+  },
+  "definitions": [
+    {
+      "item_id": "WPN-BW-01-C",
+      "item_name": "기본 활 1",
+      "item_type": 0,
+      "grade": 0,
+      "level_limit": 1,
+      "equip_slot": 1,
+      "main_stat_type": 1,
+      "main_stat_value": 8,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ACC-RING-01-C",
+      "item_name": "기본 반지 1",
+      "item_type": 2,
+      "grade": 0,
+      "level_limit": 1,
+      "equip_slot": 6,
+      "main_stat_type": 3,
+      "main_stat_value": 0.02,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ACC-NECK-01-C",
+      "item_name": "기본 목걸이 1",
+      "item_type": 2,
+      "grade": 0,
+      "level_limit": 1,
+      "equip_slot": 7,
+      "main_stat_type": 4,
+      "main_stat_value": 0.06,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "WPN-SW-10-C",
+      "item_name": "기본 소검 10",
+      "item_type": 0,
+      "grade": 0,
+      "level_limit": 10,
+      "equip_slot": 1,
+      "main_stat_type": 1,
+      "main_stat_value": 20,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ARM-BODY-10-C",
+      "item_name": "기본 갑옷 10",
+      "item_type": 1,
+      "grade": 0,
+      "level_limit": 10,
+      "equip_slot": 2,
+      "main_stat_type": 2,
+      "main_stat_value": 7,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ACC-RING-10-C",
+      "item_name": "기본 반지 10",
+      "item_type": 2,
+      "grade": 0,
+      "level_limit": 10,
+      "equip_slot": 6,
+      "main_stat_type": 3,
+      "main_stat_value": 0.24,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ACC-NECK-10-C",
+      "item_name": "기본 목걸이 10",
+      "item_type": 2,
+      "grade": 0,
+      "level_limit": 10,
+      "equip_slot": 7,
+      "main_stat_type": 4,
+      "main_stat_value": 0.64,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "WPN-SW-20-C",
+      "item_name": "기본 소검 20",
+      "item_type": 0,
+      "grade": 0,
+      "level_limit": 20,
+      "equip_slot": 1,
+      "main_stat_type": 1,
+      "main_stat_value": 34,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ARM-BODY-20-C",
+      "item_name": "기본 갑옷 20",
+      "item_type": 1,
+      "grade": 0,
+      "level_limit": 20,
+      "equip_slot": 2,
+      "main_stat_type": 2,
+      "main_stat_value": 12,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ARM-LEG-20-C",
+      "item_name": "기본 하의 20",
+      "item_type": 1,
+      "grade": 0,
+      "level_limit": 20,
+      "equip_slot": 3,
+      "main_stat_type": 2,
+      "main_stat_value": 7,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ARM-HEAD-20-C",
+      "item_name": "기본 모자 20",
+      "item_type": 1,
+      "grade": 0,
+      "level_limit": 20,
+      "equip_slot": 4,
+      "main_stat_type": 2,
+      "main_stat_value": 6,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ARM-FOOT-20-C",
+      "item_name": "기본 신발 20",
+      "item_type": 1,
+      "grade": 0,
+      "level_limit": 20,
+      "equip_slot": 5,
+      "main_stat_type": 2,
+      "main_stat_value": 4,
+      "move_speed_bonus": 2
+    },
+    {
+      "item_id": "ACC-RING-20-C",
+      "item_name": "기본 반지 20",
+      "item_type": 2,
+      "grade": 0,
+      "level_limit": 20,
+      "equip_slot": 6,
+      "main_stat_type": 3,
+      "main_stat_value": 0.48,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ACC-NECK-20-C",
+      "item_name": "기본 목걸이 20",
+      "item_type": 2,
+      "grade": 0,
+      "level_limit": 20,
+      "equip_slot": 7,
+      "main_stat_type": 4,
+      "main_stat_value": 1.29,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "WPN-SW-30-C",
+      "item_name": "기본 소검 30",
+      "item_type": 0,
+      "grade": 0,
+      "level_limit": 30,
+      "equip_slot": 1,
+      "main_stat_type": 1,
+      "main_stat_value": 48,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ARM-BODY-30-C",
+      "item_name": "기본 갑옷 30",
+      "item_type": 1,
+      "grade": 0,
+      "level_limit": 30,
+      "equip_slot": 2,
+      "main_stat_type": 2,
+      "main_stat_value": 17,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ARM-LEG-30-C",
+      "item_name": "기본 하의 30",
+      "item_type": 1,
+      "grade": 0,
+      "level_limit": 30,
+      "equip_slot": 3,
+      "main_stat_type": 2,
+      "main_stat_value": 11,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ARM-HEAD-30-C",
+      "item_name": "기본 모자 30",
+      "item_type": 1,
+      "grade": 0,
+      "level_limit": 30,
+      "equip_slot": 4,
+      "main_stat_type": 2,
+      "main_stat_value": 9,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ARM-FOOT-30-C",
+      "item_name": "기본 신발 30",
+      "item_type": 1,
+      "grade": 0,
+      "level_limit": 30,
+      "equip_slot": 5,
+      "main_stat_type": 2,
+      "main_stat_value": 6,
+      "move_speed_bonus": 2
+    },
+    {
+      "item_id": "ACC-RING-30-C",
+      "item_name": "기본 반지 30",
+      "item_type": 2,
+      "grade": 0,
+      "level_limit": 30,
+      "equip_slot": 6,
+      "main_stat_type": 3,
+      "main_stat_value": 0.71,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ACC-NECK-30-C",
+      "item_name": "기본 목걸이 30",
+      "item_type": 2,
+      "grade": 0,
+      "level_limit": 30,
+      "equip_slot": 7,
+      "main_stat_type": 4,
+      "main_stat_value": 1.93,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "WPN-SW-40-C",
+      "item_name": "기본 소검 40",
+      "item_type": 0,
+      "grade": 0,
+      "level_limit": 40,
+      "equip_slot": 1,
+      "main_stat_type": 1,
+      "main_stat_value": 61,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "WPN-BW-40-C",
+      "item_name": "기본 활 40",
+      "item_type": 0,
+      "grade": 0,
+      "level_limit": 40,
+      "equip_slot": 1,
+      "main_stat_type": 1,
+      "main_stat_value": 61,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ARM-BODY-40-C",
+      "item_name": "기본 갑옷 40",
+      "item_type": 1,
+      "grade": 0,
+      "level_limit": 40,
+      "equip_slot": 2,
+      "main_stat_type": 2,
+      "main_stat_value": 22,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ARM-LEG-40-C",
+      "item_name": "기본 하의 40",
+      "item_type": 1,
+      "grade": 0,
+      "level_limit": 40,
+      "equip_slot": 3,
+      "main_stat_type": 2,
+      "main_stat_value": 14,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ARM-HEAD-40-C",
+      "item_name": "기본 모자 40",
+      "item_type": 1,
+      "grade": 0,
+      "level_limit": 40,
+      "equip_slot": 4,
+      "main_stat_type": 2,
+      "main_stat_value": 11,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ARM-FOOT-40-C",
+      "item_name": "기본 신발 40",
+      "item_type": 1,
+      "grade": 0,
+      "level_limit": 40,
+      "equip_slot": 5,
+      "main_stat_type": 2,
+      "main_stat_value": 8,
+      "move_speed_bonus": 2
+    },
+    {
+      "item_id": "ACC-RING-40-C",
+      "item_name": "기본 반지 40",
+      "item_type": 2,
+      "grade": 0,
+      "level_limit": 40,
+      "equip_slot": 6,
+      "main_stat_type": 3,
+      "main_stat_value": 0.95,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ACC-NECK-40-C",
+      "item_name": "기본 목걸이 40",
+      "item_type": 2,
+      "grade": 0,
+      "level_limit": 40,
+      "equip_slot": 7,
+      "main_stat_type": 4,
+      "main_stat_value": 2.58,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "WPN-SW-50-C",
+      "item_name": "기본 소검 50",
+      "item_type": 0,
+      "grade": 0,
+      "level_limit": 50,
+      "equip_slot": 1,
+      "main_stat_type": 1,
+      "main_stat_value": 75,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "WPN-GS-50-C",
+      "item_name": "기본 대검 50",
+      "item_type": 0,
+      "grade": 0,
+      "level_limit": 50,
+      "equip_slot": 1,
+      "main_stat_type": 1,
+      "main_stat_value": 75,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "WPN-BW-50-C",
+      "item_name": "기본 활 50",
+      "item_type": 0,
+      "grade": 0,
+      "level_limit": 50,
+      "equip_slot": 1,
+      "main_stat_type": 1,
+      "main_stat_value": 75,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ARM-BODY-50-C",
+      "item_name": "기본 갑옷 50",
+      "item_type": 1,
+      "grade": 0,
+      "level_limit": 50,
+      "equip_slot": 2,
+      "main_stat_type": 2,
+      "main_stat_value": 27,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ARM-LEG-50-C",
+      "item_name": "기본 하의 50",
+      "item_type": 1,
+      "grade": 0,
+      "level_limit": 50,
+      "equip_slot": 3,
+      "main_stat_type": 2,
+      "main_stat_value": 17,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ARM-HEAD-50-C",
+      "item_name": "기본 모자 50",
+      "item_type": 1,
+      "grade": 0,
+      "level_limit": 50,
+      "equip_slot": 4,
+      "main_stat_type": 2,
+      "main_stat_value": 14,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ARM-FOOT-50-C",
+      "item_name": "기본 신발 50",
+      "item_type": 1,
+      "grade": 0,
+      "level_limit": 50,
+      "equip_slot": 5,
+      "main_stat_type": 2,
+      "main_stat_value": 10,
+      "move_speed_bonus": 2
+    },
+    {
+      "item_id": "ACC-RING-50-C",
+      "item_name": "기본 반지 50",
+      "item_type": 2,
+      "grade": 0,
+      "level_limit": 50,
+      "equip_slot": 6,
+      "main_stat_type": 3,
+      "main_stat_value": 1.19,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ACC-NECK-50-C",
+      "item_name": "기본 목걸이 50",
+      "item_type": 2,
+      "grade": 0,
+      "level_limit": 50,
+      "equip_slot": 7,
+      "main_stat_type": 4,
+      "main_stat_value": 3.22,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "WPN-SW-60-C",
+      "item_name": "기본 소검 60",
+      "item_type": 0,
+      "grade": 0,
+      "level_limit": 60,
+      "equip_slot": 1,
+      "main_stat_type": 1,
+      "main_stat_value": 88,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "WPN-GS-60-C",
+      "item_name": "기본 대검 60",
+      "item_type": 0,
+      "grade": 0,
+      "level_limit": 60,
+      "equip_slot": 1,
+      "main_stat_type": 1,
+      "main_stat_value": 88,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "WPN-BW-60-C",
+      "item_name": "기본 활 60",
+      "item_type": 0,
+      "grade": 0,
+      "level_limit": 60,
+      "equip_slot": 1,
+      "main_stat_type": 1,
+      "main_stat_value": 88,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ARM-BODY-60-C",
+      "item_name": "기본 갑옷 60",
+      "item_type": 1,
+      "grade": 0,
+      "level_limit": 60,
+      "equip_slot": 2,
+      "main_stat_type": 2,
+      "main_stat_value": 32,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ARM-LEG-60-C",
+      "item_name": "기본 하의 60",
+      "item_type": 1,
+      "grade": 0,
+      "level_limit": 60,
+      "equip_slot": 3,
+      "main_stat_type": 2,
+      "main_stat_value": 20,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ARM-HEAD-60-C",
+      "item_name": "기본 모자 60",
+      "item_type": 1,
+      "grade": 0,
+      "level_limit": 60,
+      "equip_slot": 4,
+      "main_stat_type": 2,
+      "main_stat_value": 16,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ARM-FOOT-60-C",
+      "item_name": "기본 신발 60",
+      "item_type": 1,
+      "grade": 0,
+      "level_limit": 60,
+      "equip_slot": 5,
+      "main_stat_type": 2,
+      "main_stat_value": 12,
+      "move_speed_bonus": 2
+    },
+    {
+      "item_id": "ACC-RING-60-C",
+      "item_name": "기본 반지 60",
+      "item_type": 2,
+      "grade": 0,
+      "level_limit": 60,
+      "equip_slot": 6,
+      "main_stat_type": 3,
+      "main_stat_value": 1.43,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ACC-NECK-60-C",
+      "item_name": "기본 목걸이 60",
+      "item_type": 2,
+      "grade": 0,
+      "level_limit": 60,
+      "equip_slot": 7,
+      "main_stat_type": 4,
+      "main_stat_value": 3.86,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "WPN-SW-70-C",
+      "item_name": "기본 소검 70",
+      "item_type": 0,
+      "grade": 0,
+      "level_limit": 70,
+      "equip_slot": 1,
+      "main_stat_type": 1,
+      "main_stat_value": 102,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "WPN-GS-70-C",
+      "item_name": "기본 대검 70",
+      "item_type": 0,
+      "grade": 0,
+      "level_limit": 70,
+      "equip_slot": 1,
+      "main_stat_type": 1,
+      "main_stat_value": 102,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "WPN-BW-70-C",
+      "item_name": "기본 활 70",
+      "item_type": 0,
+      "grade": 0,
+      "level_limit": 70,
+      "equip_slot": 1,
+      "main_stat_type": 1,
+      "main_stat_value": 102,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ARM-BODY-70-C",
+      "item_name": "기본 갑옷 70",
+      "item_type": 1,
+      "grade": 0,
+      "level_limit": 70,
+      "equip_slot": 2,
+      "main_stat_type": 2,
+      "main_stat_value": 37,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ARM-LEG-70-C",
+      "item_name": "기본 하의 70",
+      "item_type": 1,
+      "grade": 0,
+      "level_limit": 70,
+      "equip_slot": 3,
+      "main_stat_type": 2,
+      "main_stat_value": 23,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ARM-HEAD-70-C",
+      "item_name": "기본 모자 70",
+      "item_type": 1,
+      "grade": 0,
+      "level_limit": 70,
+      "equip_slot": 4,
+      "main_stat_type": 2,
+      "main_stat_value": 19,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ARM-FOOT-70-C",
+      "item_name": "기본 신발 70",
+      "item_type": 1,
+      "grade": 0,
+      "level_limit": 70,
+      "equip_slot": 5,
+      "main_stat_type": 2,
+      "main_stat_value": 14,
+      "move_speed_bonus": 2
+    },
+    {
+      "item_id": "ACC-RING-70-C",
+      "item_name": "기본 반지 70",
+      "item_type": 2,
+      "grade": 0,
+      "level_limit": 70,
+      "equip_slot": 6,
+      "main_stat_type": 3,
+      "main_stat_value": 1.67,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ACC-NECK-70-C",
+      "item_name": "기본 목걸이 70",
+      "item_type": 2,
+      "grade": 0,
+      "level_limit": 70,
+      "equip_slot": 7,
+      "main_stat_type": 4,
+      "main_stat_value": 4.51,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "WPN-SW-80-C",
+      "item_name": "기본 소검 80",
+      "item_type": 0,
+      "grade": 0,
+      "level_limit": 80,
+      "equip_slot": 1,
+      "main_stat_type": 1,
+      "main_stat_value": 116,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "WPN-GS-80-C",
+      "item_name": "기본 대검 80",
+      "item_type": 0,
+      "grade": 0,
+      "level_limit": 80,
+      "equip_slot": 1,
+      "main_stat_type": 1,
+      "main_stat_value": 116,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "WPN-BW-80-C",
+      "item_name": "기본 활 80",
+      "item_type": 0,
+      "grade": 0,
+      "level_limit": 80,
+      "equip_slot": 1,
+      "main_stat_type": 1,
+      "main_stat_value": 116,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ARM-BODY-80-C",
+      "item_name": "기본 갑옷 80",
+      "item_type": 1,
+      "grade": 0,
+      "level_limit": 80,
+      "equip_slot": 2,
+      "main_stat_type": 2,
+      "main_stat_value": 43,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ARM-LEG-80-C",
+      "item_name": "기본 하의 80",
+      "item_type": 1,
+      "grade": 0,
+      "level_limit": 80,
+      "equip_slot": 3,
+      "main_stat_type": 2,
+      "main_stat_value": 27,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ARM-HEAD-80-C",
+      "item_name": "기본 모자 80",
+      "item_type": 1,
+      "grade": 0,
+      "level_limit": 80,
+      "equip_slot": 4,
+      "main_stat_type": 2,
+      "main_stat_value": 21,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ARM-FOOT-80-C",
+      "item_name": "기본 신발 80",
+      "item_type": 1,
+      "grade": 0,
+      "level_limit": 80,
+      "equip_slot": 5,
+      "main_stat_type": 2,
+      "main_stat_value": 16,
+      "move_speed_bonus": 2
+    },
+    {
+      "item_id": "ACC-RING-80-C",
+      "item_name": "기본 반지 80",
+      "item_type": 2,
+      "grade": 0,
+      "level_limit": 80,
+      "equip_slot": 6,
+      "main_stat_type": 3,
+      "main_stat_value": 1.91,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ACC-NECK-80-C",
+      "item_name": "기본 목걸이 80",
+      "item_type": 2,
+      "grade": 0,
+      "level_limit": 80,
+      "equip_slot": 7,
+      "main_stat_type": 4,
+      "main_stat_value": 5.15,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "WPN-SW-90-C",
+      "item_name": "기본 소검 90",
+      "item_type": 0,
+      "grade": 0,
+      "level_limit": 90,
+      "equip_slot": 1,
+      "main_stat_type": 1,
+      "main_stat_value": 129,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "WPN-GS-90-C",
+      "item_name": "기본 대검 90",
+      "item_type": 0,
+      "grade": 0,
+      "level_limit": 90,
+      "equip_slot": 1,
+      "main_stat_type": 1,
+      "main_stat_value": 129,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "WPN-BW-90-C",
+      "item_name": "기본 활 90",
+      "item_type": 0,
+      "grade": 0,
+      "level_limit": 90,
+      "equip_slot": 1,
+      "main_stat_type": 1,
+      "main_stat_value": 129,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ARM-BODY-90-C",
+      "item_name": "기본 갑옷 90",
+      "item_type": 1,
+      "grade": 0,
+      "level_limit": 90,
+      "equip_slot": 2,
+      "main_stat_type": 2,
+      "main_stat_value": 48,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ARM-LEG-90-C",
+      "item_name": "기본 하의 90",
+      "item_type": 1,
+      "grade": 0,
+      "level_limit": 90,
+      "equip_slot": 3,
+      "main_stat_type": 2,
+      "main_stat_value": 30,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ARM-HEAD-90-C",
+      "item_name": "기본 모자 90",
+      "item_type": 1,
+      "grade": 0,
+      "level_limit": 90,
+      "equip_slot": 4,
+      "main_stat_type": 2,
+      "main_stat_value": 24,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ARM-FOOT-90-C",
+      "item_name": "기본 신발 90",
+      "item_type": 1,
+      "grade": 0,
+      "level_limit": 90,
+      "equip_slot": 5,
+      "main_stat_type": 2,
+      "main_stat_value": 18,
+      "move_speed_bonus": 2
+    },
+    {
+      "item_id": "ACC-RING-90-C",
+      "item_name": "기본 반지 90",
+      "item_type": 2,
+      "grade": 0,
+      "level_limit": 90,
+      "equip_slot": 6,
+      "main_stat_type": 3,
+      "main_stat_value": 2.14,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ACC-NECK-90-C",
+      "item_name": "기본 목걸이 90",
+      "item_type": 2,
+      "grade": 0,
+      "level_limit": 90,
+      "equip_slot": 7,
+      "main_stat_type": 4,
+      "main_stat_value": 5.8,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "WPN-SW-100-C",
+      "item_name": "기본 소검 100",
+      "item_type": 0,
+      "grade": 0,
+      "level_limit": 100,
+      "equip_slot": 1,
+      "main_stat_type": 1,
+      "main_stat_value": 143,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "WPN-GS-100-C",
+      "item_name": "기본 대검 100",
+      "item_type": 0,
+      "grade": 0,
+      "level_limit": 100,
+      "equip_slot": 1,
+      "main_stat_type": 1,
+      "main_stat_value": 143,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "WPN-BW-100-C",
+      "item_name": "기본 활 100",
+      "item_type": 0,
+      "grade": 0,
+      "level_limit": 100,
+      "equip_slot": 1,
+      "main_stat_type": 1,
+      "main_stat_value": 143,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ARM-BODY-100-C",
+      "item_name": "기본 갑옷 100",
+      "item_type": 1,
+      "grade": 0,
+      "level_limit": 100,
+      "equip_slot": 2,
+      "main_stat_type": 2,
+      "main_stat_value": 53,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ARM-LEG-100-C",
+      "item_name": "기본 하의 100",
+      "item_type": 1,
+      "grade": 0,
+      "level_limit": 100,
+      "equip_slot": 3,
+      "main_stat_type": 2,
+      "main_stat_value": 33,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ARM-HEAD-100-C",
+      "item_name": "기본 모자 100",
+      "item_type": 1,
+      "grade": 0,
+      "level_limit": 100,
+      "equip_slot": 4,
+      "main_stat_type": 2,
+      "main_stat_value": 26,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ARM-FOOT-100-C",
+      "item_name": "기본 신발 100",
+      "item_type": 1,
+      "grade": 0,
+      "level_limit": 100,
+      "equip_slot": 5,
+      "main_stat_type": 2,
+      "main_stat_value": 20,
+      "move_speed_bonus": 2
+    },
+    {
+      "item_id": "ACC-RING-100-C",
+      "item_name": "기본 반지 100",
+      "item_type": 2,
+      "grade": 0,
+      "level_limit": 100,
+      "equip_slot": 6,
+      "main_stat_type": 3,
+      "main_stat_value": 2.38,
+      "move_speed_bonus": 0
+    },
+    {
+      "item_id": "ACC-NECK-100-C",
+      "item_name": "기본 목걸이 100",
+      "item_type": 2,
+      "grade": 0,
+      "level_limit": 100,
+      "equip_slot": 7,
+      "main_stat_type": 4,
+      "main_stat_value": 6.44,
+      "move_speed_bonus": 0
+    }
+  ],
+  "families": {
+    "WPN-BW-10-B": "bow",
+    "WPN-BW-10-C": "bow",
+    "WPN-BW-20-B": "bow",
+    "WPN-BW-20-C": "bow",
+    "WPN-BW-30-B": "bow",
+    "WPN-BW-30-C": "bow",
+    "WPN-GS-01-B": "greatsword",
+    "WPN-GS-01-C": "greatsword",
+    "WPN-GS-10-B": "greatsword",
+    "WPN-GS-10-C": "greatsword",
+    "WPN-GS-20-B": "greatsword",
+    "WPN-GS-20-C": "greatsword",
+    "WPN-GS-30-B": "greatsword",
+    "WPN-GS-30-C": "greatsword",
+    "WPN-GS-40-B": "greatsword",
+    "WPN-GS-40-C": "greatsword",
+    "WPN-SW-01-B": "sword",
+    "WPN-SW-01-C": "sword",
+    "WPN-BW-01-C": "bow",
+    "WPN-SW-10-C": "sword",
+    "WPN-SW-20-C": "sword",
+    "WPN-SW-30-C": "sword",
+    "WPN-SW-40-C": "sword",
+    "WPN-BW-40-C": "bow",
+    "WPN-SW-50-C": "sword",
+    "WPN-GS-50-C": "greatsword",
+    "WPN-BW-50-C": "bow",
+    "WPN-SW-60-C": "sword",
+    "WPN-GS-60-C": "greatsword",
+    "WPN-BW-60-C": "bow",
+    "WPN-SW-70-C": "sword",
+    "WPN-GS-70-C": "greatsword",
+    "WPN-BW-70-C": "bow",
+    "WPN-SW-80-C": "sword",
+    "WPN-GS-80-C": "greatsword",
+    "WPN-BW-80-C": "bow",
+    "WPN-SW-90-C": "sword",
+    "WPN-GS-90-C": "greatsword",
+    "WPN-BW-90-C": "bow",
+    "WPN-SW-100-C": "sword",
+    "WPN-GS-100-C": "greatsword",
+    "WPN-BW-100-C": "bow"
+  },
+  "prices": {
+    "WPN-SW-01-C": {
+      "buy": 120,
+      "sell": 12,
+      "offered": true,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "WPN-GS-01-C": {
+      "buy": 120,
+      "sell": 12,
+      "offered": true,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "WPN-BW-01-C": {
+      "buy": 120,
+      "sell": 12,
+      "offered": true,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ARM-BODY-01-C": {
+      "buy": 80,
+      "sell": 8,
+      "offered": true,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ARM-LEG-01-C": {
+      "buy": 50,
+      "sell": 5,
+      "offered": true,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ARM-HEAD-01-C": {
+      "buy": 40,
+      "sell": 4,
+      "offered": true,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ARM-FOOT-01-C": {
+      "buy": 30,
+      "sell": 3,
+      "offered": true,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ACC-RING-01-C": {
+      "buy": 50,
+      "sell": 5,
+      "offered": true,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ACC-NECK-01-C": {
+      "buy": 50,
+      "sell": 5,
+      "offered": true,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "WPN-SW-10-C": {
+      "buy": 3780,
+      "sell": 378,
+      "offered": true,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "WPN-GS-10-C": {
+      "buy": 3780,
+      "sell": 378,
+      "offered": true,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "WPN-BW-10-C": {
+      "buy": 3780,
+      "sell": 378,
+      "offered": true,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ARM-BODY-10-C": {
+      "buy": 2520,
+      "sell": 252,
+      "offered": true,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ARM-LEG-10-C": {
+      "buy": 1575,
+      "sell": 157,
+      "offered": true,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ARM-HEAD-10-C": {
+      "buy": 1260,
+      "sell": 126,
+      "offered": true,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ARM-FOOT-10-C": {
+      "buy": 945,
+      "sell": 94,
+      "offered": true,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ACC-RING-10-C": {
+      "buy": 1575,
+      "sell": 157,
+      "offered": true,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ACC-NECK-10-C": {
+      "buy": 1575,
+      "sell": 157,
+      "offered": true,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "WPN-SW-20-C": {
+      "buy": 10740,
+      "sell": 1074,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "WPN-GS-20-C": {
+      "buy": 10740,
+      "sell": 1074,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "WPN-BW-20-C": {
+      "buy": 10740,
+      "sell": 1074,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ARM-BODY-20-C": {
+      "buy": 7160,
+      "sell": 716,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ARM-LEG-20-C": {
+      "buy": 4475,
+      "sell": 447,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ARM-HEAD-20-C": {
+      "buy": 3580,
+      "sell": 358,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ARM-FOOT-20-C": {
+      "buy": 2685,
+      "sell": 268,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ACC-RING-20-C": {
+      "buy": 4475,
+      "sell": 447,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ACC-NECK-20-C": {
+      "buy": 4475,
+      "sell": 447,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "WPN-SW-30-C": {
+      "buy": 19740,
+      "sell": 1974,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "WPN-GS-30-C": {
+      "buy": 19740,
+      "sell": 1974,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "WPN-BW-30-C": {
+      "buy": 19740,
+      "sell": 1974,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ARM-BODY-30-C": {
+      "buy": 13160,
+      "sell": 1316,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ARM-LEG-30-C": {
+      "buy": 8225,
+      "sell": 822,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ARM-HEAD-30-C": {
+      "buy": 6580,
+      "sell": 658,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ARM-FOOT-30-C": {
+      "buy": 4935,
+      "sell": 493,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ACC-RING-30-C": {
+      "buy": 8225,
+      "sell": 822,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ACC-NECK-30-C": {
+      "buy": 8225,
+      "sell": 822,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "WPN-SW-40-C": {
+      "buy": 30360,
+      "sell": 3036,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "WPN-GS-40-C": {
+      "buy": 30360,
+      "sell": 3036,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "WPN-BW-40-C": {
+      "buy": 30360,
+      "sell": 3036,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ARM-BODY-40-C": {
+      "buy": 20240,
+      "sell": 2024,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ARM-LEG-40-C": {
+      "buy": 12650,
+      "sell": 1265,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ARM-HEAD-40-C": {
+      "buy": 10120,
+      "sell": 1012,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ARM-FOOT-40-C": {
+      "buy": 7590,
+      "sell": 759,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ACC-RING-40-C": {
+      "buy": 12650,
+      "sell": 1265,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ACC-NECK-40-C": {
+      "buy": 12650,
+      "sell": 1265,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "WPN-SW-50-C": {
+      "buy": 42420,
+      "sell": 4242,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "WPN-GS-50-C": {
+      "buy": 42420,
+      "sell": 4242,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "WPN-BW-50-C": {
+      "buy": 42420,
+      "sell": 4242,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ARM-BODY-50-C": {
+      "buy": 28280,
+      "sell": 2828,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ARM-LEG-50-C": {
+      "buy": 17675,
+      "sell": 1767,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ARM-HEAD-50-C": {
+      "buy": 14140,
+      "sell": 1414,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ARM-FOOT-50-C": {
+      "buy": 10605,
+      "sell": 1060,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ACC-RING-50-C": {
+      "buy": 17675,
+      "sell": 1767,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ACC-NECK-50-C": {
+      "buy": 17675,
+      "sell": 1767,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "WPN-SW-60-C": {
+      "buy": 55800,
+      "sell": 5580,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "WPN-GS-60-C": {
+      "buy": 55800,
+      "sell": 5580,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "WPN-BW-60-C": {
+      "buy": 55800,
+      "sell": 5580,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ARM-BODY-60-C": {
+      "buy": 37200,
+      "sell": 3720,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ARM-LEG-60-C": {
+      "buy": 23250,
+      "sell": 2325,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ARM-HEAD-60-C": {
+      "buy": 18600,
+      "sell": 1860,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ARM-FOOT-60-C": {
+      "buy": 13950,
+      "sell": 1395,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ACC-RING-60-C": {
+      "buy": 23250,
+      "sell": 2325,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ACC-NECK-60-C": {
+      "buy": 23250,
+      "sell": 2325,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "WPN-SW-70-C": {
+      "buy": 70260,
+      "sell": 7026,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "WPN-GS-70-C": {
+      "buy": 70260,
+      "sell": 7026,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "WPN-BW-70-C": {
+      "buy": 70260,
+      "sell": 7026,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ARM-BODY-70-C": {
+      "buy": 46840,
+      "sell": 4684,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ARM-LEG-70-C": {
+      "buy": 29275,
+      "sell": 2927,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ARM-HEAD-70-C": {
+      "buy": 23420,
+      "sell": 2342,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ARM-FOOT-70-C": {
+      "buy": 17565,
+      "sell": 1756,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ACC-RING-70-C": {
+      "buy": 29275,
+      "sell": 2927,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ACC-NECK-70-C": {
+      "buy": 29275,
+      "sell": 2927,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "WPN-SW-80-C": {
+      "buy": 85860,
+      "sell": 8586,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "WPN-GS-80-C": {
+      "buy": 85860,
+      "sell": 8586,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "WPN-BW-80-C": {
+      "buy": 85860,
+      "sell": 8586,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ARM-BODY-80-C": {
+      "buy": 57240,
+      "sell": 5724,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ARM-LEG-80-C": {
+      "buy": 35775,
+      "sell": 3577,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ARM-HEAD-80-C": {
+      "buy": 28620,
+      "sell": 2862,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ARM-FOOT-80-C": {
+      "buy": 21465,
+      "sell": 2146,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ACC-RING-80-C": {
+      "buy": 35775,
+      "sell": 3577,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ACC-NECK-80-C": {
+      "buy": 35775,
+      "sell": 3577,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "WPN-SW-90-C": {
+      "buy": 102480,
+      "sell": 10248,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "WPN-GS-90-C": {
+      "buy": 102480,
+      "sell": 10248,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "WPN-BW-90-C": {
+      "buy": 102480,
+      "sell": 10248,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ARM-BODY-90-C": {
+      "buy": 68320,
+      "sell": 6832,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ARM-LEG-90-C": {
+      "buy": 42700,
+      "sell": 4270,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ARM-HEAD-90-C": {
+      "buy": 34160,
+      "sell": 3416,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ARM-FOOT-90-C": {
+      "buy": 25620,
+      "sell": 2562,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ACC-RING-90-C": {
+      "buy": 42700,
+      "sell": 4270,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ACC-NECK-90-C": {
+      "buy": 42700,
+      "sell": 4270,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "WPN-SW-100-C": {
+      "buy": 120000,
+      "sell": 12000,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "WPN-GS-100-C": {
+      "buy": 120000,
+      "sell": 12000,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "WPN-BW-100-C": {
+      "buy": 120000,
+      "sell": 12000,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ARM-BODY-100-C": {
+      "buy": 80000,
+      "sell": 8000,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ARM-LEG-100-C": {
+      "buy": 50000,
+      "sell": 5000,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ARM-HEAD-100-C": {
+      "buy": 40000,
+      "sell": 4000,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ARM-FOOT-100-C": {
+      "buy": 30000,
+      "sell": 3000,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ACC-RING-100-C": {
+      "buy": 50000,
+      "sell": 5000,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "ACC-NECK-100-C": {
+      "buy": 50000,
+      "sell": 5000,
+      "offered": false,
+      "source": "economy-foundation §6-2 C급 정가/§6-4 판매10%"
+    },
+    "MAT-RABBIT-FOOT": {
+      "buy": 0,
+      "sell": 4,
+      "offered": false,
+      "source": "economy-foundation §2-9 재료 판매가"
+    },
+    "MAT-DOG-FANG": {
+      "buy": 0,
+      "sell": 32,
+      "offered": false,
+      "source": "economy-foundation §2-9 재료 판매가"
+    },
+    "MAT-SLIME-CORE": {
+      "buy": 0,
+      "sell": 90,
+      "offered": false,
+      "source": "economy-foundation §2-9 재료 판매가"
+    },
+    "POT-HP-1": {
+      "buy": 300,
+      "sell": 30,
+      "offered": true,
+      "source": "economy-foundation §5 포션"
+    }
+  },
+  "supply": {
+    "1": {
+      "WPN-SW": "WPN-SW-01-C",
+      "WPN-GS": "WPN-GS-01-C",
+      "WPN-BW": "WPN-BW-01-C",
+      "ARM-BODY": "ARM-BODY-01-C",
+      "ARM-LEG": "ARM-LEG-01-C",
+      "ARM-HEAD": "ARM-HEAD-01-C",
+      "ARM-FOOT": "ARM-FOOT-01-C",
+      "ACC-RING": "ACC-RING-01-C",
+      "ACC-NECK": "ACC-NECK-01-C"
+    },
+    "10": {
+      "WPN-SW": "WPN-SW-10-C",
+      "WPN-GS": "WPN-GS-10-C",
+      "WPN-BW": "WPN-BW-10-C",
+      "ARM-BODY": "ARM-BODY-10-C",
+      "ARM-LEG": "ARM-LEG-10-C",
+      "ARM-HEAD": "ARM-HEAD-10-C",
+      "ARM-FOOT": "ARM-FOOT-10-C",
+      "ACC-RING": "ACC-RING-10-C",
+      "ACC-NECK": "ACC-NECK-10-C"
+    },
+    "20": {
+      "WPN-SW": "WPN-SW-20-C",
+      "WPN-GS": "WPN-GS-20-C",
+      "WPN-BW": "WPN-BW-20-C",
+      "ARM-BODY": "ARM-BODY-20-C",
+      "ARM-LEG": "ARM-LEG-20-C",
+      "ARM-HEAD": "ARM-HEAD-20-C",
+      "ARM-FOOT": "ARM-FOOT-20-C",
+      "ACC-RING": "ACC-RING-20-C",
+      "ACC-NECK": "ACC-NECK-20-C"
+    },
+    "30": {
+      "WPN-SW": "WPN-SW-30-C",
+      "WPN-GS": "WPN-GS-30-C",
+      "WPN-BW": "WPN-BW-30-C",
+      "ARM-BODY": "ARM-BODY-30-C",
+      "ARM-LEG": "ARM-LEG-30-C",
+      "ARM-HEAD": "ARM-HEAD-30-C",
+      "ARM-FOOT": "ARM-FOOT-30-C",
+      "ACC-RING": "ACC-RING-30-C",
+      "ACC-NECK": "ACC-NECK-30-C"
+    },
+    "40": {
+      "WPN-SW": "WPN-SW-40-C",
+      "WPN-GS": "WPN-GS-40-C",
+      "WPN-BW": "WPN-BW-40-C",
+      "ARM-BODY": "ARM-BODY-40-C",
+      "ARM-LEG": "ARM-LEG-40-C",
+      "ARM-HEAD": "ARM-HEAD-40-C",
+      "ARM-FOOT": "ARM-FOOT-40-C",
+      "ACC-RING": "ACC-RING-40-C",
+      "ACC-NECK": "ACC-NECK-40-C"
+    },
+    "50": {
+      "WPN-SW": "WPN-SW-50-C",
+      "WPN-GS": "WPN-GS-50-C",
+      "WPN-BW": "WPN-BW-50-C",
+      "ARM-BODY": "ARM-BODY-50-C",
+      "ARM-LEG": "ARM-LEG-50-C",
+      "ARM-HEAD": "ARM-HEAD-50-C",
+      "ARM-FOOT": "ARM-FOOT-50-C",
+      "ACC-RING": "ACC-RING-50-C",
+      "ACC-NECK": "ACC-NECK-50-C"
+    },
+    "60": {
+      "WPN-SW": "WPN-SW-60-C",
+      "WPN-GS": "WPN-GS-60-C",
+      "WPN-BW": "WPN-BW-60-C",
+      "ARM-BODY": "ARM-BODY-60-C",
+      "ARM-LEG": "ARM-LEG-60-C",
+      "ARM-HEAD": "ARM-HEAD-60-C",
+      "ARM-FOOT": "ARM-FOOT-60-C",
+      "ACC-RING": "ACC-RING-60-C",
+      "ACC-NECK": "ACC-NECK-60-C"
+    },
+    "70": {
+      "WPN-SW": "WPN-SW-70-C",
+      "WPN-GS": "WPN-GS-70-C",
+      "WPN-BW": "WPN-BW-70-C",
+      "ARM-BODY": "ARM-BODY-70-C",
+      "ARM-LEG": "ARM-LEG-70-C",
+      "ARM-HEAD": "ARM-HEAD-70-C",
+      "ARM-FOOT": "ARM-FOOT-70-C",
+      "ACC-RING": "ACC-RING-70-C",
+      "ACC-NECK": "ACC-NECK-70-C"
+    },
+    "80": {
+      "WPN-SW": "WPN-SW-80-C",
+      "WPN-GS": "WPN-GS-80-C",
+      "WPN-BW": "WPN-BW-80-C",
+      "ARM-BODY": "ARM-BODY-80-C",
+      "ARM-LEG": "ARM-LEG-80-C",
+      "ARM-HEAD": "ARM-HEAD-80-C",
+      "ARM-FOOT": "ARM-FOOT-80-C",
+      "ACC-RING": "ACC-RING-80-C",
+      "ACC-NECK": "ACC-NECK-80-C"
+    },
+    "90": {
+      "WPN-SW": "WPN-SW-90-C",
+      "WPN-GS": "WPN-GS-90-C",
+      "WPN-BW": "WPN-BW-90-C",
+      "ARM-BODY": "ARM-BODY-90-C",
+      "ARM-LEG": "ARM-LEG-90-C",
+      "ARM-HEAD": "ARM-HEAD-90-C",
+      "ARM-FOOT": "ARM-FOOT-90-C",
+      "ACC-RING": "ACC-RING-90-C",
+      "ACC-NECK": "ACC-NECK-90-C"
+    },
+    "100": {
+      "WPN-SW": "WPN-SW-100-C",
+      "WPN-GS": "WPN-GS-100-C",
+      "WPN-BW": "WPN-BW-100-C",
+      "ARM-BODY": "ARM-BODY-100-C",
+      "ARM-LEG": "ARM-LEG-100-C",
+      "ARM-HEAD": "ARM-HEAD-100-C",
+      "ARM-FOOT": "ARM-FOOT-100-C",
+      "ACC-RING": "ACC-RING-100-C",
+      "ACC-NECK": "ACC-NECK-100-C"
+    }
+  }
+}
