@@ -1,7 +1,7 @@
 ## HUD·통합 메뉴 공용 스타일 상수 (UI-1/UI-2).
 ##
 ## `docs\art\STYLE_GUIDE.md` 2장 EDG32 팔레트, 2-1장 "역할 고정색(시스템 연동 — 변경 금지)",
-## 1-3장 한글 폰트(갈무리 11/9) 규격을 코드 한 곳에 모아 HUD·통합 메뉴 스크립트가 공유한다.
+## 한글 폰트(Pretendard) 규격을 코드 한 곳에 모아 HUD·통합 메뉴 스크립트가 공유한다.
 ## 색을 스크립트마다 따로 하드코딩하지 않기 위한 목적 하나뿐이라 별도 Resource로 만들지
 ## 않고 정적 상수 모음(class_name)으로 둔다.
 class_name UiStyle
@@ -22,8 +22,9 @@ const COLOR_NPC_DOT := Color("#fee761")
 const COLOR_QUEST_DOT := Color("#feae34")
 
 # --- 1-3장 한글 폰트 경로 (ux-foundation.md 5-0절, 2026-07-18 1920x1080 재기준) ---
-const FONT_BODY_PATH := "res://assets/fonts/Galmuri11.ttf"  ## 본문 33px+ (갈무리11 x3)
-const FONT_LABEL_PATH := "res://assets/fonts/Galmuri9.ttf"  ## 보조 라벨 27px+ (갈무리9 x3)
+const FONT_BODY_PATH := "res://assets/fonts/Pretendard-Regular.ttf"
+const FONT_LABEL_PATH := "res://assets/fonts/Pretendard-Regular.ttf"
+const FONT_HEADING_PATH := "res://assets/fonts/Pretendard-SemiBold.ttf"
 
 const FONT_SIZE_BODY := 33
 const FONT_SIZE_LABEL := 27
@@ -59,12 +60,14 @@ static func make_bar_fill_stylebox(fill_color: Color) -> StyleBoxFlat:
 static func apply_body_font(control: Control, size: int = FONT_SIZE_BODY) -> void:
 	control.add_theme_font_override("font", load(FONT_BODY_PATH))
 	control.add_theme_font_size_override("font_size", size)
+	control.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 
 
 ## 보조 라벨(27px+)에 갈무리 9 폰트를 적용한다.
 static func apply_label_font(control: Control, size: int = FONT_SIZE_LABEL) -> void:
 	control.add_theme_font_override("font", load(FONT_LABEL_PATH))
 	control.add_theme_font_size_override("font_size", size)
+	control.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 
 
 ## 표시 배경을 Control 사각형 안에 고정한다. 배경 확장 여백은 사용하지 않는다.

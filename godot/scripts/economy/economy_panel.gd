@@ -38,7 +38,12 @@ var wallet: Label
 var explanation: Label
 var tabs: HBoxContainer
 var bag_rows: GridContainer
-var gear_rows: GridContainer
+var gear_rows: Control
+var stock: VBoxContainer
+var filter_row: HBoxContainer
+var filter_dropdown: OptionButton
+var search_input: LineEdit
+var gear_target := ""
 var quantity := 1
 var category := 0
 var search := ""
@@ -77,13 +82,14 @@ func setup(controller: Node) -> void:
 	columns.add_theme_constant_override("separation", 24)
 	columns.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	layout.add_child(columns)
-	var stock := VBoxContainer.new()
-	stock.custom_minimum_size.x = 530
+	stock = VBoxContainer.new()
+	stock.custom_minimum_size.x = 1100
 	columns.add_child(stock)
-	_label(stock, "상점 상품", 28)
-	var filter_row := HBoxContainer.new()
+	
+	filter_row = HBoxContainer.new()
 	stock.add_child(filter_row)
 	var filter := OptionButton.new()
+	filter_dropdown = filter
 	UiStyle.apply_body_font(filter, 22)
 	for caption in ["전체", "무기", "방어구", "장신구", "소모품"]:
 		filter.add_item(caption)
@@ -94,6 +100,7 @@ func setup(controller: Node) -> void:
 	)
 	filter_row.add_child(filter)
 	var input := LineEdit.new()
+	search_input = input
 	input.placeholder_text = "물건 이름 검색"
 	UiStyle.apply_body_font(input, 22)
 	input.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -103,18 +110,11 @@ func setup(controller: Node) -> void:
 			search = value
 			refresh()
 	)
-	rows = _grid(stock, 2, 530, 550)
-	var possessions := VBoxContainer.new()
-	possessions.custom_minimum_size.x = 600
-	columns.add_child(possessions)
-	_label(possessions, "착용 장비  ·  선택하면 해제", 28)
-	gear_rows = GridContainer.new()
-	gear_rows.columns = 2
-	gear_rows.add_theme_constant_override("h_separation", 10)
-	gear_rows.add_theme_constant_override("v_separation", 8)
-	possessions.add_child(gear_rows)
-	_label(possessions, "내 가방  ·  선택하면 장착 / 판매", 28)
-	bag_rows = _grid(possessions, 3, 600, 240)
+	rows = _grid(stock, 4, 1100, 550)
+	bag_rows = _grid(stock, 4, 1100, 550)
+	gear_rows = Control.new()
+	gear_rows.custom_minimum_size = Vector2(1100, 550)
+	stock.add_child(gear_rows)
 	details = _column(columns, 560)
 	status = _label(layout, "", 22)
 	status.custom_minimum_size.y = 54
@@ -176,7 +176,7 @@ func close() -> void:
 func open(view: String = "shop") -> bool:
 	if not arbiter.acquire(self):
 		return false
-	mode = view if view != "shop" or trading() else "bag"
+	mode = view if view not in ["shop", "sell"] or trading() else "bag"
 	selected = ""
 	_pending.clear()
 	_message = ""
@@ -203,6 +203,8 @@ func _label(parent: Node, text: String, font_size: int = 24) -> Label:
 	var label := Label.new()
 	label.text = text
 	UiStyle.apply_body_font(label, font_size)
+	if font_size >= 28:
+		label.add_theme_font_override("font", load(UiStyle.FONT_HEADING_PATH))
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	parent.add_child(label)
 	return label
@@ -225,6 +227,11 @@ func _clear(parent: Node) -> void:
 
 func _switch(view: String) -> void:
 	mode = view
+	category = 0
+	search = ""
+	filter_dropdown.select(0)
+	search_input.set_text_no_signal("")
+	gear_target = ""
 	selected = ""
 	_pending.clear()
 	refresh()
@@ -251,56 +258,90 @@ func refresh() -> void:
 	_clear(bag_rows)
 	_clear(gear_rows)
 	_clear(details)
+	_clear(tabs)
 	var state: Dictionary = runtime.state()
-	title.text = "노베라 보급상" if trading() else "장비와 가방"
-	wallet.text = (
-		"보유 골드  %s G     ·     가방  %d / 30칸     ·     Lv%d"
-		% [state.gold, state.bag.size(), runtime.level()]
-	)
-	if trading():
+	var in_shop := mode in ["shop", "sell"]
+	var equipment := mode in ["gear", "equip_choice"]
+	title.text = "노베라 보급상" if in_shop else ("착용 장비" if equipment else "내 가방")
+	wallet.text = "보유 골드  %s G   ·   가방 %d / 30칸   ·   Lv%d" % [state.gold, state.bag.size(), runtime.level()]
+	if in_shop:
+		_make_button(tabs, "구매", _switch.bind("shop")).disabled = mode == "shop"
+		_make_button(tabs, "판매", _switch.bind("sell")).disabled = mode == "sell"
+	else:
+		_make_button(tabs, "가방으로" if equipment else "장비 보기", _switch.bind("bag" if equipment else "gear"))
+	explanation.text = {
+		"shop": "상인이 파는 상품입니다. 수량과 총액을 확인해 구매하세요. 구매한 물건은 가방으로 들어갑니다.",
+		"sell": "내 가방의 판매 가능한 물건입니다. 착용 중인 장비는 여기에 나오지 않습니다.",
+		"bag": "내가 가진 물건입니다. 장비를 선택하면 장착할 수 있습니다. 거래는 상인에게 말을 걸어 진행하세요.",
+		"gear": "장비 칸을 선택하면 해제하거나 같은 부위의 가방 장비로 교체할 수 있습니다.",
+		"equip_choice": "선택한 부위에 교체할 장비의 능력치와 착용 조건을 확인하세요."
+	}[mode]
+	rows.get_parent().visible = mode == "shop"
+	bag_rows.get_parent().visible = mode in ["bag", "sell"]
+	gear_rows.visible = equipment
+	filter_row.visible = not equipment
+	if mode == "shop" and trading():
 		for id in runtime.model.catalog.prices:
 			var item: ItemData = runtime.model.items[id]
 			var price: Dictionary = runtime.model.catalog.prices[id]
-			if not price.offered or (category > 0 and item.item_type != category - 1):
-				continue
-			if not search.is_empty() and not item.item_name.contains(search):
-				continue
-			_card(rows, id, item, "%d G  ·  Lv%d" % [price.buy, item.level_limit], "shop", 255)
+			if price.offered and _matches(item):
+				_card(rows, id, item, "%d G  ·  Lv%d" % [price.buy, item.level_limit], "shop", 265)
 		if rows.get_child_count() == 0:
-			_label(rows, "해당 상품이 없습니다.")
+			_empty(rows, "조건에 맞는 상품이 없습니다.")
+	elif equipment:
+		_equipment_view(state)
 	else:
-		_label(rows, "상인 근처에서\n물건을 사고팔 수 있습니다.")
-	for slot in state.equipment:
-		var id: String = state.equipment[slot]
-		var item: ItemData = null if id == "" else runtime.model.items[id]
-		_card(gear_rows, slot, item, SLOT_NAMES[slot], "gear", 290, true)
-	for entry in state.bag:
-		_card(
-			bag_rows,
-			entry.item_id,
-			runtime.model.items[entry.item_id],
-			"보유 %d개" % entry.quantity,
-			"bag",
-			190
-		)
-	for index in state.overflow.size():
-		_card(
-			bag_rows,
-			"overflow:%d" % index,
-			runtime.model.items[state.overflow[index].item_id],
-			"보관품 · 회수",
-			"bag",
-			190
-		)
-	if state.bag.is_empty() and state.overflow.is_empty():
-		var empty := _label(bag_rows, "가방이 비어 있습니다.\n구매한 물건이 여기에 표시됩니다.", 22)
-		empty.custom_minimum_size.x = 580
+		for entry in state.bag:
+			var item: ItemData = runtime.model.items[entry.item_id]
+			if not _matches(item):
+				continue
+			if mode == "sell" and (not runtime.model.catalog.prices.has(entry.item_id) or runtime.model.catalog.prices[entry.item_id].sell < 0):
+				continue
+			_card(bag_rows, entry.item_id, item, "보유 %d개" % entry.quantity, mode, 265)
+		if mode == "bag":
+			for index in state.overflow.size():
+				_card(bag_rows, "overflow:%d" % index, runtime.model.items[state.overflow[index].item_id], "보관품 · 회수", "bag", 265)
+		if bag_rows.get_child_count() == 0:
+			_empty(bag_rows, "판매할 물건이 없습니다." if mode == "sell" else "가방이 비어 있거나 검색 조건에 맞는 물건이 없습니다.")
 	if selected.is_empty():
 		_label(details, "물건 정보", 30)
-		_label(details, "상점 상품을 선택하면 구매 수량과 총액을 확인할 수 있습니다.\n\n내 가방에서는 장착·판매, 착용 장비에서는 해제할 수 있습니다.")
+		_label(details, "← 목록에서 물건을 선택하세요." if not equipment else "← 교체할 장비 칸을 선택하세요.")
 	else:
 		_show_details(state)
-	status.text = _message if _message != "" else "선택만으로 거래되지 않습니다. 수량과 총액을 확인한 뒤 확정하세요."
+	status.text = _message if _message != "" else "선택만으로 물건이 바뀌지 않습니다. 오른쪽 설명과 실행 버튼을 확인하세요."
+
+
+func _matches(item: ItemData) -> bool:
+	return (category == 0 or item.item_type == category - 1) and (search.is_empty() or item.item_name.contains(search))
+
+
+func _empty(parent: Node, message: String) -> void:
+	_label(parent, message, 24).custom_minimum_size.x = 1000
+
+
+func _equipment_view(state: Dictionary) -> void:
+	var slots := ["head", "weapon", "body", "legs", "necklace", "ring_1", "ring_2", "feet"]
+	for index in slots.size():
+		var slot: String = slots[index]
+		var id: String = state.equipment[slot]
+		var item: ItemData = null if id == "" else runtime.model.items[id]
+		var card := _card(gear_rows, slot, item, SLOT_NAMES[slot], "gear", 310, true)
+		card.position = Vector2(20 if index < 4 else 750, 24 + (index % 4) * 112)
+		card.size.y = 92
+	var portrait := TextureRect.new()
+	var sprite := runtime.player.get_node("Sprite") as AnimatedSprite2D
+	if sprite != null:
+		portrait.texture = sprite.sprite_frames.get_frame_texture("idle_front", 0)
+	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	portrait.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	portrait.position = Vector2(410, 40)
+	portrait.size = Vector2(230, 240)
+	gear_rows.add_child(portrait)
+	var stats = runtime.player.get_node("PlayerStats").stats
+	var summary := _label(gear_rows, "현재 적용 능력치\n공격력 %.1f\n방어력 %.1f\n최대 HP %.0f  /  MP %.0f" % [stats.attack_power, stats.defense, stats.max_hp, stats.max_mp], 24)
+	summary.position = Vector2(375, 300)
+	summary.size = Vector2(350, 180)
 
 
 func _card(
@@ -311,7 +352,7 @@ func _card(
 	view: String,
 	width: float,
 	compact: bool = false
-) -> void:
+) -> Button:
 	var button := _make_button(
 		parent,
 		"",
@@ -345,6 +386,7 @@ func _card(
 	if not compact and item != null:
 		var kind := _label(box, ["무기", "방어구", "장신구", "회복약", "특수 무기", "재료"][item.item_type], 20)
 		kind.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return button
 
 
 func _show_details(state: Dictionary) -> void:
@@ -368,6 +410,8 @@ func _show_details(state: Dictionary) -> void:
 	var id: String = state.equipment.get(selected, "") if mode == "gear" else selected
 	if id == "" or not runtime.model.items.has(id):
 		_label(details, "이 칸에는 장비가 없습니다.")
+		if mode == "gear":
+			_replacements(state, selected)
 		return
 	var item: ItemData = runtime.model.items[id]
 	_label(details, item.item_name, 30)
@@ -388,10 +432,24 @@ func _show_details(state: Dictionary) -> void:
 		_action("%d개 구매 · %d G" % [quantity, total], "buy", id, "", quantity, error)
 		if item.equip_slot != ItemData.EquipSlot.NONE:
 			_label(details, "장비는 구매 후 가방에서 장착합니다. 다른 직업의 무기도 구매할 수 있습니다.")
+			for slot in state.equipment:
+				if runtime.model.registry.slots[slot] != item.equip_slot:
+					continue
+				var current: String = state.equipment[slot]
+				var previous: float = 0.0 if current == "" else runtime.model.items[current].main_stat_value
+				_label(details, "%s 비교 · %s %.2f → %.2f" % [SLOT_NAMES[slot], STAT_NAMES[item.main_stat_type], previous, item.main_stat_value], 22)
+	elif mode == "sell":
+		_quantity_picker(state, id, false)
+		var total: int = int(runtime.model.catalog.prices[id].sell) * quantity
+		_label(details, "판매 합계  %d G" % total, 28)
+		_action("%d개 판매 · %d G" % [quantity, total], "sell", id, "", quantity)
 	elif mode == "gear":
 		_action("해제 → 가방으로", "unequip", "", selected)
+		_replacements(state, selected)
 	else:
 		for slot in state.equipment:
+			if mode == "equip_choice" and slot != gear_target:
+				continue
 			if runtime.model.registry.slots[slot] != item.equip_slot:
 				continue
 			var error: String = runtime.model.equip_error(
@@ -414,13 +472,24 @@ func _show_details(state: Dictionary) -> void:
 				"%s  %.2f → %.2f" % [STAT_NAMES[item.main_stat_type], value, item.main_stat_value]
 			)
 			_action(SLOT_NAMES[slot] + "에 장착", "equip", id, slot, 1, error)
-		if trading() and runtime.model.catalog.prices.has(id):
-			_quantity_picker(state, id, false)
-			var total: int = int(runtime.model.catalog.prices[id].sell) * quantity
-			_label(details, "판매 합계  %d G" % total, 28)
-			_action("%d개 판매 · %d G" % [quantity, total], "sell", id, "", quantity)
-		else:
-			_label(details, "판매하려면 노베라 보급상 가까이 가세요.")
+		if item.equip_slot == ItemData.EquipSlot.NONE and item.heal_amount <= 0:
+			_label(details, "사냥과 제작에 쓰이는 보유 재료입니다. 판매는 상점에서 할 수 있습니다.")
+
+
+func _replacements(state: Dictionary, slot: String) -> void:
+	_label(details, "가방에서 교체할 장비", 26)
+	var count := 0
+	for entry in state.bag:
+		var item: ItemData = runtime.model.items[entry.item_id]
+		if runtime.model.registry.slots[slot] != item.equip_slot:
+			continue
+		count += 1
+		_make_button(details, item.item_name, func():
+			gear_target = slot
+			mode = "equip_choice"
+			select_item(entry.item_id))
+	if count == 0:
+		_label(details, "가방에 이 부위의 장비가 없습니다.")
 
 
 func _action(
@@ -469,7 +538,7 @@ func _confirm() -> void:
 				runtime.state().gold
 			]
 		)
-		if mode == "bag" and action.kind in ["sell", "equip", "recover"]:
+		if mode in ["bag", "sell", "equip_choice"] and action.kind in ["sell", "equip", "recover"]:
 			selected = ""
 	else:
 		_message = ERRORS.get(error, "이 작업을 처리할 수 없습니다")

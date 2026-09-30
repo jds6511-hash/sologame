@@ -56,7 +56,7 @@ func test_purchase_selection_cancel_and_result() -> void:
 
 func test_equipment_and_overflow_have_separate_actions() -> void:
 	display._switch("gear")
-	assert_eq(display.gear_rows.get_child_count(), 8)
+	assert_eq(display.gear_rows.find_children("*", "Button", false, false).size(), 8)
 	display.select_item("weapon")
 	press("해제 → 가방으로")
 	press("확정")
@@ -78,7 +78,7 @@ func test_bag_outside_shop_does_not_offer_purchase() -> void:
 	economy.player.position = Vector2(152, 504)
 	display.open("bag")
 	assert_eq(display.mode, "bag")
-	assert_true(display.rows.get_child(0).text.contains("상인 근처"))
+	assert_false(display.rows.get_parent().visible)
 	assert_true(display.bag_rows.get_child(0).text.contains("비어"))
 
 
@@ -94,7 +94,7 @@ func test_quantity_purchase_cancel_sell_and_affordability() -> void:
 	assert_eq(economy.state().gold, 100)
 	assert_eq(economy.model.quantity(economy.state().bag, "POT-HP-1"), 3)
 	assert_eq(display.quantity, 1)
-	display._switch("bag")
+	display._switch("sell")
 	display.select_item("POT-HP-1")
 	display.set_quantity(2)
 	var price: int = economy.model.catalog.prices["POT-HP-1"].sell
@@ -110,5 +110,45 @@ func test_npc_names_have_korean_font() -> void:
 			var label: Label = npc.get_node("Name")
 			assert_true(label.has_theme_font_override("font"))
 			assert_true(label.get_theme_font("font").has_char("가".unicode_at(0)))
-			assert_eq(label.get_theme_font("font").oversampling, 1.0)
-			assert_eq(label.get_theme_font("font").antialiasing, TextServer.FONT_ANTIALIASING_NONE)
+			assert_true(label.get_theme_font("font").multichannel_signed_distance_field)
+			assert_eq(label.texture_filter, CanvasItem.TEXTURE_FILTER_LINEAR)
+
+
+func test_shop_bag_and_equipment_actions_are_separate() -> void:
+	assert_true(display.rows.get_parent().visible)
+	assert_false(display.bag_rows.get_parent().visible)
+	assert_false(display.gear_rows.visible)
+	display._switch("bag")
+	assert_false(display.rows.get_parent().visible)
+	assert_true(display.bag_rows.get_parent().visible)
+	assert_false(display.gear_rows.visible)
+	press("장비 보기")
+	assert_true(display.gear_rows.visible)
+	assert_false(display.bag_rows.get_parent().visible)
+	press("가방으로")
+	assert_eq(display.mode, "bag")
+	display._switch("shop")
+	display.select_item("WPN-SW-01-C")
+	for button in display.details.find_children("*", "Button", true, false):
+		assert_false(button.text.contains("장착"))
+	display._switch("sell")
+	assert_true(display.bag_rows.get_child(0).text.contains("판매할 물건"))
+
+
+func test_equipment_slot_replacement_uses_selected_ring_only() -> void:
+	var previous: String = economy.state().equipment.ring_1
+	world.get_node("Hud/DebugLevelKeys").grant_levels(9)
+	economy.player.get_node("Inventory").add_gold(5000)
+	var id: String = economy.model.catalog.supply["10"]["ACC-RING"]
+	assert_eq(economy.act("buy", id), "")
+	display._switch("gear")
+	display.select_item("ring_2")
+	press(economy.model.items[id].item_name)
+	assert_eq(display.mode, "equip_choice")
+	assert_eq(display.gear_target, "ring_2")
+	press("반지 2에 장착")
+	press("확정")
+	assert_eq(economy.state().equipment.ring_1, previous)
+	assert_eq(economy.state().equipment.ring_2, id)
+	assert_eq(economy.model.quantity(economy.state().bag, id), 0)
+	assert_eq(economy.model.quantity(economy.state().bag, previous), 1)

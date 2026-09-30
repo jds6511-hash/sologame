@@ -16,13 +16,9 @@ func style_name() -> void:
 	var label := get_node_or_null("Name") as Label
 	if label == null:
 		return
+	# 월드 글자는 MSDF로 확대해도 윤곽을 유지한다. 픽셀 아트 필터를 물려받지 않는다.
 	UiStyle.apply_label_font(label, 9)
-	var font := load(UiStyle.FONT_LABEL_PATH).duplicate() as FontFile
-	font.antialiasing = TextServer.FONT_ANTIALIASING_NONE
-	font.oversampling = 1.0
-	font.subpixel_positioning = TextServer.SUBPIXEL_POSITIONING_DISABLED
-	label.add_theme_font_override("font", font)
-	label.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	label.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	label.add_theme_color_override("font_color", Color.WHITE)
 	label.add_theme_color_override("font_outline_color", Color("111824"))
 	label.add_theme_constant_override("outline_size", 1)

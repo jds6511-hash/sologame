@@ -6,7 +6,7 @@
   - `docs\design\GAME_CONCEPT.md` (2026-07-15 디렉터 결정 반영판)
   - `docs\design\systems\combat-options.md` — **A안(실시간 액션) 확정**, 2-5절 조작 표 기준
   - `docs\design\systems\pioneer-legacy.md` — AccountSave/CharacterSave, 캐릭터 슬롯 10개, 유산 회랑
-  - `docs\art\STYLE_GUIDE.md` 1-3절 — 갈무리(Galmuri) 11/9 픽셀 폰트, 정수 배수 확대 규칙 근거
+  - `docs\art\STYLE_GUIDE.md` 1-3절 — Pretendard 공통 글꼴, MSDF 렌더(2026-09-30 디렉터 지시). 아래 갈무리 정수배 계산은 과거 해상도 산출 이력이며 현행 폰트 제한은 아니다.
 - 변경 이력:
   - 2026-09-28: [M5 저널](../../design/systems/m5-journal.md) 목록·검색·상태 필터·목표/보상 상세·완료 이력 구현. 메인1 자동 추적 유지, 서브2 지정·숨겨진 의뢰 탭은 후속 콘텐츠와 함께 구현한다.
   - 2026-09-14: 개척자의 유산 반영 — 세이브/로드 화면을 계정 내 캐릭터 슬롯 10개 구조로 확장하고 계정 연대기·유산 회랑 화면을 추가했다. 퀵로드가 계정 업적을 되돌리지 않는 규칙을 명시했다.

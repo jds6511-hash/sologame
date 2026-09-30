@@ -109,6 +109,10 @@ func seed_save() -> void:
 	if DisplayServer.get_name() != "headless":
 		await RenderingServer.frame_post_draw
 		root.get_texture().get_image().save_png("res://../docs/qa/screenshots/m6-bag.png")
+		world.get_node("EconomyPanel")._switch("gear")
+		world.get_node("EconomyPanel").select_item("weapon")
+		await RenderingServer.frame_post_draw
+		root.get_texture().get_image().save_png("res://../docs/qa/screenshots/m6-equipment.png")
 	check(economy.act("buy", "WPN-SW-01-C") == "", "무기 구매")
 	var power: float = player.get_node("PlayerStats").stats.attack_power
 	check(economy.act("unequip", "", "weapon") == "", "무장 해제")
