@@ -56,14 +56,14 @@ static func make_bar_fill_stylebox(fill_color: Color) -> StyleBoxFlat:
 	return box
 
 
-## 본문(33px+) 라벨에 갈무리 11 폰트를 적용한다.
+## 본문 라벨에 Pretendard Regular를 적용한다.
 static func apply_body_font(control: Control, size: int = FONT_SIZE_BODY) -> void:
 	control.add_theme_font_override("font", load(FONT_BODY_PATH))
 	control.add_theme_font_size_override("font_size", size)
 	control.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 
 
-## 보조 라벨(27px+)에 갈무리 9 폰트를 적용한다.
+## 보조 라벨에도 같은 글꼴 계열을 적용한다.
 static func apply_label_font(control: Control, size: int = FONT_SIZE_LABEL) -> void:
 	control.add_theme_font_override("font", load(FONT_LABEL_PATH))
 	control.add_theme_font_size_override("font_size", size)

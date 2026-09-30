@@ -85,7 +85,7 @@ func setup(controller: Node) -> void:
 	stock = VBoxContainer.new()
 	stock.custom_minimum_size.x = 1100
 	columns.add_child(stock)
-	
+
 	filter_row = HBoxContainer.new()
 	stock.add_child(filter_row)
 	var filter := OptionButton.new()
@@ -227,10 +227,13 @@ func _clear(parent: Node) -> void:
 
 func _switch(view: String) -> void:
 	mode = view
+	_message = ""
 	category = 0
 	search = ""
 	filter_dropdown.select(0)
-	search_input.set_text_no_signal("")
+	search_input.set_block_signals(true)
+	search_input.text = ""
+	search_input.set_block_signals(false)
 	gear_target = ""
 	selected = ""
 	_pending.clear()
@@ -263,12 +266,16 @@ func refresh() -> void:
 	var in_shop := mode in ["shop", "sell"]
 	var equipment := mode in ["gear", "equip_choice"]
 	title.text = "노베라 보급상" if in_shop else ("착용 장비" if equipment else "내 가방")
-	wallet.text = "보유 골드  %s G   ·   가방 %d / 30칸   ·   Lv%d" % [state.gold, state.bag.size(), runtime.level()]
+	wallet.text = (
+		"보유 골드  %s G   ·   가방 %d / 30칸   ·   Lv%d" % [state.gold, state.bag.size(), runtime.level()]
+	)
 	if in_shop:
 		_make_button(tabs, "구매", _switch.bind("shop")).disabled = mode == "shop"
 		_make_button(tabs, "판매", _switch.bind("sell")).disabled = mode == "sell"
 	else:
-		_make_button(tabs, "가방으로" if equipment else "장비 보기", _switch.bind("bag" if equipment else "gear"))
+		_make_button(
+			tabs, "가방으로" if equipment else "장비 보기", _switch.bind("bag" if equipment else "gear")
+		)
 	explanation.text = {
 		"shop": "상인이 파는 상품입니다. 수량과 총액을 확인해 구매하세요. 구매한 물건은 가방으로 들어갑니다.",
 		"sell": "내 가방의 판매 가능한 물건입니다. 착용 중인 장비는 여기에 나오지 않습니다.",
@@ -295,14 +302,29 @@ func refresh() -> void:
 			var item: ItemData = runtime.model.items[entry.item_id]
 			if not _matches(item):
 				continue
-			if mode == "sell" and (not runtime.model.catalog.prices.has(entry.item_id) or runtime.model.catalog.prices[entry.item_id].sell < 0):
+			if (
+				mode == "sell"
+				and (
+					not runtime.model.catalog.prices.has(entry.item_id)
+					or runtime.model.catalog.prices[entry.item_id].sell < 0
+				)
+			):
 				continue
 			_card(bag_rows, entry.item_id, item, "보유 %d개" % entry.quantity, mode, 265)
 		if mode == "bag":
 			for index in state.overflow.size():
-				_card(bag_rows, "overflow:%d" % index, runtime.model.items[state.overflow[index].item_id], "보관품 · 회수", "bag", 265)
+				_card(
+					bag_rows,
+					"overflow:%d" % index,
+					runtime.model.items[state.overflow[index].item_id],
+					"보관품 · 회수",
+					"bag",
+					265
+				)
 		if bag_rows.get_child_count() == 0:
-			_empty(bag_rows, "판매할 물건이 없습니다." if mode == "sell" else "가방이 비어 있거나 검색 조건에 맞는 물건이 없습니다.")
+			_empty(
+				bag_rows, "판매할 물건이 없습니다." if mode == "sell" else "가방이 비어 있거나 검색 조건에 맞는 물건이 없습니다."
+			)
 	if selected.is_empty():
 		_label(details, "물건 정보", 30)
 		_label(details, "← 목록에서 물건을 선택하세요." if not equipment else "← 교체할 장비 칸을 선택하세요.")
@@ -312,7 +334,10 @@ func refresh() -> void:
 
 
 func _matches(item: ItemData) -> bool:
-	return (category == 0 or item.item_type == category - 1) and (search.is_empty() or item.item_name.contains(search))
+	return (
+		(category == 0 or item.item_type == category - 1)
+		and (search.is_empty() or item.item_name.contains(search))
+	)
 
 
 func _empty(parent: Node, message: String) -> void:
@@ -339,7 +364,14 @@ func _equipment_view(state: Dictionary) -> void:
 	portrait.size = Vector2(230, 240)
 	gear_rows.add_child(portrait)
 	var stats = runtime.player.get_node("PlayerStats").stats
-	var summary := _label(gear_rows, "현재 적용 능력치\n공격력 %.1f\n방어력 %.1f\n최대 HP %.0f  /  MP %.0f" % [stats.attack_power, stats.defense, stats.max_hp, stats.max_mp], 24)
+	var summary := _label(
+		gear_rows,
+		(
+			"현재 적용 능력치\n공격력 %.1f\n방어력 %.1f\n최대 HP %.0f  /  MP %.0f"
+			% [stats.attack_power, stats.defense, stats.max_hp, stats.max_mp]
+		),
+		24
+	)
 	summary.position = Vector2(375, 300)
 	summary.size = Vector2(350, 180)
 
@@ -436,8 +468,22 @@ func _show_details(state: Dictionary) -> void:
 				if runtime.model.registry.slots[slot] != item.equip_slot:
 					continue
 				var current: String = state.equipment[slot]
-				var previous: float = 0.0 if current == "" else runtime.model.items[current].main_stat_value
-				_label(details, "%s 비교 · %s %.2f → %.2f" % [SLOT_NAMES[slot], STAT_NAMES[item.main_stat_type], previous, item.main_stat_value], 22)
+				var previous: float = (
+					0.0 if current == "" else runtime.model.items[current].main_stat_value
+				)
+				_label(
+					details,
+					(
+						"%s 비교 · %s %.2f → %.2f"
+						% [
+							SLOT_NAMES[slot],
+							STAT_NAMES[item.main_stat_type],
+							previous,
+							item.main_stat_value
+						]
+					),
+					22
+				)
 	elif mode == "sell":
 		_quantity_picker(state, id, false)
 		var total: int = int(runtime.model.catalog.prices[id].sell) * quantity
@@ -484,10 +530,14 @@ func _replacements(state: Dictionary, slot: String) -> void:
 		if runtime.model.registry.slots[slot] != item.equip_slot:
 			continue
 		count += 1
-		_make_button(details, item.item_name, func():
-			gear_target = slot
-			mode = "equip_choice"
-			select_item(entry.item_id))
+		_make_button(
+			details,
+			item.item_name,
+			func():
+				gear_target = slot
+				mode = "equip_choice"
+				select_item(entry.item_id)
+		)
 	if count == 0:
 		_label(details, "가방에 이 부위의 장비가 없습니다.")
 
