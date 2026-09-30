@@ -65,3 +65,17 @@ static func apply_body_font(control: Control, size: int = FONT_SIZE_BODY) -> voi
 static func apply_label_font(control: Control, size: int = FONT_SIZE_LABEL) -> void:
 	control.add_theme_font_override("font", load(FONT_LABEL_PATH))
 	control.add_theme_font_size_override("font_size", size)
+
+
+## 표시 배경을 Control 사각형 안에 고정한다. 배경 확장 여백은 사용하지 않는다.
+static func apply_action_button(button: Button) -> void:
+	button.custom_minimum_size.y = 60
+	apply_body_font(button, 26)
+	for state in ["normal", "hover", "pressed", "focus", "disabled"]:
+		var box := StyleBoxFlat.new()
+		box.bg_color = Color("3e526c") if state == "hover" else Color("202938")
+		box.content_margin_top = 12
+		box.content_margin_bottom = 12
+		box.content_margin_left = 16
+		box.content_margin_right = 16
+		button.add_theme_stylebox_override(state, box)

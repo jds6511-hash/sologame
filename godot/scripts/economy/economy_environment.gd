@@ -142,6 +142,14 @@ class CandidateWorld:
 		panel.name = "EconomyPanel"
 		add_child(panel)
 		panel.setup(actor.get_meta("economy_candidate"))
+		var hint := Label.new()
+		hint.position = Vector2(40, 250)
+		hint.text = "M6 후보 · 가방 [B]\n상점: MQ01~05 후 노베라 입구 보급상 [F]\n지도 [M] · 설정/종료 [Esc]"
+		UiStyle.apply_label_font(hint, 24)
+		hint.add_theme_constant_override("outline_size", 6)
+		hint.add_theme_color_override("font_outline_color", Color.BLACK)
+		hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		panel.add_child(hint)
 		if map_id == "novera_gate":
 			var merchant = load("res://scripts/economy/economy_merchant.gd").new()
 			merchant.name = "Merchant"

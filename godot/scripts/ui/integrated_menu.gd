@@ -11,7 +11,7 @@ extends CanvasLayer
 signal menu_opened
 signal menu_closed
 
-enum Tab { INVENTORY, CHARACTER, SKILL, JOURNAL, MAP, CODEX }
+enum Tab { INVENTORY, CHARACTER, SKILL, JOURNAL, MAP, CODEX, SETTINGS }
 
 const ACTION_TO_TAB := {
 	"menu_inventory": Tab.INVENTORY,
@@ -37,7 +37,7 @@ var _formula: DamageFormulaData = null
 @onready var _character_tab: CharacterTab = $Tabs/CharacterTab
 @onready var _skill_tab: SkillTab = $Tabs/SkillTab
 @onready var _journal_tab: Control = $Tabs/JournalTab
-@onready var _map_tab: PlaceholderTab = $Tabs/MapTab
+@onready var _map_tab: Control = $Tabs/MapTab
 @onready var _codex_tab: PlaceholderTab = $Tabs/CodexTab
 
 
@@ -52,7 +52,7 @@ func _ready() -> void:
 	_tabs.set_tab_title(Tab.CODEX, "도감")
 	## 8장 M2 이후 과제(5·6·4번) — 의존 시스템 확정 전까지 빈 자리임을 명시.
 	## 스킬 탭(3번)은 M3 B-4에서 실탭(스킬 포인트·강화 화면)으로 구현됐다.
-	_map_tab.set_message("지도 (월드맵 구조 확정 후 구현 — M2 이후)")
+	_create_settings()
 	_codex_tab.set_message("도감 (도감 데이터 스키마 확정 후 구현 — M2 이후)")
 	visible = false
 
@@ -68,6 +68,39 @@ func _unhandled_input(event: InputEvent) -> void:
 	if _is_open and event.is_action_pressed("menu_pause"):
 		close_menu()
 		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("menu_pause"):
+		open_settings()
+		get_viewport().set_input_as_handled()
+
+
+func open_settings() -> void:
+	_on_tab_shortcut(Tab.SETTINGS)
+
+
+func _create_settings() -> void:
+	var box := VBoxContainer.new()
+	box.name = "SettingsTab"
+	box.add_theme_constant_override("separation", 24)
+	_tabs.add_child(box)
+	_tabs.set_tab_title(Tab.SETTINGS, "설정")
+	var label := Label.new()
+	label.text = "게임 종료 전 F6에서 저장하세요.\n저장하지 않은 진행은 종료하면 사라집니다."
+	UiStyle.apply_body_font(label, 26)
+	box.add_child(label)
+	var leave := Button.new()
+	leave.text = "게임 종료"
+	UiStyle.apply_body_font(leave, 26)
+	leave.custom_minimum_size.y = 64
+	box.add_child(leave)
+	var confirm := ConfirmationDialog.new()
+	confirm.name = "QuitConfirmation"
+	confirm.title = "게임 종료"
+	confirm.dialog_text = "저장하지 않은 진행은 사라집니다. 종료할까요?"
+	confirm.ok_button_text = "종료"
+	confirm.cancel_button_text = "돌아가기"
+	add_child(confirm)
+	leave.pressed.connect(func(): confirm.popup_centered(Vector2i(580, 180)))
+	confirm.confirmed.connect(func(): get_tree().quit())
 
 
 ## 같은 탭 단축키를 다시 누르면 닫힘, 다른 탭 단축키면 그 탭으로 즉시 전환(ux 4장 규칙).
@@ -112,6 +145,7 @@ func open_menu() -> void:
 func close_menu() -> void:
 	if not _is_open:
 		return
+	get_node("QuitConfirmation").hide()
 	_is_open = false
 	visible = false
 	pause_arbiter.release(self)
@@ -142,6 +176,7 @@ func bind_character_stats(stats: CombatantStats, level: int, job_name: String) -
 ## 참조한다(진행 노드·player.tscn을 수정하지 않는다).
 func bind_player(player: PlayerController) -> void:
 	_bound_player = player
+	_map_tab.bind_world(player.get_parent())
 	var stats_component := player.get_node_or_null("PlayerStats") as PlayerStatsComponent
 	if stats_component:
 		_combat_stats = stats_component.stats

@@ -6,7 +6,7 @@
 ## M2 범위의 "단순 구현" — 지형 렌더링은 하지 않는다(맵 텍스처 파이프라인은 ux-foundation
 ## 8장 M2 이후 과제). 플레이어는 항상 중앙 고정 화살표(씬에 정적 배치)로 표시하고, 몬스터/
 ## NPC는 "monsters"/"npcs" 그룹에 속한 Node2D를 조회해 점으로 찍는다. 몬스터는
-## MonsterBase에서 등록한다. NPC·퀘스트 목표 표시는 후속 구현 범위다.
+## MonsterBase에서 등록한다. 현재 메인 의뢰 목표는 Navigation에서 읽는다.
 class_name MinimapDisplay
 extends Panel
 
@@ -15,6 +15,8 @@ const WORLD_TO_MINIMAP_SCALE := 0.08  ## 임의 축척(단순 구현) — 정식
 const ENEMY_GROUP := "monsters"
 const NPC_GROUP := "npcs"
 const DOT_SIZE := Vector2(4, 4)
+
+const Navigation = preload("res://scripts/quests/quest_navigation.gd")
 
 var _player: Node2D = null
 
@@ -36,6 +38,17 @@ func _process(_delta: float) -> void:
 		child.queue_free()
 	_draw_group_dots(get_tree().get_nodes_in_group(ENEMY_GROUP), UiStyle.COLOR_ENEMY_DOT)
 	_draw_group_dots(get_tree().get_nodes_in_group(NPC_GROUP), UiStyle.COLOR_NPC_DOT)
+	queue_redraw()
+
+
+func _draw() -> void:
+	if not is_instance_valid(_player):
+		return
+	for target in Navigation.targets(_player.get_parent()):
+		var offset: Vector2 = (target.position - _player.global_position) * WORLD_TO_MINIMAP_SCALE
+		var point := size / 2 + offset.limit_length(size.x / 2 - 12)
+		draw_circle(point, 7, UiStyle.COLOR_QUEST_DOT)
+		draw_circle(point, 3, Color.WHITE)
 
 
 func _draw_group_dots(nodes: Array, color: Color) -> void:

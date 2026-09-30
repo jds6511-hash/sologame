@@ -4,19 +4,10 @@
 ## 데미지 실적용(CB-3)·HP/MP 실체(PlayerStatsComponent)는 이 스크립트의 범위 밖이며,
 ## 시그널과 공개 상태만 노출해 다른 컴포넌트가 연동한다.
 ##
-## 스킬 슬롯(CB-2)은 기본 공격 콤보와 동일한 히트박스(Facing/AttackHitbox)를 재사용한다 —
-## 기본 공격과 스킬은 상호 배타적 행동(하나만 동시에 진행)이므로 히트박스를 공유해도
-## 안전하다. 판정이 성립하면 attack_hit(step, target) 시그널에 "현재 판정 주체"(콤보의
-## WarriorAttackStep 또는 스킬의 WarriorSkillData)를 그대로 실어 보낸다 — 두 리소스 모두
-## damage_coefficient/hitstop_preset 필드를 노출하므로(duck typing) PlayerAttackResolver는
-## 콤보인지 스킬인지 구분할 필요 없이 그대로 소비한다.
-##
-## 원거리(궁수, M3 C-4/C-5 · m3-archer-skills.md)도 같은 파이프라인을 쓴다: 판정 주체가
-## ArcherAttackStep/ArcherSkillData이고 arrow(ArrowSpec)를 들고 있으면 부채꼴 히트박스 대신
-## ArrowProjectile을 발사하고, 화살이 명중하면 그 판정 주체를 그대로 attack_hit에 실어
-## 보낸다 — 근접/원거리 어느 쪽이든 리졸버 쪽 계약은 동일하다. 무기·회피·우클릭 동작 차이는
-## 전부 데이터(전직 로드아웃)로 갈린다: 활 콤보(dodge_backward=true) → 후방 점프 회피,
-## 우클릭 슬롯이 조준 스탠스(ArcherSkillData.is_aim_stance) → 차지 대신 조준 모드.
+## 기본 공격과 스킬은 상호 배타적이며 Facing/AttackHitbox를 공유한다.
+## attack_hit에는 판정 주체 리소스(damage_coefficient/hitstop_preset)를 전달한다.
+## ArrowSpec을 가진 궁수 공격은 ArrowProjectile 명중에서 같은 신호를 발신한다.
+## 전직 로드아웃이 무기·회피·우클릭 차지/조준 동작을 결정한다.
 class_name PlayerController
 extends CharacterBody2D
 
@@ -947,6 +938,15 @@ func _update_visual() -> void:
 
 ## 저장 계층은 전투 모듈의 사설 상태 대신 이 조회 API를 사용한다.
 func save_block_reason() -> String:
+	return _transition_block_reason(false)
+
+
+## 관문 접근의 이동 속도는 지역 전환 때 폐기한다. 전투·쿨다운 검사는 유지한다.
+func travel_block_reason() -> String:
+	return _transition_block_reason(true)
+
+
+func _transition_block_reason(allow_walking: bool) -> String:
 	if is_input_locked or is_hit_stunned or is_hit_invincible:
 		return "player_locked"
 	if (
@@ -956,7 +956,7 @@ func save_block_reason() -> String:
 		or _is_charging_secondary
 	):
 		return "action_in_progress"
-	if velocity.length_squared() > 1.0:
+	if not allow_walking and velocity.length_squared() > 1.0:
 		return "moving"
 	for reason in [
 		_shots.save_block_reason(), _skills.save_block_reason(), rage.save_block_reason()

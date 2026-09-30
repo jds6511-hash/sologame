@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/integrated_menu.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/ui/inventory_tab_stub.tscn" id="2"]
@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/placeholder_tab.tscn" id="4"]
 [ext_resource type="PackedScene" path="res://scenes/ui/skill_tab.tscn" id="5"]
 [ext_resource type="Script" path="res://scripts/ui/quest_journal_tab.gd" id="6"]
+[ext_resource type="Script" path="res://scripts/ui/quest_map.gd" id="7"]
 
 [node name="IntegratedMenu" type="CanvasLayer"]
 layer = 10
@@ -37,8 +38,9 @@ layout_mode = 2
 layout_mode = 2
 script = ExtResource("6")
 
-[node name="MapTab" parent="Tabs" instance=ExtResource("4")]
+[node name="MapTab" type="Control" parent="Tabs"]
 layout_mode = 2
+script = ExtResource("7")
 
 [node name="CodexTab" parent="Tabs" instance=ExtResource("4")]
 layout_mode = 2

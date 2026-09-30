@@ -296,7 +296,7 @@ func travel(destination: String) -> Dictionary:
 		return _failure("gate_distance")
 	var reason: String = player.get_node("PlayerStats").save_block_reason(5.0)
 	if reason.is_empty():
-		reason = player.save_block_reason()
+		reason = player.travel_block_reason()
 	if not reason.is_empty():
 		return _failure(reason)
 	var snapshot: Dictionary = codec.capture(player, account.account_id, character)

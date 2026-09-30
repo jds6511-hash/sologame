@@ -208,7 +208,7 @@ func test_autosave_wait_is_visible_deduplicated_and_resumes_without_new_interval
 	session.advance(0.01)
 	assert_eq(session.get("auto_wait_reason"), "")
 	assert_eq(int(session.store.read_save("character", 1).data.inventory.gold), 81)
-	assert_true("자동 저장 완료" in world.get_node("SaveMenu").badge.text)
+	assert_true("자동 저장 완료" in world.get_node("SaveMenu").toast.text)
 
 
 func test_blocker_detail_uses_named_nearest_enemy_and_exact_radius() -> void:

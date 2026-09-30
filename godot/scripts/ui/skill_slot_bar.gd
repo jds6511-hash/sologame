@@ -26,6 +26,11 @@ const KEY_LABELS := {
 	"ultimate": "R",
 }
 
+const JOB_ICONS := {
+	"archer": {"slot4": "rapid_shot", "slot_q": "acrobatic_shot", "slot_e": "hawk_eye", "ultimate": "ultimate_piercing_burst"},
+	"gladiator": {"slot4": "cleave", "slot_q": "charge_slam", "slot_e": "blood_shout", "ultimate": "execution"}
+}
+
 var _player: PlayerController = null
 var _stats: PlayerStatsComponent = null
 var _skill_data: Dictionary = {}  ## key(String) -> WarriorSkillData
@@ -85,8 +90,15 @@ func _refresh_skill_slots() -> void:
 	}
 	for key in _slots.keys():
 		var is_open: bool = _skill_data[key] != null
-		var icon: Texture2D = load(ICON_PATHS[key]) if is_open else null
+		var job: String = _player.get_node("PlayerJobTransition").current_job_id
+		var path: String = ICON_PATHS[key]
+		if JOB_ICONS.get(job, {}).has(key):
+			path = "res://assets/icons/skills/skill_" + JOB_ICONS[job][key] + ".png"
+		var icon: Texture2D = load(path) if is_open else null
 		_slots[key].configure(icon, KEY_LABELS[key], key == "ultimate")
+		_slots[key].tooltip_text = (
+			"[%s] %s" % [KEY_LABELS[key], _skill_data[key].skill_name] if is_open else "미개방 스킬"
+		)
 		_slots[key].set_locked(not is_open)
 		_slots[key].set_cooldown(0.0, 0.0)
 		_slots[key].set_mp_insufficient(false)

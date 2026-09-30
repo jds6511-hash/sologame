@@ -11,7 +11,8 @@ const TEXT := "[F] 줍기"
 
 func _ready() -> void:
 	text = TEXT
-	UiStyle.apply_label_font(self)
+	# 월드 라벨은 카메라 4배 확대를 받는다. HUD의 27px 규격을 쓰지 않는다.
+	UiStyle.apply_label_font(self, 8)
 	add_theme_color_override("font_color", UiStyle.COLOR_TEXT)
 	add_theme_color_override("font_outline_color", UiStyle.COLOR_OUTLINE)
 	add_theme_constant_override("outline_size", 2)

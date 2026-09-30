@@ -33,7 +33,7 @@ func _pickup_destination(drop: Node2D) -> Vector2:
 		Vector2(0, 12)
 	]:
 		var destination: Vector2 = drop.position + offset
-		query.transform = Transform2D(0, destination)
+		query.transform = Transform2D(0, destination + player.get_node("CollisionShape2D").position)
 		if (
 			world.get_world_2d().direct_space_state.intersect_shape(query, 1).is_empty()
 			and not _route(destination).is_empty()

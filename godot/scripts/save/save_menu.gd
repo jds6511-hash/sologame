@@ -6,6 +6,9 @@ var confirmation: ConfirmationDialog
 var slots: OptionButton
 var status: Label
 var badge: Button
+var toast: Label
+var _toast_left := 0.0
+var _last_toast := ""
 var _action := ""
 var _slot := 0
 var _arbiter: UiPauseArbiter
@@ -19,7 +22,7 @@ func setup(owner_session: Node) -> void:
 	var root := Control.new()
 	var theme := Theme.new()
 	theme.default_font = load(UiStyle.FONT_BODY_PATH)
-	theme.default_font_size = UiStyle.FONT_SIZE_BODY
+	theme.default_font_size = 26
 	root.theme = theme
 	root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -31,6 +34,16 @@ func setup(owner_session: Node) -> void:
 	badge.add_theme_font_size_override("font_size", 24)
 	badge.pressed.connect(open_menu)
 	root.add_child(badge)
+	toast = Label.new()
+	toast.position = Vector2(1320, 950)
+	toast.size = Vector2(560, 60)
+	toast.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	UiStyle.apply_label_font(toast, 24)
+	toast.add_theme_constant_override("outline_size", 6)
+	toast.add_theme_color_override("font_outline_color", Color.BLACK)
+	toast.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	toast.hide()
+	root.add_child(toast)
 	panel = PanelContainer.new()
 	root.add_child(panel)
 	panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
@@ -54,6 +67,7 @@ func setup(owner_session: Node) -> void:
 	box.add_child(slots)
 	for action in ["save", "load", "new"]:
 		var button := Button.new()
+		UiStyle.apply_action_button(button)
 		button.text = {"save": "선택 슬롯에 저장", "load": "선택 슬롯 불러오기", "new": "새 캐릭터 시작"}[action]
 		button.pressed.connect(request_action.bind(action))
 		box.add_child(button)
@@ -66,6 +80,7 @@ func setup(owner_session: Node) -> void:
 	warning.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(warning)
 	var close := Button.new()
+	UiStyle.apply_action_button(close)
 	close.text = "돌아가기 [Esc]"
 	close.pressed.connect(close_menu)
 	box.add_child(close)
@@ -180,7 +195,11 @@ func _show_status(message: String) -> void:
 	if session.migration_pending:
 		badge.text = "저장 [F6] · 이전 버전: 수동 저장 필요"
 	if message.begins_with("자동 저장"):
-		badge.text = "[F6] " + message
+		if message != _last_toast:
+			_last_toast = message
+			toast.text = message.get_slice("\n", 0)
+			toast.show()
+			_toast_left = 4.0
 	if not session.auto_wait_reason.is_empty():
 		var short: String = (
 			{
@@ -193,6 +212,14 @@ func _show_status(message: String) -> void:
 			. get(session.auto_wait_reason, "안전 상태 필요")
 		)
 		badge.text = "[F6] 자동 저장 대기 · " + short
+
+
+func _process(delta: float) -> void:
+	if _toast_left > 0.0:
+		_toast_left = maxf(0.0, _toast_left - delta)
+		if _toast_left == 0.0:
+			toast.hide()
+			_last_toast = ""
 
 
 func _show_auto_wait(reason: String) -> void:

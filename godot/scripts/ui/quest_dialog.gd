@@ -80,7 +80,7 @@ func choose(action: String, quest_id: String = "") -> void:
 			var result: Dictionary = session.travel(destination)
 			if not result.ok:
 				open_dialog(_npc_id)
-				_message.text = "이동할 수 없습니다: " + result.code + "\n안전한 상태에서 다시 시도하세요."
+				_message.text = _travel_failure(result.code)
 			return
 		"report":
 			error = controller.report(quest_id, _npc_id)
@@ -98,7 +98,19 @@ func choose(action: String, quest_id: String = "") -> void:
 		var result: Dictionary = get_parent().get_node("SaveSession").travel(Regions.NEXT)
 		if not result.ok:
 			open_dialog(_npc_id)
-			_message.text += "\n이동 대기: " + result.code + " · 보상은 이미 받았습니다."
+			_message.text += "\n" + _travel_failure(result.code) + "\n보상은 이미 받았습니다."
+
+
+func _travel_failure(code: String) -> String:
+	if code == "gate_distance":
+		return "관문지기 가까이에서 다시 말을 걸어 주세요."
+	if code == "region_locked":
+		return "출발 의뢰를 먼저 마쳐 주세요."
+	if code == "session_blocked":
+		return "다른 화면을 닫고 부활·거래 처리가 끝난 뒤 다시 시도하세요."
+	var text: String = load("res://scripts/save/save_menu.gd").error_text(code)
+	text = text.replace("저장", "지역 이동")
+	return "이동 대기: " + text + "\n대화를 닫고 해당 상태가 끝난 뒤 다시 말을 걸어 주세요."
 
 
 func _refresh() -> void:
@@ -120,6 +132,7 @@ func _refresh() -> void:
 
 func _button(text: String, action: String, quest_id: String = "") -> void:
 	var button := Button.new()
+	UiStyle.apply_action_button(button)
 	button.text = text
 	button.pressed.connect(choose.bind(action, quest_id))
 	_box.add_child(button)

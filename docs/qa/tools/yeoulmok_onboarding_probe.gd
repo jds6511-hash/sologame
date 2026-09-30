@@ -236,7 +236,7 @@ func _route(target: Vector2) -> PackedVector2Array:
 	for y in range(grid.region.position.y, grid.region.end.y):
 		for x in range(grid.region.position.x, grid.region.end.x):
 			var cell := Vector2i(x, y)
-			query.transform = Transform2D(0, grid.get_point_position(cell))
+			query.transform = Transform2D(0, grid.get_point_position(cell) + player.get_node("CollisionShape2D").position)
 			grid.set_point_solid(cell, not space.intersect_shape(query, 1).is_empty())
 	var start := Vector2i((player.position / float(pitch)).floor())
 	var end := Vector2i((target / float(pitch)).floor())
