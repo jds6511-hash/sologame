@@ -293,7 +293,11 @@ func _make_button(parent: Node, text: String, callback: Callable) -> Button:
 	parent.add_child(button)
 	button.gui_input.connect(
 		func(event):
-			if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+			if (
+				event is InputEventMouseButton
+				and event.pressed
+				and event.button_index == MOUSE_BUTTON_LEFT
+			):
 				button.set_meta("skip_double_click", event.double_click)
 	)
 	button.pressed.connect(
@@ -618,7 +622,15 @@ func _card(
 
 
 func _item_tooltip(item: ItemData) -> String:
-	var text := "%s\n%s · %s\n%s" % [View.item_name(item), View.KINDS[item.item_type], View.condition(item), View.effect(item)]
+	var text := (
+		"%s\n%s · %s\n%s"
+		% [
+			View.item_name(item),
+			View.KINDS[item.item_type],
+			View.condition(item),
+			View.effect(item)
+		]
+	)
 	if item.move_speed_bonus != 0:
 		text += "\n이동 속도 %+.2f" % item.move_speed_bonus
 	if item.heal_amount > 0:
@@ -629,7 +641,12 @@ func _item_tooltip(item: ItemData) -> String:
 		var state: Dictionary = runtime.state()
 		for slot in state.equipment:
 			if runtime.model.registry.slots[slot] == item.equip_slot:
-				text += "\n\n" + SLOT_NAMES[slot] + " 비교\n" + View.comparison(runtime, item.item_id, slot)
+				text += (
+					"\n\n"
+					+ SLOT_NAMES[slot]
+					+ " 비교\n"
+					+ View.comparison(runtime, item.item_id, slot)
+				)
 	return text
 
 
