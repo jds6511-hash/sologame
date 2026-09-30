@@ -38,10 +38,8 @@ const InteractionScript = preload("res://scripts/quests/world_interaction.gd")
 
 func _ready() -> void:
 	_player.set_meta("map_id", map_id)
-	if Regions.BOUNDS.has(map_id):
-		load("res://scripts/world/region_boundary.gd").install(self, Regions.BOUNDS[map_id])
-	if map_id == Regions.NEXT:
-		load("res://scripts/world/novera_gate_layout.gd").prepare(self)
+	_prepare_region()
+
 	var save_session = _create_save_session()
 	save_session.name = "SaveSession"
 	add_child(save_session)
@@ -209,3 +207,10 @@ func _add_gatekeeper(id: String, quests: QuestController, dialog: QuestDialog) -
 	add_child(keeper)
 	keeper.setup(_player, quests, dialog, _hud)
 	return keeper
+
+
+func _prepare_region() -> void:
+	if Regions.BOUNDS.has(map_id):
+		load("res://scripts/world/region_boundary.gd").install(self, Regions.BOUNDS[map_id])
+	if map_id == Regions.NEXT:
+		load("res://scripts/world/novera_gate_layout.gd").prepare(self)

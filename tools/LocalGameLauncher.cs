@@ -18,7 +18,10 @@ internal static class LocalGameLauncher
                 @"Microsoft\WinGet\Links\godot.exe");
             if (!File.Exists(engine) || !File.Exists(Path.Combine(project, "project.godot")))
                 throw new FileNotFoundException("설치된 Godot 또는 godot/project.godot을 찾을 수 없습니다. 실행 파일을 게임 폴더 안에 두세요.");
-#if SHOP
+#if M7
+            string mode = "m7";
+            string entry = " --script scripts/tools/m7_candidate_play.gd -- --quick";
+#elif SHOP
             string mode = "m6-shop";
             string entry = " --script ../docs/qa/tools/m6_shop_play.gd";
 #elif M6
@@ -43,7 +46,9 @@ internal static class LocalGameLauncher
                 if (!process.WaitForExit(60000)) { process.Kill(); return 2; }
                 string output = File.Exists(log) ? File.ReadAllText(log) : "";
                 if (output.Length == 0 || output.Contains("SCRIPT ERROR:") || output.Contains("ERROR:")) return 3;
-#if SHOP
+#if M7
+                if (!output.Contains("M7_PLAY_READY")) return 4;
+#elif SHOP
                 if (!output.Contains("M6_SHOP_READY")) return 4;
 #elif M6
                 if (!output.Contains("M6_CANDIDATE_READY")) return 4;

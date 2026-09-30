@@ -1,9 +1,12 @@
 extends "res://scripts/npc/quest_npc.gd"
 
+var trade_enabled := true
+var trade_radius := 40.0
 var panel: CanvasLayer
 
 
 func configure(actor: PlayerController, display: CanvasLayer) -> void:
+	set_meta("economy_merchant", true)
 	_player = actor
 	panel = display
 	npc_id = "novera_merchant"

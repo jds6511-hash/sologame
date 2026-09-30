@@ -269,8 +269,7 @@ func _show_hint(value: bool) -> void:
 
 func trading() -> bool:
 	return (
-		get_parent().map_id == "novera_gate"
-		and runtime.player.position.distance_to(Vector2(216, 440)) <= 40
+		preload("res://scripts/economy/economy_merchants.gd").nearest(runtime.player) != null
 	)
 
 

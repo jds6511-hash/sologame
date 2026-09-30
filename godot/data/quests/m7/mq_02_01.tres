@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "MQ-02-01"
+title = "길목을 여는 일"
+offer_text = "외곽 남쪽 길목의 들개 마수 세 마리를 처치한 뒤 조합으로 돌아와 주세요."
+npc_id = "novera_receptionist"
+prerequisite = "MQ-01-05"
+objective_kinds = Array[String](["KILL"])
+objective_targets = Array[String](["feral_dog"])
+objective_sources = Array[String](["novera_dog_habitat"])
+objective_counts = Array[int]([3])
+objective_labels = Array[String](["길목 들개 처치"])
+objective_location_hints = Array[String](["노베라 외곽 남쪽 길목"])
+reward_exp = 2000
+reward_gold = 300

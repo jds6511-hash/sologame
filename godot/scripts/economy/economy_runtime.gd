@@ -84,8 +84,7 @@ func act(kind: String, id: String = "", slot: String = "", count: int = 1) -> St
 	if (
 		kind in ["buy", "sell"]
 		and (
-			player.get_meta("map_id", "") != "novera_gate"
-			or player.position.distance_to(Vector2(216, 440)) > 40.0
+			preload("res://scripts/economy/economy_merchants.gd").nearest(player) == null
 		)
 	):
 		return "merchant_distance"

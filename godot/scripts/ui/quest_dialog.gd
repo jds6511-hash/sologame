@@ -41,7 +41,7 @@ func setup(quests: QuestController) -> void:
 
 
 func open_dialog(npc_id: String) -> bool:
-	if not Npcs.SCENES.has(npc_id) or panel.visible or not _arbiter.acquire(self):
+	if not controller.journal.catalog.npc_scenes.has(npc_id) or panel.visible or not _arbiter.acquire(self):
 		return false
 	_npc_id = npc_id
 	controller.journal.record_event("TALK", npc_id, "", 0)
@@ -76,6 +76,8 @@ func choose(action: String, quest_id: String = "") -> void:
 		"travel":
 			var session = get_parent().get_node("SaveSession")
 			var destination := Regions.START if _npc_id == "novera_gatewarden" else Regions.NEXT
+			if controller.journal.catalog.has_method("travel_destination"):
+				destination = controller.journal.catalog.travel_destination(_npc_id)
 			close_dialog()
 			var result: Dictionary = session.travel(destination)
 			if not result.ok:

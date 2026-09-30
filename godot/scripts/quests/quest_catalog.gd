@@ -10,6 +10,8 @@ const ORDER := ["MQ-01-01", "MQ-01-02", "MQ-01-03", "MQ-01-04", "MQ-01-05"]
 const Registry = preload("res://scripts/save/save_content_registry.gd")
 const Npcs = preload("res://scripts/npc/npc_registry.gd")
 # Shared definitions are read-only; character progress belongs to the Journal.
+var npc_scenes := Npcs.SCENES.duplicate()
+var npc_names := Npcs.NAMES.duplicate()
 var definitions: Dictionary = {}
 var registry: RefCounted
 
@@ -28,9 +30,9 @@ func definition_errors() -> Dictionary:
 	for id in definitions:
 		var definition: QuestData = definitions[id]
 		var error := definition.definition_error()
-		if error.is_empty() and not Npcs.SCENES.has(definition.npc_id):
+		if error.is_empty() and not npc_scenes.has(definition.npc_id):
 			error = "quest_npc"
-		if error.is_empty() and not Npcs.SCENES.has(definition.giver_id()):
+		if error.is_empty() and not npc_scenes.has(definition.giver_id()):
 			error = "quest_npc"
 		if error.is_empty() and not definition.reward_item_id.is_empty():
 			if not registry.items.has(definition.reward_item_id):
@@ -38,3 +40,7 @@ func definition_errors() -> Dictionary:
 		if not error.is_empty():
 			errors[id] = error
 	return errors
+
+
+func ordered_ids() -> Array:
+	return ORDER

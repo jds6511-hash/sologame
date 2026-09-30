@@ -35,6 +35,8 @@ func _refresh() -> void:
 		if get_parent().get("map_id") == "novera_gate"
 		else "yeoulmok_receptionist"
 	)
+	if journal.catalog.has_method("tracking_npc"):
+		npc_id = journal.catalog.tracking_npc(journal.export_state())
 	_label.text = (Presentation.select(journal.catalog, journal.export_state(), npc_id).tracker)
 	_label.text += "\n[J] 의뢰 목록·상세"
 

@@ -7,6 +7,7 @@ const MAX_INT := 2147483647
 const QuestSchema = preload("res://scripts/quests/quest_state_schema.gd")
 const Catalog = preload("res://scripts/quests/quest_catalog.gd")
 const ProgressionRules = preload("res://scripts/save/save_progression_rules.gd")
+var regions = preload("res://scripts/world/region_registry.gd")
 var registry = Registry.new()
 var quest_catalog = Catalog.new(registry)
 
@@ -303,7 +304,7 @@ func world_error(data: Variant) -> String:
 		return "world_fields"
 	if (
 		not data.map_id is String
-		or not preload("res://scripts/world/region_registry.gd").SCENES.has(data.map_id)
+		or not regions.SCENES.has(data.map_id)
 	):
 		return "unknown_map"
 	if not data.position is Array or data.position.size() != 2:

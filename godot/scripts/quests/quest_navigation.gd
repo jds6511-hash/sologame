@@ -9,12 +9,18 @@ const HABITATS := {
 
 
 static func targets(world: Node) -> Array:
+	if world.has_method("quest_targets"):
+		return world.quest_targets()
+	return local_targets(world)
+
+
+static func local_targets(world: Node) -> Array:
 	var controller := world.get_node_or_null("QuestController") as QuestController
 	if controller == null:
 		return []
 	var journal := controller.journal
 	var states := journal.export_state()
-	for id in journal.catalog.ORDER:
+	for id in journal.catalog.ordered_ids():
 		var definition: QuestData = journal.catalog.definitions[id]
 		var state: Dictionary = states.get(id, {})
 		if state.get("state") == "completed":

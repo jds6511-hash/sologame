@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "MQ-02-04"
+title = "다음 길을 고르다"
+offer_text = "외곽 정찰 표식을 확인하고 조합 거리 전직 안내인과 대화한 뒤 보고해 주세요. 아직 전직하지 않아도 됩니다."
+npc_id = "novera_receptionist"
+prerequisite = "MQ-02-03"
+objective_kinds = Array[String](["REACH", "TALK"])
+objective_targets = Array[String](["novera_patrol_marker", "novera_trainer"])
+objective_sources = Array[String](["novera_patrol_site", ""])
+objective_counts = Array[int]([1, 1])
+objective_labels = Array[String](["정찰 표식 도달", "전직 안내인과 대화"])
+objective_location_hints = Array[String](["노베라 외곽 북쪽 정찰점", "노베라 조합 거리"])
+reward_exp = 5500
+reward_gold = 900

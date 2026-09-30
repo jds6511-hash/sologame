@@ -5,8 +5,12 @@ const Npcs = preload("res://scripts/npc/npc_registry.gd")
 
 
 static func select(catalog: QuestCatalog, states: Dictionary, npc_id: String) -> Dictionary:
+	if catalog.has_method("special_view"):
+		var special: Dictionary = catalog.special_view(states, npc_id)
+		if not special.is_empty():
+			return special
 	for phase in ["current", "offer"]:
-		for id in catalog.ORDER:
+		for id in catalog.ordered_ids():
 			var definition: QuestData = catalog.definitions.get(id)
 			if definition == null or npc_id not in [definition.npc_id, definition.giver_id()]:
 				continue
@@ -50,11 +54,11 @@ static func _view(
 	if state.is_empty():
 		action = "accept"
 		button = definition.title + " 수락"
-		tracker = "%s에게 %s 수락 [F]" % [Npcs.NAMES[definition.giver_id()], definition.title]
+		tracker = "%s에게 %s 수락 [F]" % [catalog.npc_names[definition.giver_id()], definition.title]
 	elif state.state == "ready":
 		action = "report" if npc_id == definition.npc_id else ""
 		button = "모험가 패 받기" if definition.grants_adventurer_pass else "보고하고 보상 받기"
-		tracker = Npcs.NAMES[definition.npc_id] + "에게 보고 [F]"
+		tracker = catalog.npc_names[definition.npc_id] + "에게 보고 [F]"
 		if not definition.grants_adventurer_pass:
 			message = tracker + "\n보고하면 보상을 받습니다."
 	elif not definition.grants_adventurer_pass:
@@ -62,7 +66,7 @@ static func _view(
 			"%s %d/%d · %s"
 			% [objective.label, objective.current, objective.required, objective.location]
 		)
-		message = tracker + "\n목표를 마친 뒤 %s에게 보고하세요." % Npcs.NAMES[definition.npc_id]
+		message = tracker + "\n목표를 마친 뒤 %s에게 보고하세요." % catalog.npc_names[definition.npc_id]
 	if action != "":
 		message += "\n" + reward_text(definition, catalog)
 	return {

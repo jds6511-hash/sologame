@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "MQ-02-03"
+title = "남겨진 균열 흔적"
+offer_text = "북동쪽 균열 점액 네 마리를 처치한 뒤 푸른 흔적을 조사해 주세요."
+npc_id = "novera_receptionist"
+prerequisite = "MQ-02-02"
+objective_kinds = Array[String](["KILL", "INTERACT"])
+objective_targets = Array[String](["rift_slime", "novera_rift_marker"])
+objective_sources = Array[String](["novera_rift_habitat", "novera_rift_site"])
+objective_counts = Array[int]([4, 1])
+objective_labels = Array[String](["균열 점액 처치", "균열 흔적 조사 [F]"])
+objective_location_hints = Array[String](["노베라 외곽 북동부", "북동부 푸른 조사 표식"])
+reward_exp = 4500
+reward_gold = 600

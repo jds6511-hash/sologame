@@ -11,7 +11,7 @@ static func entries(
 ) -> Array:
 	var result := []
 	var needle := query.strip_edges().to_lower()
-	for id in catalog.ORDER:
+	for id in catalog.ordered_ids():
 		if not states.has(id) or not catalog.definitions.has(id):
 			continue
 		var state: String = states[id].state
@@ -54,9 +54,9 @@ static func detail(catalog: QuestCatalog, states: Dictionary, id: String) -> Dic
 				"status": status
 			}
 		)
-	var next_action := "현재 목표를 마친 뒤 %s에게 보고하세요." % Npcs.NAMES[definition.npc_id]
+	var next_action := "현재 목표를 마친 뒤 %s에게 보고하세요." % catalog.npc_names[definition.npc_id]
 	if state.state == "ready":
-		next_action = "목표 완료 · %s에게 보고하고 보상을 받으세요. [F]" % Npcs.NAMES[definition.npc_id]
+		next_action = "목표 완료 · %s에게 보고하고 보상을 받으세요. [F]" % catalog.npc_names[definition.npc_id]
 	elif state.state == "completed":
 		next_action = "보고 및 보상 수령 완료"
 	return {

@@ -44,7 +44,7 @@ func update_target() -> void:
 func _can_interact() -> bool:
 	if _player == null or get_tree().paused:
 		return false
-	var gate := npc_id in ["yeoulmok_gatewarden", "novera_gatewarden"]
+	var gate: bool = get_meta("region_gate", false) or npc_id in ["yeoulmok_gatewarden", "novera_gatewarden"]
 	if (
 		_player.is_input_locked
 		or (_player.is_hit_stunned and not gate)

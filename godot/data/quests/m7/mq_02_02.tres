@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "MQ-02-02"
+title = "물가의 통행로"
+offer_text = "외곽 물가의 균열 점액 세 마리를 처치하고 통행 표식까지 길을 확인해 주세요."
+npc_id = "novera_receptionist"
+prerequisite = "MQ-02-01"
+objective_kinds = Array[String](["KILL", "REACH"])
+objective_targets = Array[String](["rift_slime", "novera_water_marker"])
+objective_sources = Array[String](["novera_water_habitat", "novera_water_site"])
+objective_counts = Array[int]([3, 1])
+objective_labels = Array[String](["물가 점액 처치", "통행 표식 도달"])
+objective_location_hints = Array[String](["노베라 외곽 중부 물가", "물가 북쪽 통행 표식"])
+reward_exp = 3000
+reward_gold = 450

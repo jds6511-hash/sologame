@@ -23,6 +23,7 @@ var last_message := "슬롯을 선택해 저장하세요. 자동 저장은 첫 �
 var auto_wait_reason := ""
 var _auto_elapsed := 0.0
 var _play_seconds := 0.0
+var regions = Regions
 var _destination := Regions.START
 
 
@@ -190,7 +191,7 @@ func load_slot(slot: int) -> Dictionary:
 	if not result.ok:
 		return result
 	var position := Vector2(result.data.world.position[0], result.data.world.position[1])
-	if not Regions.contains(result.data.world.map_id, position):
+	if not regions.contains(result.data.world.map_id, position):
 		return _failure("position_outside_map")
 	var recovered: bool = disk.recovered or result.recovered
 	return _replace_world(
@@ -284,7 +285,7 @@ func _replace_world(
 func travel(destination: String) -> Dictionary:
 	if not account_error.is_empty():
 		return _failure(account_error)
-	if not Regions.SCENES.has(destination) or destination == world.map_id:
+	if not regions.SCENES.has(destination) or destination == world.map_id:
 		return _failure("unknown_map")
 	var journal: QuestJournal = world.get_node("QuestController").journal
 	if journal.export_state().get("MQ-01-05", {}).get("state") != "completed":
@@ -292,7 +293,7 @@ func travel(destination: String) -> Dictionary:
 	if _change_blocked() or get_tree().paused:
 		return _failure("session_blocked")
 	var player = world.get_node("Player")
-	if player.position.distance_to(Regions.GATES[world.map_id]) > 40.0:
+	if player.position.distance_to(_departure(destination)) > 40.0:
 		return _failure("gate_distance")
 	var reason: String = player.get_node("PlayerStats").travel_block_reason()
 	if reason.is_empty():
@@ -306,7 +307,7 @@ func travel(destination: String) -> Dictionary:
 		"tutorial_done": tutorial.tutorial_done, "hint_heal_done": tutorial.hint_heal_done
 	}
 	snapshot.world.map_id = destination
-	var arrival: Vector2 = Regions.ARRIVALS[destination]
+	var arrival: Vector2 = _arrival(destination)
 	snapshot.world.position = [arrival.x, arrival.y]
 	var error: String = codec.schema.character_error(snapshot, account)
 	if not error.is_empty():
@@ -355,3 +356,11 @@ func _account_failure(result: Dictionary) -> Dictionary:
 	failure.code = "account_" + result.code
 	failure.file_kind = "account"
 	return failure
+
+
+func _departure(_destination_id: String) -> Vector2:
+	return Regions.GATES[world.map_id]
+
+
+func _arrival(destination: String) -> Vector2:
+	return Regions.ARRIVALS[destination]
