@@ -1,9 +1,7 @@
 ## 전사 캐릭터 컨트롤러 (CB-1/CB-2) — 이동, 기본 공격(대검 2타 콤보), 회피 대시, 스킬 슬롯.
-##
 ## 참조: docs/design/systems/combat.md 2~5장, docs/design/systems/m2-warrior-skills.md.
 ## 데미지 실적용(CB-3)·HP/MP 실체(PlayerStatsComponent)는 이 스크립트의 범위 밖이며,
 ## 시그널과 공개 상태만 노출해 다른 컴포넌트가 연동한다.
-##
 ## 기본 공격과 스킬은 상호 배타적이며 Facing/AttackHitbox를 공유한다.
 ## attack_hit에는 판정 주체 리소스(damage_coefficient/hitstop_preset)를 전달한다.
 ## ArrowSpec을 가진 궁수 공격은 ArrowProjectile 명중에서 같은 신호를 발신한다.
@@ -513,8 +511,7 @@ func _try_fire_arrows(action: Resource) -> bool:
 	return true
 
 
-## 화살 명중을 근접 판정과 동일한 attack_hit 계약으로 중계한다 — PlayerAttackResolver가
-## 계수(스킬 강화 포함)·치명타 굴림·방어 감산·히트피드백을 그대로 처리한다(6-2장 델타 ②③).
+## 화살 명중도 근접과 같은 attack_hit 계약으로 리졸버에 전달한다.
 func _on_arrow_hit_landed(action: Resource, body: Node) -> void:
 	attack_hit.emit(action, body)
 

@@ -2,15 +2,26 @@
 extends CanvasLayer
 
 const SLOT_NAMES := {
-	"weapon": "무기", "body": "갑옷", "legs": "하의", "head": "모자", "feet": "신발",
-	"ring_1": "반지 1", "ring_2": "반지 2", "necklace": "목걸이"
+	"weapon": "무기",
+	"body": "갑옷",
+	"legs": "하의",
+	"head": "모자",
+	"feet": "신발",
+	"ring_1": "반지 1",
+	"ring_2": "반지 2",
+	"necklace": "목걸이"
 }
 const ERRORS := {
-	"busy": "다른 처리가 진행 중입니다", "combat": "창을 닫고 행동과 재사용 대기가 끝난 뒤 시도하세요",
-	"merchant_distance": "보급상 가까이에서만 거래할 수 있습니다", "gold": "골드가 부족합니다",
-	"gold_limit": "골드 한도를 초과합니다", "bag_full": "가방 공간이 부족합니다",
-	"quantity": "보유 수량이 부족합니다", "level": "착용 레벨이 부족합니다",
-	"weapon_family": "현재 직업이 사용하는 무기가 아닙니다", "not_tradable": "판매할 수 없는 물품입니다",
+	"busy": "다른 처리가 진행 중입니다",
+	"combat": "창을 닫고 행동과 재사용 대기가 끝난 뒤 시도하세요",
+	"merchant_distance": "보급상 가까이에서만 거래할 수 있습니다",
+	"gold": "골드가 부족합니다",
+	"gold_limit": "골드 한도를 초과합니다",
+	"bag_full": "가방 공간이 부족합니다",
+	"quantity": "보유 수량이 부족합니다",
+	"level": "착용 레벨이 부족합니다",
+	"weapon_family": "현재 직업이 사용하는 무기가 아닙니다",
+	"not_tradable": "판매할 수 없는 물품입니다",
 	"economy_content_error": "경제 데이터 오류로 중단했습니다"
 }
 const STAT_NAMES := ["옵션 없음", "공격력", "방어력", "치명타 확률", "최대 HP", "최대 MP", "공격 속도"]
@@ -164,6 +175,15 @@ func select_item(key: String) -> void:
 	selected = key
 	_pending.clear()
 	refresh()
+	_reveal_selected.call_deferred(key)
+
+
+func _reveal_selected(key: String) -> void:
+	if selected != key:
+		return
+	for button in rows.get_children():
+		if button.get_meta("item_key", "") == key:
+			rows.get_parent().ensure_control_visible(button)
 
 
 func refresh() -> void:
@@ -172,7 +192,10 @@ func refresh() -> void:
 	_clear(tabs)
 	var state: Dictionary = runtime.state()
 	title.text = {"shop": "노베라 보급상 · 물건 사기", "bag": "내 가방 · 보유 물건", "gear": "착용 중인 장비"}[mode]
-	wallet.text = "내 골드  %s G     |     가방  %d / 30칸     |     Lv%d" % [state.gold, state.bag.size(), runtime.level()]
+	wallet.text = (
+		"내 골드  %s G     |     가방  %d / 30칸     |     Lv%d"
+		% [state.gold, state.bag.size(), runtime.level()]
+	)
 	for view in ["shop", "bag", "gear"]:
 		var text: String = {"shop": "상점 · 구매", "bag": "가방 · 장착 / 판매", "gear": "착용 장비 · 해제"}[view]
 		var button := _make_button(tabs, text, _switch.bind(view))
@@ -191,12 +214,25 @@ func refresh() -> void:
 	elif mode == "gear":
 		for slot in state.equipment:
 			var id: String = state.equipment[slot]
-			_entry(slot, SLOT_NAMES[slot] + "  ·  " + ("비어 있음" if id == "" else runtime.model.items[id].item_name))
+			_entry(
+				slot,
+				(
+					SLOT_NAMES[slot]
+					+ "  ·  "
+					+ ("비어 있음" if id == "" else runtime.model.items[id].item_name)
+				)
+			)
 	else:
 		for entry in state.bag:
-			_entry(entry.item_id, "%s  ×%d" % [runtime.model.items[entry.item_id].item_name, entry.quantity])
+			_entry(
+				entry.item_id,
+				"%s  ×%d" % [runtime.model.items[entry.item_id].item_name, entry.quantity]
+			)
 		for index in state.overflow.size():
-			_entry("overflow:%d" % index, "보관품 회수 · " + runtime.model.items[state.overflow[index].item_id].item_name)
+			_entry(
+				"overflow:%d" % index,
+				"보관품 회수 · " + runtime.model.items[state.overflow[index].item_id].item_name
+			)
 		if rows.get_child_count() == 0:
 			_label(rows, "가방이 비어 있습니다.\n상점에서 물건을 사거나 사냥으로 얻어 보세요.")
 	if selected.is_empty():
@@ -207,7 +243,9 @@ func refresh() -> void:
 
 
 func _entry(key: String, text: String) -> void:
-	var button := _make_button(rows, ("▶ " if selected == key else "") + text, select_item.bind(key))
+	var button := _make_button(
+		rows, ("▶ " if selected == key else "") + text, select_item.bind(key)
+	)
 	button.set_meta("item_key", key)
 	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 
@@ -216,7 +254,13 @@ func _show_details(state: Dictionary) -> void:
 	if not _pending.is_empty():
 		_label(details, _pending.label + "\n확정하시겠습니까?", 28)
 		_make_button(details, "확정", _confirm)
-		_make_button(details, "취소", func(): _pending.clear(); refresh())
+		_make_button(
+			details,
+			"취소",
+			func():
+				_pending.clear()
+				refresh()
+		)
 		return
 	if selected.begins_with("overflow:"):
 		var index := int(selected.get_slice(":", 1))
@@ -235,7 +279,9 @@ func _show_details(state: Dictionary) -> void:
 		_label(details, "HP %d 회복 · 창을 닫고 퀵슬롯 [5]로 사용" % item.heal_amount)
 	elif item.main_stat_type != ItemData.MainStatType.NONE:
 		var unit := "%" if item.main_stat_type in [3, 4, 6] else ""
-		_label(details, "%s +%.2f%s" % [STAT_NAMES[item.main_stat_type], item.main_stat_value, unit])
+		_label(
+			details, "%s +%.2f%s" % [STAT_NAMES[item.main_stat_type], item.main_stat_value, unit]
+		)
 	if mode == "shop":
 		var price: Dictionary = runtime.model.catalog.prices[id]
 		_label(details, "구매 가격  %d G\n구매 후 골드  %d G" % [price.buy, state.gold - price.buy])
@@ -249,11 +295,25 @@ func _show_details(state: Dictionary) -> void:
 		for slot in state.equipment:
 			if runtime.model.registry.slots[slot] != item.equip_slot:
 				continue
-			var error: String = runtime.model.equip_error(id, slot, runtime.level(), runtime.job_id())
+			var error: String = runtime.model.equip_error(
+				id, slot, runtime.level(), runtime.job_id()
+			)
 			var previous: String = state.equipment[slot]
-			_label(details, SLOT_NAMES[slot] + " 현재: " + ("없음" if previous == "" else runtime.model.items[previous].item_name))
-			var value: float = 0 if previous == "" else runtime.model.items[previous].main_stat_value
-			_label(details, "%s  %.2f → %.2f" % [STAT_NAMES[item.main_stat_type], value, item.main_stat_value])
+			_label(
+				details,
+				(
+					SLOT_NAMES[slot]
+					+ " 현재: "
+					+ ("없음" if previous == "" else runtime.model.items[previous].item_name)
+				)
+			)
+			var value: float = (
+				0 if previous == "" else runtime.model.items[previous].main_stat_value
+			)
+			_label(
+				details,
+				"%s  %.2f → %.2f" % [STAT_NAMES[item.main_stat_type], value, item.main_stat_value]
+			)
 			_action(SLOT_NAMES[slot] + "에 장착", "equip", id, slot, 1, error)
 		if trading() and runtime.model.catalog.prices.has(id):
 			_action("1개 판매 · %d G" % runtime.model.catalog.prices[id].sell, "sell", id)
@@ -261,10 +321,22 @@ func _show_details(state: Dictionary) -> void:
 			_label(details, "판매하려면 노베라 보급상 가까이 가세요.")
 
 
-func _action(label: String, kind: String, id: String, slot: String = "", count: int = 1, error: String = "") -> void:
-	var button := _make_button(details, label, func():
-		_pending = {"label": label, "kind": kind, "id": id, "slot": slot, "count": count}
-		refresh()
+func _action(
+	label: String, kind: String, id: String, slot: String = "", count: int = 1, error: String = ""
+) -> void:
+	var button := _make_button(
+		details,
+		label,
+		func():
+			var item_name: String = runtime.model.items[id].item_name if id != "" else ""
+			_pending = {
+				"label": item_name + "\n" + label,
+				"kind": kind,
+				"id": id,
+				"slot": slot,
+				"count": count
+			}
+			refresh()
 	)
 	button.disabled = error != ""
 	if error != "":
@@ -276,11 +348,25 @@ func _confirm() -> void:
 		return
 	var action: Dictionary = _pending.duplicate()
 	_pending.clear()
-	var name_text: String = runtime.model.items[action.id].item_name if action.id != "" else SLOT_NAMES.get(action.slot, "보관품")
+	var name_text: String = (
+		runtime.model.items[action.id].item_name
+		if action.id != ""
+		else SLOT_NAMES.get(action.slot, "보관품")
+	)
 	var before: int = runtime.state().gold
 	var error: String = runtime.act(action.kind, action.id, action.slot, action.count)
 	if error == "":
-		_message = "%s · %s 완료     |     골드 %d → %d G" % [name_text, {"buy": "구매", "sell": "판매", "equip": "장착", "unequip": "해제", "recover": "회수"}[action.kind], before, runtime.state().gold]
+		_message = (
+			"%s · %s 완료     |     골드 %d → %d G"
+			% [
+				name_text,
+				{"buy": "구매", "sell": "판매", "equip": "장착", "unequip": "해제", "recover": "회수"}[
+					action.kind
+				],
+				before,
+				runtime.state().gold
+			]
+		)
 		if mode == "bag" and action.kind in ["sell", "equip", "recover"]:
 			selected = ""
 	else:
