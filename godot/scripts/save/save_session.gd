@@ -294,7 +294,7 @@ func travel(destination: String) -> Dictionary:
 	var player = world.get_node("Player")
 	if player.position.distance_to(Regions.GATES[world.map_id]) > 40.0:
 		return _failure("gate_distance")
-	var reason: String = player.get_node("PlayerStats").save_block_reason(5.0)
+	var reason: String = player.get_node("PlayerStats").travel_block_reason()
 	if reason.is_empty():
 		reason = player.travel_block_reason()
 	if not reason.is_empty():

@@ -74,6 +74,10 @@ static func apply_action_button(button: Button) -> void:
 	for state in ["normal", "hover", "pressed", "focus", "disabled"]:
 		var box := StyleBoxFlat.new()
 		box.bg_color = Color("3e526c") if state == "hover" else Color("202938")
+		if state == "focus":
+			box.bg_color = Color.TRANSPARENT
+			box.border_color = Color("f9cf75")
+			box.set_border_width_all(3)
 		box.content_margin_top = 12
 		box.content_margin_bottom = 12
 		box.content_margin_left = 16

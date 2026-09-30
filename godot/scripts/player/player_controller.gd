@@ -212,6 +212,9 @@ func _physics_process(delta: float) -> void:
 
 func _update_facing_to_mouse() -> void:
 	var mouse_pos := get_global_mouse_position()
+	if _shots.aim_stance != null:
+		_facing.rotation = _shots.aim_direction(mouse_pos).angle()
+		return
 	if mouse_pos.distance_squared_to(global_position) > 0.01:
 		_facing.look_at(mouse_pos)
 
@@ -256,10 +259,11 @@ func _update_move_slow(delta: float) -> void:
 ## 스윙 STARTUP 동안 매 프레임 호출된다 — 마우스 방향 기준 자동 조준 대상이 있으면 그
 ## 적으로, 없으면 순수 마우스 방향으로 Facing을 갱신한다.
 ##
-## range_tiles는 자동 조준 스냅을 허용하는 최대 거리다. 근접 스윙은 기본값(3타일)을 쓰고,
-## 원거리 사격은 그 화살의 유효 사거리를 넘겨 사거리 전체에서 스냅이 걸리게 한다
-## (m3-archer-skills 4-1장 "3발은 자동 조준 대상에 집속").
+## 근접만 사거리 안 적으로 스냅한다. 궁수는 몸 중심에서 커서를 향한다.
 func _apply_attack_aim(range_tiles: float = AUTO_AIM_RANGE_TILES) -> void:
+	if _shots.aim_stance != null:
+		_update_facing_to_mouse()
+		return
 	var aim_pos := _resolve_aim_position(range_tiles)
 	if aim_pos.distance_squared_to(global_position) > 0.01:
 		_facing.look_at(aim_pos)
@@ -503,8 +507,7 @@ func _try_fire_arrows(action: Resource) -> bool:
 	if spec == null:
 		return false
 	_current_action_step = action
-	## 발사 직전에 조준을 확정한다(자동 조준 스냅 사거리 = 화살 유효 사거리).
-	_gather_aim_candidates()
+	## 발사 직전에 커서 방향을 확정한다.
 	_apply_attack_aim(_shots.effective_range_tiles(spec))
 	_shots.fire(action, spec, Vector2.RIGHT.rotated(_facing.rotation))
 	return true
@@ -941,7 +944,7 @@ func save_block_reason() -> String:
 	return _transition_block_reason(false)
 
 
-## 관문 접근의 이동 속도는 지역 전환 때 폐기한다. 전투·쿨다운 검사는 유지한다.
+## 관문 접근의 걷기·대시와 대시 충전은 허용한다. 전투 상태는 별도 검사한다.
 func travel_block_reason() -> String:
 	return _transition_block_reason(true)
 
@@ -952,7 +955,7 @@ func _transition_block_reason(allow_walking: bool) -> String:
 	if (
 		attack_state != AttackState.NONE
 		or skill_state != AttackState.NONE
-		or is_dashing
+		or (is_dashing and not allow_walking)
 		or _is_charging_secondary
 	):
 		return "action_in_progress"
@@ -966,7 +969,7 @@ func _transition_block_reason(allow_walking: bool) -> String:
 	if (
 		_move_slow_timer > 0.0
 		or _buff_superarmor_timer > 0.0
-		or not _dash_recharge_timers.is_empty()
+		or (not allow_walking and not _dash_recharge_timers.is_empty())
 	):
 		return "cooldown_or_buff"
 	return ""

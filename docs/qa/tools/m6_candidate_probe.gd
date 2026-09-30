@@ -87,6 +87,7 @@ func seed_save() -> void:
 	event.pressed = false
 	Input.parse_input_event(event)
 	check(world.get_node("EconomyPanel").panel.visible and paused, "F 거래창 열기")
+	world.get_node("EconomyPanel").select_item("POT-HP-1")
 	if DisplayServer.get_name() != "headless":
 		await RenderingServer.frame_post_draw
 		check(
@@ -97,11 +98,17 @@ func seed_save() -> void:
 			"거래창 렌더 기록"
 		)
 	var before_cancel: Dictionary = economy.state()
-	check(click_button("구매 300골드"), "포션 구매 선택")
+	world.get_node("EconomyPanel").select_item("POT-HP-1")
+	check(click_button("1개 구매 · 300 G"), "포션 구매 선택")
 	check(click_button("취소"), "구매 취소")
 	check(economy.state() == before_cancel, "취소 시 경제 상태 불변")
-	check(click_button("구매 300골드") and click_button("확정"), "포션 구매 확정 버튼")
+	check(click_button("1개 구매 · 300 G") and click_button("확정"), "포션 구매 확정 버튼")
 	check(economy.model.quantity(economy.state().bag, "POT-HP-1") == 1, "포션 구매")
+	world.get_node("EconomyPanel")._switch("bag")
+	world.get_node("EconomyPanel").select_item("POT-HP-1")
+	if DisplayServer.get_name() != "headless":
+		await RenderingServer.frame_post_draw
+		root.get_texture().get_image().save_png("res://../docs/qa/screenshots/m6-bag.png")
 	check(economy.act("buy", "WPN-SW-01-C") == "", "무기 구매")
 	var power: float = player.get_node("PlayerStats").stats.attack_power
 	check(economy.act("unequip", "", "weapon") == "", "무장 해제")
@@ -122,7 +129,7 @@ func seed_save() -> void:
 
 
 func click_button(text: String) -> bool:
-	for button in world.get_node("EconomyPanel").rows.get_children():
+	for button in world.get_node("EconomyPanel").panel.find_children("*", "Button", true, false):
 		if button is Button and text in button.text and not button.disabled:
 			button.pressed.emit()
 			return true

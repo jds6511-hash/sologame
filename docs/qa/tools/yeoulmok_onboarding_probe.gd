@@ -226,7 +226,7 @@ func _route(target: Vector2) -> PackedVector2Array:
 	var used := ground.get_used_rect()
 	grid.region = Rect2i(used.position * scale, used.size * scale)
 	grid.cell_size = Vector2(pitch, pitch)
-	grid.offset = Vector2(pitch, pitch) / 2.0
+	grid.offset = Vector2.ZERO if pitch == 8 else Vector2(pitch, pitch) / 2.0
 	grid.diagonal_mode = AStarGrid2D.DIAGONAL_MODE_NEVER
 	grid.update()
 	var query := PhysicsShapeQueryParameters2D.new()

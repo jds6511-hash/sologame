@@ -41,6 +41,7 @@ var current_mp: float = 0.0
 var _potion_cooldown_timer: float = 0.0
 var _boss_potion_used_count: int = 0
 var _time_since_combat_action_sec: float = 0.0
+var _has_combat_action := false
 var _defense_buff_percent: float = 0.0
 var _defense_buff_timer: float = 0.0
 var _respawn_position := Vector2.ZERO
@@ -207,6 +208,10 @@ func end_boss_encounter() -> void:
 
 
 ## 상태의 소유자가 저장 제외 판정을 제공한다. 호출자는 대기 시간 정책만 전달한다.
+func travel_block_reason() -> String:
+	return save_block_reason(5.0 if _has_combat_action else 0.0)
+
+
 func save_block_reason(quiet_seconds: float) -> String:
 	if is_dead():
 		return "death_sequence"
@@ -263,4 +268,5 @@ func _update_natural_regen(delta: float) -> void:
 
 
 func _on_combat_action() -> void:
+	_has_combat_action = true
 	_time_since_combat_action_sec = 0.0

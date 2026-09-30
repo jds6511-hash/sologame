@@ -178,7 +178,7 @@ func _spawn_arrow(action: Resource, spec: ArrowSpec, direction: Vector2) -> void
 		return
 	var arrow := ARROW_SCENE.instantiate() as ArrowProjectile
 	_shooter.get_tree().root.add_child(arrow)
-	arrow.global_position = _shooter.global_position
+	arrow.global_position = shot_origin()
 	arrow.configure(action, spec, _tile_size_px)
 	arrow.arrow_hit_landed.connect(_on_arrow_hit_landed)
 	arrow.launch(direction, effective_range_tiles(spec) * _tile_size_px)
@@ -186,3 +186,17 @@ func _spawn_arrow(action: Resource, spec: ArrowSpec, direction: Vector2) -> void
 
 func _on_arrow_hit_landed(action: Resource, body: Node) -> void:
 	arrow_hit_landed.emit(action, body)
+
+
+## 발밑 대신 몸 중심에서 커서를 향한다. 근접 적의 발로 방향을 스냅하지 않는다.
+func shot_origin() -> Vector2:
+	var body := _shooter.get_node_or_null("CollisionShape2D") as Node2D
+	return body.global_position if body != null else _shooter.global_position
+
+
+func aim_direction(cursor: Vector2) -> Vector2:
+	var offset := cursor - shot_origin()
+	if offset.length_squared() > 0.01:
+		return offset.normalized()
+	var facing := _shooter.get_node_or_null("Facing") as Node2D
+	return Vector2.RIGHT.rotated(facing.global_rotation) if facing != null else Vector2.RIGHT

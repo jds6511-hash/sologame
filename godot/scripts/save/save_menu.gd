@@ -34,6 +34,7 @@ func setup(owner_session: Node) -> void:
 	badge.add_theme_font_size_override("font_size", 24)
 	badge.pressed.connect(open_menu)
 	root.add_child(badge)
+	badge.hide()  # 화면 상단 바로가기는 제거하고 F6 입력만 유지한다.
 	toast = Label.new()
 	toast.position = Vector2(1320, 950)
 	toast.size = Vector2(560, 60)

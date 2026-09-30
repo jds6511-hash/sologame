@@ -22,6 +22,7 @@ func test_save_completion_is_temporary_bottom_toast() -> void:
 	var menu = world.get_node("SaveMenu")
 	menu._show_status("자동 저장 완료 · 슬롯 1")
 	assert_false(menu.badge.text.contains("완료"))
+	assert_false(menu.badge.visible)
 	assert_true(menu.has_method("_process"))
 	if not menu.has_method("_process"):
 		return
@@ -49,7 +50,15 @@ func test_travel_can_ignore_walking_but_not_attack_or_cooldown() -> void:
 	assert_eq(player.travel_block_reason(), "action_in_progress")
 	player.attack_state = PlayerController.AttackState.NONE
 	player._dash_recharge_timers.append(1.0)
-	assert_eq(player.travel_block_reason(), "cooldown_or_buff")
+	player.is_dashing = true
+	assert_eq(player.travel_block_reason(), "")
+	assert_eq(player.save_block_reason(), "action_in_progress")
+	var stats = player.get_node("PlayerStats")
+	assert_eq(stats.travel_block_reason(), "")
+	stats.take_damage(1)
+	assert_eq(stats.travel_block_reason(), "recent_combat")
+	stats._process(5.1)
+	assert_eq(stats.travel_block_reason(), "")
 
 
 func test_map_and_settings_are_available() -> void:
