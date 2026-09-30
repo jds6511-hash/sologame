@@ -37,14 +37,14 @@ var title: Label
 var wallet: Label
 var explanation: Label
 var tabs: HBoxContainer
-var _pending := {}
-var _message := ""
 var bag_rows: GridContainer
 var gear_rows: GridContainer
 var quantity := 1
 var category := 0
 var search := ""
 var quantity_input: SpinBox
+var _pending := {}
+var _message := ""
 
 
 func setup(controller: Node) -> void:
@@ -87,18 +87,22 @@ func setup(controller: Node) -> void:
 	UiStyle.apply_body_font(filter, 22)
 	for caption in ["전체", "무기", "방어구", "장신구", "소모품"]:
 		filter.add_item(caption)
-	filter.item_selected.connect(func(index):
-		category = index
-		refresh())
+	filter.item_selected.connect(
+		func(index):
+			category = index
+			refresh()
+	)
 	filter_row.add_child(filter)
 	var input := LineEdit.new()
 	input.placeholder_text = "물건 이름 검색"
 	UiStyle.apply_body_font(input, 22)
 	input.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	filter_row.add_child(input)
-	input.text_changed.connect(func(value):
-		search = value
-		refresh())
+	input.text_changed.connect(
+		func(value):
+			search = value
+			refresh()
+	)
 	rows = _grid(stock, 2, 530, 550)
 	var possessions := VBoxContainer.new()
 	possessions.custom_minimum_size.x = 600
@@ -249,7 +253,10 @@ func refresh() -> void:
 	_clear(details)
 	var state: Dictionary = runtime.state()
 	title.text = "노베라 보급상" if trading() else "장비와 가방"
-	wallet.text = "보유 골드  %s G     ·     가방  %d / 30칸     ·     Lv%d" % [state.gold, state.bag.size(), runtime.level()]
+	wallet.text = (
+		"보유 골드  %s G     ·     가방  %d / 30칸     ·     Lv%d"
+		% [state.gold, state.bag.size(), runtime.level()]
+	)
 	if trading():
 		for id in runtime.model.catalog.prices:
 			var item: ItemData = runtime.model.items[id]
@@ -268,9 +275,23 @@ func refresh() -> void:
 		var item: ItemData = null if id == "" else runtime.model.items[id]
 		_card(gear_rows, slot, item, SLOT_NAMES[slot], "gear", 290, true)
 	for entry in state.bag:
-		_card(bag_rows, entry.item_id, runtime.model.items[entry.item_id], "보유 %d개" % entry.quantity, "bag", 190)
+		_card(
+			bag_rows,
+			entry.item_id,
+			runtime.model.items[entry.item_id],
+			"보유 %d개" % entry.quantity,
+			"bag",
+			190
+		)
 	for index in state.overflow.size():
-		_card(bag_rows, "overflow:%d" % index, runtime.model.items[state.overflow[index].item_id], "보관품 · 회수", "bag", 190)
+		_card(
+			bag_rows,
+			"overflow:%d" % index,
+			runtime.model.items[state.overflow[index].item_id],
+			"보관품 · 회수",
+			"bag",
+			190
+		)
 	if state.bag.is_empty() and state.overflow.is_empty():
 		var empty := _label(bag_rows, "가방이 비어 있습니다.\n구매한 물건이 여기에 표시됩니다.", 22)
 		empty.custom_minimum_size.x = 580
@@ -282,10 +303,22 @@ func refresh() -> void:
 	status.text = _message if _message != "" else "선택만으로 거래되지 않습니다. 수량과 총액을 확인한 뒤 확정하세요."
 
 
-func _card(parent: Node, key: String, item: ItemData, caption: String, view: String, width: float, compact: bool = false) -> void:
-	var button := _make_button(parent, "", func():
-		mode = view
-		select_item(key))
+func _card(
+	parent: Node,
+	key: String,
+	item: ItemData,
+	caption: String,
+	view: String,
+	width: float,
+	compact: bool = false
+) -> void:
+	var button := _make_button(
+		parent,
+		"",
+		func():
+			mode = view
+			select_item(key)
+	)
 	button.custom_minimum_size = Vector2(width, 64 if compact else 132)
 	button.set_meta("item_key", key)
 	button.tooltip_text = caption + ("" if item == null else " · " + item.item_name)

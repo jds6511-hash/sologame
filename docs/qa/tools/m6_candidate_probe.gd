@@ -117,6 +117,9 @@ func seed_save() -> void:
 	check(economy.act("sell", "WPN-SW-01-C") == "", "여분 무기 판매")
 	check(player.get_node("Inventory").gold == 592, "명시 구매 판매가 결과")
 	world.get_node("EconomyPanel").close()
+	if DisplayServer.get_name() != "headless":
+		await RenderingServer.frame_post_draw
+		root.get_texture().get_image().save_png("res://../docs/qa/screenshots/m6-npc-names.png")
 	await create_timer(6).timeout
 	var session = world.get_node("SaveSession")
 	var saved: Dictionary = session.save_slot(1)

@@ -17,10 +17,15 @@ func style_name() -> void:
 	if label == null:
 		return
 	UiStyle.apply_label_font(label, 9)
+	var font := load(UiStyle.FONT_LABEL_PATH).duplicate() as FontFile
+	font.antialiasing = TextServer.FONT_ANTIALIASING_NONE
+	font.oversampling = 1.0
+	font.subpixel_positioning = TextServer.SUBPIXEL_POSITIONING_DISABLED
+	label.add_theme_font_override("font", font)
 	label.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	label.add_theme_color_override("font_color", Color.WHITE)
 	label.add_theme_color_override("font_outline_color", Color("111824"))
-	label.add_theme_constant_override("outline_size", 2)
+	label.add_theme_constant_override("outline_size", 1)
 	label.grow_horizontal = Control.GROW_DIRECTION_BOTH
 
 

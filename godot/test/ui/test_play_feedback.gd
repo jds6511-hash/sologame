@@ -63,6 +63,12 @@ func test_travel_allows_escape_without_relaxing_save() -> void:
 	assert_eq(stats.travel_block_reason(), "")
 	stats._process(5.1)
 	assert_eq(stats.travel_block_reason(), "")
+	player.position = world.get_node("Gatewarden").position + Vector2(-16, 0)
+	player.is_hit_stunned = true
+	player.attack_state = PlayerController.AttackState.STARTUP
+	assert_true(world.get_node("Gatewarden")._can_interact())
+	assert_eq(player.travel_block_reason(), "")
+	assert_eq(player.save_block_reason(), "player_locked")
 
 
 func test_map_and_settings_are_available() -> void:

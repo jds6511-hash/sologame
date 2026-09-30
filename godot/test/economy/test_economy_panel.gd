@@ -110,3 +110,5 @@ func test_npc_names_have_korean_font() -> void:
 			var label: Label = npc.get_node("Name")
 			assert_true(label.has_theme_font_override("font"))
 			assert_true(label.get_theme_font("font").has_char("가".unicode_at(0)))
+			assert_eq(label.get_theme_font("font").oversampling, 1.0)
+			assert_eq(label.get_theme_font("font").antialiasing, TextServer.FONT_ANTIALIASING_NONE)
