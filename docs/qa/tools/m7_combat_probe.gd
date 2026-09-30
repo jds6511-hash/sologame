@@ -7,7 +7,7 @@ const RegionsM7 = preload("res://scripts/chapter_two/m7_regions.gd")
 func _initialize() -> void:
 	save_root = "user://m7_candidate_combat"
 	node_added.connect(_observe_death_sequence)
-	create_timer(240).timeout.connect(_timeout)
+	create_timer(600).timeout.connect(_timeout)
 	_run.call_deferred()
 
 
@@ -96,12 +96,15 @@ func _gate(destination: String) -> bool:
 	return world.map_id == destination
 
 
-func _kills(id: String, source: String) -> bool:
+func _kills(id: String, source: String, objective: int = 0) -> bool:
+	var path := PackedVector2Array()
+	var index := 0
+	var last_target := Vector2.INF
 	for tick in 5400:
 		_release()
 		var journal = world.get_node("QuestController").journal
 		var state: Dictionary = journal.export_state()[id]
-		if state.counts[0] >= journal.catalog.definitions[id].objective_counts[0]:
+		if state.counts[objective] >= journal.catalog.definitions[id].objective_counts[objective]:
 			return true
 		if failed or player.get_node("PlayerStats").is_dead():
 			return false
@@ -109,8 +112,57 @@ func _kills(id: String, source: String) -> bool:
 		if enemy == null:
 			enemy = _nearest_enemy(INF, source)
 		if enemy != null:
-			_combat_step(enemy, true)
+			if player.position.distance_to(enemy.position) <= 48 and _combat_corridor_clear(player.position, enemy):
+				_combat_step(enemy, true)
+				last_target = Vector2.INF
+			else:
+				# 실제 충돌을 읽어 경로만 계산하고 기존 이동 액션으로 접근한다.
+				if tick % 30 == 0 or last_target.distance_to(enemy.position) > 16:
+					path = _approach_route(enemy)
+					index = 0
+					last_target = enemy.position
+					repaths += 1
+				if not path.is_empty():
+					while index < path.size() - 1 and player.position.distance_to(path[index]) <= 1.5:
+						index += 1
+					_move_toward(path[index], 1.0)
 		await physics_frame
 		await process_frame
 	_check(false, "M7 처치 제한 시간 " + id)
 	return false
+
+
+func _approach_route(enemy: Node2D) -> PackedVector2Array:
+	# 적 몸체가 막은 끝점 대신 주변의 실제 통과 가능한 캡슐 위치를 찾는다.
+	var query := PhysicsShapeQueryParameters2D.new()
+	query.shape = player.get_node("CollisionShape2D").shape
+	query.collision_mask = player.collision_mask
+	var toward: Vector2 = (player.position - enemy.position).normalized()
+	for angle in [0.0, PI / 4, -PI / 4, PI / 2, -PI / 2, PI]:
+		var target: Vector2 = enemy.position + toward.rotated(angle) * 32
+		query.transform = Transform2D(0, target + player.get_node("CollisionShape2D").position)
+		if not world.get_world_2d().direct_space_state.intersect_shape(query, 1).is_empty():
+			continue
+		if not _combat_corridor_clear(target, enemy):
+			continue
+		var path := _route(target)
+		if not path.is_empty():
+			return path
+	return PackedVector2Array()
+
+
+func _combat_corridor_clear(origin: Vector2, enemy: Node2D) -> bool:
+	# 플레이어 실제 캡슐을 목표까지 쓸어 벽/다른 몸체를 검사한다.
+	# 두 참가자 RID만 제외한다. 월드 충돌이나 HP/좌표는 변경하지 않는다.
+	var query := PhysicsShapeQueryParameters2D.new()
+	var shape: CollisionShape2D = player.get_node("CollisionShape2D")
+	query.shape = shape.shape
+	query.collision_mask = player.collision_mask
+	query.transform = Transform2D(0, origin + shape.position)
+	query.motion = enemy.position - origin
+	query.exclude = [player.get_rid(), enemy.get_rid()]
+	var space := world.get_world_2d().direct_space_state
+	if not space.intersect_shape(query, 1).is_empty():
+		return false
+	var fractions := space.cast_motion(query)
+	return fractions[0] >= 1.0

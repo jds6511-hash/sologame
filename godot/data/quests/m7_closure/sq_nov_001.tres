@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "SQ-NOV-001"
+title = "돌아오는 길"
+offer_text = "외곽 귀환 기록 두 곳을 차례로 조사한 뒤 접수원에게 보고해 주세요."
+prerequisite = "MQ-02-04"
+npc_id = "novera_receptionist"
+accept_npc_id = ""
+objective_kinds = Array[String](["INTERACT","INTERACT"])
+objective_targets = Array[String](["novera_return_record_a","novera_return_record_b"])
+objective_sources = Array[String](["novera_return_record_a_site","novera_return_record_b_site"])
+objective_counts = Array[int]([1,1])
+objective_labels = Array[String](["서쪽 귀환 기록 조사 [F]","동쪽 귀환 기록 조사 [F]"])
+objective_location_hints = Array[String](["노베라 외곽 서쪽 기록","노베라 외곽 동쪽 기록"])
+reward_exp = 7000
+reward_gold = 1890
+reward_reputation = 0

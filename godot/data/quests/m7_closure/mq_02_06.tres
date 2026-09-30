@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "MQ-02-06"
+title = "신참의 귀환"
+offer_text = "탐사 기록을 조합 거리 가레스에게 전하고 최종 보고해 주세요."
+prerequisite = "MQ-02-05"
+npc_id = "novera_gareth"
+accept_npc_id = "novera_receptionist"
+objective_kinds = Array[String](["TALK"])
+objective_targets = Array[String](["novera_gareth"])
+objective_sources = Array[String]([""])
+objective_counts = Array[int]([1])
+objective_labels = Array[String](["가레스와 대화"])
+objective_location_hints = Array[String](["노베라 조합 거리 동쪽"])
+reward_exp = 3977
+reward_gold = 8650
+reward_reputation = 500

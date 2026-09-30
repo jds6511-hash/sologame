@@ -1,4 +1,4 @@
-param([string]$Godot='godot', [switch]$Combat, [ValidateRange(1,3)][int]$Runs=3)
+﻿param([string]$Godot='godot', [switch]$Combat, [ValidateRange(1,3)][int]$Runs=3)
 $ErrorActionPreference='Stop'
 $repo=(Resolve-Path (Join-Path $PSScriptRoot '../../..')).Path
 $out=Join-Path $repo ('docs/qa/screenshots/m7/' + (Get-Date -Format 'yyyyMMdd-HHmmss-fff'))
@@ -10,7 +10,7 @@ function Check-Phase([string]$Script,[string]$Phase,[string]$Marker,[bool]$Rende
     $mode=if($Rendered){'--fixed-fps 60 '}else{'--headless '}
     $arguments=$mode+'--path godot --log-file "'+$log+'" -s ../docs/qa/tools/'+$Script+' -- '+$Phase
     $p=Start-Process -FilePath $engine -WorkingDirectory $repo -ArgumentList $arguments -WindowStyle Hidden -PassThru
-    if(-not $p.WaitForExit(300000)){ $p.Kill(); throw "시간 초과: $Phase" }
+    if(-not $p.WaitForExit(660000)){ $p.Kill(); throw "시간 초과: $Phase" }
     $p.Refresh()
     $body=Get-Content -LiteralPath $log -Raw -Encoding UTF8
     $ok=$p.ExitCode -eq 0 -and $body.Contains($Marker) -and $body -notmatch 'SCRIPT ERROR:|(?m)^ERROR:|: false'

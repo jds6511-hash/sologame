@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "SQ-NOV-002"
+title = "남겨진 측량 기록"
+offer_text = "던전 입구실과 조사실 측량 기록을 차례로 조사한 뒤 접수원에게 보고해 주세요."
+prerequisite = "MQ-02-04"
+npc_id = "novera_receptionist"
+accept_npc_id = ""
+objective_kinds = Array[String](["INTERACT","INTERACT"])
+objective_targets = Array[String](["novera_rift_record_a","novera_rift_record_b"])
+objective_sources = Array[String](["novera_rift_record_a_site","novera_rift_record_b_site"])
+objective_counts = Array[int]([1,1])
+objective_labels = Array[String](["입구실 측량 기록 조사 [F]","조사실 측량 기록 조사 [F]"])
+objective_location_hints = Array[String](["균열 던전 입구실","균열 던전 조사실 북쪽"])
+reward_exp = 7651
+reward_gold = 1890
+reward_reputation = 0

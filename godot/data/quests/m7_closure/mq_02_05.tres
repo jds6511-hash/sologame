@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "MQ-02-05"
+title = "균열 안쪽의 기록"
+offer_text = "조사실에 도달해 점액 세 마리를 처치하고 유물을 조사한 뒤 돌아와 주세요."
+prerequisite = "MQ-02-04"
+npc_id = "novera_receptionist"
+accept_npc_id = ""
+objective_kinds = Array[String](["REACH","KILL","INTERACT"])
+objective_targets = Array[String](["novera_rift_chamber","rift_slime","novera_rift_relic"])
+objective_sources = Array[String](["novera_rift_chamber_site","novera_dungeon_habitat","novera_rift_relic_site"])
+objective_counts = Array[int]([1,3,1])
+objective_labels = Array[String](["조사실 도달","던전 점액 처치","유물 조사 [F]"])
+objective_location_hints = Array[String](["균열 던전 중앙 조사실","균열 던전 조사실 서식지","균열 던전 동쪽 유물실"])
+reward_exp = 3000
+reward_gold = 8000
+reward_reputation = 0

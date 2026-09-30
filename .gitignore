@@ -3,6 +3,7 @@
 /M6 후보 실행.exe
 /M6 상점 테스트.exe
 /M7 노베라 테스트.exe
+/M7 균열 던전 테스트.exe
 godot/.godot/
 *.import
 # Python
