@@ -1,6 +1,7 @@
 # M7 첫 묶음 — 노베라 거점·외곽 의뢰·첫 전직 연결
 
-- 작성: 2026-09-30 / Codex. 상태: **설계 통과, V6 격리 후보 구현 통합 검토 대기**. [결과·미검증 범위](../../qa/m7-first-loop-implementation-review-request.md).
+- 작성/최종 수정: 2026-09-30 / Codex. 상태: **설계·제품 검토 통과, 전투 완주 미통과**. [결과·미검증 범위](../../qa/m7-first-loop-implementation-review-request.md).
+- 변경 이력: `8622db2` 독립 검토 반영. 전투3회는240초 제한으로 실패했고 후반 완주·채택은 미판정이다. [다음 콘텐츠 통합 설계](m7-chapter-two-closure.md)로 진행한다.
 - 근거: [로드맵 §6](../DEVELOPMENT_ROADMAP.md), [Lv6→10 연결 A~D](../quests/early-leveling-route.md), [100시간 예산](../100-hour-progression-budget.md).
 - 디렉터 지시: 다음 큰 기능 묶음 진행. 세부 상점/가방/장비 디자인은 보류한다. M6의 UI·경제 기능 검토 통과와 기본 제품 채택은 별개다.
 
