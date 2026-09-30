@@ -14,7 +14,9 @@ func _initialize() -> void:
 
 
 func _instantiate_onboarding_world() -> Node:
-	return load("res://scripts/chapter_two_closure/closure_environment.gd").instantiate_world("novera_commons")
+	return load("res://scripts/chapter_two_closure/closure_environment.gd").instantiate_world(
+		"novera_commons"
+	)
 
 
 func _run() -> void:
@@ -53,7 +55,11 @@ func _play(phase: String) -> void:
 		var middle := phase == "reload_mid"
 		_check(world.get_node("SaveSession").load_slot(2 if middle else 1).ok, "별도 프로세스 V7 복원")
 		await _refresh_world()
-		var expected = JSON.parse_string(FileAccess.get_file_as_string(save_root.path_join("middle.json" if middle else "expected.json")))
+		var expected = JSON.parse_string(
+			FileAccess.get_file_as_string(
+				save_root.path_join("middle.json" if middle else "expected.json")
+			)
+		)
 		_check(expected == JSON.parse_string(JSON.stringify(_snapshot())), "전투 진행 스냅샷 복원")
 		completed_flow = true
 		return
@@ -110,7 +116,16 @@ func _play(phase: String) -> void:
 	if not await _save(1):
 		return
 	_write_snapshot("expected.json")
-	print("M7_CLOSURE_EXP: fixture=3820 reports=36628 combat=", _total_exp() - 3820 - 36628, " total=", _total_exp(), " gold=", player.get_node("Inventory").gold, " level=", player.get_node("PlayerProgression").current_level)
+	print(
+		"M7_CLOSURE_EXP: fixture=3820 reports=36628 combat=",
+		_total_exp() - 3820 - 36628,
+		" total=",
+		_total_exp(),
+		" gold=",
+		player.get_node("Inventory").gold,
+		" level=",
+		player.get_node("PlayerProgression").current_level
+	)
 	completed_flow = true
 
 
@@ -160,7 +175,18 @@ func _press_visible(text: String) -> bool:
 			var gold: int = player.get_node("Inventory").gold
 			node.pressed.emit()
 			await process_frame
-			print("입력 선택 ", text, " EXP ", before, " → ", _total_exp(), " gold ", gold, " → ", player.get_node("Inventory").gold)
+			print(
+				"입력 선택 ",
+				text,
+				" EXP ",
+				before,
+				" → ",
+				_total_exp(),
+				" gold ",
+				gold,
+				" → ",
+				player.get_node("Inventory").gold
+			)
 			return true
 	_check(false, "선택 버튼 없음: " + text)
 	return false
@@ -171,7 +197,18 @@ func _choose(text: String) -> bool:
 	var gold: int = player.get_node("Inventory").gold
 	var ok: bool = await super._choose(text)
 	if is_instance_valid(player):
-		print("입력 선택 ", text, " EXP ", before, " → ", _total_exp(), " gold ", gold, " → ", player.get_node("Inventory").gold)
+		print(
+			"입력 선택 ",
+			text,
+			" EXP ",
+			before,
+			" → ",
+			_total_exp(),
+			" gold ",
+			gold,
+			" → ",
+			player.get_node("Inventory").gold
+		)
 	return ok
 
 

@@ -2,6 +2,7 @@ extends "res://scripts/economy/economy_environment.gd".CandidateWorld
 const RegionsClosure = preload("res://scripts/chapter_two_closure/closure_regions.gd")
 const LayoutClosure = preload("res://scripts/chapter_two_closure/closure_layout.gd")
 const LayoutM7 = preload("res://scripts/chapter_two/m7_layout.gd")
+const Site = preload("res://scripts/chapter_two/m7_site.gd")
 
 
 func _create_save_session() -> Node:
@@ -53,7 +54,7 @@ func _setup_quest_ui(quests: QuestController) -> void:
 	if map_id == "novera_outskirts":
 		for id in LayoutM7.SITES:
 			var data: Array = LayoutM7.SITES[id]
-			var site = load("res://scripts/chapter_two/m7_site.gd").new()
+			var site = Site.new()
 			site.npc_id = id
 			site.source = data[1]
 			site.kind = data[2]
@@ -63,12 +64,11 @@ func _setup_quest_ui(quests: QuestController) -> void:
 			site.setup(_player, quests, get_node("QuestDialog"), _hud)
 			get_node("WorldInteraction").candidates.append(site)
 
-
 	for id in LayoutClosure.SITES:
 		var data: Array = LayoutClosure.SITES[id]
 		if data[4] != map_id:
 			continue
-		var site = load("res://scripts/chapter_two/m7_site.gd").new()
+		var site = Site.new()
 		site.npc_id = id
 		site.source = data[1]
 		site.kind = data[2]
@@ -123,7 +123,6 @@ func _ready() -> void:
 		spawns.name = "OutskirtsSpawner"
 		add_child(spawns)
 		spawns.start(self)
-
 
 	if map_id == "novera_rift":
 		var spawns = load("res://scripts/chapter_two_closure/closure_spawner.gd").new()

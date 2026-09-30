@@ -8,9 +8,12 @@ func _initialize() -> void:
 func _start() -> void:
 	var quick := "--quick" in OS.get_cmdline_user_args()
 	var region := "novera_commons" if quick else "eastern_frontier_start"
-	var world = load("res://scripts/chapter_two_closure/closure_environment.gd").instantiate_world(region)
+	var world = load("res://scripts/chapter_two_closure/closure_environment.gd").instantiate_world(
+		region
+	)
 	world.set_meta(
-		"save_directory", "user://m7_closure_candidate_quick_play" if quick else "user://m7_closure_candidate_play"
+		"save_directory",
+		"user://m7_closure_candidate_quick_play" if quick else "user://m7_closure_candidate_play"
 	)
 	root.add_child(world)
 	if String(world.get_meta("save_boot_error", "")) != "":

@@ -1,4 +1,5 @@
 extends GutTest
+const BaseStore = preload("res://scripts/save/save_file_store.gd")
 
 const CONVERSION_PATH = "res://scripts/chapter_two_closure/closure_save_candidate.gd"
 const ENV_PATH = "res://scripts/chapter_two_closure/closure_environment.gd"
@@ -31,8 +32,17 @@ func _v6() -> Dictionary:
 
 
 func _complete_first_loop(data: Dictionary, catalog: QuestCatalog) -> void:
-	for id in ["MQ-01-01", "MQ-01-02", "MQ-01-03", "MQ-01-04", "MQ-01-05",
-		"MQ-02-01", "MQ-02-02", "MQ-02-03", "MQ-02-04"]:
+	for id in [
+		"MQ-01-01",
+		"MQ-01-02",
+		"MQ-01-03",
+		"MQ-01-04",
+		"MQ-01-05",
+		"MQ-02-01",
+		"MQ-02-02",
+		"MQ-02-03",
+		"MQ-02-04"
+	]:
 		data.progress.quests[id] = {
 			"state": "completed", "counts": Array(catalog.definitions[id].objective_counts)
 		}
@@ -141,8 +151,13 @@ func test_session_rejects_v6_production_and_traversal_directories() -> void:
 	var world := Node.new()
 	autofree(session)
 	autofree(world)
-	for path in ["user://saves", "user://m6_candidate_current", "user://m7_candidate_current",
-		"user://m7_closure_candidate_../saves", "user://m7_closure_candidate_x/../../saves"]:
+	for path in [
+		"user://saves",
+		"user://m6_candidate_current",
+		"user://m7_candidate_current",
+		"user://m7_closure_candidate_../saves",
+		"user://m7_closure_candidate_x/../../saves"
+	]:
 		world.set_meta("save_directory", path)
 		assert_eq(session.setup(world), "candidate_directory", path)
 
@@ -155,7 +170,7 @@ func test_v7_file_refused_by_old_stores_without_backup_fallback() -> void:
 	assert_eq(candidate_codec.bind_store(store, account), "")
 	var data: Dictionary = candidate_codec.prepare_loaded(_v6(), account).data
 	var old_data: Dictionary = codec.capture(source, account.account_id)
-	var base_store = load("res://scripts/save/save_file_store.gd").new(directory)
+	var base_store = BaseStore.new(directory)
 	assert_eq(codec.bind_store(base_store, account), "")
 	assert_true(base_store.write_save("character", 1, old_data).ok)
 	assert_true(store.write_save("character", 1, data).ok)
@@ -164,9 +179,11 @@ func test_v7_file_refused_by_old_stores_without_backup_fallback() -> void:
 	assert_eq(loaded.data, JSON.parse_string(JSON.stringify(data, "", true, true)))
 	var path := directory.path_join("character_01.json")
 	var digest := FileAccess.get_sha256(path)
-	for old_store in [load("res://scripts/save/save_file_store.gd").new(directory),
+	for old_store in [
+		BaseStore.new(directory),
 		load("res://scripts/economy/economy_environment.gd").CandidateStore.new(directory),
-		load("res://scripts/chapter_two/m7_environment.gd").StoreM7.new(directory)]:
+		load("res://scripts/chapter_two/m7_environment.gd").StoreM7.new(directory)
+	]:
 		var rejected: Dictionary = old_store.read_save("character", 1)
 		assert_eq(rejected.code, "unsupported_version")
 		assert_eq(rejected.backup_code, "not_checked")

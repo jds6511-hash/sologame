@@ -59,8 +59,16 @@ const EDGES := {
 		Vector2(880, 384),
 		"commons_east_gate"
 	],
-	"outskirts_rift_gate": ["novera_outskirts", "novera_rift", Vector2(1168, 272), Vector2(144, 320), "rift_exit_gate"],
-	"rift_exit_gate": ["novera_rift", "novera_outskirts", Vector2(96, 320), Vector2(1120, 320), "outskirts_rift_gate"],
+	"outskirts_rift_gate":
+	["novera_outskirts", "novera_rift", Vector2(1168, 272), Vector2(144, 320), "rift_exit_gate"],
+	"rift_exit_gate":
+	[
+		"novera_rift",
+		"novera_outskirts",
+		Vector2(96, 320),
+		Vector2(1120, 320),
+		"outskirts_rift_gate"
+	],
 }
 
 

@@ -8,7 +8,9 @@ const Env = preload("res://scripts/chapter_two_closure/closure_environment.gd")
 func completed_first(journal: QuestJournal) -> void:
 	var states := {}
 	for id in QuestCatalog.ORDER + ["MQ-02-01", "MQ-02-02", "MQ-02-03", "MQ-02-04"]:
-		states[id] = {"state": "completed", "counts": Array(journal.catalog.definitions[id].objective_counts)}
+		states[id] = {
+			"state": "completed", "counts": Array(journal.catalog.definitions[id].objective_counts)
+		}
 	assert_eq(journal.restore_state(states), "")
 
 
@@ -33,7 +35,9 @@ func test_catalog_budget_sources_and_side_selection() -> void:
 	var journal := QuestJournal.new(catalog)
 	completed_first(journal)
 	assert_true(catalog.select_quest("SQ-NOV-002", journal.export_state()))
-	assert_eq(catalog.special_view(journal.export_state(), "novera_receptionist").quest_id, "SQ-NOV-002")
+	assert_eq(
+		catalog.special_view(journal.export_state(), "novera_receptionist").quest_id, "SQ-NOV-002"
+	)
 	assert_eq(journal.accept("SQ-NOV-001"), "")
 	assert_eq(journal.accept("SQ-NOV-002"), "")
 	assert_eq(journal.accept("MQ-02-05"), "")
@@ -55,7 +59,9 @@ func test_catalog_budget_sources_and_side_selection() -> void:
 	journal.complete("MQ-02-06")
 	assert_eq(journal.reputation(), 600)
 	assert_true(catalog.select_quest("SQ-NOV-001", journal.export_state()))
-	assert_eq(catalog.special_view(journal.export_state(), "novera_receptionist").quest_id, "SQ-NOV-001")
+	assert_eq(
+		catalog.special_view(journal.export_state(), "novera_receptionist").quest_id, "SQ-NOV-001"
+	)
 
 
 func test_dungeon_boot_navigation_spawns_and_actual_capsule() -> void:
@@ -69,12 +75,22 @@ func test_dungeon_boot_navigation_spawns_and_actual_capsule() -> void:
 		assert_not_null(dialog.panel)
 		await wait_physics_frames(2)
 		world.process_mode = Node.PROCESS_MODE_DISABLED
-		assert_eq(world.get_node("Ground").get_used_rect().size * 16, Vector2i(Regions.BOUNDS[region].size))
+		assert_eq(
+			world.get_node("Ground").get_used_rect().size * 16,
+			Vector2i(Regions.BOUNDS[region].size)
+		)
 		var journal: QuestJournal = world.get_node("QuestController").journal
 		completed_first(journal)
 		assert_eq(journal.accept("MQ-02-05"), "")
 		var targets: Array = world.quest_targets()
-		assert_eq(targets[0].position, Layout.SITES.novera_rift_chamber[0] if region == "novera_rift" else Regions.EDGES[Regions.next_gate(region, "novera_rift")][2])
+		assert_eq(
+			targets[0].position,
+			(
+				Layout.SITES.novera_rift_chamber[0]
+				if region == "novera_rift"
+				else Regions.EDGES[Regions.next_gate(region, "novera_rift")][2]
+			)
+		)
 		if region == "novera_rift":
 			assert_eq(world.get_node("MonsterSpawner").get_child_count(), 3)
 			for monster in world.get_node("MonsterSpawner").get_children():
@@ -94,6 +110,9 @@ func test_dungeon_boot_navigation_spawns_and_actual_capsule() -> void:
 				points.append(data[0])
 		for point in points:
 			query.transform = Transform2D(0, point + player.get_node("CollisionShape2D").position)
-			assert_true(world.get_world_2d().direct_space_state.intersect_shape(query).is_empty(), region + str(point))
+			assert_true(
+				world.get_world_2d().direct_space_state.intersect_shape(query).is_empty(),
+				region + str(point)
+			)
 		world.queue_free()
 		await wait_process_frames(2)

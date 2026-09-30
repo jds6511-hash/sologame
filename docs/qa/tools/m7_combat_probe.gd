@@ -112,7 +112,10 @@ func _kills(id: String, source: String, objective: int = 0) -> bool:
 		if enemy == null:
 			enemy = _nearest_enemy(INF, source)
 		if enemy != null:
-			if player.position.distance_to(enemy.position) <= 48 and _combat_corridor_clear(player.position, enemy):
+			if (
+				player.position.distance_to(enemy.position) <= 48
+				and _combat_corridor_clear(player.position, enemy)
+			):
 				_combat_step(enemy, true)
 				last_target = Vector2.INF
 			else:
@@ -123,7 +126,9 @@ func _kills(id: String, source: String, objective: int = 0) -> bool:
 					last_target = enemy.position
 					repaths += 1
 				if not path.is_empty():
-					while index < path.size() - 1 and player.position.distance_to(path[index]) <= 1.5:
+					while (
+						index < path.size() - 1 and player.position.distance_to(path[index]) <= 1.5
+					):
 						index += 1
 					_move_toward(path[index], 1.0)
 		await physics_frame

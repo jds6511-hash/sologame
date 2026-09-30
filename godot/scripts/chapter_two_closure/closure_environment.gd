@@ -66,8 +66,9 @@ class SessionClosure:
 		return StoreClosure.new(directory)
 
 	func _instantiate_world() -> Node:
-		var next: Node = load("res://scripts/chapter_two_closure/closure_environment.gd").instantiate_world(
-			_destination
+		var next: Node = (
+			load("res://scripts/chapter_two_closure/closure_environment.gd")
+			. instantiate_world(_destination)
 		)
 		if _carrying_tracking:
 			var catalog = world.get_node("QuestController").journal.catalog

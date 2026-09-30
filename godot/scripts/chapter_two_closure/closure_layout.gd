@@ -1,13 +1,21 @@
 extends RefCounted
 const RegionsClosure = preload("res://scripts/chapter_two_closure/closure_regions.gd")
-const HABITATS := {"novera_dungeon_habitat": [Vector2(544, 400), Vector2(704, 400), Vector2(848, 400)]}
+const HABITATS := {
+	"novera_dungeon_habitat": [Vector2(544, 400), Vector2(704, 400), Vector2(848, 400)]
+}
 const SITES := {
-	"novera_return_record_a": [Vector2(400, 272), "novera_return_record_a_site", "INTERACT", "서쪽 귀환 기록", "novera_outskirts"],
-	"novera_return_record_b": [Vector2(1072, 384), "novera_return_record_b_site", "INTERACT", "동쪽 귀환 기록", "novera_outskirts"],
-	"novera_rift_chamber": [Vector2(432, 320), "novera_rift_chamber_site", "REACH", "조사실 도달 표식", "novera_rift"],
-	"novera_rift_relic": [Vector2(928, 272), "novera_rift_relic_site", "INTERACT", "유물 조사", "novera_rift"],
-	"novera_rift_record_a": [Vector2(224, 240), "novera_rift_record_a_site", "INTERACT", "입구실 측량 기록", "novera_rift"],
-	"novera_rift_record_b": [Vector2(656, 272), "novera_rift_record_b_site", "INTERACT", "조사실 측량 기록", "novera_rift"],
+	"novera_return_record_a":
+	[Vector2(400, 272), "novera_return_record_a_site", "INTERACT", "서쪽 귀환 기록", "novera_outskirts"],
+	"novera_return_record_b":
+	[Vector2(1072, 384), "novera_return_record_b_site", "INTERACT", "동쪽 귀환 기록", "novera_outskirts"],
+	"novera_rift_chamber":
+	[Vector2(432, 320), "novera_rift_chamber_site", "REACH", "조사실 도달 표식", "novera_rift"],
+	"novera_rift_relic":
+	[Vector2(928, 272), "novera_rift_relic_site", "INTERACT", "유물 조사", "novera_rift"],
+	"novera_rift_record_a":
+	[Vector2(224, 240), "novera_rift_record_a_site", "INTERACT", "입구실 측량 기록", "novera_rift"],
+	"novera_rift_record_b":
+	[Vector2(656, 272), "novera_rift_record_b_site", "INTERACT", "조사실 측량 기록", "novera_rift"],
 }
 const GARETH := Vector2(656, 320)
 

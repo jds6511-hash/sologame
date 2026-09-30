@@ -36,10 +36,17 @@ func _run() -> void:
 		await process_frame
 		await process_frame
 		if args[0] in ["reload", "reload_mid"]:
-			check(world.get_node("SaveSession").load_slot(2 if args[0] == "reload_mid" else 1).ok, "별도 프로세스 V7 로드")
+			check(
+				world.get_node("SaveSession").load_slot(2 if args[0] == "reload_mid" else 1).ok,
+				"별도 프로세스 V7 로드"
+			)
 			await refresh()
 			var expected = JSON.parse_string(
-				FileAccess.get_file_as_string(DIRECTORY.path_join("middle.json" if args[0] == "reload_mid" else "expected.json"))
+				FileAccess.get_file_as_string(
+					DIRECTORY.path_join(
+						"middle.json" if args[0] == "reload_mid" else "expected.json"
+					)
+				)
 			)
 			check(
 				expected == JSON.parse_string(JSON.stringify(snapshot(), "", false, true)),
@@ -95,7 +102,10 @@ func travel(destination: String) -> void:
 	await refresh()
 	check(world.map_id == destination, "도착 지역")
 	if selected != "":
-		check(world.get_node("QuestController").journal.catalog.selected_quest_id == selected, "지역 교체 후 선택 의뢰 유지")
+		check(
+			world.get_node("QuestController").journal.catalog.selected_quest_id == selected,
+			"지역 교체 후 선택 의뢰 유지"
+		)
 	check(world.get_node("Player").position.distance_to(edge[3]) < 1, "출입구별 도착 위치")
 	check(world.get_node("SaveSession").store.root == DIRECTORY, "교체 후 저장 격리")
 	if DisplayServer.get_name() != "headless":
@@ -133,8 +143,10 @@ func seed_session() -> void:
 			for count in definition.objective_counts[index]:
 				token += 1
 				journal.record_event(
-					definition.objective_kinds[index], definition.objective_targets[index],
-					definition.objective_sources[index], token
+					definition.objective_kinds[index],
+					definition.objective_targets[index],
+					definition.objective_sources[index],
+					token
 				)
 			if id == "MQ-02-05" and index == 0:
 				# 던전 안전 입구에서 부분 진행을 저장. 이벤트는 명시적 API fixture다.

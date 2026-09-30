@@ -30,7 +30,12 @@ static func targets(world: Node) -> Array:
 	if state.is_empty() or state.state == "ready":
 		var npc := definition.giver_id() if state.is_empty() else definition.npc_id
 		var point := LayoutClosure.GARETH if npc == "novera_gareth" else Vector2(480, 320)
-		return _project(world, "novera_commons", [point], ("수락: " if state.is_empty() else "보고: ") + definition.title)
+		return _project(
+			world,
+			"novera_commons",
+			[point],
+			("수락: " if state.is_empty() else "보고: ") + definition.title
+		)
 	for index in definition.objective_counts.size():
 		if state.counts[index] >= definition.objective_counts[index]:
 			continue
@@ -47,7 +52,12 @@ static func targets(world: Node) -> Array:
 		if OldLayout.SITES.has(target):
 			return _project(world, "novera_outskirts", [OldLayout.SITES[target][0]], label)
 		if target in ["novera_gareth", "novera_trainer"]:
-			return _project(world, "novera_commons", [LayoutClosure.GARETH if target == "novera_gareth" else Vector2(544, 320)], label)
+			return _project(
+				world,
+				"novera_commons",
+				[LayoutClosure.GARETH if target == "novera_gareth" else Vector2(544, 320)],
+				label
+			)
 	return []
 
 
@@ -56,7 +66,12 @@ static func _project(world: Node, region: String, points: Array, label: String) 
 		var gate := RegionsClosure.next_gate(world.map_id, region)
 		if gate == "":
 			return []
-		return [{"position": RegionsClosure.EDGES[gate][2], "label": RegionsClosure.NAMES[region] + " 방향 · " + label}]
+		return [
+			{
+				"position": RegionsClosure.EDGES[gate][2],
+				"label": RegionsClosure.NAMES[region] + " 방향 · " + label
+			}
+		]
 	var result := []
 	for point in points:
 		result.append({"position": point, "label": label})
