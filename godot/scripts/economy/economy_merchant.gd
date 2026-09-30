@@ -15,6 +15,7 @@ func configure(actor: PlayerController, display: CanvasLayer) -> void:
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.add_theme_font_size_override("font_size", 8)
 	add_child(label)
+	style_name()
 	queue_redraw()
 
 

@@ -113,7 +113,7 @@ func test_unearned_region_and_old_version_new_progress_are_rejected() -> void:
 	assert_eq(session.travel("novera_gate").code, "region_locked")
 
 
-func test_travel_rejects_distance_combat_pause_and_account_failure() -> void:
+func test_travel_rejects_distance_pause_and_account_failure() -> void:
 	_complete_previous()
 	var states: Dictionary = quests.journal.export_state()
 	states["MQ-01-05"] = {"state": "completed", "counts": [1, 1]}
@@ -121,7 +121,8 @@ func test_travel_rejects_distance_combat_pause_and_account_failure() -> void:
 	assert_eq(session.travel("novera_gate").code, "gate_distance")
 	world.get_node("Player").position = Vector2(264, 456)
 	world.get_node("Player/PlayerStats").is_boss_encounter = true
-	assert_eq(session.travel("novera_gate").code, "boss_encounter")
+	assert_eq(world.get_node("Player/PlayerStats").travel_block_reason(), "")
+	assert_eq(world.get_node("Player/PlayerStats").save_block_reason(0), "boss_encounter")
 	world.get_node("Player/PlayerStats").is_boss_encounter = false
 	get_tree().paused = true
 	assert_eq(session.travel("novera_gate").code, "session_blocked")

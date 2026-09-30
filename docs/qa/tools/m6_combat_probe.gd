@@ -12,7 +12,27 @@ func _instantiate_onboarding_world() -> Node:
 
 
 func _navigation_pitch() -> int:
-	return 8
+	return 16
+
+
+func _pickup_drop() -> bool:
+	# 확률 드롭을 생성하지 않는다. 제한 시간 동안 정상 공격으로 추가 사냥한다.
+	for tick in range(5400):
+		if not world.find_children("*", "WorldItem", false, false).is_empty():
+			_release()
+			Input.action_release("attack")
+			return await super._pickup_drop()
+		if failed or player.get_node("PlayerStats").is_dead():
+			return false
+		_release()
+		Input.action_release("attack")
+		var enemy := _nearest_enemy(INF)
+		if enemy != null:
+			_combat_step(enemy, true)
+		await physics_frame
+		await process_frame
+	_check(false, "追加 사냥 시간 내 실제 드롭 없음")
+	return false
 
 
 func _pickup_destination(drop: Node2D) -> Vector2:

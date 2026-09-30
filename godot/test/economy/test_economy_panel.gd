@@ -47,21 +47,21 @@ func test_purchase_selection_cancel_and_result() -> void:
 	press("확정")
 	assert_eq(economy.state().gold, 700)
 	assert_true(display.status.text.contains("구매 완료"))
-	press("가방 · 장착 / 판매")
+	display._switch("bag")
 	assert_eq(display.mode, "bag")
-	assert_eq(display.rows.get_child_count(), 1)
+	assert_eq(display.bag_rows.get_child_count(), 1)
 	display.select_item("POT-HP-1")
 	assert_true(display.details.get_child(2).text.contains("퀵슬롯 [5]"))
 
 
 func test_equipment_and_overflow_have_separate_actions() -> void:
-	press("착용 장비 · 해제")
-	assert_eq(display.rows.get_child_count(), 8)
+	display._switch("gear")
+	assert_eq(display.gear_rows.get_child_count(), 8)
 	display.select_item("weapon")
 	press("해제 → 가방으로")
 	press("확정")
 	assert_eq(economy.state().equipment.weapon, "")
-	press("가방 · 장착 / 판매")
+	display._switch("bag")
 	display.select_item(economy.state().bag[0].item_id)
 	press("무기에 장착")
 	press("확정")
@@ -78,5 +78,35 @@ func test_bag_outside_shop_does_not_offer_purchase() -> void:
 	economy.player.position = Vector2(152, 504)
 	display.open("bag")
 	assert_eq(display.mode, "bag")
-	assert_true(display.tabs.get_child(0).disabled)
-	assert_true(display.rows.get_child(0).text.contains("비어"))
+	assert_true(display.rows.get_child(0).text.contains("상인 근처"))
+	assert_true(display.bag_rows.get_child(0).text.contains("비어"))
+
+
+func test_quantity_purchase_cancel_sell_and_affordability() -> void:
+	display.select_item("POT-HP-1")
+	display.set_quantity(3)
+	press("3개 구매 · 900 G")
+	assert_eq(economy.state().gold, 1000)
+	press("취소")
+	assert_eq(economy.model.quantity(economy.state().bag, "POT-HP-1"), 0)
+	press("3개 구매 · 900 G")
+	press("확정")
+	assert_eq(economy.state().gold, 100)
+	assert_eq(economy.model.quantity(economy.state().bag, "POT-HP-1"), 3)
+	assert_eq(display.quantity, 1)
+	display._switch("bag")
+	display.select_item("POT-HP-1")
+	display.set_quantity(2)
+	var price: int = economy.model.catalog.prices["POT-HP-1"].sell
+	press("2개 판매 · %d G" % (price * 2))
+	press("확정")
+	assert_eq(economy.state().gold, 100 + price * 2)
+	assert_eq(economy.model.quantity(economy.state().bag, "POT-HP-1"), 1)
+
+
+func test_npc_names_have_korean_font() -> void:
+	for npc in world.find_children("*", "Node2D", true, false):
+		if npc.has_method("style_name") and npc.has_node("Name"):
+			var label: Label = npc.get_node("Name")
+			assert_true(label.has_theme_font_override("font"))
+			assert_true(label.get_theme_font("font").has_char("가".unicode_at(0)))

@@ -941,9 +941,9 @@ func save_block_reason() -> String:
 	return _transition_block_reason(false)
 
 
-## 관문 접근의 걷기·대시와 대시 충전은 허용한다. 전투 상태는 별도 검사한다.
+## 지역 이동은 도주 수단이다. 전투·행동·재사용 대기를 요구하지 않는다.
 func travel_block_reason() -> String:
-	return _transition_block_reason(true)
+	return "player_locked" if is_input_locked else ""
 
 
 func _transition_block_reason(allow_walking: bool) -> String:

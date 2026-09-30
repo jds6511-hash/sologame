@@ -38,7 +38,7 @@ func test_pickup_label_uses_world_scale() -> void:
 	assert_lte(drop.get_node("PickupPrompt").get_theme_font_size("font_size"), 9)
 
 
-func test_travel_can_ignore_walking_but_not_attack_or_cooldown() -> void:
+func test_travel_allows_escape_without_relaxing_save() -> void:
 	var player = world.get_node("Player")
 	assert_true(player.has_method("travel_block_reason"))
 	if not player.has_method("travel_block_reason"):
@@ -47,7 +47,7 @@ func test_travel_can_ignore_walking_but_not_attack_or_cooldown() -> void:
 	assert_eq(player.save_block_reason(), "moving")
 	assert_eq(player.travel_block_reason(), "")
 	player.attack_state = PlayerController.AttackState.STARTUP
-	assert_eq(player.travel_block_reason(), "action_in_progress")
+	assert_eq(player.travel_block_reason(), "")
 	player.attack_state = PlayerController.AttackState.NONE
 	player._dash_recharge_timers.append(1.0)
 	player.is_dashing = true
@@ -56,7 +56,11 @@ func test_travel_can_ignore_walking_but_not_attack_or_cooldown() -> void:
 	var stats = player.get_node("PlayerStats")
 	assert_eq(stats.travel_block_reason(), "")
 	stats.take_damage(1)
-	assert_eq(stats.travel_block_reason(), "recent_combat")
+	assert_eq(stats.travel_block_reason(), "")
+	assert_eq(stats.save_block_reason(5.0), "recent_combat")
+	stats._potion_cooldown_timer = 4.0
+	stats._defense_buff_timer = 4.0
+	assert_eq(stats.travel_block_reason(), "")
 	stats._process(5.1)
 	assert_eq(stats.travel_block_reason(), "")
 

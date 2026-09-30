@@ -8,6 +8,22 @@ var _hud: Hud
 var _available := false
 
 
+func _ready() -> void:
+	style_name()
+
+
+func style_name() -> void:
+	var label := get_node_or_null("Name") as Label
+	if label == null:
+		return
+	UiStyle.apply_label_font(label, 9)
+	label.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	label.add_theme_color_override("font_color", Color.WHITE)
+	label.add_theme_color_override("font_outline_color", Color("111824"))
+	label.add_theme_constant_override("outline_size", 2)
+	label.grow_horizontal = Control.GROW_DIRECTION_BOTH
+
+
 func setup(
 	player: PlayerController, controller: QuestController, dialog: QuestDialog, hud: Hud
 ) -> void:
@@ -27,13 +43,14 @@ func update_target() -> void:
 func _can_interact() -> bool:
 	if _player == null or get_tree().paused:
 		return false
+	var gate := npc_id in ["yeoulmok_gatewarden", "novera_gatewarden"]
 	if (
 		_player.is_input_locked
-		or _player.is_hit_stunned
+		or (_player.is_hit_stunned and not gate)
 		or _player.get_node("PlayerStats").is_dead()
-		or _player.attack_state != PlayerController.AttackState.NONE
-		or _player.skill_state != PlayerController.AttackState.NONE
-		or _player.is_dashing
+		or (_player.attack_state != PlayerController.AttackState.NONE and not gate)
+		or (_player.skill_state != PlayerController.AttackState.NONE and not gate)
+		or (_player.is_dashing and not gate)
 		or _player.global_position.distance_to(global_position) > 40.0
 	):
 		return false

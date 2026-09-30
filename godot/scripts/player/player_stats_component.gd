@@ -209,7 +209,7 @@ func end_boss_encounter() -> void:
 
 ## 상태의 소유자가 저장 제외 판정을 제공한다. 호출자는 대기 시간 정책만 전달한다.
 func travel_block_reason() -> String:
-	return save_block_reason(5.0 if _has_combat_action else 0.0)
+	return "death_sequence" if is_dead() else ""
 
 
 func save_block_reason(quiet_seconds: float) -> String:
