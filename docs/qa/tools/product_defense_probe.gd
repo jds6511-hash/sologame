@@ -230,7 +230,15 @@ func capture(label: String) -> void:
 		return
 	await process_frame
 	await RenderingServer.frame_post_draw
-	check(root.get_texture().get_image().save_png("res://../docs/qa/screenshots/chapter3-" + label + ".png") == OK, "화면 기록 " + label)
+	check(
+		(
+			root.get_texture().get_image().save_png(
+				"res://../docs/qa/screenshots/chapter3-" + label + ".png"
+			)
+			== OK
+		),
+		"화면 기록 " + label
+	)
 
 
 func go_region(destination: String) -> void:
