@@ -24,6 +24,10 @@ func accept(quest_id: String) -> String:
 	if not definition.prerequisite.is_empty():
 		if _states.get(definition.prerequisite, {}).get("state") != "completed":
 			return "quest_prerequisite"
+	if catalog.has_method("eligibility_error"):
+		var error: String = catalog.eligibility_error(quest_id, _states)
+		if error != "":
+			return error
 	var counts := []
 	counts.resize(definition.objective_counts.size())
 	counts.fill(0)

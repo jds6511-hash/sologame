@@ -29,6 +29,9 @@ func validate(data: Dictionary, account: Dictionary) -> String:
 	var required: String = Content.REGION_REQUIREMENTS.get(data.world.map_id, "")
 	if required != "" and data.progress.quests.get(required, {}).get("state") != "completed":
 		return "region_locked"
+	for id in data.progress.quests:
+		if expanded.expanded.quest_catalog.eligibility_error(id, data.progress.quests) != "":
+			return "reputation_required"
 	return ""
 
 

@@ -171,8 +171,10 @@ func reset() -> void:
 			_fade_tweens[index].kill()
 		_fade_tweens[index] = null
 		_players[index].stop()
+		_players[index].stream = null
 		_players[index].volume_db = 0.0
 	_fanfare_player.stop()
+	_fanfare_player.stream = null
 	current_track_id = &""
 	_scene_entry = {}
 	_suspended_track_id = &""

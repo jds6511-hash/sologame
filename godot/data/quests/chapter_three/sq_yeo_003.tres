@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "SQ-YEO-003"
+title = "부락의 기록"
+offer_text = "부락의 기록 — 현장 표식을 따라 목표를 마친 뒤 보고해 주세요."
+prerequisite = "MQ-03-04"
+npc_id = "yeoulmok_receptionist"
+accept_npc_id = ""
+reward_exp = 4524
+reward_gold = 2820
+reward_reputation = 80
+objective_kinds = Array[String](["INTERACT", "INTERACT"])
+objective_targets = Array[String](["yeoulmok_record_1", "yeoulmok_record_2"])
+objective_sources = Array[String](["yeoulmok_record_1_site", "yeoulmok_record_2_site"])
+objective_counts = Array[int]([1, 1])
+objective_labels = Array[String](["부락 기록 1 [F]", "부락 기록 2 [F]"])
+objective_location_hints = Array[String](["여울목 방어 현장", "여울목 방어 현장"])

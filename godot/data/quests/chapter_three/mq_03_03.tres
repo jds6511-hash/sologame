@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "MQ-03-03"
+title = "길목을 지켜라"
+offer_text = "집결지에서 방어를 재개하세요. 두 무리를 순서대로 막은 뒤 방어선을 확인해 주세요."
+prerequisite = "MQ-03-02"
+npc_id = "defense_coordinator"
+accept_npc_id = ""
+reward_exp = 4500
+reward_gold = 6500
+reward_reputation = 100
+objective_kinds = Array[String](["KILL", "KILL", "INTERACT"])
+objective_targets = Array[String](["feral_dog", "feral_dog", "yeoulmok_defense_confirm"])
+objective_sources = Array[String](["yeoulmok_defense_wave_1", "yeoulmok_defense_wave_2", "yeoulmok_defense_confirm_site"])
+objective_counts = Array[int]([3, 3, 1])
+objective_labels = Array[String](["방어 무리 1 처치", "방어 무리 2 처치", "방어선 확인 [F]"])
+objective_location_hints = Array[String](["현장 북쪽 방어선", "현장 북쪽 방어선", "여울목 방어 현장"])

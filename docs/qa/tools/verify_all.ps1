@@ -61,6 +61,8 @@ function Run-Engine([string]$Name, [string]$Arguments, [string]$Marker, [int]$Se
     }
     if (-not $Negative -and $Name -ne 'gut' -and $body -match ': false') { $ok = $false }
     if ($Negative -and $body -match 'ONBOARDING_(MISSING_SAVE|ATTACK_DISABLED|NAVIGATION_DISABLED)_CONFIRMED') { $ok = $false }
+    if ($leakedTypes.Count -gt 0 -and -not $knownOgg) { $ok = $false }
+    if ($body -match "ObjectDB instances leaked|ObjectDB instances were leaked" -and $leakedTypes.Count -eq 0) { $ok = $false }
     $warnings = @([regex]::Matches($body, '(?m)^.*(?:leaked|RID allocations|resources still in use).*$') | ForEach-Object { $_.Value } | Select-Object -Unique)
     $records.Add(@{name=$Name;pass=$ok;exit=$p.ExitCode;timeout=$timeout;log=$log;stderr=$stderr;warnings=$warnings;known_ogg_shutdown=$knownOgg;leaked_types=$leakedTypes})
     if (-not $ok) { throw "Verification failed: $Name ($log)" }
@@ -90,6 +92,18 @@ try {
     foreach ($name in @('account.json','character_01.json','character_03.json')) {
         if ((Get-FileHash -LiteralPath (Join-Path $copyRoot $name)).Hash -ne $before[$name]) { throw 'Source changed during copy; stop the game and retry. No original is restored.' }
     }
+    foreach ($check in @(
+        @{name='content-tests';script='docs/qa/tools/test_chapter_content.py';arguments=@()},
+        @{name='content-generated';script='tools/generate_chapter_content.py';arguments=@('--check')}
+    )) {
+        $log = Join-Path $out ($check.name + '.log')
+        $script = Join-Path $repo $check.script
+        $arguments = $check.arguments
+        & python $script @arguments *> $log
+        $code = $LASTEXITCODE
+        $records.Add(@{name=$check.name;pass=($code -eq 0);exit=$code;log=$log})
+        if ($code -ne 0) { throw "Content verification failed: $($check.name)" }
+    }
     $null = Run-Engine 'gut' '-s addons/gut/gut_cmdln.gd -gdir=res://test -ginclude_subdirs -gexit' 'All tests passed!' 600
     # This frozen legacy cleanup predates missing-directory guards.
     New-Item -ItemType Directory -Force -Path (Join-Path $userRoot 'm4_session_process_probe') | Out-Null
@@ -117,6 +131,7 @@ try {
     }
     Probe-Series 'product-migration' '../docs/qa/tools/m6_product_process_probe.gd' @('cleanup','seed','migrate','verify','cleanup') 'M6_PRODUCT_PROCESS_PASS'
     Probe-Series 'product-content' '../docs/qa/tools/product_content_probe.gd' @('cleanup','seed','reload_mid','reload','cleanup') 'PRODUCT_CONTENT_PASS'
+    Probe-Series 'product-defense' '../docs/qa/tools/product_defense_probe.gd' @('cleanup','seed','reload_mid','reload','cleanup') 'PRODUCT_DEFENSE_PASS'
     foreach ($slot in @(1,3)) {
         foreach ($phase in @('migrate','verify')) {
             $null = Run-Engine "real-copy-$slot-$phase" ('-s ../docs/qa/tools/product_real_copy_probe.gd -- ' + $phase + ' ' + $slot) 'PRODUCT_REAL_COPY_PASS'
@@ -155,7 +170,7 @@ try {
             $failure += ' Actual save manifest changed (possibly a concurrently running game). Original files were not restored.'
         }
     } catch { $status='failed'; $failure += ' Cannot verify final actual-save hashes: ' + $_.Exception.Message }
-    @{status=$status;error=$failure;format=6;content_revision=1;combat_requested=[bool]$Combat;actual_unchanged=($null -ne $before -and $null -ne $after -and ($before | ConvertTo-Json -Compress) -eq ($after | ConvertTo-Json -Compress));results=$records.ToArray()} | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $out 'result.json') -Encoding UTF8
+    @{status=$status;error=$failure;format=6;content_revision=2;combat_requested=[bool]$Combat;actual_unchanged=($null -ne $before -and $null -ne $after -and ($before | ConvertTo-Json -Compress) -eq ($after | ConvertTo-Json -Compress));results=$records.ToArray()} | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $out 'result.json') -Encoding UTF8
 }
 Write-Output ("VERIFY_ALL_{0} steps={1} result={2} {3}" -f $status.ToUpper(),$records.Count,(Join-Path $out 'result.json'),$failure)
 if ($status -ne 'pass') { exit 1 }

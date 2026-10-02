@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "MQ-03-04"
+title = "남겨진 흔적"
+offer_text = "방어선에 남은 정예를 저지하고 그 뒤의 흔적을 조사해 주세요."
+prerequisite = "MQ-03-03"
+npc_id = "defense_coordinator"
+accept_npc_id = ""
+reward_exp = 4500
+reward_gold = 7000
+reward_reputation = 100
+objective_kinds = Array[String](["KILL", "INTERACT"])
+objective_targets = Array[String](["rift_slime", "yeoulmok_shadow_trace"])
+objective_sources = Array[String](["yeoulmok_defense_elite", "yeoulmok_shadow_trace_site"])
+objective_counts = Array[int]([1, 1])
+objective_labels = Array[String](["현장 정예 처치", "남겨진 흔적 조사 [F]"])
+objective_location_hints = Array[String](["현장 북쪽 방어선", "여울목 방어 현장"])

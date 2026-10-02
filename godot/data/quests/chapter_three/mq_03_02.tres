@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "MQ-03-02"
+title = "먼저 피할 곳"
+offer_text = "먼저 주민들이 피할 길을 확보해야 합니다. 현장 집결지와 대피 표식 세 곳을 확인해 주세요."
+prerequisite = "MQ-03-01"
+npc_id = "defense_coordinator"
+accept_npc_id = "yeoulmok_gatewarden"
+reward_exp = 4000
+reward_gold = 4000
+reward_reputation = 0
+objective_kinds = Array[String](["REACH", "INTERACT", "INTERACT", "INTERACT"])
+objective_targets = Array[String]([
+	"yeoulmok_defense_arrival",
+	"yeoulmok_evacuation_1",
+	"yeoulmok_evacuation_2",
+	"yeoulmok_evacuation_3",
+])
+objective_sources = Array[String]([
+	"yeoulmok_defense_arrival_site",
+	"yeoulmok_evacuation_1_site",
+	"yeoulmok_evacuation_2_site",
+	"yeoulmok_evacuation_3_site",
+])
+objective_counts = Array[int]([1, 1, 1, 1])
+objective_labels = Array[String](["안전 집결지 도착", "대피 안내 1 [F]", "대피 안내 2 [F]", "대피 안내 3 [F]"])
+objective_location_hints = Array[String](["여울목 방어 현장", "여울목 방어 현장", "여울목 방어 현장", "여울목 방어 현장"])

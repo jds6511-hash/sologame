@@ -7,6 +7,8 @@
 
 ## 인터페이스·소유권
 
+콘텐츠 개정은 기존 ID의 의미를 보존하는 **추가만** 허용한다. 기존 의뢰의 목표 수·선행·보상 변경이나 지역·ID 삭제는 개정 번호만 올려 처리하지 않고 명시적 저장 변환 또는 형식 버전 변경으로 처리한다. 변경 이력(2026-10-02): `f2348d6` 검토 참고 2 반영. 현재 생성기 정합성 검사가 과거 ID 동결을 자동으로 보장하는 것은 아니다.
+
 - [x] 콘텐츠/월드: `scripts/content/game_content.gd`(CURRENT_REVISION=1, SCENES/NAMES/BOUNDS/EDGES, 의뢰·NPC·표식 목록), `game_catalog.gd`, `game_navigation.gd`; `scripts/world/product_world.gd`, `game_product.gd`, `scenes/world/product_world.tscn`. 기본 World는 기존 BaseWorld를 직접 상속하고 후보 환경/set_script 월드 교체를 사용하지 않는다. factory `instantiate_world(region)`는 저장경로 메타 `user://saves`를 설정한다. `product_world._create_save_session`는 `scripts/save/product_save.gd`의 Session.new().
 - [x] 저장: `scripts/save/product_save.gd`의 Schema/Codec/Store/Session과 별도 conversion. Content/Catalog를 주입하고 format6/content1을 기록한다. 미래 content는 unsupported_content로 백업우회 금지. 후보V6는revision누락으로거부,후보V7은version거부. 세션은 실제saves와 명시 QA경로만 허용한다. 기존 m6_product_test/process/combat 및 product_verify/product_real_copy/product_chapter_preview를 허용한다. 전투/거래/이동 보호와 Journal 선택 carry 유지.
 - [x] 검증: `verify_all.ps1`, 기본 제품 API 중간/완료 복원, 실제V4/V5 복사본 이관. 기존 동결 API/이관·실패 가드 실행기를 통합 호출. 사용자 원본은 해시/복사 읽기만,게임실행중변화는검증실패로기록·원복금지. 테스트파일/fixture와 정상플레이증거구분.

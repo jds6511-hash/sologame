@@ -1,0 +1,668 @@
+{
+  "chapter": 3,
+  "budget": {
+    "reward_exp": 33811,
+    "reward_gold": 36660,
+    "reward_reputation": 600,
+    "main_exp": 20287,
+    "side_exp": 13524,
+    "main_reputation": 400,
+    "side_reputation": 200
+  },
+  "constants": {
+    "BGM_CONTEXTS": {
+      "yeoulmok_defense": "res://scenes/world/eastern_frontier_starting_area.tscn"
+    },
+    "SCENES": {
+      "yeoulmok_defense": "res://scenes/world/product_world.tscn"
+    },
+    "NAMES": {
+      "yeoulmok_defense": "여울목 방어 현장"
+    },
+    "BOUNDS": {
+      "yeoulmok_defense": {
+        "$rect": [
+          0,
+          0,
+          1024,
+          640
+        ]
+      }
+    },
+    "REGION_REQUIREMENTS": {
+      "yeoulmok_defense": "MQ-03-01"
+    },
+    "EDGES": {
+      "yeoulmok_defense_gate": [
+        "eastern_frontier_start",
+        "yeoulmok_defense",
+        {
+          "$vector": [
+            200,
+            392
+          ]
+        },
+        {
+          "$vector": [
+            192,
+            544
+          ]
+        },
+        "defense_exit_gate"
+      ],
+      "defense_exit_gate": [
+        "yeoulmok_defense",
+        "eastern_frontier_start",
+        {
+          "$vector": [
+            128,
+            544
+          ]
+        },
+        {
+          "$vector": [
+            200,
+            456
+          ]
+        },
+        "yeoulmok_defense_gate"
+      ]
+    },
+    "NPCS": {
+      "defense_coordinator": [
+        "yeoulmok_defense",
+        {
+          "$vector": [
+            288,
+            512
+          ]
+        },
+        "현장 책임자"
+      ],
+      "novera_examiner": [
+        "novera_commons",
+        {
+          "$vector": [
+            736,
+            416
+          ]
+        },
+        "문장원 심사 담당"
+      ]
+    },
+    "SITES": {
+      "yeoulmok_defense_arrival": [
+        {
+          "$vector": [
+            240,
+            448
+          ]
+        },
+        "yeoulmok_defense_arrival_site",
+        "REACH",
+        "안전 집결지 도착",
+        "yeoulmok_defense"
+      ],
+      "yeoulmok_evacuation_1": [
+        {
+          "$vector": [
+            288,
+            368
+          ]
+        },
+        "yeoulmok_evacuation_1_site",
+        "INTERACT",
+        "대피 안내 1",
+        "yeoulmok_defense"
+      ],
+      "yeoulmok_evacuation_2": [
+        {
+          "$vector": [
+            512,
+            368
+          ]
+        },
+        "yeoulmok_evacuation_2_site",
+        "INTERACT",
+        "대피 안내 2",
+        "yeoulmok_defense"
+      ],
+      "yeoulmok_evacuation_3": [
+        {
+          "$vector": [
+            736,
+            368
+          ]
+        },
+        "yeoulmok_evacuation_3_site",
+        "INTERACT",
+        "대피 안내 3",
+        "yeoulmok_defense"
+      ],
+      "yeoulmok_defense_confirm": [
+        {
+          "$vector": [
+            512,
+            288
+          ]
+        },
+        "yeoulmok_defense_confirm_site",
+        "INTERACT",
+        "방어선 확인",
+        "yeoulmok_defense"
+      ],
+      "yeoulmok_shadow_trace": [
+        {
+          "$vector": [
+            608,
+            256
+          ]
+        },
+        "yeoulmok_shadow_trace_site",
+        "INTERACT",
+        "남겨진 흔적 조사",
+        "yeoulmok_defense"
+      ],
+      "yeoulmok_resident_testimony": [
+        {
+          "$vector": [
+            800,
+            416
+          ]
+        },
+        "yeoulmok_resident_testimony_site",
+        "INTERACT",
+        "주민 증언 확인",
+        "novera_commons"
+      ],
+      "yeoulmok_rescue_1": [
+        {
+          "$vector": [
+            576,
+            416
+          ]
+        },
+        "yeoulmok_rescue_1_site",
+        "INTERACT",
+        "주민 구조 1",
+        "yeoulmok_defense"
+      ],
+      "yeoulmok_rescue_2": [
+        {
+          "$vector": [
+            800,
+            416
+          ]
+        },
+        "yeoulmok_rescue_2_site",
+        "INTERACT",
+        "주민 구조 2",
+        "yeoulmok_defense"
+      ],
+      "yeoulmok_supply_1": [
+        {
+          "$vector": [
+            352,
+            320
+          ]
+        },
+        "yeoulmok_supply_1_site",
+        "INTERACT",
+        "보급 기록 1",
+        "yeoulmok_defense"
+      ],
+      "yeoulmok_supply_2": [
+        {
+          "$vector": [
+            672,
+            320
+          ]
+        },
+        "yeoulmok_supply_2_site",
+        "INTERACT",
+        "보급 기록 2",
+        "yeoulmok_defense"
+      ],
+      "yeoulmok_record_1": [
+        {
+          "$vector": [
+            256,
+            240
+          ]
+        },
+        "yeoulmok_record_1_site",
+        "INTERACT",
+        "부락 기록 1",
+        "yeoulmok_defense"
+      ],
+      "yeoulmok_record_2": [
+        {
+          "$vector": [
+            800,
+            240
+          ]
+        },
+        "yeoulmok_record_2_site",
+        "INTERACT",
+        "부락 기록 2",
+        "yeoulmok_defense"
+      ]
+    },
+    "DEFENSE_WAVES": {
+      "yeoulmok_defense_wave_1": {
+        "quest_id": "MQ-03-03",
+        "index": 0,
+        "region": "yeoulmok_defense",
+        "points": [
+          {
+            "$vector": [
+              352,
+              192
+            ]
+          },
+          {
+            "$vector": [
+              512,
+              192
+            ]
+          },
+          {
+            "$vector": [
+              672,
+              192
+            ]
+          }
+        ],
+        "scene": "wolf",
+        "content_id": "feral_dog",
+        "stats": "res://data/monsters/chapter_three/defense_wolf.tres"
+      },
+      "yeoulmok_defense_wave_2": {
+        "quest_id": "MQ-03-03",
+        "index": 1,
+        "region": "yeoulmok_defense",
+        "points": [
+          {
+            "$vector": [
+              352,
+              192
+            ]
+          },
+          {
+            "$vector": [
+              512,
+              192
+            ]
+          },
+          {
+            "$vector": [
+              672,
+              192
+            ]
+          }
+        ],
+        "scene": "wolf",
+        "content_id": "feral_dog",
+        "stats": "res://data/monsters/chapter_three/defense_wolf.tres"
+      },
+      "yeoulmok_defense_elite": {
+        "quest_id": "MQ-03-04",
+        "index": 0,
+        "region": "yeoulmok_defense",
+        "points": [
+          {
+            "$vector": [
+              512,
+              160
+            ]
+          }
+        ],
+        "scene": "rift_slime",
+        "content_id": "rift_slime",
+        "stats": "res://data/monsters/chapter_three/defense_elite.tres"
+      }
+    },
+    "RALLIES": {
+      "defense_rally": {
+        "region": "yeoulmok_defense",
+        "position": {
+          "$vector": [
+            416,
+            480
+          ]
+        },
+        "title": "방어 재개"
+      }
+    },
+    "SITE_NOTICES": {
+      "yeoulmok_shadow_trace": "무너진 방책 너머에서 그림자가 마수들에게 말을 건넨다. 눈을 돌린 순간 모습은 사라졌다. 누구인지는 알 수 없다."
+    },
+    "LAYOUTS": {
+      "yeoulmok_defense": {
+        "spawn": {
+          "$vector": [
+            192,
+            544
+          ]
+        },
+        "floor": {
+          "$vectori": [
+            0,
+            0
+          ]
+        },
+        "patches": []
+      }
+    },
+    "QUEST_REQUIREMENTS": {
+      "MQ-03-01": {
+        "reputation": 500
+      },
+      "MQ-03-05": {
+        "reputation": 500
+      }
+    }
+  },
+  "quests": [
+    {
+      "quest_id": "MQ-03-01",
+      "path": "res://data/quests/chapter_three/mq_03_01.tres",
+      "title": "여울목의 급보",
+      "offer_text": "여울목에서 급보가 왔습니다. 관문지기에게 상황을 듣고 방어 준비를 도와주세요.",
+      "prerequisite": "MQ-02-06",
+      "npc_id": "yeoulmok_gatewarden",
+      "accept_npc_id": "novera_receptionist",
+      "reward_exp": 3500,
+      "reward_gold": 3000,
+      "reward_reputation": 0,
+      "objective_kinds": [
+        "TALK"
+      ],
+      "objective_targets": [
+        "yeoulmok_gatewarden"
+      ],
+      "objective_sources": [
+        ""
+      ],
+      "objective_counts": [
+        1
+      ],
+      "objective_labels": [
+        "여울목 관문지기와 대화 [F]"
+      ],
+      "objective_location_hints": [
+        "여울목 남쪽 관문"
+      ]
+    },
+    {
+      "quest_id": "MQ-03-02",
+      "path": "res://data/quests/chapter_three/mq_03_02.tres",
+      "title": "먼저 피할 곳",
+      "offer_text": "먼저 주민들이 피할 길을 확보해야 합니다. 현장 집결지와 대피 표식 세 곳을 확인해 주세요.",
+      "prerequisite": "MQ-03-01",
+      "npc_id": "defense_coordinator",
+      "accept_npc_id": "yeoulmok_gatewarden",
+      "reward_exp": 4000,
+      "reward_gold": 4000,
+      "reward_reputation": 0,
+      "objective_kinds": [
+        "REACH",
+        "INTERACT",
+        "INTERACT",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "yeoulmok_defense_arrival",
+        "yeoulmok_evacuation_1",
+        "yeoulmok_evacuation_2",
+        "yeoulmok_evacuation_3"
+      ],
+      "objective_sources": [
+        "yeoulmok_defense_arrival_site",
+        "yeoulmok_evacuation_1_site",
+        "yeoulmok_evacuation_2_site",
+        "yeoulmok_evacuation_3_site"
+      ],
+      "objective_counts": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "objective_labels": [
+        "안전 집결지 도착",
+        "대피 안내 1 [F]",
+        "대피 안내 2 [F]",
+        "대피 안내 3 [F]"
+      ],
+      "objective_location_hints": [
+        "여울목 방어 현장",
+        "여울목 방어 현장",
+        "여울목 방어 현장",
+        "여울목 방어 현장"
+      ]
+    },
+    {
+      "quest_id": "MQ-03-03",
+      "path": "res://data/quests/chapter_three/mq_03_03.tres",
+      "title": "길목을 지켜라",
+      "offer_text": "집결지에서 방어를 재개하세요. 두 무리를 순서대로 막은 뒤 방어선을 확인해 주세요.",
+      "prerequisite": "MQ-03-02",
+      "npc_id": "defense_coordinator",
+      "accept_npc_id": "",
+      "reward_exp": 4500,
+      "reward_gold": 6500,
+      "reward_reputation": 100,
+      "objective_kinds": [
+        "KILL",
+        "KILL",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "feral_dog",
+        "feral_dog",
+        "yeoulmok_defense_confirm"
+      ],
+      "objective_sources": [
+        "yeoulmok_defense_wave_1",
+        "yeoulmok_defense_wave_2",
+        "yeoulmok_defense_confirm_site"
+      ],
+      "objective_counts": [
+        3,
+        3,
+        1
+      ],
+      "objective_labels": [
+        "방어 무리 1 처치",
+        "방어 무리 2 처치",
+        "방어선 확인 [F]"
+      ],
+      "objective_location_hints": [
+        "현장 북쪽 방어선",
+        "현장 북쪽 방어선",
+        "여울목 방어 현장"
+      ]
+    },
+    {
+      "quest_id": "MQ-03-04",
+      "path": "res://data/quests/chapter_three/mq_03_04.tres",
+      "title": "남겨진 흔적",
+      "offer_text": "방어선에 남은 정예를 저지하고 그 뒤의 흔적을 조사해 주세요.",
+      "prerequisite": "MQ-03-03",
+      "npc_id": "defense_coordinator",
+      "accept_npc_id": "",
+      "reward_exp": 4500,
+      "reward_gold": 7000,
+      "reward_reputation": 100,
+      "objective_kinds": [
+        "KILL",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "rift_slime",
+        "yeoulmok_shadow_trace"
+      ],
+      "objective_sources": [
+        "yeoulmok_defense_elite",
+        "yeoulmok_shadow_trace_site"
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "현장 정예 처치",
+        "남겨진 흔적 조사 [F]"
+      ],
+      "objective_location_hints": [
+        "현장 북쪽 방어선",
+        "여울목 방어 현장"
+      ]
+    },
+    {
+      "quest_id": "MQ-03-05",
+      "path": "res://data/quests/chapter_three/mq_03_05.tres",
+      "title": "첫 영지의 책임",
+      "offer_text": "문장원에서 당신의 공훈과 주민 증언을 심사합니다. 심사를 마치면 여울목의 복구권과 통치 책임을 맡게 됩니다.",
+      "prerequisite": "MQ-03-04",
+      "npc_id": "novera_examiner",
+      "accept_npc_id": "defense_coordinator",
+      "reward_exp": 3787,
+      "reward_gold": 7700,
+      "reward_reputation": 200,
+      "objective_kinds": [
+        "TALK",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "novera_examiner",
+        "yeoulmok_resident_testimony"
+      ],
+      "objective_sources": [
+        "",
+        "yeoulmok_resident_testimony_site"
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "문장원 심사 담당와 대화 [F]",
+        "주민 증언 확인 [F]"
+      ],
+      "objective_location_hints": [
+        "노베라 조합 거리",
+        "노베라 조합 거리"
+      ]
+    },
+    {
+      "quest_id": "SQ-YEO-001",
+      "path": "res://data/quests/chapter_three/sq_yeo_001.tres",
+      "title": "돌아갈 사람들",
+      "offer_text": "돌아갈 사람들 — 현장 표식을 따라 목표를 마친 뒤 보고해 주세요.",
+      "prerequisite": "MQ-03-02",
+      "npc_id": "defense_coordinator",
+      "accept_npc_id": "",
+      "reward_exp": 4500,
+      "reward_gold": 2820,
+      "reward_reputation": 60,
+      "objective_kinds": [
+        "INTERACT",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "yeoulmok_rescue_1",
+        "yeoulmok_rescue_2"
+      ],
+      "objective_sources": [
+        "yeoulmok_rescue_1_site",
+        "yeoulmok_rescue_2_site"
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "주민 구조 1 [F]",
+        "주민 구조 2 [F]"
+      ],
+      "objective_location_hints": [
+        "여울목 방어 현장",
+        "여울목 방어 현장"
+      ]
+    },
+    {
+      "quest_id": "SQ-YEO-002",
+      "path": "res://data/quests/chapter_three/sq_yeo_002.tres",
+      "title": "남은 보급",
+      "offer_text": "남은 보급 — 현장 표식을 따라 목표를 마친 뒤 보고해 주세요.",
+      "prerequisite": "MQ-03-03",
+      "npc_id": "yeoulmok_receptionist",
+      "accept_npc_id": "",
+      "reward_exp": 4500,
+      "reward_gold": 2820,
+      "reward_reputation": 60,
+      "objective_kinds": [
+        "INTERACT",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "yeoulmok_supply_1",
+        "yeoulmok_supply_2"
+      ],
+      "objective_sources": [
+        "yeoulmok_supply_1_site",
+        "yeoulmok_supply_2_site"
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "보급 기록 1 [F]",
+        "보급 기록 2 [F]"
+      ],
+      "objective_location_hints": [
+        "여울목 방어 현장",
+        "여울목 방어 현장"
+      ]
+    },
+    {
+      "quest_id": "SQ-YEO-003",
+      "path": "res://data/quests/chapter_three/sq_yeo_003.tres",
+      "title": "부락의 기록",
+      "offer_text": "부락의 기록 — 현장 표식을 따라 목표를 마친 뒤 보고해 주세요.",
+      "prerequisite": "MQ-03-04",
+      "npc_id": "yeoulmok_receptionist",
+      "accept_npc_id": "",
+      "reward_exp": 4524,
+      "reward_gold": 2820,
+      "reward_reputation": 80,
+      "objective_kinds": [
+        "INTERACT",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "yeoulmok_record_1",
+        "yeoulmok_record_2"
+      ],
+      "objective_sources": [
+        "yeoulmok_record_1_site",
+        "yeoulmok_record_2_site"
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "부락 기록 1 [F]",
+        "부락 기록 2 [F]"
+      ],
+      "objective_location_hints": [
+        "여울목 방어 현장",
+        "여울목 방어 현장"
+      ]
+    }
+  ]
+}

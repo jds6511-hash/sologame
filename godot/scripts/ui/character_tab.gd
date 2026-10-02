@@ -9,6 +9,29 @@ extends Control
 
 @onready var _level_job_label: Label = $VBox/LevelJobLabel
 @onready var _stat_list_label: Label = $VBox/StatListLabel
+var _journal: QuestJournal
+var _honors_label: Label
+
+
+func bind_journal(journal: QuestJournal) -> void:
+	if _journal != null and _journal.changed.is_connected(_refresh_honors):
+		_journal.changed.disconnect(_refresh_honors)
+	_journal = journal
+	if _honors_label == null:
+		_honors_label = Label.new()
+		_honors_label.name = "Honors"
+		_honors_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		UiStyle.apply_body_font(_honors_label)
+		$VBox.add_child(_honors_label)
+	_journal.changed.connect(_refresh_honors)
+	_refresh_honors()
+
+
+func _refresh_honors() -> void:
+	_honors_label.text = (
+		_journal.catalog.honors(_journal.export_state())
+		if _journal.catalog.has_method("honors") else ""
+	)
 
 
 func _ready() -> void:

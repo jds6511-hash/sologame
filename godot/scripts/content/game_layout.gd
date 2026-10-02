@@ -4,10 +4,44 @@ const Boundary = preload("res://scripts/world/region_boundary.gd")
 
 
 static func prepare(world: Node2D) -> void:
-	if world.map_id == "novera_rift":
+	if Content.LAYOUTS.has(world.map_id):
+		_prepare_generated(world)
+	elif world.map_id == "novera_rift":
 		_prepare_rift(world)
 	else:
 		_prepare_field(world)
+
+
+static func _prepare_generated(world: Node2D) -> void:
+	var data: Dictionary = Content.LAYOUTS[world.map_id]
+	var bounds: Rect2 = Content.BOUNDS[world.map_id]
+	world.set_meta("region_bounds", bounds)
+	Boundary.install(world, bounds)
+	var ground: TileMapLayer = world.get_node("Ground")
+	ground.clear()
+	var dimensions := Vector2i(bounds.size / 16)
+	for y in dimensions.y:
+		for x in dimensions.x:
+			var cell := Vector2i(x, y)
+			var tile: Vector2i = data.floor
+			for patch in data.patches:
+				if patch.rect.has_point(cell):
+					tile = patch.tile
+			if y in [0, dimensions.y - 1] or x in [0, dimensions.x - 1]:
+				tile = Vector2i(2, 3)
+			ground.set_cell(cell, 0, tile)
+	for group in world.get_node("Markers").get_children():
+		if String(group.name).begins_with("MonsterSpawns_"):
+			for child in group.get_children():
+				group.remove_child(child)
+				child.free()
+	world.get_node("Player").position = data.spawn
+	world.get_node("Player/PlayerStats").set_respawn_position(data.spawn)
+	var camera: Camera2D = world.get_node("Player/Camera2D")
+	camera.limit_left = int(bounds.position.x)
+	camera.limit_top = int(bounds.position.y)
+	camera.limit_right = int(bounds.end.x)
+	camera.limit_bottom = int(bounds.end.y)
 
 
 static func _prepare_field(world: Node2D) -> void:

@@ -1,4 +1,5 @@
 extends GutTest
+const Content = preload("res://scripts/content/game_content.gd")
 const BaseCodec = preload("res://scripts/save/character_save_codec.gd")
 const Frozen = preload("res://scripts/economy/economy_save_candidate.gd")
 const PLAYER = preload("res://scenes/player/player.tscn")
@@ -36,7 +37,7 @@ func test_old_versions_are_validated_before_content_expansion() -> void:
 		assert_true(result.ok, "V%d" % version)
 		assert_eq(data, original)
 		assert_eq(result.data.character_save_version, 6)
-		assert_eq(result.data.content_revision, 1)
+		assert_eq(result.data.content_revision, Content.CURRENT_REVISION)
 		assert_eq(result.data.progress.quests, {})
 		data.world.map_id = "novera_commons"
 		assert_eq(conversion.upgrade(data, account).code, "unknown_map")
@@ -49,7 +50,7 @@ func test_revision_and_old_candidate_numbers_are_not_interchangeable() -> void:
 	var conversion = load(CONVERSION_PATH).new()
 	var data: Dictionary = conversion.upgrade(_old(), account).data
 	assert_eq(conversion.upgrade(data, account).data, data)
-	for revision in [null, 0, -1, 1.5, 2, "1", true]:
+	for revision in [null, 0, -1, 1.5, Content.CURRENT_REVISION + 1, "1", true]:
 		var copy := data.duplicate(true)
 		copy.content_revision = revision
 		assert_eq(conversion.validate(copy, account), "unsupported_content")
@@ -57,6 +58,21 @@ func test_revision_and_old_candidate_numbers_are_not_interchangeable() -> void:
 	assert_eq(conversion.validate(data, account), "unsupported_content", "old candidate V6")
 	data.character_save_version = 7
 	assert_eq(conversion.validate(data, account), "unsupported_version", "old candidate V7")
+
+
+func test_revision_one_keeps_progress_and_defense_remains_locked() -> void:
+	var conversion = load(CONVERSION_PATH).new()
+	var data: Dictionary = conversion.upgrade(_old(), account).data
+	data.content_revision = 1
+	var original := data.duplicate(true)
+	assert_true(conversion.upgrade(data, account).ok)
+	assert_eq(data, original)
+	assert_eq(conversion.upgrade(data, account).data.progress.quests, {})
+	data.world.map_id = "yeoulmok_defense"
+	assert_eq(conversion.validate(data, account), "region_locked")
+	data.world.map_id = "eastern_frontier_start"
+	data.progress.quests["MQ-03-05"] = {"state": "completed", "counts": [1, 1]}
+	assert_eq(conversion.validate(data, account), "quest_prerequisite")
 
 
 func _complete(data: Dictionary, catalog: QuestCatalog, ids: Array) -> void:
@@ -118,7 +134,7 @@ func test_future_revision_cannot_recover_backup_or_be_overwritten() -> void:
 	assert_true(store.write_save("character", 1, data).ok)
 	var path := directory.path_join("character_01.json")
 	var future := data.duplicate(true)
-	future.content_revision = 2
+	future.content_revision = Content.CURRENT_REVISION + 1
 	var payload := JSON.stringify(future, "", true, true)
 	var file := FileAccess.open(path, FileAccess.WRITE)
 	file.store_string(

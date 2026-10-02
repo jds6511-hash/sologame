@@ -13,7 +13,7 @@ static func targets(world: Node) -> Array:
 		ids.push_front(selected_id)
 	if ids.is_empty():
 		return _project(
-			world, "novera_commons", [Content.NPCS["novera_gareth"][1]], "2장 메인 완료 · 후속 이야기 준비 중"
+			world, "novera_commons", [Content.NPCS["novera_examiner"][1]], "1막 완료 · 여울목 복구권"
 		)
 	var id: String = ids[0]
 	var definition: QuestData = catalog.definitions[id]
@@ -41,6 +41,23 @@ static func targets(world: Node) -> Array:
 		if Content.HABITATS.has(source):
 			var habitat: Array = Content.HABITATS[source]
 			return _project(world, habitat[0], habitat[1], label)
+		if Content.DEFENSE_WAVES.has(source):
+			var wave: Dictionary = Content.DEFENSE_WAVES[source]
+			var points := []
+			if world.map_id == wave.region:
+				for monster in world.get_node("MonsterSpawner").get_children():
+					if (
+						monster is MonsterBase
+						and not monster.is_queued_for_deletion()
+						and monster.get_meta("spawn_source_id", "") == source
+						and not monster.is_dead()
+					):
+						points.append(monster.global_position)
+			if points.is_empty():
+				for rally in Content.RALLIES.values():
+					if rally.region == wave.region:
+						return _project(world, wave.region, [rally.position], "방어 재개 [F] · " + label)
+			return _project(world, wave.region, points, label)
 		if Content.NPCS.has(target):
 			return _project(world, Content.NPCS[target][0], [Content.NPCS[target][1]], label)
 		if Content.EDGES.has(target):

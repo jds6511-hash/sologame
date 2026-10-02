@@ -1,4 +1,5 @@
 extends "res://scripts/npc/quest_npc.gd"
+const Content = preload("res://scripts/content/game_content.gd")
 var source := ""
 var kind := "REACH"
 
@@ -13,6 +14,8 @@ func interact() -> bool:
 	if not can_interact():
 		return false
 	_controller.journal.record_event(kind, npc_id, source, 0)
+	if Content.SITE_NOTICES.has(npc_id):
+		_dialog.open_notice(Content.SITE_NOTICES[npc_id])
 	return true
 
 

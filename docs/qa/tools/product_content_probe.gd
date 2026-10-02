@@ -132,7 +132,7 @@ func seed_session() -> void:
 	await travel("novera_commons")
 	var token := 0
 	for id in journal.catalog.ordered_ids():
-		if id in QuestCatalog.ORDER:
+		if not (String(id).begins_with("MQ-02-") or String(id).begins_with("SQ-NOV-")):
 			continue
 		var controller = world.get_node("QuestController")
 		journal = controller.journal

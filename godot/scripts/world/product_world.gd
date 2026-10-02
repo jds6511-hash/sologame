@@ -56,7 +56,7 @@ func _setup_quest_ui(quests: QuestController) -> void:
 		selection.candidates.append(site)
 	for id in Content.SITES:
 		var data: Array = Content.SITES[id]
-		if data[4] != map_id or map_id == "eastern_frontier_start":
+		if data[4] != map_id or id in ["yeoulmok_rift_mark", "yeoulmok_old_rift_entrance"]:
 			continue
 		var site = Site.new()
 		site.npc_id = id
@@ -67,6 +67,26 @@ func _setup_quest_ui(quests: QuestController) -> void:
 		add_child(site)
 		site.setup(_player, quests, dialog, _hud)
 		selection.candidates.append(site)
+	var has_rally := false
+	for data in Content.RALLIES.values():
+		has_rally = has_rally or data.region == map_id
+	if has_rally:
+		var defense = load("res://scripts/content/defense_spawner.gd").new()
+		defense.name = "DefenseSpawner"
+		add_child(defense)
+		defense.start(self)
+		for id in Content.RALLIES:
+			var data: Dictionary = Content.RALLIES[id]
+			if data.region != map_id:
+				continue
+			var rally = load("res://scripts/content/defense_rally.gd").new()
+			rally.npc_id = id
+			rally.position = data.position
+			_name_label(rally, data.title)
+			add_child(rally)
+			rally.setup(_player, quests, dialog, _hud)
+			rally.configure(defense)
+			selection.candidates.append(rally)
 
 
 func _npc(id: String, point: Vector2, title: String) -> Node2D:

@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "MQ-03-01"
+title = "여울목의 급보"
+offer_text = "여울목에서 급보가 왔습니다. 관문지기에게 상황을 듣고 방어 준비를 도와주세요."
+prerequisite = "MQ-02-06"
+npc_id = "yeoulmok_gatewarden"
+accept_npc_id = "novera_receptionist"
+reward_exp = 3500
+reward_gold = 3000
+reward_reputation = 0
+objective_kinds = Array[String](["TALK"])
+objective_targets = Array[String](["yeoulmok_gatewarden"])
+objective_sources = Array[String]([""])
+objective_counts = Array[int]([1])
+objective_labels = Array[String](["여울목 관문지기와 대화 [F]"])
+objective_location_hints = Array[String](["여울목 남쪽 관문"])

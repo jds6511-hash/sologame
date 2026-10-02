@@ -37,7 +37,26 @@ class Codec:
 		var data := super.capture(player, account_id, carry)
 		data.content_revision = ProductContent.CURRENT_REVISION
 		data.inventory.overflow = player.get_meta("economy_candidate").overflow.duplicate(true)
+		data.player.hp = _json_vital(data.player.hp)
+		data.player.mp = _json_vital(data.player.mp)
 		return data
+
+
+	func _json_vital(value: float) -> float:
+		# JSON의 십진수 반올림이 최대 HP보다 1 ULP 높아질 수 있다.
+		# 검증 허용치는 넓히지 않고, 원래 값 이하의 왕복 가능한 가장 가까운 값을 쓴다.
+		if not is_finite(value) or value <= 0.0:
+			return value
+		var candidate := value
+		var encoded := float(JSON.parse_string(JSON.stringify(candidate, "", true, true)))
+		var bytes := PackedByteArray()
+		bytes.resize(8)
+		while encoded > value:
+			bytes.encode_double(0, candidate)
+			bytes.encode_u64(0, bytes.decode_u64(0) - 1)
+			candidate = bytes.decode_double(0)
+			encoded = float(JSON.parse_string(JSON.stringify(candidate, "", true, true)))
+		return encoded
 
 	func restore_into(player: Node2D, data: Dictionary, account: Dictionary) -> String:
 		var error := super.restore_into(player, data, account)
@@ -79,6 +98,7 @@ class Session:
 				"user://m6_product_combat",
 				"user://product_verify",
 				"user://product_real_copy",
+				"user://product_defense_probe",
 				"user://product_chapter_preview"
 			]
 		)

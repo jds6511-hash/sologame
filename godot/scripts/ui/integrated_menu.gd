@@ -289,6 +289,7 @@ func get_inventory_content_root() -> Control:
 
 func bind_quests(journal: QuestJournal) -> void:
 	_journal_tab.bind_journal(journal)
+	_character_tab.bind_journal(journal)
 
 
 ## 캐릭터 탭 데이터 바인딩(읽기 전용 스탯 표시) — 치명타% 미포함 하위 호환 경로.

@@ -19,6 +19,21 @@ func ordered_ids() -> Array:
 	return Content.QUESTS.keys()
 
 
+func eligibility_error(quest_id: String, states: Dictionary) -> String:
+	var required: int = Content.QUEST_REQUIREMENTS.get(quest_id, {}).get("reputation", 0)
+	var reputation := 0
+	for id in states:
+		if states[id].get("state") == "completed" and definitions.has(id):
+			reputation += definitions[id].reward_reputation
+	return "reputation_required" if reputation < required else ""
+
+
+func honors(states: Dictionary) -> String:
+	if states.get("MQ-03-05", {}).get("state") == "completed":
+		return "신분: 향사 · 여울목 복구권 보유\n주민 보호·통치 책임 부여 · 영지 경영은 아직 열리지 않았습니다."
+	return "신분: 모험가 · 영지: 없음"
+
+
 func tracking_npc(states: Dictionary) -> String:
 	return (
 		"novera_receptionist"
@@ -43,6 +58,8 @@ func available_ids(states: Dictionary, npc: String = "") -> Array:
 			continue
 		if not states.has(id) and npc != "" and npc != definition.giver_id():
 			continue
+		if not eligibility_error(id, states).is_empty():
+			continue
 		if states.has(id):
 			current.append(id)
 		else:
@@ -61,7 +78,7 @@ func special_view(states: Dictionary, npc: String) -> Dictionary:
 func selected_view(states: Dictionary, npc: String, selected_quest_id: String) -> Dictionary:
 	if states.get("MQ-01-05", {}).get("state") != "completed":
 		return {}
-	if Content.EDGES.has(npc):
+	if Content.EDGES.has(npc) and available_ids(states, npc).is_empty():
 		var destination := travel_destination(npc)
 		var required: String = Content.REGION_REQUIREMENTS.get(destination, "")
 		if required != "" and states.get(required, {}).get("state") != "completed":
@@ -82,8 +99,10 @@ func selected_view(states: Dictionary, npc: String, selected_quest_id: String) -
 		return load("res://scripts/quests/quest_presentation.gd")._view(
 			definitions[id], states.get(id, {}), self, npc
 		)
+	if states.get("MQ-03-05", {}).get("state") == "completed":
+		return _notice("1막 메인 완료", honors(states) + "\n남은 기준 서브 의뢰를 이어갈 수 있습니다.")
 	if states.get("MQ-02-06", {}).get("state") == "completed":
-		return _notice("2장 메인 완료", "후속 이야기 준비 중 · 남은 서브 의뢰는 접수원에게 선택할 수 있습니다.")
+		return _notice("여울목 방어 지원", "노베라 접수원에게 여울목의 소식을 확인하세요.")
 	return _notice("노베라 조합", "접수원에게 의뢰를 확인해 주세요.")
 
 

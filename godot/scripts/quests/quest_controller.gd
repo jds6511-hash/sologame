@@ -31,6 +31,10 @@ func report(quest_id: String, npc_id: String) -> String:
 	var definition: QuestData = journal.catalog.definitions[quest_id]
 	if npc_id != definition.npc_id:
 		return "wrong_npc"
+	if journal.catalog.has_method("eligibility_error"):
+		var error: String = journal.catalog.eligibility_error(quest_id, journal.export_state())
+		if error != "":
+			return error
 	var inventory: InventoryComponent = _player.get_node("Inventory")
 	var progression: PlayerProgression = _player.get_node("PlayerProgression")
 	if (

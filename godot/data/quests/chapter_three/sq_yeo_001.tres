@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "SQ-YEO-001"
+title = "돌아갈 사람들"
+offer_text = "돌아갈 사람들 — 현장 표식을 따라 목표를 마친 뒤 보고해 주세요."
+prerequisite = "MQ-03-02"
+npc_id = "defense_coordinator"
+accept_npc_id = ""
+reward_exp = 4500
+reward_gold = 2820
+reward_reputation = 60
+objective_kinds = Array[String](["INTERACT", "INTERACT"])
+objective_targets = Array[String](["yeoulmok_rescue_1", "yeoulmok_rescue_2"])
+objective_sources = Array[String](["yeoulmok_rescue_1_site", "yeoulmok_rescue_2_site"])
+objective_counts = Array[int]([1, 1])
+objective_labels = Array[String](["주민 구조 1 [F]", "주민 구조 2 [F]"])
+objective_location_hints = Array[String](["여울목 방어 현장", "여울목 방어 현장"])

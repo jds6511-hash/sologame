@@ -15,7 +15,7 @@ func start_options() -> Array:
 			"directory": "user://product_chapter_preview"
 		},
 		{
-			"label": "3장 시작 준비 · 2장 완료 상태",
+			"label": "3장 시작 체험 · 2장 완료 준비",
 			"chapter": 3,
 			"directory": "user://product_chapter_preview"
 		}
@@ -42,7 +42,7 @@ func preparation(catalog: QuestCatalog, chapter: int) -> Dictionary:
 	return {
 		"quests": quests,
 		"exp": 3820 if chapter == 2 else (42828 if chapter == 3 else 0),
-		"gold": 560 if chapter == 2 else (23628 if chapter == 3 else 0)
+		"gold": 1130 if chapter == 2 else (23628 if chapter == 3 else 0)
 	}
 
 
@@ -70,7 +70,7 @@ func _ready() -> void:
 	_message = Label.new()
 	_message.text = (
 		"기본 게임: 실제 저장 사용\n장 시작 체험: 별도 QA 저장 · 매번 준비 상태로 시작\n"
-		+ "3장 콘텐츠는 준비 중입니다. 2장 완료 이후 상태까지만 열립니다."
+		+ "2장 준비 골드: 1장 의뢰 보상만 반영 · 처치·판매 골드는 제외됩니다."
 	)
 	UiStyle.apply_body_font(_message, 24)
 	column.add_child(_message)

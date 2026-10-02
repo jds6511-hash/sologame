@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "MQ-03-05"
+title = "첫 영지의 책임"
+offer_text = "문장원에서 당신의 공훈과 주민 증언을 심사합니다. 심사를 마치면 여울목의 복구권과 통치 책임을 맡게 됩니다."
+prerequisite = "MQ-03-04"
+npc_id = "novera_examiner"
+accept_npc_id = "defense_coordinator"
+reward_exp = 3787
+reward_gold = 7700
+reward_reputation = 200
+objective_kinds = Array[String](["TALK", "INTERACT"])
+objective_targets = Array[String](["novera_examiner", "yeoulmok_resident_testimony"])
+objective_sources = Array[String](["", "yeoulmok_resident_testimony_site"])
+objective_counts = Array[int]([1, 1])
+objective_labels = Array[String](["문장원 심사 담당와 대화 [F]", "주민 증언 확인 [F]"])
+objective_location_hints = Array[String](["노베라 조합 거리", "노베라 조합 거리"])
