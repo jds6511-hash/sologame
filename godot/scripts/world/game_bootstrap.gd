@@ -1,17 +1,88 @@
-## 기본 게임 시작점. 구버전 원본 검증기는 동결하고 M6/V5 실행만 선택한다.
+﻿## 기본 게임과 격리된 장 시작 준비 상태를 하나의 시작 화면에서 선택한다.
 extends Node
+
+var _starting := false
+var _message: Label
+
+
+func start_options() -> Array:
+	return [
+		{"label": "기본 게임 · 기존 저장은 F6에서 불러오기", "chapter": 0, "directory": "user://saves"},
+		{"label": "1장 시작 체험 · 새 모험가", "chapter": 1, "directory": "user://product_chapter_preview"},
+		{"label": "2장 시작 체험 · 1장 완료 준비", "chapter": 2, "directory": "user://product_chapter_preview"},
+		{"label": "3장 시작 준비 · 2장 완료 상태", "chapter": 3, "directory": "user://product_chapter_preview"}
+	]
+
+
+func preparation(catalog: QuestCatalog, chapter: int) -> Dictionary:
+	var quests := {}
+	for id in catalog.ordered_ids():
+		if (chapter == 2 and String(id).begins_with("MQ-01-")) or (chapter == 3 and (String(id).begins_with("MQ-01-") or String(id).begins_with("MQ-02-") or String(id).begins_with("SQ-NOV-"))):
+			quests[id] = {"state": "completed", "counts": Array(catalog.definitions[id].objective_counts)}
+	return {"quests": quests, "exp": 3820 if chapter == 2 else (42828 if chapter == 3 else 0), "gold": 560 if chapter == 2 else (23628 if chapter == 3 else 0)}
 
 
 func _ready() -> void:
-	_start.call_deferred()
-
-
-func _start() -> void:
-	var world: Node = load("res://scripts/economy/economy_product.gd").instantiate_world()
 	if "--product-smoke" in OS.get_cmdline_user_args():
-		world.set_meta("save_directory", "user://m6_product_test")
+		_start.call_deferred(0, "user://m6_product_test")
+		return
+	var layer := CanvasLayer.new()
+	add_child(layer)
+	var background := ColorRect.new()
+	background.color = Color("131e2c")
+	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	layer.add_child(background)
+	var center := CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	layer.add_child(center)
+	var column := VBoxContainer.new()
+	column.custom_minimum_size = Vector2(780, 0)
+	column.add_theme_constant_override("separation", 20)
+	center.add_child(column)
+	var title := Label.new()
+	title.text = "여울목에서 시작하는 이야기"
+	UiStyle.apply_body_font(title, 40)
+	column.add_child(title)
+	_message = Label.new()
+	_message.text = "기본 게임: 실제 저장 사용\n장 시작 체험: 별도 QA 저장 · 매번 준비 상태로 시작\n3장 콘텐츠는 준비 중입니다. 2장 완료 이후 상태까지만 열립니다."
+	UiStyle.apply_body_font(_message, 24)
+	column.add_child(_message)
+	for option in start_options():
+		var button := Button.new()
+		button.text = option.label
+		button.custom_minimum_size.y = 72
+		UiStyle.apply_body_font(button, 26)
+		button.pressed.connect(_start.bind(option.chapter, option.directory))
+		column.add_child(button)
+	var close := Button.new()
+	close.text = "종료"
+	close.custom_minimum_size.y = 64
+	UiStyle.apply_body_font(close, 24)
+	close.pressed.connect(get_tree().quit)
+	column.add_child(close)
+
+
+func _start(chapter: int, directory: String) -> void:
+	if _starting:
+		return
+	_starting = true
+	var region := "eastern_frontier_start" if chapter < 2 else ("novera_gate" if chapter == 2 else "novera_commons")
+	var world: Node = load("res://scripts/world/game_product.gd").instantiate_world(region)
+	world.set_meta("save_directory", directory)
 	get_tree().root.add_child(world)
+	if String(world.get_meta("save_boot_error", "")) != "":
+		if is_instance_valid(_message):
+			_message.text = "시작하지 못했습니다: " + String(world.get_meta("save_boot_error"))
+		world.queue_free()
+		_starting = false
+		return
 	get_tree().current_scene = world
-	if world.get_meta("save_boot_error", "") == "":
-		print("M6_PRODUCT_READY")
+	if chapter > 0:
+		var journal: QuestJournal = world.get_node("QuestController").journal
+		var prepared := preparation(journal.catalog, chapter)
+		journal.restore_state(prepared.quests)
+		world.get_node("Player/PlayerProgression").add_exp(prepared.exp)
+		world.get_node("Player/Inventory").add_gold(prepared.gold)
+		world.get_node("SaveSession")._report("장 시작 준비 상태 · 실제 저장과 분리됩니다. 이어 할 때는 F6에서 불러오세요.")
+	print("PRODUCT_READY chapter=", chapter)
 	queue_free()
