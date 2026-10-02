@@ -3,9 +3,11 @@ extends SceneTree
 
 var finished := false
 
+
 func _initialize() -> void:
 	create_timer(30).timeout.connect(func(): quit(1))
 	_run.call_deferred()
+
 
 func _run() -> void:
 	var boot = load("res://scenes/world/game_bootstrap.tscn").instantiate()
@@ -14,7 +16,9 @@ func _run() -> void:
 	await process_frame
 	await process_frame
 	await RenderingServer.frame_post_draw
-	var directory := ProjectSettings.globalize_path("res://").path_join("../docs/qa/screenshots/product-start")
+	var directory := ProjectSettings.globalize_path("res://").path_join(
+		"../docs/qa/screenshots/product-start"
+	)
 	DirAccess.make_dir_recursive_absolute(directory)
 	var error := root.get_texture().get_image().save_png(directory.path_join("menu.png"))
 	var args := OS.get_cmdline_user_args()
@@ -24,8 +28,14 @@ func _run() -> void:
 	await process_frame
 	var world := current_scene
 	var session = world.get_node("SaveSession")
-	var snapshot: Dictionary = session.codec.capture(world.get_node("Player"), session.account.account_id)
-	finished = error == OK and session.store.root == "user://product_chapter_preview" and session.codec.schema.character_error(snapshot, session.account) == ""
+	var snapshot: Dictionary = session.codec.capture(
+		world.get_node("Player"), session.account.account_id
+	)
+	finished = (
+		error == OK
+		and session.store.root == "user://product_chapter_preview"
+		and session.codec.schema.character_error(snapshot, session.account) == ""
+	)
 	await RenderingServer.frame_post_draw
 	error = root.get_texture().get_image().save_png(directory.path_join("chapter-%d.png" % chapter))
 	finished = finished and error == OK

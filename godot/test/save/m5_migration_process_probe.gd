@@ -76,7 +76,10 @@ func _run() -> void:
 					_check(not session.migration_pending, "current_format_boot")
 					# This fixture targets the frozen base codec, now V4, not the old M5 V3.
 					_check(
-						session.character.character_save_version == session.codec.character_version(),
+						(
+							session.character.character_save_version
+							== session.codec.character_version()
+						),
 						"current_codec_format"
 					)
 		world.free()

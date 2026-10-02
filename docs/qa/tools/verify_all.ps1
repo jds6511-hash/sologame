@@ -24,7 +24,7 @@ function Save-Manifest([string]$Directory) {
     return $result
 }
 
-function Run-Engine([string]$Name, [string]$Arguments, [string]$Marker, [int]$Seconds = 180, [switch]$Negative, [switch]$Rendered) {
+function Run-Engine([string]$Name, [string]$Arguments, [string]$Marker, [int]$Seconds = 180, [switch]$Negative, [switch]$Rendered, [switch]$ExpectedInterruption) {
     $prefix = Join-Path $out ($records.Count.ToString('D3') + '-' + $Name)
     $log = $prefix + '.log'
     $stdout = $prefix + '-stdout.log'
@@ -53,6 +53,12 @@ function Run-Engine([string]$Name, [string]$Arguments, [string]$Marker, [int]$Se
         $checked = [regex]::Replace($checked, '(?m)^ERROR: (?:2|4) resources still in use at exit(?: \(run with --verbose for details\))?\.\r?$', '')
     }
     $ok = -not $timeout -and $p.ExitCode -eq 0 -and $body.Contains($Marker) -and $checked -notmatch 'SCRIPT ERROR:|(?m)^ERROR:'
+    if ($ExpectedInterruption) {
+        # Godot OS.kill(self) uses exit code 0 on Windows. The reached marker,
+        # absent normal-return marker and the following independent disk check
+        # distinguish interruption from an ordinary successful return.
+        $ok = -not $timeout -and $p.ExitCode -eq 0 -and $body.Contains('M4_PROCESS_INTERRUPT_REACHED') -and -not $body.Contains('M4_PROCESS_INTERRUPT_RETURNED') -and $checked -notmatch 'SCRIPT ERROR:|(?m)^ERROR:'
+    }
     if (-not $Negative -and $Name -ne 'gut' -and $body -match ': false') { $ok = $false }
     if ($Negative -and $body -match 'ONBOARDING_(MISSING_SAVE|ATTACK_DISABLED|NAVIGATION_DISABLED)_CONFIRMED') { $ok = $false }
     $warnings = @([regex]::Matches($body, '(?m)^.*(?:leaked|RID allocations|resources still in use).*$') | ForEach-Object { $_.Value } | Select-Object -Unique)
@@ -90,6 +96,15 @@ try {
     Probe-Series 'legacy-session' 'res://test/save/save_session_process_probe.gd' @('cleanup','seed','verify','cleanup') 'M4_SESSION_PROCESS_PASS'
     Probe-Series 'legacy-migration' 'res://test/save/m5_migration_process_probe.gd' @('cleanup','seed','upgrade','verify','cleanup') 'M5_MIGRATION_PROCESS_PASS'
     Probe-Series 'c1-migration' 'res://test/save/c1_session_process_probe.gd' @('cleanup','seed','hold','hold','save','verify','cleanup') 'C1_SESSION_PROCESS_PASS'
+    Probe-Series 'first-quest' 'res://test/quests/first_quest_process_probe.gd' @('cleanup','seed','active','ready','completed','legacy','third_seed','third_active','third_ready','third_completed','cleanup') 'M5_FIRST_QUEST_PROCESS_PASS'
+    Probe-Series 'fourth-quest' 'res://test/quests/fourth_quest_process_probe.gd' @('cleanup','seed','active','reach','ready','completed','completed','cleanup') 'M5_FOURTH_PROCESS_PASS'
+    Probe-Series 'chapter-departure' 'res://test/quests/chapter_departure_process_probe.gd' @('cleanup','seed','depart','verify','return','cleanup','unsaved','cleanup','legacy','cleanup','legacy2','cleanup') 'CHAPTER_DEPARTURE_PASS'
+    foreach ($suffix in @('','_mid')) {
+        Probe-Series "store-interrupt$suffix" 'res://test/save/save_store_process_probe.gd' @('cleanup','seed') 'M4_PROCESS_SETUP_PASS'
+        $null = Run-Engine "store-interrupt$suffix-kill" ('-s res://test/save/save_store_process_probe.gd -- interrupt' + $suffix) 'M4_PROCESS_INTERRUPT_REACHED' -ExpectedInterruption
+        $null = Run-Engine "store-interrupt$suffix-verify" ('-s res://test/save/save_store_process_probe.gd -- verify' + $suffix) 'M4_PROCESS_PRESERVATION_PASS'
+        Probe-Series "store-interrupt$suffix" 'res://test/save/save_store_process_probe.gd' @('cleanup') 'M4_PROCESS_SETUP_PASS'
+    }
     Probe-Series 'm6-api' '../docs/qa/tools/m6_candidate_probe.gd' @('cleanup','seed','reload','cleanup') 'M6_CANDIDATE_PASS'
     Probe-Series 'm7-api' '../docs/qa/tools/m7_candidate_probe.gd' @('cleanup','seed','reload','cleanup') 'M7_CANDIDATE_PASS'
     Probe-Series 'closure-api' '../docs/qa/tools/closure_candidate_probe.gd' @('cleanup','seed','reload_mid','reload','cleanup') 'M7_CLOSURE_CANDIDATE_PASS'
@@ -109,7 +124,9 @@ try {
     }
     $null = Run-Engine 'guards-cleanup' '-s ../docs/qa/tools/yeoulmok_onboarding_probe.gd -- cleanup' 'YEOULMOK_ONBOARDING_PASS'
     foreach ($phase in @('reload','walk','hunt','death')) {
-        $body = Run-Engine "guard-$phase" ('--fixed-fps 60 -s ../docs/qa/tools/onboarding_guard_probe.gd -- ' + $phase) 'ONBOARDING_GUARD_PROBE_DONE' 300 -Negative
+        # Existing walk/hunt guards require rendering and may move the OS pointer,
+        # even when -Combat is absent. Do not run alongside manual game input.
+        $body = Run-Engine "guard-$phase" ('--fixed-fps 60 -s ../docs/qa/tools/onboarding_guard_probe.gd -- ' + $phase) 'ONBOARDING_GUARD_PROBE_DONE' 300 -Negative -Rendered:($phase -in @('walk','hunt'))
         $target = switch ($phase) {
             'reload' { '별도 프로세스 로드: false' }
             'walk' { '동적 도보 시간 초과:' }
@@ -117,9 +134,10 @@ try {
             'death' { 'ONBOARDING_DEATH_GUARD: true' }
         }
         if (-not $body.Contains($target)) { throw "Guard did not reach target: $phase" }
+        if ($phase -eq 'death' -and -not $body.Contains('대기 포함 전체 세션 사망 감지: false')) { throw 'Death guard did not record the injected session failure' }
     }
     if ($Combat) {
-        # The only rendered/OS-pointer-moving path; fixed three runs, diagnostic, not an adoption gate.
+        # Additional full combat path; fixed three runs, diagnostic, not an adoption gate.
         $combatLog = Join-Path $out 'combat.log'
         & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'run_yeoulmok_onboarding.ps1') -Godot $Godot -Product -Runs 3 *> $combatLog
         $records.Add(@{name='optional-combat';pass=($LASTEXITCODE -eq 0);exit=$LASTEXITCODE;log=$combatLog;adoption_gate=$false})

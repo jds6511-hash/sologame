@@ -14,6 +14,7 @@ class InterruptingStore:
 		if destination.ends_with(".json"):
 			if remove_before_kill:
 				DirAccess.remove_absolute(destination)
+			print("M4_PROCESS_INTERRUPT_REACHED")
 			OS.kill(OS.get_process_id())
 			return ERR_BUSY
 		return super._replace_file(source, destination)
@@ -27,21 +28,20 @@ func _initialize() -> void:
 	var store = Store.new(ROOT)
 	match args[0]:
 		"seed":
-			quit(
-				(
-					0
-					if (
-						store
-						. write_save("character", 1, {"character_save_version": 3, "gold": 10})
-						. ok
-					)
-					else 1
-				)
-			)
+			var seeded: bool = store.write_save(
+				"character", 1,
+				{"character_save_version": store.current_version("character"), "gold": 10}
+			).ok
+			print("M4_PROCESS_SETUP_PASS" if seeded else "M4_PROCESS_SETUP_FAIL")
+			quit(0 if seeded else 1)
 		"interrupt", "interrupt_mid":
 			var interrupted := InterruptingStore.new(ROOT)
 			interrupted.remove_before_kill = args[0] == "interrupt_mid"
-			interrupted.write_save("character", 1, {"character_save_version": 3, "gold": 99})
+			interrupted.write_save(
+				"character", 1,
+				{"character_save_version": store.current_version("character"), "gold": 99}
+			)
+			print("M4_PROCESS_INTERRUPT_RETURNED")
 			quit(1)  # 정상 반환했다면 강제 중단 검증 실패다.
 		"verify", "verify_mid":
 			var result: Dictionary = store.read_save("character", 1)
@@ -54,9 +54,11 @@ func _initialize() -> void:
 			print("M4_PROCESS_PRESERVATION_PASS" if valid else "M4_PROCESS_PRESERVATION_FAIL")
 			quit(0 if valid else 1)
 		"cleanup":
-			for file in DirAccess.get_files_at(ROOT):
-				DirAccess.remove_absolute(ROOT.path_join(file))
-			DirAccess.remove_absolute(ROOT)
+			if DirAccess.dir_exists_absolute(ROOT):
+				for file in DirAccess.get_files_at(ROOT):
+					DirAccess.remove_absolute(ROOT.path_join(file))
+				DirAccess.remove_absolute(ROOT)
+			print("M4_PROCESS_SETUP_PASS")
 			quit(0)
 		_:
 			quit(2)
