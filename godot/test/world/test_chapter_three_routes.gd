@@ -11,6 +11,30 @@ func after_each() -> void:
 	get_tree().paused = false
 
 
+func test_world_exchange_removes_old_tile_collisions_before_new_physics() -> void:
+	var world: Node = Product.instantiate_world()
+	world.set_meta("save_directory", "user://product_verify")
+	add_child(world)
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	var journal: QuestJournal = world.get_node("QuestController").journal
+	assert_eq(journal.restore_state(prepared(journal.catalog, 1)), "")
+	world.get_node("Player").position = Content.EDGES["yeoulmok_defense_gate"][2]
+	var result: Dictionary = world.get_node("SaveSession").travel("yeoulmok_defense")
+	assert_true(result.ok)
+	var next: Node
+	for child in get_children():
+		if "map_id" in child and child.map_id == "yeoulmok_defense":
+			next = child
+	assert_not_null(next)
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	if is_instance_valid(next):
+		assert_almost_eq(next.get_node("Player").position, Vector2(192, 544), Vector2(0.01, 0.01))
+		next.free()
+	await get_tree().process_frame
+
+
 func make_world(region: String) -> Node:
 	var world: Node = Product.instantiate_world(region)
 	world.set_meta("save_directory", "user://product_verify")
@@ -33,7 +57,9 @@ func prepared(catalog: QuestCatalog, through: int = 0) -> Dictionary:
 	bootstrap.free()
 	for number in range(1, through + 1):
 		var id := "MQ-03-%02d" % number
-		states[id] = {"state": "completed", "counts": Array(catalog.definitions[id].objective_counts)}
+		states[id] = {
+			"state": "completed", "counts": Array(catalog.definitions[id].objective_counts)
+		}
 	return states
 
 
@@ -48,7 +74,9 @@ func clear_at(player: CharacterBody2D, point: Vector2) -> bool:
 	var shape: CollisionShape2D = player.get_node("CollisionShape2D")
 	var query := PhysicsShapeQueryParameters2D.new()
 	query.shape = shape.shape
-	query.transform = Transform2D(player.global_transform.x, player.global_transform.y, point) * shape.transform
+	query.transform = (
+		Transform2D(player.global_transform.x, player.global_transform.y, point) * shape.transform
+	)
 	query.collision_mask = 1
 	query.exclude = [player.get_rid()]
 	return player.get_world_2d().direct_space_state.intersect_shape(query, 1).is_empty()
@@ -57,7 +85,11 @@ func clear_at(player: CharacterBody2D, point: Vector2) -> bool:
 func segment_clear(player: CharacterBody2D, from: Vector2, to: Vector2) -> bool:
 	var transform := player.global_transform
 	transform.origin = from
-	return clear_at(player, from) and clear_at(player, to) and not player.test_move(transform, to - from)
+	return (
+		clear_at(player, from)
+		and clear_at(player, to)
+		and not player.test_move(transform, to - from)
+	)
 
 
 func test_new_gate_departure_and_return_use_real_player_shape() -> void:
@@ -72,12 +104,16 @@ func test_new_gate_departure_and_return_use_real_player_shape() -> void:
 				assert_not_null(gate, id)
 				var approach: Vector2 = edge[2] + Vector2(0, 24)
 				assert_true(clear_at(player, approach), id + " 접근 위치")
-				assert_true(segment_clear(player, approach + Vector2(0, 16), approach), id + " 접근 동선")
+				assert_true(
+					segment_clear(player, approach + Vector2(0, 16), approach), id + " 접근 동선"
+				)
 				player.global_position = approach
 				assert_true(gate.can_interact(), id + " 실제 대화 거리/시야")
 			if edge[1] == region:
 				assert_true(clear_at(player, edge[3]), id + " 도착 위치")
-				assert_true(segment_clear(player, edge[3], edge[3] + Vector2(16, 0)), id + " 도착 후 이동")
+				assert_true(
+					segment_clear(player, edge[3], edge[3] + Vector2(16, 0)), id + " 도착 후 이동"
+				)
 		world.free()
 		await get_tree().process_frame
 

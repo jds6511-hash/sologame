@@ -2,7 +2,7 @@ extends GutTest
 
 
 func test_full_vitals_survive_json_without_exceeding_original_value() -> void:
-	var world = load("res://scripts/world/game_product.gd").instantiate_world("novera_commons")
+	var world = load("res://scripts/world/game_product.gd").instantiate_world()
 	world.set_meta("save_directory", "user://product_verify")
 	add_child(world)
 	world.process_mode = Node.PROCESS_MODE_DISABLED

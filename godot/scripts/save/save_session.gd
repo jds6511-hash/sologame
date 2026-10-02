@@ -277,6 +277,9 @@ func _replace_world(
 	world.get_node("SaveMenu").close_menu(false)
 	world.process_mode = Node.PROCESS_MODE_DISABLED
 	world.hide()
+	# TileMapLayer의 충돌은 process_mode만 꺼도 남는다. queue_free까지 한 프레임
+	# 새 도착점을 밀어내지 않도록 성공한 교체에서만 기존 월드를 즉시 분리한다.
+	world.get_parent().remove_child(world)
 	world.queue_free()
 	tree.paused = false
 	return {"ok": true, "code": "ok"}

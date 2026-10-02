@@ -45,7 +45,10 @@ func _pending() -> Dictionary:
 	var journal: QuestJournal = world.get_node("QuestController").journal
 	for source in Content.DEFENSE_WAVES:
 		var wave: Dictionary = Content.DEFENSE_WAVES[source]
-		if wave.region != world.map_id or not journal.expects_event(wave.quest_id, "KILL", wave.content_id, source):
+		if (
+			wave.region != world.map_id
+			or not journal.expects_event(wave.quest_id, "KILL", wave.content_id, source)
+		):
 			continue
 		var living := 0
 		var total := 0

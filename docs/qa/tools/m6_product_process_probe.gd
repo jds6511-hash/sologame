@@ -2,6 +2,7 @@
 extends SceneTree
 
 const PRODUCT_PATH := "res://scripts/economy/economy_product.gd"
+const Content = preload("res://scripts/content/game_content.gd")
 const LegacyStore = preload("res://scripts/save/save_file_store.gd")
 const ROOT := "user://m6_product_process"
 var failed := false
@@ -96,7 +97,7 @@ func _migrate() -> void:
 	var source_hash := FileAccess.get_file_as_string(ROOT.path_join("source_hash.txt"))
 	_check(session.migration_pending and session.loaded_source_version == 4, "V4 메모리 이관 대기")
 	_check(session.character.character_save_version == 6, "제품 V6 메모리 이관")
-	_check(session.character.content_revision == load("res://scripts/content/game_content.gd").CURRENT_REVISION, "현행 제품 콘텐츠 개정")
+	_check(session.character.content_revision == Content.CURRENT_REVISION, "현행 제품 콘텐츠 개정")
 	session.advance(181)
 	_check(
 		FileAccess.get_sha256(ROOT.path_join("character_01.json")) == source_hash,
@@ -163,7 +164,7 @@ func _verify() -> void:
 			"미채택 버전 거부 " + str(version)
 		)
 	var future: Dictionary = session.character.duplicate(true)
-	future.content_revision = load("res://scripts/content/game_content.gd").CURRENT_REVISION + 1
+	future.content_revision = Content.CURRENT_REVISION + 1
 	_check(
 		session.codec.prepare_loaded(future, session.account).code == "unsupported_content",
 		"미래 콘텐츠 개정 거부"

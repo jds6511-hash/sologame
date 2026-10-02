@@ -2,14 +2,24 @@ extends GutTest
 
 const SOURCE := "yeoulmok_defense_wave_1"
 
+
 class Field:
 	extends Node2D
 	var map_id := "yeoulmok_defense"
 	var registered := 0
+
 	func _on_monster_spawned(monster: MonsterBase) -> void:
 		registered += 1
-		monster.died.connect(func():
-			get_node("QuestController").journal.record_event("KILL", str(monster.get_meta("content_id")), str(monster.get_meta("spawn_source_id")), monster.get_instance_id()))
+		monster.died.connect(
+			func():
+				get_node("QuestController").journal.record_event(
+					"KILL",
+					str(monster.get_meta("content_id")),
+					str(monster.get_meta("spawn_source_id")),
+					monster.get_instance_id()
+				)
+		)
+
 
 func fixture(count: int = 0) -> Node2D:
 	var world := Field.new()
@@ -38,8 +48,14 @@ func fixture(count: int = 0) -> Node2D:
 	world.add_child(controller)
 	add_child_autofree(world)
 	controller.journal = QuestJournal.new(catalog)
-	assert_eq(controller.journal.restore_state({quest.quest_id: {"state": "active", "counts": [count, 0, 0]}}), "")
+	assert_eq(
+		controller.journal.restore_state(
+			{quest.quest_id: {"state": "active", "counts": [count, 0, 0]}}
+		),
+		""
+	)
 	return world
+
 
 func manager(world: Node2D) -> Node:
 	var path := "res://scripts/content/defense_spawner.gd"
@@ -50,6 +66,7 @@ func manager(world: Node2D) -> Node:
 	world.add_child(value)
 	value.start(world)
 	return value
+
 
 func test_entry_does_not_spawn_and_repeat_resume_does_not_duplicate() -> void:
 	var world := fixture()
@@ -66,6 +83,7 @@ func test_entry_does_not_spawn_and_repeat_resume_does_not_duplicate() -> void:
 		assert_eq(monster.get_meta("spawn_source_id"), SOURCE)
 		assert_eq(MonsterDropRegistry.table_for(monster).monster_level, 12)
 
+
 func test_partial_fixture_resumes_only_missing_and_recreated_manager_counts_living() -> void:
 	var world := fixture(1)
 	var spawner := manager(world)
@@ -77,6 +95,7 @@ func test_partial_fixture_resumes_only_missing_and_recreated_manager_counts_livi
 	spawner = manager(world)
 	assert_false(spawner.resume())
 	assert_eq(world.registered, 2)
+
 
 func test_kills_require_new_resume_for_next_source() -> void:
 	var world := fixture()
@@ -92,6 +111,7 @@ func test_kills_require_new_resume_for_next_source() -> void:
 	assert_eq(world.registered, 6)
 	assert_false(spawner.resume())
 
+
 func test_queued_monsters_and_dead_player_do_not_duplicate() -> void:
 	var world := fixture()
 	var spawner := manager(world)
@@ -106,6 +126,7 @@ func test_queued_monsters_and_dead_player_do_not_duplicate() -> void:
 	world.get_node("Player/PlayerStats").current_hp = 1
 	assert_false(spawner.resume(), "부활 뒤 남아 있는 개체를 중복 생성하지 않는다")
 	assert_eq(world.registered, 3)
+
 
 func test_ready_completed_wrong_region_and_freed_world_cannot_spawn() -> void:
 	var world := fixture()
@@ -123,6 +144,7 @@ func test_ready_completed_wrong_region_and_freed_world_cannot_spawn() -> void:
 	world.queue_free()
 	assert_false(spawner.resume())
 
+
 func test_wrong_source_event_does_not_advance_and_dead_body_does_not_reserve_slot() -> void:
 	var world := fixture()
 	var spawner := manager(world)
@@ -138,6 +160,7 @@ func test_wrong_source_event_does_not_advance_and_dead_body_does_not_reserve_slo
 	assert_false(spawner.resume())
 	assert_eq(world.registered, 3)
 	assert_eq(journal.export_state()["MQ-03-03"].counts, [1, 0, 0])
+
 
 func test_rally_requires_range_and_unlocked_player_and_consumes_once() -> void:
 	var world := fixture()
@@ -158,6 +181,7 @@ func test_rally_requires_range_and_unlocked_player_and_consumes_once() -> void:
 	assert_false(rally.interact())
 	assert_eq(world.registered, 3)
 
+
 func test_elite_registers_single_level_thirteen_elite() -> void:
 	var world := fixture()
 	var controller: QuestController = world.get_node("QuestController")
@@ -170,7 +194,9 @@ func test_elite_registers_single_level_thirteen_elite() -> void:
 	quest.objective_labels = ["정예"]
 	quest.objective_location_hints = ["전장"]
 	controller.journal.catalog.definitions = {quest.quest_id: quest}
-	assert_eq(controller.journal.restore_state({quest.quest_id: {"state": "active", "counts": [0]}}), "")
+	assert_eq(
+		controller.journal.restore_state({quest.quest_id: {"state": "active", "counts": [0]}}), ""
+	)
 	var spawner := manager(world)
 	assert_true(spawner.resume())
 	assert_eq(world.registered, 1)

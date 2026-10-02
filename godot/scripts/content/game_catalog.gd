@@ -30,7 +30,7 @@ func eligibility_error(quest_id: String, states: Dictionary) -> String:
 
 func honors(states: Dictionary) -> String:
 	if states.get("MQ-03-05", {}).get("state") == "completed":
-		return "신분: 향사 · 여울목 복구권 보유\n주민 보호·통치 책임 부여 · 영지 경영은 아직 열리지 않았습니다."
+		return "신분: 향사\n여울목 복구권 보유\n주민 보호·통치 책임\n영지 경영: 준비 중"
 	return "신분: 모험가 · 영지: 없음"
 
 

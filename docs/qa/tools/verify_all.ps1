@@ -99,8 +99,12 @@ try {
         $log = Join-Path $out ($check.name + '.log')
         $script = Join-Path $repo $check.script
         $arguments = $check.arguments
-        & python $script @arguments *> $log
-        $code = $LASTEXITCODE
+        $pythonArgs = '"' + $script + '" ' + ($arguments -join ' ')
+        $process = Start-Process -FilePath (Get-Command python).Source -ArgumentList $pythonArgs -WindowStyle Hidden -PassThru -RedirectStandardOutput $log -RedirectStandardError ($log + '.stderr')
+        $null = $process.Handle
+        $process.WaitForExit()
+        $process.Refresh()
+        $code = $process.ExitCode
         $records.Add(@{name=$check.name;pass=($code -eq 0);exit=$code;log=$log})
         if ($code -ne 0) { throw "Content verification failed: $($check.name)" }
     }

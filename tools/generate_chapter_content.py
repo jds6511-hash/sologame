@@ -1,4 +1,4 @@
-﻿"""장별 콘텐츠 표 검사·결정적 생성. --check는 어떤 파일도 쓰지 않는다."""
+"""장별 콘텐츠 표 검사·결정적 생성. --check는 어떤 파일도 쓰지 않는다."""
 import argparse
 import ast
 import copy
@@ -266,6 +266,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-

@@ -49,7 +49,13 @@ func inspect_copy(phase: String, slot: int) -> void:
 	check(session.store.root == ROOT, "QA directory retained")
 	check(FileAccess.get_sha256(path) == before, "Load leaves QA file unchanged")
 	check(session.character.character_save_version == 6, "Product format 6")
-	check(session.character.content_revision == load("res://scripts/content/game_content.gd").CURRENT_REVISION, "현행 콘텐츠 개정")
+	check(
+		(
+			session.character.content_revision
+			== load("res://scripts/content/game_content.gd").CURRENT_REVISION
+		),
+		"현행 콘텐츠 개정"
+	)
 	var evidence := ROOT.path_join("expected_%02d.json" % slot)
 	if phase == "migrate":
 		check(session.loaded_source_version == (4 if slot == 1 else 5), "Expected legacy version")

@@ -7,10 +7,10 @@
 class_name CharacterTab
 extends Control
 
-@onready var _level_job_label: Label = $VBox/LevelJobLabel
-@onready var _stat_list_label: Label = $VBox/StatListLabel
 var _journal: QuestJournal
 var _honors_label: Label
+@onready var _level_job_label: Label = $VBox/LevelJobLabel
+@onready var _stat_list_label: Label = $VBox/StatListLabel
 
 
 func bind_journal(journal: QuestJournal) -> void:
@@ -30,7 +30,8 @@ func bind_journal(journal: QuestJournal) -> void:
 func _refresh_honors() -> void:
 	_honors_label.text = (
 		_journal.catalog.honors(_journal.export_state())
-		if _journal.catalog.has_method("honors") else ""
+		if _journal.catalog.has_method("honors")
+		else ""
 	)
 
 

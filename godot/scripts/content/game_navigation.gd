@@ -56,7 +56,9 @@ static func targets(world: Node) -> Array:
 			if points.is_empty():
 				for rally in Content.RALLIES.values():
 					if rally.region == wave.region:
-						return _project(world, wave.region, [rally.position], "방어 재개 [F] · " + label)
+						return _project(
+							world, wave.region, [rally.position], "방어 재개 [F] · " + label
+						)
 			return _project(world, wave.region, points, label)
 		if Content.NPCS.has(target):
 			return _project(world, Content.NPCS[target][0], [Content.NPCS[target][1]], label)

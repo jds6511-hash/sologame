@@ -33,6 +33,7 @@ func _run() -> void:
 		world.set_meta("save_directory", DIRECTORY)
 		root.add_child(world)
 		current_scene = world
+		world.get_node("Player").set_physics_process(false)
 		await process_frame
 		await process_frame
 		if args[0] in ["reload", "reload_mid"]:
@@ -68,11 +69,13 @@ func _run() -> void:
 
 func refresh() -> void:
 	await process_frame
-	await process_frame
 	for child in root.get_children():
 		if child.has_node("SaveSession") and not child.is_queued_for_deletion():
 			world = child
 			current_scene = world
+			# API 위치 fixture가 OS 키 입력으로 움직이지 않게 한다. 도보 증거가 아니다.
+			world.get_node("Player").set_physics_process(false)
+	await process_frame
 
 
 func snapshot() -> Dictionary:
@@ -111,12 +114,14 @@ func travel(destination: String) -> void:
 			"지역 교체 후 선택 의뢰 유지"
 		)
 	check(world.get_node("Player").position.distance_to(edge[3]) < 1, "출입구별 도착 위치")
+	if world.get_node("Player").position.distance_to(edge[3]) >= 1:
+		print("도착 위치 진단 기대=", edge[3], " 실제=", world.get_node("Player").position)
 	check(world.get_node("SaveSession").store.root == DIRECTORY, "교체 후 저장 격리")
 	check(world.get_node("SaveSession").codec.character_version() == 6, "제품 형식6 유지")
 	if DisplayServer.get_name() != "headless":
 		await RenderingServer.frame_post_draw
 		root.get_texture().get_image().save_png(
-			"res://../docs/qa/screenshots/m7-closure-" + destination + ".png"
+			"res://../docs/qa/screenshots/chapter3-" + destination + ".png"
 		)
 
 
@@ -128,7 +133,16 @@ func seed_session() -> void:
 	check(journal.restore_state(prepared.quests) == "", "2장 완료 준비 fixture")
 	world.get_node("Player/PlayerProgression").add_exp(prepared.exp)
 	world.get_node("Player/Inventory").add_gold(prepared.gold)
-	var ids := ["MQ-03-01", "MQ-03-02", "MQ-03-03", "MQ-03-04", "MQ-03-05", "SQ-YEO-001", "SQ-YEO-002", "SQ-YEO-003"]
+	var ids := [
+		"MQ-03-01",
+		"MQ-03-02",
+		"MQ-03-03",
+		"MQ-03-04",
+		"MQ-03-05",
+		"SQ-YEO-001",
+		"SQ-YEO-002",
+		"SQ-YEO-003"
+	]
 	for id in ids:
 		journal = world.get_node("QuestController").journal
 		var definition: QuestData = journal.catalog.definitions[id]
@@ -147,7 +161,11 @@ func seed_session() -> void:
 				var victims := world.get_node("MonsterSpawner").get_children()
 				var killed := 0
 				for monster in victims:
-					if monster.has_method("is_dead") and not monster.is_dead() and monster.get_meta("spawn_source_id", "") == source:
+					if (
+						monster.has_method("is_dead")
+						and not monster.is_dead()
+						and monster.get_meta("spawn_source_id", "") == source
+					):
 						# API 결합 검사 전용 피해 fixture. 정상 공격·회피 입력 증거가 아니다.
 						monster.take_damage(100000.0, "강", world.get_node("Player"))
 						killed += 1
@@ -171,13 +189,17 @@ func seed_session() -> void:
 				check(found, "실제 표식 존재 " + target)
 				if RegionsM7.SITE_NOTICES.has(target):
 					check(world.get_node("QuestDialog").panel.visible, "말하는 그림자 목격 안내")
+					await capture("shadow")
 					world.get_node("QuestDialog").close_dialog()
 			else:
 				await go_npc(target)
 				check(world.get_node("QuestDialog").open_dialog(target), "NPC 대화 " + target)
 				world.get_node("QuestDialog").close_dialog()
 			journal = world.get_node("QuestController").journal
-			check(journal.export_state()[id].counts[index] == definition.objective_counts[index], "목표 진행 " + id + "/" + str(index))
+			check(
+				journal.export_state()[id].counts[index] == definition.objective_counts[index],
+				"목표 진행 " + id + "/" + str(index)
+			)
 		await go_npc(definition.npc_id)
 		var controller = world.get_node("QuestController")
 		var gold: int = world.get_node("Player/Inventory").gold
@@ -186,7 +208,14 @@ func seed_session() -> void:
 		check(world.get_node("Player/Inventory").gold == gold + definition.reward_gold, "보상 단회 지급")
 		if id == "MQ-03-05":
 			check(controller.journal.reputation() == 1000, "서브 없이 하사 공훈1000")
-			check("향사" in controller.journal.catalog.honors(controller.journal.export_state()), "완료 기반 향사·복구권")
+			check(
+				"향사" in controller.journal.catalog.honors(controller.journal.export_state()),
+				"완료 기반 향사·복구권"
+			)
+			if DisplayServer.get_name() != "headless":
+				world.get_node("IntegratedMenu")._on_tab_shortcut(1)
+				await capture("honors")
+				world.get_node("IntegratedMenu").close_menu()
 	journal = world.get_node("QuestController").journal
 	check(journal.reputation() == 1200, "기준 서브 포함 공훈1200")
 	var data: Dictionary = snapshot()
@@ -194,6 +223,14 @@ func seed_session() -> void:
 	print("3장 API 완료 상태: ", JSON.stringify(data.player))
 	await save_snapshot(1, "expected.json")
 	finished = true
+
+
+func capture(label: String) -> void:
+	if DisplayServer.get_name() == "headless":
+		return
+	await process_frame
+	await RenderingServer.frame_post_draw
+	check(root.get_texture().get_image().save_png("res://../docs/qa/screenshots/chapter3-" + label + ".png") == OK, "화면 기록 " + label)
 
 
 func go_region(destination: String) -> void:
@@ -211,7 +248,9 @@ func go_region(destination: String) -> void:
 func go_npc(id: String) -> void:
 	var data: Array = RegionsM7.NPCS[id] if RegionsM7.NPCS.has(id) else RegionsM7.EDGES[id]
 	await go_region(data[0])
-	world.get_node("Player").position = (data[1] if RegionsM7.NPCS.has(id) else data[2]) + Vector2(0, 20)
+	world.get_node("Player").position = (
+		(data[1] if RegionsM7.NPCS.has(id) else data[2]) + Vector2(0, 20)
+	)
 
 
 func save_snapshot(slot: int, name: String) -> void:
@@ -220,7 +259,10 @@ func save_snapshot(slot: int, name: String) -> void:
 	check(saved.ok, "실제 제품 V6 파일 저장 / " + saved.code)
 	if not saved.ok:
 		var store = world.get_node("SaveSession").store
-		print("저장 임시 파일 진단: ", store._read(DIRECTORY.path_join("character_%02d.json.tmp" % slot), "character"))
+		print(
+			"저장 임시 파일 진단: ",
+			store._read(DIRECTORY.path_join("character_%02d.json.tmp" % slot), "character")
+		)
 	var file := FileAccess.open(DIRECTORY.path_join(name), FileAccess.WRITE)
 	if file == null:
 		check(false, "스냅샷 파일 열기")

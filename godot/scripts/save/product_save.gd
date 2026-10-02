@@ -41,7 +41,6 @@ class Codec:
 		data.player.mp = _json_vital(data.player.mp)
 		return data
 
-
 	func _json_vital(value: float) -> float:
 		# JSON의 십진수 반올림이 최대 HP보다 1 ULP 높아질 수 있다.
 		# 검증 허용치는 넓히지 않고, 원래 값 이하의 왕복 가능한 가장 가까운 값을 쓴다.
