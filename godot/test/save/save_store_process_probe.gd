@@ -28,17 +28,23 @@ func _initialize() -> void:
 	var store = Store.new(ROOT)
 	match args[0]:
 		"seed":
-			var seeded: bool = store.write_save(
-				"character", 1,
-				{"character_save_version": store.current_version("character"), "gold": 10}
-			).ok
+			var seeded: bool = (
+				store
+				. write_save(
+					"character",
+					1,
+					{"character_save_version": store.current_version("character"), "gold": 10}
+				)
+				. ok
+			)
 			print("M4_PROCESS_SETUP_PASS" if seeded else "M4_PROCESS_SETUP_FAIL")
 			quit(0 if seeded else 1)
 		"interrupt", "interrupt_mid":
 			var interrupted := InterruptingStore.new(ROOT)
 			interrupted.remove_before_kill = args[0] == "interrupt_mid"
 			interrupted.write_save(
-				"character", 1,
+				"character",
+				1,
 				{"character_save_version": store.current_version("character"), "gold": 99}
 			)
 			print("M4_PROCESS_INTERRUPT_RETURNED")
