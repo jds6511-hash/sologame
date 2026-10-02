@@ -70,6 +70,8 @@ func inspect_copy(phase: String, slot: int) -> void:
 	else:
 		check(not session.migration_pending, "Reopened product requires no migration")
 		var expected = JSON.parse_string(FileAccess.get_file_as_string(evidence))
-		check(JSON.parse_string(JSON.stringify(session.character, "", true, true)) == expected,
-			"Separate process full character restored")
+		check(
+			JSON.parse_string(JSON.stringify(session.character, "", true, true)) == expected,
+			"Separate process full character restored"
+		)
 	finished = true

@@ -3,8 +3,10 @@ const Content = preload("res://scripts/content/game_content.gd")
 const Runtime = preload("res://scripts/economy/economy_runtime.gd")
 const Site = preload("res://scripts/content/game_site.gd")
 
+
 func _create_save_session() -> Node:
 	return load("res://scripts/save/product_save.gd").Session.new()
+
 
 func _prepare_region() -> void:
 	if map_id in ["eastern_frontier_start", "novera_gate"]:
@@ -13,12 +15,16 @@ func _prepare_region() -> void:
 		load("res://scripts/content/game_layout.gd").prepare(self)
 	set_meta("region_bounds", Content.BOUNDS[map_id])
 
+
 func _init_bgm() -> void:
 	BgmManager.play_for_scene(Content.BGM_CONTEXTS[map_id])
 	BgmManager.bind_job_transition(_player.get_node_or_null("PlayerJobTransition"))
 
+
 func _setup_quest_ui(quests: QuestController) -> void:
-	load("res://scripts/content/game_selection.gd").select_quest(quests.journal, String(get_meta("selected_quest_id", "")))
+	load("res://scripts/content/game_selection.gd").select_quest(
+		quests.journal, String(get_meta("selected_quest_id", ""))
+	)
 	_integrated_menu.bind_quests(quests.journal)
 	var dialog = load("res://scripts/content/game_dialog.gd").new()
 	dialog.name = "QuestDialog"
@@ -62,6 +68,7 @@ func _setup_quest_ui(quests: QuestController) -> void:
 		site.setup(_player, quests, dialog, _hud)
 		selection.candidates.append(site)
 
+
 func _npc(id: String, point: Vector2, title: String) -> Node2D:
 	var npc = load("res://scenes/npc/quest_receptionist.tscn").instantiate()
 	npc.npc_id = id
@@ -72,6 +79,7 @@ func _npc(id: String, point: Vector2, title: String) -> Node2D:
 	get_node("WorldInteraction").candidates.append(npc)
 	return npc
 
+
 func _name_label(node: Node2D, title: String) -> void:
 	var label := Label.new()
 	label.name = "Name"
@@ -80,6 +88,7 @@ func _name_label(node: Node2D, title: String) -> void:
 	label.size = Vector2(80, 16)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	node.add_child(label)
+
 
 func _ready() -> void:
 	super._ready()
@@ -110,6 +119,7 @@ func _ready() -> void:
 		spawns.name = "ContentSpawner"
 		add_child(spawns)
 		spawns.start(self)
+
 
 func quest_targets() -> Array:
 	return load("res://scripts/content/game_navigation.gd").targets(self)

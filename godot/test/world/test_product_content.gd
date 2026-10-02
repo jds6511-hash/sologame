@@ -4,8 +4,10 @@ const Catalog = preload("res://scripts/content/game_catalog.gd")
 const Product = preload("res://scripts/world/game_product.gd")
 const Selection = preload("res://scripts/content/game_selection.gd")
 
+
 func after_each() -> void:
 	BgmManager.reset()
+
 
 func test_manifest_catalog_and_reciprocal_edges() -> void:
 	var catalog = Catalog.new()
@@ -19,16 +21,27 @@ func test_manifest_catalog_and_reciprocal_edges() -> void:
 		assert_eq(Content.EDGES[edge[4]][1], edge[0], id)
 	assert_eq(Content.next_gate("novera_gate", "novera_rift"), "novera_city_gate")
 
+
 func test_direct_scene_components_and_region_preservation() -> void:
 	for region in Content.SCENES:
 		var world = Product.instantiate_world(region)
 		assert_eq(world.map_id, region)
-		assert_eq(world.get_script().get_base_script().resource_path, "res://scripts/world/eastern_frontier_starting_area.gd")
-		assert_eq(world.get_node("Player/PlayerStatGrowth").get_script().resource_path, "res://scripts/economy/economy_growth_candidate.gd")
-		assert_eq(world.get_node("Player/PlayerJobTransition").get_script().resource_path, "res://scripts/economy/economy_transition_candidate.gd")
+		assert_eq(
+			world.get_script().get_base_script().resource_path,
+			"res://scripts/world/eastern_frontier_starting_area.gd"
+		)
+		assert_eq(
+			world.get_node("Player/PlayerStatGrowth").get_script().resource_path,
+			"res://scripts/economy/economy_growth_candidate.gd"
+		)
+		assert_eq(
+			world.get_node("Player/PlayerJobTransition").get_script().resource_path,
+			"res://scripts/economy/economy_transition_candidate.gd"
+		)
 		assert_not_null(world.get_node("Player/PlayerStatGrowth").job)
 		assert_gt(world.get_node("Player/PlayerJobTransition").available_jobs.size(), 0)
 		world.free()
+
 
 func test_every_region_boots_with_content_interactions() -> void:
 	for region in Content.SCENES:
@@ -55,6 +68,7 @@ func test_every_region_boots_with_content_interactions() -> void:
 		world.free()
 		await get_tree().process_frame
 
+
 func test_selection_is_per_journal_and_prerequisites_remain() -> void:
 	var catalog = Catalog.new()
 	var a := QuestJournal.new(catalog)
@@ -63,6 +77,7 @@ func test_selection_is_per_journal_and_prerequisites_remain() -> void:
 	assert_true(Selection.select_quest(a, "MQ-01-01"))
 	assert_eq(Selection.selected_id(b), "")
 	assert_eq(catalog.selected_view({}, "outskirts_rift_gate", ""), {})
+
 
 func test_session_world_factory_carries_selection_only_for_travel() -> void:
 	var world = Product.instantiate_world()

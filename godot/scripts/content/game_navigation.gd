@@ -1,6 +1,7 @@
 extends RefCounted
 const Content = preload("res://scripts/content/game_content.gd")
 
+
 static func targets(world: Node) -> Array:
 	var journal: QuestJournal = world.get_node("QuestController").journal
 	var states := journal.export_state()
@@ -11,7 +12,9 @@ static func targets(world: Node) -> Array:
 		ids.erase(selected_id)
 		ids.push_front(selected_id)
 	if ids.is_empty():
-		return _project(world, "novera_commons", [Content.NPCS["novera_gareth"][1]], "2장 메인 완료 · 후속 이야기 준비 중")
+		return _project(
+			world, "novera_commons", [Content.NPCS["novera_gareth"][1]], "2장 메인 완료 · 후속 이야기 준비 중"
+		)
 	var id: String = ids[0]
 	var definition: QuestData = catalog.definitions[id]
 	var state: Dictionary = states.get(id, {})
@@ -59,10 +62,7 @@ static func _project(world: Node, region: String, points: Array, label: String) 
 		if gate == "":
 			return []
 		return [
-			{
-				"position": Content.EDGES[gate][2],
-				"label": Content.NAMES[region] + " 방향 · " + label
-			}
+			{"position": Content.EDGES[gate][2], "label": Content.NAMES[region] + " 방향 · " + label}
 		]
 	var result := []
 	for point in points:

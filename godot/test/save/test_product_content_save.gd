@@ -83,8 +83,23 @@ func test_integrated_ids_prerequisites_region_locks_and_reputation() -> void:
 	data.progress.quests["MQ-02-06"] = {"state": "completed", "counts": [1]}
 	assert_eq(conversion.validate(data, account), "quest_prerequisite")
 	data.progress.quests.clear()
-	_complete(data, catalog, ["MQ-01-01", "MQ-01-02", "MQ-01-03", "MQ-01-04", "MQ-01-05",
-		"MQ-02-01", "MQ-02-02", "MQ-02-03", "MQ-02-04", "MQ-02-05", "MQ-02-06"])
+	_complete(
+		data,
+		catalog,
+		[
+			"MQ-01-01",
+			"MQ-01-02",
+			"MQ-01-03",
+			"MQ-01-04",
+			"MQ-01-05",
+			"MQ-02-01",
+			"MQ-02-02",
+			"MQ-02-03",
+			"MQ-02-04",
+			"MQ-02-05",
+			"MQ-02-06"
+		]
+	)
 	data.world.map_id = "novera_rift"
 	assert_eq(conversion.validate(data, account), "")
 	assert_eq(data.progress.reputation, 600)
@@ -106,8 +121,16 @@ func test_future_revision_cannot_recover_backup_or_be_overwritten() -> void:
 	future.content_revision = 2
 	var payload := JSON.stringify(future, "", true, true)
 	var file := FileAccess.open(path, FileAccess.WRITE)
-	file.store_string(JSON.stringify({"kind": "character", "version": 6,
-		"payload": payload, "checksum": payload.sha256_text()}))
+	file.store_string(
+		JSON.stringify(
+			{
+				"kind": "character",
+				"version": 6,
+				"payload": payload,
+				"checksum": payload.sha256_text()
+			}
+		)
+	)
 	file.close()
 	var digest := FileAccess.get_sha256(path)
 	var result: Dictionary = store.read_save("character", 1)
@@ -129,6 +152,10 @@ func test_session_directory_allowlist_rejects_candidates_and_traversal() -> void
 	assert_true(session.codec.schema.quest_catalog.definitions.has("SQ-NOV-002"))
 	for directory in ["user://saves", "user://product_verify", "user://product_real_copy"]:
 		assert_true(session._allows_directory(directory))
-	for directory in ["user://m7_candidate_test", "user://m7_closure_candidate_test",
-		"user://product_verify/../saves", "user://saves/"]:
+	for directory in [
+		"user://m7_candidate_test",
+		"user://m7_closure_candidate_test",
+		"user://product_verify/../saves",
+		"user://saves/"
+	]:
 		assert_false(session._allows_directory(directory))

@@ -95,21 +95,35 @@ const QUESTS := {
 	"SQ-NOV-002": "res://data/quests/m7_closure/sq_nov_002.tres",
 }
 const NPCS := {
-	"yeoulmok_receptionist": ["eastern_frontier_start", Vector2(152,440), "접수원"],
-	"novera_receptionist": ["novera_commons", Vector2(480,320), "노베라 조합 접수원"],
-	"novera_trainer": ["novera_commons", Vector2(544,320), "전직 안내인"],
-	"novera_gareth": ["novera_commons", Vector2(656,320), "가레스"],
+	"yeoulmok_receptionist": ["eastern_frontier_start", Vector2(152, 440), "접수원"],
+	"novera_receptionist": ["novera_commons", Vector2(480, 320), "노베라 조합 접수원"],
+	"novera_trainer": ["novera_commons", Vector2(544, 320), "전직 안내인"],
+	"novera_gareth": ["novera_commons", Vector2(656, 320), "가레스"],
 }
-const MERCHANTS := {"novera_gate": [Vector2(216,440)], "novera_commons": [Vector2(416,416)]}
-const REGION_REQUIREMENTS := {"novera_gate":"MQ-01-05", "novera_commons":"MQ-01-05", "novera_outskirts":"MQ-01-05", "novera_rift":"MQ-02-04"}
+const MERCHANTS := {"novera_gate": [Vector2(216, 440)], "novera_commons": [Vector2(416, 416)]}
+const REGION_REQUIREMENTS := {
+	"novera_gate": "MQ-01-05",
+	"novera_commons": "MQ-01-05",
+	"novera_outskirts": "MQ-01-05",
+	"novera_rift": "MQ-02-04"
+}
 const SITES := {
-	"yeoulmok_old_rift_entrance": [Vector2(152,200), "yeoulmok_old_rift_site", "REACH", "북쪽 오솔길 조사 지점", "eastern_frontier_start"],
-	"yeoulmok_rift_mark": [Vector2(168,200), "yeoulmok_old_rift_site", "INTERACT", "균열 표식", "eastern_frontier_start"],
-
-	"novera_water_marker": [Vector2(352, 272), "novera_water_site", "REACH", "물가 통행 표식", "novera_outskirts"],
-	"novera_rift_marker": [Vector2(1120, 272), "novera_rift_site", "INTERACT", "균열 흔적 조사", "novera_outskirts"],
-	"novera_patrol_marker": [Vector2(272, 128), "novera_patrol_site", "REACH", "외곽 정찰 표식", "novera_outskirts"],
-
+	"yeoulmok_old_rift_entrance":
+	[
+		Vector2(152, 200),
+		"yeoulmok_old_rift_site",
+		"REACH",
+		"북쪽 오솔길 조사 지점",
+		"eastern_frontier_start"
+	],
+	"yeoulmok_rift_mark":
+	[Vector2(168, 200), "yeoulmok_old_rift_site", "INTERACT", "균열 표식", "eastern_frontier_start"],
+	"novera_water_marker":
+	[Vector2(352, 272), "novera_water_site", "REACH", "물가 통행 표식", "novera_outskirts"],
+	"novera_rift_marker":
+	[Vector2(1120, 272), "novera_rift_site", "INTERACT", "균열 흔적 조사", "novera_outskirts"],
+	"novera_patrol_marker":
+	[Vector2(272, 128), "novera_patrol_site", "REACH", "외곽 정찰 표식", "novera_outskirts"],
 	"novera_return_record_a":
 	[Vector2(400, 272), "novera_return_record_a_site", "INTERACT", "서쪽 귀환 기록", "novera_outskirts"],
 	"novera_return_record_b":
@@ -129,10 +143,34 @@ const MARKER_HABITATS := {
 	"yeoulmok_dog_habitat": ["eastern_frontier_start", "Markers/MonsterSpawns_들개마수"],
 }
 const HABITATS := {
-	"novera_dog_habitat": ["novera_outskirts", [Vector2(384,560),Vector2(608,560),Vector2(832,560)], "wolf", "feral_dog"],
-	"novera_water_habitat": ["novera_outskirts", [Vector2(448,352),Vector2(672,352),Vector2(896,352)], "rift_slime", "rift_slime"],
-	"novera_rift_habitat": ["novera_outskirts", [Vector2(544,128),Vector2(736,128),Vector2(928,128),Vector2(1120,128)], "rift_slime", "rift_slime"],
-	"novera_dungeon_habitat": ["novera_rift", [Vector2(544,400),Vector2(704,400),Vector2(848,400)], "rift_slime", "rift_slime"],
+	"novera_dog_habitat":
+	[
+		"novera_outskirts",
+		[Vector2(384, 560), Vector2(608, 560), Vector2(832, 560)],
+		"wolf",
+		"feral_dog"
+	],
+	"novera_water_habitat":
+	[
+		"novera_outskirts",
+		[Vector2(448, 352), Vector2(672, 352), Vector2(896, 352)],
+		"rift_slime",
+		"rift_slime"
+	],
+	"novera_rift_habitat":
+	[
+		"novera_outskirts",
+		[Vector2(544, 128), Vector2(736, 128), Vector2(928, 128), Vector2(1120, 128)],
+		"rift_slime",
+		"rift_slime"
+	],
+	"novera_dungeon_habitat":
+	[
+		"novera_rift",
+		[Vector2(544, 400), Vector2(704, 400), Vector2(848, 400)],
+		"rift_slime",
+		"rift_slime"
+	],
 }
 
 

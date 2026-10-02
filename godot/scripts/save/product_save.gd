@@ -70,11 +70,18 @@ class Session:
 		regions = ProductContent
 
 	func _allows_directory(directory: String) -> bool:
-		return directory in [
-			"user://saves", "user://m6_product_test", "user://m6_product_process",
-			"user://m6_product_combat", "user://product_verify", "user://product_real_copy",
-			"user://product_chapter_preview"
-		]
+		return (
+			directory
+			in [
+				"user://saves",
+				"user://m6_product_test",
+				"user://m6_product_process",
+				"user://m6_product_combat",
+				"user://product_verify",
+				"user://product_real_copy",
+				"user://product_chapter_preview"
+			]
+		)
 
 	func setup(owner_world: Node) -> String:
 		if not _allows_directory(owner_world.get_meta("save_directory", "")):

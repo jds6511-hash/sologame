@@ -17,7 +17,5 @@ func _refresh() -> void:
 
 
 func _select(id: String) -> void:
-	if load("res://scripts/content/game_selection.gd").select_quest(
-		controller.journal, id
-	):
+	if load("res://scripts/content/game_selection.gd").select_quest(controller.journal, id):
 		_refresh()

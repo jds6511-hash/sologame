@@ -30,10 +30,15 @@ func test_preparation_does_not_turn_third_chapter_into_completed_content() -> vo
 		assert_eq(bootstrap.preparation(catalog, 1).quests.size(), 0)
 	bootstrap.free()
 
+
 func test_prepared_world_snapshots_follow_product_schema() -> void:
 	var bootstrap = Bootstrap.new()
 	for chapter in [1, 2, 3]:
-		var region := "eastern_frontier_start" if chapter == 1 else ("novera_gate" if chapter == 2 else "novera_commons")
+		var region := (
+			"eastern_frontier_start"
+			if chapter == 1
+			else ("novera_gate" if chapter == 2 else "novera_commons")
+		)
 		var world = load("res://scripts/world/game_product.gd").instantiate_world(region)
 		world.set_meta("save_directory", "user://product_chapter_preview")
 		add_child(world)
@@ -46,7 +51,11 @@ func test_prepared_world_snapshots_follow_product_schema() -> void:
 		player.get_node("Inventory").add_gold(prepared.gold)
 		var session = world.get_node("SaveSession")
 		var snapshot: Dictionary = session.codec.capture(player, session.account.account_id)
-		assert_eq(session.codec.schema.character_error(snapshot, session.account), "", "chapter %d" % chapter)
+		assert_eq(
+			session.codec.schema.character_error(snapshot, session.account),
+			"",
+			"chapter %d" % chapter
+		)
 		assert_eq(session.store.root, "user://product_chapter_preview")
 		world.free()
 		BgmManager.reset()

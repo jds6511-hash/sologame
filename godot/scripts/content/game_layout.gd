@@ -2,11 +2,13 @@ extends RefCounted
 const Content = preload("res://scripts/content/game_content.gd")
 const Boundary = preload("res://scripts/world/region_boundary.gd")
 
+
 static func prepare(world: Node2D) -> void:
 	if world.map_id == "novera_rift":
 		_prepare_rift(world)
 	else:
 		_prepare_field(world)
+
 
 static func _prepare_field(world: Node2D) -> void:
 	var bounds: Rect2 = Content.BOUNDS[world.map_id]
@@ -43,6 +45,7 @@ static func _prepare_field(world: Node2D) -> void:
 	camera.limit_top = 0
 	camera.limit_right = int(bounds.size.x)
 	camera.limit_bottom = int(bounds.size.y)
+
 
 static func _prepare_rift(world: Node2D) -> void:
 	var bounds: Rect2 = Content.BOUNDS[world.map_id]

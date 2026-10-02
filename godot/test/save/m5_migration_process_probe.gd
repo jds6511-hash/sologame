@@ -73,8 +73,12 @@ func _run() -> void:
 						"v1_backup"
 					)
 				else:
-					_check(not session.migration_pending, "v2_boot")
-					_check(session.character.character_save_version == 3, "v3")
+					_check(not session.migration_pending, "current_format_boot")
+					# This fixture targets the frozen base codec, now V4, not the old M5 V3.
+					_check(
+						session.character.character_save_version == session.codec.character_version(),
+						"current_codec_format"
+					)
 		world.free()
 	print("M5_MIGRATION_PROCESS_PASS " + args[0] if errors.is_empty() else str(errors))
 	quit(0 if errors.is_empty() else 1)

@@ -2,6 +2,7 @@
 extends "res://scripts/quests/quest_catalog.gd"
 const Content = preload("res://scripts/content/game_content.gd")
 
+
 func _init(content_registry: RefCounted = null) -> void:
 	registry = content_registry if content_registry != null else Registry.new()
 	for id in Content.NPCS:
@@ -13,11 +14,18 @@ func _init(content_registry: RefCounted = null) -> void:
 	for id in Content.QUESTS:
 		definitions[id] = load(Content.QUESTS[id])
 
+
 func ordered_ids() -> Array:
 	return Content.QUESTS.keys()
 
+
 func tracking_npc(states: Dictionary) -> String:
-	return "novera_receptionist" if states.get("MQ-01-05", {}).get("state") == "completed" else "yeoulmok_receptionist"
+	return (
+		"novera_receptionist"
+		if states.get("MQ-01-05", {}).get("state") == "completed"
+		else "yeoulmok_receptionist"
+	)
+
 
 func available_ids(states: Dictionary, npc: String = "") -> Array:
 	var current := []
