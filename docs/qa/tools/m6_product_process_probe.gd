@@ -95,7 +95,8 @@ func _migrate() -> void:
 	var session = world.get_node("SaveSession")
 	var source_hash := FileAccess.get_file_as_string(ROOT.path_join("source_hash.txt"))
 	_check(session.migration_pending and session.loaded_source_version == 4, "V4 메모리 이관 대기")
-	_check(session.character.character_save_version == 5, "V5 메모리 이관")
+	_check(session.character.character_save_version == 6, "제품 V6 메모리 이관")
+	_check(session.character.content_revision == 1, "제품 콘텐츠 개정1")
 	session.advance(181)
 	_check(
 		FileAccess.get_sha256(ROOT.path_join("character_01.json")) == source_hash,
@@ -106,14 +107,14 @@ func _migrate() -> void:
 	world.process_mode = Node.PROCESS_MODE_DISABLED
 	var saved: Dictionary = session.save_slot(1)
 	print("명시 저장 코드: ", saved.code)
-	_check(saved.ok, "명시 저장으로 V5 확정")
+	_check(saved.ok, "명시 저장으로 제품 V6 확정")
 	_check(not session.migration_pending, "명시 저장 후 이관 대기 해제")
 	_check(
 		FileAccess.get_sha256(ROOT.path_join("character_01.json.bak")) == source_hash, "V4 원본 백업 보존"
 	)
 	_check(
 		LegacyStore.new(ROOT).read_save("character", 1).code == "unsupported_version",
-		"V4 독자가 V5 파일 거부"
+		"V4 독자가 제품 V6 파일 거부"
 	)
 	_write("expected.json", JSON.stringify(session.character))
 	var digest := FileAccess.get_sha256(ROOT.path_join("character_01.json"))
@@ -125,7 +126,7 @@ func _migrate() -> void:
 		await process_frame
 		world = current_scene
 		world.process_mode = Node.PROCESS_MODE_DISABLED
-		_check(world.get_node("SaveSession").codec.character_version() == 5, "교체 후 V5 유지")
+		_check(world.get_node("SaveSession").codec.character_version() == 6, "교체 후 제품 V6 유지")
 		_check(world.get_node("SaveSession").store.root == ROOT, "교체 후 경로 유지")
 	_check(world.has_node("Merchant"), "노베라 보급상 연결")
 	_check(world.get_node("SaveSession").new_character().ok, "제품 새 캐릭터")
@@ -133,7 +134,7 @@ func _migrate() -> void:
 	await process_frame
 	world = current_scene
 	world.process_mode = Node.PROCESS_MODE_DISABLED
-	_check(world.get_node("SaveSession").codec.character_version() == 5, "새 캐릭터 V5 유지")
+	_check(world.get_node("SaveSession").codec.character_version() == 6, "새 캐릭터 제품 V6 유지")
 	_check(
 		FileAccess.get_sha256(ROOT.path_join("character_01.json")) == digest, "여행·새 캐릭터 기존 슬롯 불변"
 	)
@@ -145,7 +146,7 @@ func _verify() -> void:
 	var session = world.get_node("SaveSession")
 	var expected = JSON.parse_string(FileAccess.get_file_as_string(ROOT.path_join("expected.json")))
 	_check(JSON.parse_string(JSON.stringify(session.character)) == expected, "별도 프로세스 전체 캐릭터 복원")
-	_check(not session.migration_pending and session.loaded_source_version == 5, "V5 재입력 이관 없음")
+	_check(not session.migration_pending and session.loaded_source_version == 6, "제품 V6 재입력 이관 없음")
 	var captured: Dictionary = session.codec.capture(
 		world.get_node("Player"), session.account.account_id, session.character
 	)
@@ -154,13 +155,19 @@ func _verify() -> void:
 		JSON.parse_string(JSON.stringify(captured.inventory)) == session.character.inventory,
 		"장비·가방·overflow 복제 없음"
 	)
-	for version in [6, 7]:
+	for version in [7, 8]:
 		var forged: Dictionary = session.character.duplicate(true)
 		forged.character_save_version = version
 		_check(
 			not session.codec.prepare_loaded(forged, session.account).ok,
 			"미채택 버전 거부 " + str(version)
 		)
+	var future: Dictionary = session.character.duplicate(true)
+	future.content_revision = 2
+	_check(
+		session.codec.prepare_loaded(future, session.account).code == "unsupported_content",
+		"미래 콘텐츠 개정 거부"
+	)
 	finished = true
 
 

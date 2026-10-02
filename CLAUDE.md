@@ -30,7 +30,7 @@ Godot 4.x로 만드는 한국어 싱글플레이 2D 판타지 RPG. 개인 프로
 - 문서를 수정하면 반드시 변경 이력에 한 줄 추가
 - 개발 에이전트는 구현 시작 전 참조 기획서의 변경 이력을 확인한다
 - 산출물 위치: 기획 `docs\design\`, 아트 `docs\art\`, QA `docs\qa\`, 진행 관리 `docs\PROJECT_STATUS.md`
-- QA 리포트는 휘발성: 지적 사항이 모두 반영되면 리포트 파일을 삭제한다
+- 독립 검토 결과는 `docs/qa/reviews/<대상 커밋>.md`에 Claude가 작성하고 Codex가 읽어 반영·커밋한다. 원문은 보존한다. 디렉터 결정은 `docs/DECISIONS.md`에 기록한다(2026-10-02 지시; 종전 QA 리포트 삭제 규칙 대체).
 
 ## GDScript 컨벤션
 - 파일/폴더: snake_case (`player_controller.gd`), 씬은 `godot\scenes\`, 스크립트는 `godot\scripts\`, 에셋은 `godot\assets\`

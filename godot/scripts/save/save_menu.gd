@@ -285,6 +285,7 @@ static func error_text(code: String) -> String:
 			"corrupt": "파일 손상",
 			"invalid_data": "저장 내용 오류",
 			"unsupported_version": "지원하지 않는 저장 버전",
+			"unsupported_content": "지원하지 않는 콘텐츠 개정 · 최신 게임으로 불러오세요",
 			"too_large": "파일 크기 초과",
 			"io_error": "파일 읽기·쓰기 실패",
 			"account_mismatch": "계정이 일치하지 않습니다.",

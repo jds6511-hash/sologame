@@ -1,0 +1,25 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/world/eastern_frontier_starting_area.tscn" id="1"]
+[ext_resource type="Script" path="res://scripts/world/product_world.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/economy/economy_growth_candidate.gd" id="3"]
+[ext_resource type="Script" path="res://scripts/economy/economy_transition_candidate.gd" id="4"]
+[ext_resource type="Script" path="res://scripts/economy/economy_inventory_candidate.gd" id="5"]
+[ext_resource type="Script" path="res://scripts/economy/economy_drop_candidate.gd" id="6"]
+
+[node name="ProductWorld" instance=ExtResource("1")]
+script = ExtResource("2")
+
+[node name="PlayerStatGrowth" parent="Player" index="4"]
+script = ExtResource("3")
+
+[node name="PlayerJobTransition" parent="Player" index="6"]
+script = ExtResource("4")
+
+[node name="Inventory" parent="Player"]
+script = ExtResource("5")
+
+[node name="DropSystem" parent="."]
+script = ExtResource("6")
+
+[editable path="Player"]
