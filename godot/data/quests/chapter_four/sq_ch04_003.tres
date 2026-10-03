@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "SQ-CH04-003"
+title = "장원의 깃털"
+offer_text = "절벽에서 내려온 하피를 저지하고 장원에 남은 흔적을 대조해 주세요."
+prerequisite = "MQ-04-02"
+npc_id = "gransia_steward"
+accept_npc_id = "gransia_steward"
+reward_exp = 15868
+reward_gold = 4590
+reward_reputation = 50
+objective_kinds = Array[String](["KILL", "INTERACT"])
+objective_targets = Array[String](["cliff_harpy", "gransia_feather"])
+objective_sources = Array[String](["gransia_harpies", "gransia_feather_site"])
+objective_counts = Array[int]([3, 1])
+objective_labels = Array[String](["들매 하피 처치", "장원 습격 흔적"])
+objective_location_hints = Array[String](["그란시아 평야", "그란시아 평야"])

@@ -153,6 +153,14 @@ func _create_pause_menu() -> void:
 	pause_box.hide()
 	_equipment_button = _menu_button(_character_tab.get_node("VBox"), "장비 관리", _open_equipment)
 	_equipment_button.hide()
+	if get_parent().has_method("quest_targets"):
+		_menu_button(_character_tab.get_node("VBox"), "영지 현황 / 도시 이동", _open_territory)
+		var travel_button := Button.new()
+		travel_button.text = "도시 워프 / 영지 귀환"
+		UiStyle.apply_action_button(travel_button)
+		travel_button.position = Vector2(1140, 0)
+		_map_tab.add_child(travel_button)
+		travel_button.pressed.connect(_open_territory)
 
 
 func _menu_button(parent: Node, text: String, callback: Callable) -> Button:
@@ -162,6 +170,13 @@ func _menu_button(parent: Node, text: String, callback: Callable) -> Button:
 	parent.add_child(button)
 	button.pressed.connect(callback)
 	return button
+
+
+func _open_territory() -> void:
+	var territory := get_parent().get_node_or_null("TerritoryPanel")
+	if territory != null:
+		close_menu()
+		territory.open()
 
 
 func _show_settings() -> void:

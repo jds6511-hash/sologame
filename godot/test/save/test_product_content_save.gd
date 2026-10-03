@@ -36,7 +36,7 @@ func test_old_versions_are_validated_before_content_expansion() -> void:
 		var result: Dictionary = conversion.upgrade(data, account)
 		assert_true(result.ok, "V%d" % version)
 		assert_eq(data, original)
-		assert_eq(result.data.character_save_version, 6)
+		assert_eq(result.data.character_save_version, 7)
 		assert_eq(result.data.content_revision, Content.CURRENT_REVISION)
 		assert_eq(result.data.progress.quests, {})
 		data.world.map_id = "novera_commons"
@@ -56,8 +56,8 @@ func test_revision_and_old_candidate_numbers_are_not_interchangeable() -> void:
 		assert_eq(conversion.validate(copy, account), "unsupported_content")
 	data.erase("content_revision")
 	assert_eq(conversion.validate(data, account), "unsupported_content", "old candidate V6")
-	data.character_save_version = 7
-	assert_eq(conversion.validate(data, account), "unsupported_version", "old candidate V7")
+	data.character_save_version = 8
+	assert_eq(conversion.validate(data, account), "unsupported_version", "future format")
 
 
 func test_revision_one_keeps_progress_and_defense_remains_locked() -> void:
@@ -72,6 +72,9 @@ func test_revision_one_keeps_progress_and_defense_remains_locked() -> void:
 	assert_eq(conversion.validate(data, account), "region_locked")
 	data.world.map_id = "eastern_frontier_start"
 	data.progress.quests["MQ-03-05"] = {"state": "completed", "counts": [1, 1]}
+	data.progress.territory = load("res://scripts/territory/territory_model.gd").initial(
+		data.progress.quests
+	)
 	assert_eq(conversion.validate(data, account), "quest_prerequisite")
 
 
@@ -130,8 +133,10 @@ func test_future_revision_cannot_recover_backup_or_be_overwritten() -> void:
 	var product_codec = save.Codec.new()
 	assert_eq(product_codec.bind_store(store, account), "")
 	var data: Dictionary = product_codec.prepare_loaded(_old(), account).data
-	assert_true(store.write_save("character", 1, data).ok)
-	assert_true(store.write_save("character", 1, data).ok)
+	var first: Dictionary = store.write_save("character", 1, data)
+	assert_true(first.ok, first.code)
+	var second: Dictionary = store.write_save("character", 1, data)
+	assert_true(second.ok, second.code)
 	var path := directory.path_join("character_01.json")
 	var future := data.duplicate(true)
 	future.content_revision = Content.CURRENT_REVISION + 1
@@ -141,7 +146,7 @@ func test_future_revision_cannot_recover_backup_or_be_overwritten() -> void:
 		JSON.stringify(
 			{
 				"kind": "character",
-				"version": 6,
+				"version": 7,
 				"payload": payload,
 				"checksum": payload.sha256_text()
 			}
@@ -163,7 +168,7 @@ func test_future_revision_cannot_recover_backup_or_be_overwritten() -> void:
 func test_session_directory_allowlist_rejects_candidates_and_traversal() -> void:
 	var session = load(SAVE_PATH).Session.new()
 	autofree(session)
-	assert_eq(session.codec.character_version(), 6)
+	assert_eq(session.codec.character_version(), 7)
 	assert_true(session.codec.schema.quest_catalog.definitions.has("MQ-02-06"))
 	assert_true(session.codec.schema.quest_catalog.definitions.has("SQ-NOV-002"))
 	for directory in ["user://saves", "user://product_verify", "user://product_real_copy"]:

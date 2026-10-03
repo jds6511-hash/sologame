@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "SQ-CH04-004"
+title = "끊어진 보급 기록"
+offer_text = "가도 보급 상자와 장원 장부를 대조해 누락된 물자를 확인해 주세요."
+prerequisite = "MQ-04-01"
+npc_id = "han_patrol"
+accept_npc_id = "han_patrol"
+reward_exp = 15868
+reward_gold = 4590
+reward_reputation = 50
+objective_kinds = Array[String](["INTERACT", "INTERACT"])
+objective_targets = Array[String](["han_supply", "gransia_supply"])
+objective_sources = Array[String](["han_supply_site", "gransia_supply_site"])
+objective_counts = Array[int]([1, 1])
+objective_labels = Array[String](["가도 보급 상자", "장원 보급 장부"])
+objective_location_hints = Array[String](["한길목 가도", "그란시아 평야"])

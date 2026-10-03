@@ -38,7 +38,7 @@ func _run() -> void:
 		if args[0] in ["reload", "reload_mid"]:
 			check(
 				world.get_node("SaveSession").load_slot(2 if args[0] == "reload_mid" else 1).ok,
-				"별도 프로세스 제품 V6 로드"
+				"별도 프로세스 제품 V7 로드"
 			)
 			await refresh()
 			var expected = JSON.parse_string(
@@ -82,6 +82,8 @@ func snapshot() -> Dictionary:
 	)
 	# 저장 시 갱신되는 ID/시각은 제외하고 게임 상태 전체를 비교한다.
 	data.world.erase("elapsed_real_sec_in_day")  # 복원 뒤 실제 프레임만큼 흐르는 시계는 동일성 비교 제외.
+	data.progress.territory.erase("elapsed_ms")
+	data.progress.territory.erase("day_ms")
 	return {
 		"character_save_version": data.character_save_version,
 		"content_revision": data.content_revision,
@@ -112,7 +114,7 @@ func travel(destination: String) -> void:
 		)
 	check(world.get_node("Player").position.distance_to(edge[3]) < 1, "출입구별 도착 위치")
 	check(world.get_node("SaveSession").store.root == DIRECTORY, "교체 후 저장 격리")
-	check(world.get_node("SaveSession").codec.character_version() == 6, "제품 형식6 유지")
+	check(world.get_node("SaveSession").codec.character_version() == 7, "제품 형식7 유지")
 	if DisplayServer.get_name() != "headless":
 		await RenderingServer.frame_post_draw
 		root.get_texture().get_image().save_png(
@@ -182,7 +184,7 @@ func seed_session() -> void:
 func save_snapshot(slot: int, name: String) -> void:
 	await create_timer(6).timeout
 	var saved: Dictionary = world.get_node("SaveSession").save_slot(slot)
-	check(saved.ok, "실제 제품 V6 파일 저장 / " + saved.code)
+	check(saved.ok, "실제 제품 V7 파일 저장 / " + saved.code)
 	var file := FileAccess.open(DIRECTORY.path_join(name), FileAccess.WRITE)
 	if file == null:
 		check(false, "스냅샷 파일 열기")

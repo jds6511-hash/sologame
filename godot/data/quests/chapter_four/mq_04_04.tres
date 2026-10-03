@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "MQ-04-04"
+title = "변경 조사관"
+offer_text = "마리엔의 당부를 듣고 왕가 원정의 공개 출정식에 참석하세요. 문장원에서 변경 조사관 임명을 마무리합니다."
+prerequisite = "MQ-04-03"
+npc_id = "brantel_herald"
+accept_npc_id = "brantel_herald"
+reward_exp = 36011
+reward_gold = 12900
+reward_reputation = 200
+objective_kinds = Array[String](["TALK", "INTERACT", "INTERACT"])
+objective_targets = Array[String](["mariel", "arvein_dispatch", "frontier_commission"])
+objective_sources = Array[String](["", "arvein_dispatch_site", "frontier_commission_site"])
+objective_counts = Array[int]([1, 1, 1])
+objective_labels = Array[String](["마리엔와 대화 [F]", "왕가 원정 출정식", "변경 조사관 임명장 확인"])
+objective_location_hints = Array[String](["브란텔 문장원", "브란텔 문장원", "브란텔 문장원"])

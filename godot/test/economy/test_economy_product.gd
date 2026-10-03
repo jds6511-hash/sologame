@@ -20,7 +20,7 @@ func test_default_root_is_production_without_opening_user_files() -> void:
 	world.free()
 
 
-func test_product_world_installs_v6_and_equipment_ui() -> void:
+func test_product_world_installs_v7_and_equipment_ui() -> void:
 	var world: Node = Product.instantiate_world()
 	world.set_meta("save_directory", TEST_ROOT)
 	add_child_autofree(world)
@@ -29,7 +29,7 @@ func test_product_world_installs_v6_and_equipment_ui() -> void:
 	if world.get_meta("save_boot_error", "") != "":
 		return
 	var session = world.get_node("SaveSession")
-	assert_eq(session.codec.character_version(), 6)
+	assert_eq(session.codec.character_version(), 7)
 	assert_eq(session.store.root, TEST_ROOT)
 	assert_true(world.has_node("EconomyPanel"))
 	assert_true(world.get_node("Player").has_meta("economy_candidate"))

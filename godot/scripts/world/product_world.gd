@@ -134,11 +134,28 @@ func _ready() -> void:
 		for child in get_children():
 			if child is Label and "준비 중" in child.text:
 				child.text = "노베라 성문\n동쪽 관문 → 조합 거리"
-	if map_id in ["novera_outskirts", "novera_rift"]:
+	var has_habitats := false
+	for habitat in Content.HABITATS.values():
+		has_habitats = has_habitats or habitat[0] == map_id
+	if has_habitats:
 		var spawns = load("res://scripts/content/game_spawner.gd").new()
 		spawns.name = "ContentSpawner"
 		add_child(spawns)
 		spawns.start(self)
+	var territory = load("res://scripts/territory/territory_runtime.gd").new()
+	territory.name = "TerritoryRuntime"
+	add_child(territory)
+	territory.setup(self)
+	var territory_panel = load("res://scripts/territory/territory_panel.gd").new()
+	territory_panel.name = "TerritoryPanel"
+	add_child(territory_panel)
+	territory_panel.setup(territory)
+	if map_id == "eastern_frontier_start":
+		var manager = load("res://scripts/territory/territory_manager.gd").new()
+		manager.position = territory.DESK
+		add_child(manager)
+		manager.configure(_player, territory_panel)
+		get_node("WorldInteraction").candidates.append(manager)
 
 
 func quest_targets() -> Array:

@@ -1,6 +1,6 @@
 extends RefCounted
 # 명시한 내부 클래스는 부모의 동명 Codec/Schema 상수보다 우선해야 한다.
-# gdlint: disable=duplicated-load
+# gdlint: disable=duplicated-load,max-returns
 const ProductConversion = preload("res://scripts/save/product_conversion.gd")
 const ProductContent = preload("res://scripts/content/game_content.gd")
 const ProductCatalog = preload("res://scripts/content/game_catalog.gd")
@@ -28,7 +28,7 @@ class Codec:
 		registry = schema.registry
 
 	func character_version() -> int:
-		return 6
+		return 7
 
 	func prepare_loaded(data: Dictionary, account: Dictionary) -> Dictionary:
 		return schema.conversion.upgrade(data, account)
@@ -37,6 +37,17 @@ class Codec:
 		var data := super.capture(player, account_id, carry)
 		data.content_revision = ProductContent.CURRENT_REVISION
 		data.inventory.overflow = player.get_meta("economy_candidate").overflow.duplicate(true)
+		var owner_world := player.get_parent()
+		data.progress.territory = owner_world.get_meta(
+			"territory_state",
+			load("res://scripts/territory/territory_model.gd").initial(data.progress.quests)
+		).duplicate(true)
+		data.progress.travel = owner_world.get_meta(
+			"travel_state",
+			load("res://scripts/territory/territory_travel.gd").initial(
+				data.progress.quests, data.world.map_id
+			)
+		).duplicate(true)
 		data.player.hp = _json_vital(data.player.hp)
 		data.player.mp = _json_vital(data.player.mp)
 		return data
@@ -66,6 +77,8 @@ class Codec:
 		player.add_child(runtime)
 		runtime.install(player, false)
 		runtime.overflow = data.inventory.overflow.duplicate(true)
+		player.get_parent().set_meta("territory_state", data.progress.territory.duplicate(true))
+		player.get_parent().set_meta("travel_state", data.progress.travel.duplicate(true))
 		return ""
 
 
@@ -73,10 +86,10 @@ class Store:
 	extends "res://scripts/save/save_file_store.gd"
 
 	func current_version(kind: String) -> int:
-		return 6 if kind == "character" else 1
+		return 7 if kind == "character" else 1
 
 	func supported_versions(kind: String) -> Array:
-		return [1, 2, 3, 4, 5, 6] if kind == "character" else [1]
+		return [1, 2, 3, 4, 5, 6, 7] if kind == "character" else [1]
 
 
 class Session:
@@ -98,6 +111,7 @@ class Session:
 				"user://product_verify",
 				"user://product_real_copy",
 				"user://product_defense_probe",
+				"user://product_territory_probe",
 				"user://product_chapter_preview"
 			]
 		)
@@ -144,3 +158,52 @@ class Session:
 
 	func _arrival(destination: String) -> Vector2:
 		return ProductContent.edge(world.map_id, destination)[3]
+
+	func warp(destination: String, returning: bool = false) -> Dictionary:
+		if not account_error.is_empty():
+			return _failure(account_error)
+		if _change_blocked() or get_tree().paused:
+			return _failure("session_blocked")
+		var actor := world.get_node("Player")
+		var snapshot: Dictionary = codec.capture(actor, account.account_id, character)
+		var travel_model = load("res://scripts/territory/territory_travel.gd")
+		var offer: Dictionary = travel_model.quote(
+			snapshot.progress.travel, snapshot.progress.territory, world.map_id,
+			destination, int(snapshot.progress.reputation), returning
+		)
+		if offer.error != "":
+			return _failure(offer.error)
+		# 비용/쿨다운은 사본에만 적용한다. 월드 교체 실패 시 현재 인벤토리/영지는 불변이다.
+		var error: String = travel_model.commit(snapshot.progress.travel, snapshot.inventory, offer)
+		if error != "":
+			return _failure(error)
+		snapshot.world.map_id = offer.map_id
+		var arrival: Vector2 = ProductContent.WARP_ARRIVALS[offer.map_id]
+		snapshot.world.position = [arrival.x, arrival.y]
+		snapshot.play_seconds = _play_seconds
+		var tutorial := world.get_node("TutorialController")
+		snapshot.tutorial = {
+			"tutorial_done": tutorial.tutorial_done, "hint_heal_done": tutorial.hint_heal_done
+		}
+		error = codec.schema.character_error(snapshot, account)
+		if error != "":
+			return _failure(error)
+		var disk: Dictionary = store.read_save("account")
+		if disk.ok:
+			if disk.data.account_id != account.account_id:
+				return _failure("account_mismatch")
+		elif disk.code == "missing" and _no_existing_saves():
+			var written: Dictionary = store.write_save("account", 0, account)
+			if not written.ok:
+				return written
+		else:
+			return _account_failure(disk)
+		_carrying_tracking = true
+		var result: Dictionary = _replace_world(
+			account, snapshot, active_slot, "워프 완료 · 저장은 별도입니다.",
+			{"migration_pending": migration_pending, "loaded_source_version": loaded_source_version,
+			"auto_elapsed": _auto_elapsed}
+		)
+		# 성공 뒤에는 이전 월드의 노드를 조회하지 않는다.
+		_carrying_tracking = false
+		return result

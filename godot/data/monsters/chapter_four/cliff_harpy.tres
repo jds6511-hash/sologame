@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="MonsterStatsData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ai/monster_stats_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+display_name = "들매 하피"
+max_hp = 960.0
+attack_power = 88.0
+defense = 10.0
+perception_range_tiles = 6.0
+leash_range_tiles = 12.0
+wander_speed_tiles = 1.2
+combat_move_speed_tiles = 4.5
+leap_max_range_tiles = 6.0
+leap_telegraph_sec = 0.8
+leap_recovery_sec = 0.7
+web_cooldown_sec = 9.0

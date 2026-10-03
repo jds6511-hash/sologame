@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "SQ-CH04-001"
+title = "가도의 먹이 흔적"
+offer_text = "가도 바깥의 멧돼지 서식지를 확인해 안전한 통행로를 정합니다."
+prerequisite = "MQ-04-01"
+npc_id = "han_patrol"
+accept_npc_id = "han_patrol"
+reward_exp = 15868
+reward_gold = 4590
+reward_reputation = 50
+objective_kinds = Array[String](["KILL", "INTERACT"])
+objective_targets = Array[String](["wild_boar", "han_nest"])
+objective_sources = Array[String](["han_boars", "han_nest_site"])
+objective_counts = Array[int]([3, 1])
+objective_labels = Array[String](["사나운 멧돼지 처치", "멧돼지 서식 흔적"])
+objective_location_hints = Array[String](["한길목 가도", "한길목 가도"])

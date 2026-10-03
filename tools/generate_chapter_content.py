@@ -162,6 +162,16 @@ def validate(data, root):
             point(wave['region'], position)
         if not local(root, wave['stats']).is_file() or not (root / 'godot/scenes/monsters' / (wave['scene'] + '.tscn')).is_file():
             raise ValueError('없는 방어 몬스터 리소스')
+    for content_id, variant in c.get('MONSTER_VARIANTS', {}).items():
+        if not local(root, variant['stats']).is_file() or not (root / 'godot/scenes/monsters' / (variant['scene'] + '.tscn')).is_file():
+            raise ValueError('없는 몬스터 변형 리소스: ' + content_id)
+    for region, points, scene, content_id in c['HABITATS'].values():
+        for position in points:
+            point(region, position)
+        if not (root / 'godot/scenes/monsters' / (scene + '.tscn')).is_file():
+            raise ValueError('없는 서식지 몬스터 씬')
+        if content_id in c.get('MONSTER_VARIANTS', {}) and c['MONSTER_VARIANTS'][content_id]['scene'] != scene:
+            raise ValueError('서식지 몬스터 변형 씬 불일치')
     for rally in c.get('RALLIES', {}).values():
         point(rally['region'], rally['position'])
     for site in c.get('SITE_NOTICES', {}):

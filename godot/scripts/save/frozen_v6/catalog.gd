@@ -1,6 +1,6 @@
 # gdlint: disable=max-returns
 extends "res://scripts/quests/quest_catalog.gd"
-const Content = preload("res://scripts/content/game_content.gd")
+const Content = preload("res://scripts/save/frozen_v6/content.gd")
 
 
 func _init(content_registry: RefCounted = null) -> void:
@@ -30,7 +30,7 @@ func eligibility_error(quest_id: String, states: Dictionary) -> String:
 
 func honors(states: Dictionary) -> String:
 	if states.get("MQ-03-05", {}).get("state") == "completed":
-		return "신분: 향사\n여울목 복구권 보유\n주민 보호·통치 책임\n영지 경영: 여울목 관리인 [F]"
+		return "신분: 향사\n여울목 복구권 보유\n주민 보호·통치 책임\n영지 경영: 준비 중"
 	return "신분: 모험가 · 영지: 없음"
 
 
@@ -100,9 +100,7 @@ func selected_view(states: Dictionary, npc: String, selected_quest_id: String) -
 			definitions[id], states.get(id, {}), self, npc
 		)
 	if states.get("MQ-03-05", {}).get("state") == "completed":
-		if states.get("MQ-04-04", {}).get("state") == "completed":
-			return _notice("왕도의 조사관", "4장 메인 완료 · 남은 지역 의뢰와 영지 관리를 이어갈 수 있습니다.")
-		return _notice("왕도의 부름", honors(states) + "\n노베라 문장원에서 왕도행 안내를 확인하세요.")
+		return _notice("1막 메인 완료", honors(states) + "\n남은 기준 서브 의뢰를 이어갈 수 있습니다.")
 	if states.get("MQ-02-06", {}).get("state") == "completed":
 		return _notice("여울목 방어 지원", "노베라 접수원에게 여울목의 소식을 확인하세요.")
 	return _notice("노베라 조합", "접수원에게 의뢰를 확인해 주세요.")

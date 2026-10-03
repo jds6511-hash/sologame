@@ -48,7 +48,7 @@ func inspect_copy(phase: String, slot: int) -> void:
 	var session = world.get_node("SaveSession")
 	check(session.store.root == ROOT, "QA directory retained")
 	check(FileAccess.get_sha256(path) == before, "Load leaves QA file unchanged")
-	check(session.character.character_save_version == 6, "Product format 6")
+	check(session.character.character_save_version == 7, "Product format 7")
 	check(
 		(
 			session.character.content_revision

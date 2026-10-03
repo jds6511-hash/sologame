@@ -1,0 +1,1022 @@
+{
+  "chapter": 4,
+  "budget": {
+    "reward_exp": 198351,
+    "reward_gold": 68850,
+    "reward_reputation": 750,
+    "main_exp": 119011,
+    "side_exp": 79340,
+    "main_reputation": 500,
+    "side_reputation": 250
+  },
+  "constants": {
+    "BGM_CONTEXTS": {
+      "han_gilmok": "res://scenes/world/novera_gate.tscn",
+      "gransia": "res://scenes/world/novera_gate.tscn",
+      "brantel": "res://scenes/world/novera_gate.tscn"
+    },
+    "SCENES": {
+      "han_gilmok": "res://scenes/world/product_world.tscn",
+      "gransia": "res://scenes/world/product_world.tscn",
+      "brantel": "res://scenes/world/product_world.tscn"
+    },
+    "NAMES": {
+      "han_gilmok": "한길목 가도",
+      "gransia": "그란시아 평야",
+      "brantel": "브란텔 문장원"
+    },
+    "BOUNDS": {
+      "han_gilmok": {
+        "$rect": [
+          0,
+          0,
+          1536,
+          960
+        ]
+      },
+      "gransia": {
+        "$rect": [
+          0,
+          0,
+          1536,
+          960
+        ]
+      },
+      "brantel": {
+        "$rect": [
+          0,
+          0,
+          1536,
+          960
+        ]
+      }
+    },
+    "REGION_REQUIREMENTS": {
+      "han_gilmok": "MQ-03-05",
+      "gransia": "MQ-04-01",
+      "brantel": "MQ-04-02"
+    },
+    "EDGES": {
+      "novera_commons_to_han_gilmok": [
+        "novera_commons",
+        "han_gilmok",
+        {
+          "$vector": [
+            912,
+            480
+          ]
+        },
+        {
+          "$vector": [
+            192,
+            480
+          ]
+        },
+        "han_gilmok_to_novera_commons"
+      ],
+      "han_gilmok_to_novera_commons": [
+        "han_gilmok",
+        "novera_commons",
+        {
+          "$vector": [
+            112,
+            480
+          ]
+        },
+        {
+          "$vector": [
+            848,
+            480
+          ]
+        },
+        "novera_commons_to_han_gilmok"
+      ],
+      "han_gilmok_to_gransia": [
+        "han_gilmok",
+        "gransia",
+        {
+          "$vector": [
+            1408,
+            480
+          ]
+        },
+        {
+          "$vector": [
+            192,
+            480
+          ]
+        },
+        "gransia_to_han_gilmok"
+      ],
+      "gransia_to_han_gilmok": [
+        "gransia",
+        "han_gilmok",
+        {
+          "$vector": [
+            112,
+            480
+          ]
+        },
+        {
+          "$vector": [
+            1344,
+            480
+          ]
+        },
+        "han_gilmok_to_gransia"
+      ],
+      "gransia_to_brantel": [
+        "gransia",
+        "brantel",
+        {
+          "$vector": [
+            1408,
+            480
+          ]
+        },
+        {
+          "$vector": [
+            192,
+            480
+          ]
+        },
+        "brantel_to_gransia"
+      ],
+      "brantel_to_gransia": [
+        "brantel",
+        "gransia",
+        {
+          "$vector": [
+            112,
+            480
+          ]
+        },
+        {
+          "$vector": [
+            1344,
+            480
+          ]
+        },
+        "gransia_to_brantel"
+      ]
+    },
+    "NPCS": {
+      "han_patrol": [
+        "han_gilmok",
+        {
+          "$vector": [
+            304,
+            432
+          ]
+        },
+        "가도 담당관"
+      ],
+      "gransia_steward": [
+        "gransia",
+        {
+          "$vector": [
+            336,
+            432
+          ]
+        },
+        "장원 관리인"
+      ],
+      "brantel_herald": [
+        "brantel",
+        {
+          "$vector": [
+            432,
+            432
+          ]
+        },
+        "문장원 담당관"
+      ],
+      "mariel": [
+        "brantel",
+        {
+          "$vector": [
+            704,
+            384
+          ]
+        },
+        "마리엔"
+      ],
+      "arvein": [
+        "brantel",
+        {
+          "$vector": [
+            864,
+            384
+          ]
+        },
+        "오르베인"
+      ]
+    },
+    "SITES": {
+      "han_arrival": [
+        {
+          "$vector": [
+            224,
+            480
+          ]
+        },
+        "han_arrival_site",
+        "REACH",
+        "한길목 가도 도착",
+        "han_gilmok"
+      ],
+      "gransia_boundary": [
+        {
+          "$vector": [
+            704,
+            320
+          ]
+        },
+        "gransia_boundary_site",
+        "INTERACT",
+        "장원 경계 조사",
+        "gransia"
+      ],
+      "gransia_record": [
+        {
+          "$vector": [
+            1120,
+            368
+          ]
+        },
+        "gransia_record_site",
+        "INTERACT",
+        "평야 조사 기록",
+        "gransia"
+      ],
+      "brantel_records": [
+        {
+          "$vector": [
+            608,
+            288
+          ]
+        },
+        "brantel_records_site",
+        "INTERACT",
+        "문장원 기록 대조",
+        "brantel"
+      ],
+      "arvein_dispatch": [
+        {
+          "$vector": [
+            928,
+            432
+          ]
+        },
+        "arvein_dispatch_site",
+        "INTERACT",
+        "왕가 원정 출정식",
+        "brantel"
+      ],
+      "frontier_commission": [
+        {
+          "$vector": [
+            512,
+            544
+          ]
+        },
+        "frontier_commission_site",
+        "INTERACT",
+        "변경 조사관 임명장 확인",
+        "brantel"
+      ],
+      "han_nest": [
+        {
+          "$vector": [
+            1088,
+            352
+          ]
+        },
+        "han_nest_site",
+        "INTERACT",
+        "멧돼지 서식 흔적",
+        "han_gilmok"
+      ],
+      "gransia_crop": [
+        {
+          "$vector": [
+            432,
+            320
+          ]
+        },
+        "gransia_crop_site",
+        "INTERACT",
+        "작물 피해 조사",
+        "gransia"
+      ],
+      "gransia_feather": [
+        {
+          "$vector": [
+            1168,
+            672
+          ]
+        },
+        "gransia_feather_site",
+        "INTERACT",
+        "장원 습격 흔적",
+        "gransia"
+      ],
+      "han_supply": [
+        {
+          "$vector": [
+            560,
+            624
+          ]
+        },
+        "han_supply_site",
+        "INTERACT",
+        "가도 보급 상자",
+        "han_gilmok"
+      ],
+      "gransia_supply": [
+        {
+          "$vector": [
+            944,
+            544
+          ]
+        },
+        "gransia_supply_site",
+        "INTERACT",
+        "장원 보급 장부",
+        "gransia"
+      ],
+      "brantel_petition": [
+        {
+          "$vector": [
+            1024,
+            624
+          ]
+        },
+        "brantel_petition_site",
+        "INTERACT",
+        "주민 민원 접수",
+        "brantel"
+      ]
+    },
+    "SITE_NOTICES": {
+      "arvein_dispatch": "오르베인이 원정대 앞에 선다. 왕가의 깃발 아래 병사들이 대열을 정비한다. 마리엔은 변경의 주민을 살피고 돌아오라 당부한다."
+    },
+    "LAYOUTS": {
+      "han_gilmok": {
+        "spawn": {
+          "$vector": [
+            160,
+            480
+          ]
+        },
+        "floor": {
+          "$vectori": [
+            0,
+            0
+          ]
+        },
+        "patches": [
+          {
+            "rect": {
+              "$rect": [
+                6,
+                27,
+                84,
+                6
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                0
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                42,
+                6,
+                8,
+                48
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                2
+              ]
+            }
+          }
+        ]
+      },
+      "gransia": {
+        "spawn": {
+          "$vector": [
+            160,
+            480
+          ]
+        },
+        "floor": {
+          "$vectori": [
+            0,
+            0
+          ]
+        },
+        "patches": [
+          {
+            "rect": {
+              "$rect": [
+                6,
+                27,
+                84,
+                6
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                0
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                42,
+                6,
+                8,
+                48
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                2
+              ]
+            }
+          }
+        ]
+      },
+      "brantel": {
+        "spawn": {
+          "$vector": [
+            160,
+            480
+          ]
+        },
+        "floor": {
+          "$vectori": [
+            2,
+            2
+          ]
+        },
+        "patches": [
+          {
+            "rect": {
+              "$rect": [
+                6,
+                27,
+                84,
+                6
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                0
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                42,
+                6,
+                8,
+                48
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                2
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "QUEST_REQUIREMENTS": {
+      "MQ-04-01": {
+        "reputation": 800
+      }
+    },
+    "HABITATS": {
+      "han_boars": [
+        "han_gilmok",
+        [
+          {
+            "$vector": [
+              544,
+              272
+            ]
+          },
+          {
+            "$vector": [
+              768,
+              272
+            ]
+          },
+          {
+            "$vector": [
+              1024,
+              272
+            ]
+          }
+        ],
+        "outlaw",
+        "wild_boar"
+      ],
+      "gransia_scarecrows": [
+        "gransia",
+        [
+          {
+            "$vector": [
+              512,
+              224
+            ]
+          },
+          {
+            "$vector": [
+              768,
+              224
+            ]
+          },
+          {
+            "$vector": [
+              1024,
+              224
+            ]
+          }
+        ],
+        "wolf",
+        "cursed_scarecrow"
+      ],
+      "gransia_harpies": [
+        "gransia",
+        [
+          {
+            "$vector": [
+              544,
+              736
+            ]
+          },
+          {
+            "$vector": [
+              800,
+              736
+            ]
+          },
+          {
+            "$vector": [
+              1088,
+              736
+            ]
+          }
+        ],
+        "forest_spider",
+        "cliff_harpy"
+      ],
+      "han_highwaymen": [
+        "han_gilmok",
+        [
+          {
+            "$vector": [
+              640,
+              784
+            ]
+          },
+          {
+            "$vector": [
+              896,
+              784
+            ]
+          }
+        ],
+        "highwayman",
+        "highwayman"
+      ]
+    },
+    "MONSTER_VARIANTS": {
+      "wild_boar": {
+        "title": "사나운 멧돼지",
+        "scene": "outlaw",
+        "stats": "res://data/monsters/chapter_four/wild_boar.tres",
+        "level": 16
+      },
+      "cursed_scarecrow": {
+        "title": "괴뢰 허수아비",
+        "scene": "wolf",
+        "stats": "res://data/monsters/chapter_four/cursed_scarecrow.tres",
+        "level": 18
+      },
+      "cliff_harpy": {
+        "title": "들매 하피",
+        "scene": "forest_spider",
+        "stats": "res://data/monsters/chapter_four/cliff_harpy.tres",
+        "level": 21
+      }
+    },
+    "MERCHANTS": {
+      "han_gilmok": [
+        {
+          "$vector": [
+            240,
+            528
+          ]
+        }
+      ],
+      "gransia": [
+        {
+          "$vector": [
+            240,
+            528
+          ]
+        }
+      ],
+      "brantel": [
+        {
+          "$vector": [
+            240,
+            528
+          ]
+        }
+      ]
+    },
+    "WARP_ARRIVALS": {
+      "novera_commons": {
+        "$vector": [
+          128,
+          384
+        ]
+      },
+      "eastern_frontier_start": {
+        "$vector": [
+          152,
+          504
+        ]
+      },
+      "gransia": {
+        "$vector": [
+          192,
+          480
+        ]
+      },
+      "brantel": {
+        "$vector": [
+          192,
+          480
+        ]
+      }
+    }
+  },
+  "quests": [
+    {
+      "quest_id": "MQ-04-01",
+      "path": "res://data/quests/chapter_four/mq_04_01.tres",
+      "title": "왕도로 향하는 길",
+      "offer_text": "왕도의 소환장이 왔습니다. 한길목 담당관에게 도착을 알리면 수도 여정에 필요한 경비를 지급합니다. 워프와 영지 투자는 필수가 아닙니다.",
+      "prerequisite": "MQ-03-05",
+      "npc_id": "han_patrol",
+      "accept_npc_id": "novera_examiner",
+      "reward_exp": 25000,
+      "reward_gold": 10000,
+      "reward_reputation": 100,
+      "objective_kinds": [
+        "REACH",
+        "TALK"
+      ],
+      "objective_targets": [
+        "han_arrival",
+        "han_patrol"
+      ],
+      "objective_sources": [
+        "han_arrival_site",
+        ""
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "한길목 가도 도착",
+        "가도 담당관와 대화 [F]"
+      ],
+      "objective_location_hints": [
+        "한길목 가도",
+        "한길목 가도"
+      ]
+    },
+    {
+      "quest_id": "MQ-04-02",
+      "path": "res://data/quests/chapter_four/mq_04_02.tres",
+      "title": "장원의 경계",
+      "offer_text": "가도의 멧돼지를 물리치고 그란시아 장원의 경계를 조사해 관리인에게 보고하세요.",
+      "prerequisite": "MQ-04-01",
+      "npc_id": "gransia_steward",
+      "accept_npc_id": "han_patrol",
+      "reward_exp": 28000,
+      "reward_gold": 11000,
+      "reward_reputation": 100,
+      "objective_kinds": [
+        "KILL",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "wild_boar",
+        "gransia_boundary"
+      ],
+      "objective_sources": [
+        "han_boars",
+        "gransia_boundary_site"
+      ],
+      "objective_counts": [
+        3,
+        1
+      ],
+      "objective_labels": [
+        "사나운 멧돼지 처치",
+        "장원 경계 조사"
+      ],
+      "objective_location_hints": [
+        "한길목 가도",
+        "그란시아 평야"
+      ]
+    },
+    {
+      "quest_id": "MQ-04-03",
+      "path": "res://data/quests/chapter_four/mq_04_03.tres",
+      "title": "평야의 기록",
+      "offer_text": "평야의 이상 징후를 기록한 뒤 브란텔 문장원의 기록과 대조하세요.",
+      "prerequisite": "MQ-04-02",
+      "npc_id": "brantel_herald",
+      "accept_npc_id": "gransia_steward",
+      "reward_exp": 30000,
+      "reward_gold": 12000,
+      "reward_reputation": 100,
+      "objective_kinds": [
+        "KILL",
+        "INTERACT",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "cursed_scarecrow",
+        "gransia_record",
+        "brantel_records"
+      ],
+      "objective_sources": [
+        "gransia_scarecrows",
+        "gransia_record_site",
+        "brantel_records_site"
+      ],
+      "objective_counts": [
+        3,
+        1,
+        1
+      ],
+      "objective_labels": [
+        "괴뢰 허수아비 처치",
+        "평야 조사 기록",
+        "문장원 기록 대조"
+      ],
+      "objective_location_hints": [
+        "그란시아 평야",
+        "그란시아 평야",
+        "브란텔 문장원"
+      ]
+    },
+    {
+      "quest_id": "MQ-04-04",
+      "path": "res://data/quests/chapter_four/mq_04_04.tres",
+      "title": "변경 조사관",
+      "offer_text": "마리엔의 당부를 듣고 왕가 원정의 공개 출정식에 참석하세요. 문장원에서 변경 조사관 임명을 마무리합니다.",
+      "prerequisite": "MQ-04-03",
+      "npc_id": "brantel_herald",
+      "accept_npc_id": "brantel_herald",
+      "reward_exp": 36011,
+      "reward_gold": 12900,
+      "reward_reputation": 200,
+      "objective_kinds": [
+        "TALK",
+        "INTERACT",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "mariel",
+        "arvein_dispatch",
+        "frontier_commission"
+      ],
+      "objective_sources": [
+        "",
+        "arvein_dispatch_site",
+        "frontier_commission_site"
+      ],
+      "objective_counts": [
+        1,
+        1,
+        1
+      ],
+      "objective_labels": [
+        "마리엔와 대화 [F]",
+        "왕가 원정 출정식",
+        "변경 조사관 임명장 확인"
+      ],
+      "objective_location_hints": [
+        "브란텔 문장원",
+        "브란텔 문장원",
+        "브란텔 문장원"
+      ]
+    },
+    {
+      "quest_id": "SQ-CH04-001",
+      "path": "res://data/quests/chapter_four/sq_ch04_001.tres",
+      "title": "가도의 먹이 흔적",
+      "offer_text": "가도 바깥의 멧돼지 서식지를 확인해 안전한 통행로를 정합니다.",
+      "prerequisite": "MQ-04-01",
+      "npc_id": "han_patrol",
+      "accept_npc_id": "han_patrol",
+      "reward_exp": 15868,
+      "reward_gold": 4590,
+      "reward_reputation": 50,
+      "objective_kinds": [
+        "KILL",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "wild_boar",
+        "han_nest"
+      ],
+      "objective_sources": [
+        "han_boars",
+        "han_nest_site"
+      ],
+      "objective_counts": [
+        3,
+        1
+      ],
+      "objective_labels": [
+        "사나운 멧돼지 처치",
+        "멧돼지 서식 흔적"
+      ],
+      "objective_location_hints": [
+        "한길목 가도",
+        "한길목 가도"
+      ]
+    },
+    {
+      "quest_id": "SQ-CH04-002",
+      "path": "res://data/quests/chapter_four/sq_ch04_002.tres",
+      "title": "훼손된 밭",
+      "offer_text": "움직이는 허수아비를 멈추고 주민들의 작물 피해를 조사해 주세요.",
+      "prerequisite": "MQ-04-01",
+      "npc_id": "gransia_steward",
+      "accept_npc_id": "gransia_steward",
+      "reward_exp": 15868,
+      "reward_gold": 4590,
+      "reward_reputation": 50,
+      "objective_kinds": [
+        "KILL",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "cursed_scarecrow",
+        "gransia_crop"
+      ],
+      "objective_sources": [
+        "gransia_scarecrows",
+        "gransia_crop_site"
+      ],
+      "objective_counts": [
+        3,
+        1
+      ],
+      "objective_labels": [
+        "괴뢰 허수아비 처치",
+        "작물 피해 조사"
+      ],
+      "objective_location_hints": [
+        "그란시아 평야",
+        "그란시아 평야"
+      ]
+    },
+    {
+      "quest_id": "SQ-CH04-003",
+      "path": "res://data/quests/chapter_four/sq_ch04_003.tres",
+      "title": "장원의 깃털",
+      "offer_text": "절벽에서 내려온 하피를 저지하고 장원에 남은 흔적을 대조해 주세요.",
+      "prerequisite": "MQ-04-02",
+      "npc_id": "gransia_steward",
+      "accept_npc_id": "gransia_steward",
+      "reward_exp": 15868,
+      "reward_gold": 4590,
+      "reward_reputation": 50,
+      "objective_kinds": [
+        "KILL",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "cliff_harpy",
+        "gransia_feather"
+      ],
+      "objective_sources": [
+        "gransia_harpies",
+        "gransia_feather_site"
+      ],
+      "objective_counts": [
+        3,
+        1
+      ],
+      "objective_labels": [
+        "들매 하피 처치",
+        "장원 습격 흔적"
+      ],
+      "objective_location_hints": [
+        "그란시아 평야",
+        "그란시아 평야"
+      ]
+    },
+    {
+      "quest_id": "SQ-CH04-004",
+      "path": "res://data/quests/chapter_four/sq_ch04_004.tres",
+      "title": "끊어진 보급 기록",
+      "offer_text": "가도 보급 상자와 장원 장부를 대조해 누락된 물자를 확인해 주세요.",
+      "prerequisite": "MQ-04-01",
+      "npc_id": "han_patrol",
+      "accept_npc_id": "han_patrol",
+      "reward_exp": 15868,
+      "reward_gold": 4590,
+      "reward_reputation": 50,
+      "objective_kinds": [
+        "INTERACT",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "han_supply",
+        "gransia_supply"
+      ],
+      "objective_sources": [
+        "han_supply_site",
+        "gransia_supply_site"
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "가도 보급 상자",
+        "장원 보급 장부"
+      ],
+      "objective_location_hints": [
+        "한길목 가도",
+        "그란시아 평야"
+      ]
+    },
+    {
+      "quest_id": "SQ-CH04-005",
+      "path": "res://data/quests/chapter_four/sq_ch04_005.tres",
+      "title": "수도에 닿은 목소리",
+      "offer_text": "수도로 올라온 주민들의 민원을 정리하고 마리엔에게 전해 주세요.",
+      "prerequisite": "MQ-04-03",
+      "npc_id": "brantel_herald",
+      "accept_npc_id": "brantel_herald",
+      "reward_exp": 15868,
+      "reward_gold": 4590,
+      "reward_reputation": 50,
+      "objective_kinds": [
+        "INTERACT",
+        "TALK"
+      ],
+      "objective_targets": [
+        "brantel_petition",
+        "mariel"
+      ],
+      "objective_sources": [
+        "brantel_petition_site",
+        ""
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "주민 민원 접수",
+        "마리엔와 대화 [F]"
+      ],
+      "objective_location_hints": [
+        "브란텔 문장원",
+        "브란텔 문장원"
+      ]
+    }
+  ]
+}

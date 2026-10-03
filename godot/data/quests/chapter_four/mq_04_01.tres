@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "MQ-04-01"
+title = "왕도로 향하는 길"
+offer_text = "왕도의 소환장이 왔습니다. 한길목 담당관에게 도착을 알리면 수도 여정에 필요한 경비를 지급합니다. 워프와 영지 투자는 필수가 아닙니다."
+prerequisite = "MQ-03-05"
+npc_id = "han_patrol"
+accept_npc_id = "novera_examiner"
+reward_exp = 25000
+reward_gold = 10000
+reward_reputation = 100
+objective_kinds = Array[String](["REACH", "TALK"])
+objective_targets = Array[String](["han_arrival", "han_patrol"])
+objective_sources = Array[String](["han_arrival_site", ""])
+objective_counts = Array[int]([1, 1])
+objective_labels = Array[String](["한길목 가도 도착", "가도 담당관와 대화 [F]"])
+objective_location_hints = Array[String](["한길목 가도", "한길목 가도"])

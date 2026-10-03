@@ -1,8 +1,8 @@
-## 3장 API 결합 검사. 2장 완료·좌표·피해량은 fixture이며 정상 조작/전투 체감 증거가 아니다.
+## 4장·영지 API 결합 검사. 이전 장 상태·경과시간·피해량·재료는 fixture이며 입력 완주 증거가 아니다.
 extends SceneTree
 const ENV_PATH := "res://scripts/world/game_product.gd"
 const RegionsM7 = preload("res://scripts/content/game_content.gd")
-const DIRECTORY := "user://product_defense_probe"
+const DIRECTORY := "user://product_territory_probe"
 var world: Node
 var failed := false
 var finished := false
@@ -63,7 +63,7 @@ func _run() -> void:
 		current_scene.free()
 	root.get_node("BgmManager").reset()
 	await process_frame
-	print("PRODUCT_DEFENSE_FAIL" if failed else "PRODUCT_DEFENSE_PASS")
+	print("PRODUCT_TERRITORY_FAIL" if failed else "PRODUCT_TERRITORY_PASS")
 	quit(1 if failed else 0)
 
 
@@ -87,6 +87,7 @@ func snapshot() -> Dictionary:
 	data.world.erase("elapsed_real_sec_in_day")  # 복원 뒤 실제 프레임만큼 흐르는 시계는 동일성 비교 제외.
 	data.progress.territory.erase("elapsed_ms")
 	data.progress.territory.erase("day_ms")
+	data.progress.travel.erase("return_ms")
 	return {
 		"character_save_version": data.character_save_version,
 		"content_revision": data.content_revision,
@@ -123,28 +124,24 @@ func travel(destination: String) -> void:
 	if DisplayServer.get_name() != "headless":
 		await RenderingServer.frame_post_draw
 		root.get_texture().get_image().save_png(
-			"res://../docs/qa/screenshots/chapter3-" + destination + ".png"
+			"res://../docs/qa/screenshots/chapter4-" + destination + ".png"
 		)
 
 
 func seed_session() -> void:
 	var journal: QuestJournal = world.get_node("QuestController").journal
-	var bootstrap = load("res://scripts/world/game_bootstrap.gd").new()
-	var prepared: Dictionary = bootstrap.preparation(journal.catalog, 3)
-	bootstrap.free()
-	check(journal.restore_state(prepared.quests) == "", "2장 완료 준비 fixture")
-	world.get_node("Player/PlayerProgression").add_exp(prepared.exp)
-	world.get_node("Player/Inventory").add_gold(prepared.gold)
-	var ids := [
-		"MQ-03-01",
-		"MQ-03-02",
-		"MQ-03-03",
-		"MQ-03-04",
-		"MQ-03-05",
-		"SQ-YEO-001",
-		"SQ-YEO-002",
-		"SQ-YEO-003"
-	]
+	var states := {}
+	for id in journal.catalog.ordered_ids():
+		if not (id.begins_with("MQ-04-") or id.begins_with("SQ-CH04-")):
+			states[id] = {
+				"state": "completed",
+				"counts": Array(journal.catalog.definitions[id].objective_counts)
+			}
+	check(journal.restore_state(states) == "", "1막 완료 준비 fixture")
+	world.get_node("Player/PlayerProgression").add_exp(80000)
+	world.get_node("Player/Inventory").add_gold(40000)
+	var ids := ["MQ-04-01", "MQ-04-02", "MQ-04-03", "MQ-04-04",
+		"SQ-CH04-001", "SQ-CH04-002", "SQ-CH04-003", "SQ-CH04-004", "SQ-CH04-005"]
 	for id in ids:
 		journal = world.get_node("QuestController").journal
 		var definition: QuestData = journal.catalog.definitions[id]
@@ -156,10 +153,7 @@ func seed_session() -> void:
 			var source: String = definition.objective_sources[index]
 			var kind: String = definition.objective_kinds[index]
 			if kind == "KILL":
-				await go_region(RegionsM7.DEFENSE_WAVES[source].region)
-				var manager = world.get_node("DefenseSpawner")
-				check(manager.resume(), "방어 무리 명시 재개 " + source)
-				check(not manager.resume(), "같은 무리 중복 재개 거부")
+				await go_region(RegionsM7.HABITATS[source][0])
 				var victims := world.get_node("MonsterSpawner").get_children()
 				var killed := 0
 				for monster in victims:
@@ -174,7 +168,7 @@ func seed_session() -> void:
 				check(killed == definition.objective_counts[index], "생성 수와 실제 사망 신호")
 				await process_frame
 				await process_frame
-				if id == "MQ-03-03" and index == 0:
+				if id == "MQ-04-02" and index == 0:
 					await save_snapshot(2, "middle.json")
 			elif RegionsM7.SITES.has(target):
 				var site: Array = RegionsM7.SITES[target]
@@ -190,7 +184,7 @@ func seed_session() -> void:
 							check(node.interact(), "표식 상호작용 " + target)
 				check(found, "실제 표식 존재 " + target)
 				if RegionsM7.SITE_NOTICES.has(target):
-					check(world.get_node("QuestDialog").panel.visible, "말하는 그림자 목격 안내")
+					check(world.get_node("QuestDialog").panel.visible, "공개 장면 안내")
 					await capture("shadow")
 					world.get_node("QuestDialog").close_dialog()
 			else:
@@ -208,24 +202,8 @@ func seed_session() -> void:
 		check(controller.report(id, definition.npc_id) == "", "보고 " + id)
 		check(controller.report(id, definition.npc_id) != "", "중복 보고 거부")
 		check(world.get_node("Player/Inventory").gold == gold + definition.reward_gold, "보상 단회 지급")
-		if id == "MQ-03-05":
-			check(controller.journal.reputation() == 1000, "서브 없이 하사 공훈1000")
-			check(
-				"향사" in controller.journal.catalog.honors(controller.journal.export_state()),
-				"완료 기반 향사·복구권"
-			)
-			if DisplayServer.get_name() != "headless":
-				world.get_node("IntegratedMenu")._on_tab_shortcut(1)
-				await capture("honors")
-				world.get_node("IntegratedMenu").close_menu()
-	journal = world.get_node("QuestController").journal
-	check(journal.reputation() == 1200, "기준 서브 포함 공훈1200")
-	var data: Dictionary = snapshot()
-	check(
-		data.progress.territory.representative == "yeoulmok" and data.progress.story_flags == {},
-		"향사 영지 소유 초기화"
-	)
-	print("3장 API 완료 상태: ", JSON.stringify(data.player))
+	check(world.get_node("QuestController").journal.reputation() == 1950, "4장 기준 공훈 합계")
+	await territory_session()
 	await save_snapshot(1, "expected.json")
 	finished = true
 
@@ -238,7 +216,7 @@ func capture(label: String) -> void:
 	check(
 		(
 			root.get_texture().get_image().save_png(
-				"res://../docs/qa/screenshots/chapter3-" + label + ".png"
+				"res://../docs/qa/screenshots/chapter4-" + label + ".png"
 			)
 			== OK
 		),
@@ -282,3 +260,38 @@ func save_snapshot(slot: int, name: String) -> void:
 		return
 	file.store_string(JSON.stringify(snapshot(), "", false, true))
 	file.close()
+
+
+func territory_session() -> void:
+	var session = world.get_node("SaveSession")
+	check(session.warp("novera").ok, "방문 도시 유료 워프")
+	await refresh()
+	check(world.map_id == "novera_commons", "노베라 워프 도착")
+	check(world.get_node("SaveSession").warp("yeoulmok", true).ok, "무료 영지 귀환")
+	await refresh()
+	check(world.map_id == "eastern_frontier_start", "소유 영지 귀환 도착")
+	var runtime = world.get_node("TerritoryRuntime")
+	world.get_node("Player").position = runtime.DESK
+	var model = load("res://scripts/territory/territory_model.gd")
+	model.advance(runtime.state(), model.DAY_MS)
+	var before: int = world.get_node("Player/Inventory").gold
+	check(runtime.act("collect") == "", "현장 금고 수령")
+	check(world.get_node("Player/Inventory").gold == before + 189, "수입189 단회 지급")
+	check(runtime.act("market") == "", "현장 시장 건설")
+	check(runtime.act("market") != "", "시장 중복 건설 거부")
+	var economy: Node = world.get_node("Player").get_meta("economy_candidate")
+	var inventory: Dictionary = economy.state()
+	inventory.bag.append({"item_id": "MAT-DOG-FANG", "quantity": 3})
+	economy.apply_state(inventory)
+	check(runtime.act("deliver") == "", "재료 납품과 보상")
+	check(runtime.act("deliver") != "", "중복 납품 거부")
+	check(runtime.act("develop") == "", "영지 복구 단계 투자")
+	check(world.get_node("SaveSession").warp("brantel").ok, "영지에서 수도 워프")
+	await refresh()
+	check(world.map_id == "brantel", "수도 재도착")
+	var rejected: Dictionary = world.get_node("SaveSession").warp("yeoulmok", true)
+	check(not rejected.ok and rejected.code == "cooldown", "귀환 재사용 대기 유지")
+	check(
+		world.get_meta("territory_state").holdings.yeoulmok.facilities == ["market"],
+		"월드 교체 후 시설 보존"
+	)

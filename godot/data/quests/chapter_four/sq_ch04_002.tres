@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "SQ-CH04-002"
+title = "훼손된 밭"
+offer_text = "움직이는 허수아비를 멈추고 주민들의 작물 피해를 조사해 주세요."
+prerequisite = "MQ-04-01"
+npc_id = "gransia_steward"
+accept_npc_id = "gransia_steward"
+reward_exp = 15868
+reward_gold = 4590
+reward_reputation = 50
+objective_kinds = Array[String](["KILL", "INTERACT"])
+objective_targets = Array[String](["cursed_scarecrow", "gransia_crop"])
+objective_sources = Array[String](["gransia_scarecrows", "gransia_crop_site"])
+objective_counts = Array[int]([3, 1])
+objective_labels = Array[String](["괴뢰 허수아비 처치", "작물 피해 조사"])
+objective_location_hints = Array[String](["그란시아 평야", "그란시아 평야"])

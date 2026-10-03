@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "MQ-04-03"
+title = "평야의 기록"
+offer_text = "평야의 이상 징후를 기록한 뒤 브란텔 문장원의 기록과 대조하세요."
+prerequisite = "MQ-04-02"
+npc_id = "brantel_herald"
+accept_npc_id = "gransia_steward"
+reward_exp = 30000
+reward_gold = 12000
+reward_reputation = 100
+objective_kinds = Array[String](["KILL", "INTERACT", "INTERACT"])
+objective_targets = Array[String](["cursed_scarecrow", "gransia_record", "brantel_records"])
+objective_sources = Array[String](["gransia_scarecrows", "gransia_record_site", "brantel_records_site"])
+objective_counts = Array[int]([3, 1, 1])
+objective_labels = Array[String](["괴뢰 허수아비 처치", "평야 조사 기록", "문장원 기록 대조"])
+objective_location_hints = Array[String](["그란시아 평야", "그란시아 평야", "브란텔 문장원"])

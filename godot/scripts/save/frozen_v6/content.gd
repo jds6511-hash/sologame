@@ -1,6 +1,6 @@
 extends RefCounted
 ## 자동 생성: tools/generate_chapter_content.py · 원본 godot/data/content/*.json
-const CURRENT_REVISION := 3
+const CURRENT_REVISION := 2
 const BGM_CONTEXTS := {
 	"eastern_frontier_start": "res://scenes/world/eastern_frontier_starting_area.tscn",
 	"novera_gate": "res://scenes/world/novera_gate.tscn",
@@ -8,9 +8,6 @@ const BGM_CONTEXTS := {
 	"novera_outskirts": "novera_outskirts",
 	"novera_rift": "res://scenes/world/novera_gate.tscn",
 	"yeoulmok_defense": "res://scenes/world/eastern_frontier_starting_area.tscn",
-	"han_gilmok": "res://scenes/world/novera_gate.tscn",
-	"gransia": "res://scenes/world/novera_gate.tscn",
-	"brantel": "res://scenes/world/novera_gate.tscn",
 }
 const SCENES := {
 	"eastern_frontier_start": "res://scenes/world/product_world.tscn",
@@ -19,9 +16,6 @@ const SCENES := {
 	"novera_outskirts": "res://scenes/world/product_world.tscn",
 	"novera_rift": "res://scenes/world/product_world.tscn",
 	"yeoulmok_defense": "res://scenes/world/product_world.tscn",
-	"han_gilmok": "res://scenes/world/product_world.tscn",
-	"gransia": "res://scenes/world/product_world.tscn",
-	"brantel": "res://scenes/world/product_world.tscn",
 }
 const NAMES := {
 	"eastern_frontier_start": "여울목",
@@ -30,9 +24,6 @@ const NAMES := {
 	"novera_outskirts": "노베라 외곽",
 	"novera_rift": "노베라 균열 던전",
 	"yeoulmok_defense": "여울목 방어 현장",
-	"han_gilmok": "한길목 가도",
-	"gransia": "그란시아 평야",
-	"brantel": "브란텔 문장원",
 }
 const BOUNDS := {
 	"eastern_frontier_start": Rect2(0, 0, 768, 576),
@@ -41,9 +32,6 @@ const BOUNDS := {
 	"novera_outskirts": Rect2(0, 0, 1280, 768),
 	"novera_rift": Rect2(0, 0, 1024, 640),
 	"yeoulmok_defense": Rect2(0, 0, 1024, 640),
-	"han_gilmok": Rect2(0, 0, 1536, 960),
-	"gransia": Rect2(0, 0, 1536, 960),
-	"brantel": Rect2(0, 0, 1536, 960),
 }
 const EDGES := {
 	"yeoulmok_gatewarden":
@@ -126,42 +114,6 @@ const EDGES := {
 		Vector2(200, 456),
 		"yeoulmok_defense_gate",
 	],
-	"novera_commons_to_han_gilmok":
-	[
-		"novera_commons",
-		"han_gilmok",
-		Vector2(912, 480),
-		Vector2(192, 480),
-		"han_gilmok_to_novera_commons",
-	],
-	"han_gilmok_to_novera_commons":
-	[
-		"han_gilmok",
-		"novera_commons",
-		Vector2(112, 480),
-		Vector2(848, 480),
-		"novera_commons_to_han_gilmok",
-	],
-	"han_gilmok_to_gransia":
-	[
-		"han_gilmok",
-		"gransia",
-		Vector2(1408, 480),
-		Vector2(192, 480),
-		"gransia_to_han_gilmok",
-	],
-	"gransia_to_han_gilmok":
-	[
-		"gransia",
-		"han_gilmok",
-		Vector2(112, 480),
-		Vector2(1344, 480),
-		"han_gilmok_to_gransia",
-	],
-	"gransia_to_brantel":
-	["gransia", "brantel", Vector2(1408, 480), Vector2(192, 480), "brantel_to_gransia"],
-	"brantel_to_gransia":
-	["brantel", "gransia", Vector2(112, 480), Vector2(1344, 480), "gransia_to_brantel"],
 }
 const QUESTS := {
 	"MQ-01-01": "res://data/quests/mq_01_01.tres",
@@ -185,15 +137,6 @@ const QUESTS := {
 	"SQ-YEO-001": "res://data/quests/chapter_three/sq_yeo_001.tres",
 	"SQ-YEO-002": "res://data/quests/chapter_three/sq_yeo_002.tres",
 	"SQ-YEO-003": "res://data/quests/chapter_three/sq_yeo_003.tres",
-	"MQ-04-01": "res://data/quests/chapter_four/mq_04_01.tres",
-	"MQ-04-02": "res://data/quests/chapter_four/mq_04_02.tres",
-	"MQ-04-03": "res://data/quests/chapter_four/mq_04_03.tres",
-	"MQ-04-04": "res://data/quests/chapter_four/mq_04_04.tres",
-	"SQ-CH04-001": "res://data/quests/chapter_four/sq_ch04_001.tres",
-	"SQ-CH04-002": "res://data/quests/chapter_four/sq_ch04_002.tres",
-	"SQ-CH04-003": "res://data/quests/chapter_four/sq_ch04_003.tres",
-	"SQ-CH04-004": "res://data/quests/chapter_four/sq_ch04_004.tres",
-	"SQ-CH04-005": "res://data/quests/chapter_four/sq_ch04_005.tres",
 }
 const NPCS := {
 	"yeoulmok_receptionist": ["eastern_frontier_start", Vector2(152, 440), "접수원"],
@@ -202,18 +145,10 @@ const NPCS := {
 	"novera_gareth": ["novera_commons", Vector2(656, 320), "가레스"],
 	"defense_coordinator": ["yeoulmok_defense", Vector2(288, 512), "현장 책임자"],
 	"novera_examiner": ["novera_commons", Vector2(736, 416), "문장원 심사 담당"],
-	"han_patrol": ["han_gilmok", Vector2(304, 432), "가도 담당관"],
-	"gransia_steward": ["gransia", Vector2(336, 432), "장원 관리인"],
-	"brantel_herald": ["brantel", Vector2(432, 432), "문장원 담당관"],
-	"mariel": ["brantel", Vector2(704, 384), "마리엔"],
-	"arvein": ["brantel", Vector2(864, 384), "오르베인"],
 }
 const MERCHANTS := {
 	"novera_gate": [Vector2(216, 440)],
 	"novera_commons": [Vector2(416, 416)],
-	"han_gilmok": [Vector2(240, 528)],
-	"gransia": [Vector2(240, 528)],
-	"brantel": [Vector2(240, 528)],
 }
 const REGION_REQUIREMENTS := {
 	"novera_gate": "MQ-01-05",
@@ -221,9 +156,6 @@ const REGION_REQUIREMENTS := {
 	"novera_outskirts": "MQ-01-05",
 	"novera_rift": "MQ-02-04",
 	"yeoulmok_defense": "MQ-03-01",
-	"han_gilmok": "MQ-03-05",
-	"gransia": "MQ-04-01",
-	"brantel": "MQ-04-02",
 }
 const SITES := {
 	"yeoulmok_old_rift_entrance":
@@ -388,31 +320,6 @@ const SITES := {
 		"부락 기록 2",
 		"yeoulmok_defense",
 	],
-	"han_arrival": [Vector2(224, 480), "han_arrival_site", "REACH", "한길목 가도 도착", "han_gilmok"],
-	"gransia_boundary":
-	[Vector2(704, 320), "gransia_boundary_site", "INTERACT", "장원 경계 조사", "gransia"],
-	"gransia_record":
-	[Vector2(1120, 368), "gransia_record_site", "INTERACT", "평야 조사 기록", "gransia"],
-	"brantel_records":
-	[Vector2(608, 288), "brantel_records_site", "INTERACT", "문장원 기록 대조", "brantel"],
-	"arvein_dispatch":
-	[Vector2(928, 432), "arvein_dispatch_site", "INTERACT", "왕가 원정 출정식", "brantel"],
-	"frontier_commission":
-	[
-		Vector2(512, 544),
-		"frontier_commission_site",
-		"INTERACT",
-		"변경 조사관 임명장 확인",
-		"brantel",
-	],
-	"han_nest": [Vector2(1088, 352), "han_nest_site", "INTERACT", "멧돼지 서식 흔적", "han_gilmok"],
-	"gransia_crop": [Vector2(432, 320), "gransia_crop_site", "INTERACT", "작물 피해 조사", "gransia"],
-	"gransia_feather":
-	[Vector2(1168, 672), "gransia_feather_site", "INTERACT", "장원 습격 흔적", "gransia"],
-	"han_supply": [Vector2(560, 624), "han_supply_site", "INTERACT", "가도 보급 상자", "han_gilmok"],
-	"gransia_supply": [Vector2(944, 544), "gransia_supply_site", "INTERACT", "장원 보급 장부", "gransia"],
-	"brantel_petition":
-	[Vector2(1024, 624), "brantel_petition_site", "INTERACT", "주민 민원 접수", "brantel"],
 }
 const MARKER_HABITATS := {
 	"yeoulmok_rabbit_habitat": ["eastern_frontier_start", "Markers/MonsterSpawns_뿔토끼"],
@@ -447,29 +354,6 @@ const HABITATS := {
 		"rift_slime",
 		"rift_slime",
 	],
-	"han_boars":
-	[
-		"han_gilmok",
-		[Vector2(544, 272), Vector2(768, 272), Vector2(1024, 272)],
-		"outlaw",
-		"wild_boar",
-	],
-	"gransia_scarecrows":
-	[
-		"gransia",
-		[Vector2(512, 224), Vector2(768, 224), Vector2(1024, 224)],
-		"wolf",
-		"cursed_scarecrow",
-	],
-	"gransia_harpies":
-	[
-		"gransia",
-		[Vector2(544, 736), Vector2(800, 736), Vector2(1088, 736)],
-		"forest_spider",
-		"cliff_harpy",
-	],
-	"han_highwaymen":
-	["han_gilmok", [Vector2(640, 784), Vector2(896, 784)], "highwayman", "highwayman"],
 }
 const MARKER_CONTENT_IDS := {
 	"yeoulmok_rabbit_habitat": "horned_rabbit",
@@ -517,7 +401,6 @@ const RALLIES := {
 }
 const SITE_NOTICES := {
 	"yeoulmok_shadow_trace": "무너진 방책 너머에서 그림자가 마수들에게 말을 건넨다. 눈을 돌린 순간 모습은 사라졌다. 누구인지는 알 수 없다.",
-	"arvein_dispatch": "오르베인이 원정대 앞에 선다. 왕가의 깃발 아래 병사들이 대열을 정비한다. 마리엔은 변경의 주민을 살피고 돌아오라 당부한다.",
 }
 const LAYOUTS := {
 	"yeoulmok_defense":
@@ -525,54 +408,6 @@ const LAYOUTS := {
 		"spawn": Vector2(192, 544),
 		"floor": Vector2i(0, 0),
 		"patches": [],
-	},
-	"han_gilmok":
-	{
-		"spawn": Vector2(160, 480),
-		"floor": Vector2i(0, 0),
-		"patches":
-		[
-			{
-				"rect": Rect2(6, 27, 84, 6),
-				"tile": Vector2i(2, 0),
-			},
-			{
-				"rect": Rect2(42, 6, 8, 48),
-				"tile": Vector2i(2, 2),
-			},
-		],
-	},
-	"gransia":
-	{
-		"spawn": Vector2(160, 480),
-		"floor": Vector2i(0, 0),
-		"patches":
-		[
-			{
-				"rect": Rect2(6, 27, 84, 6),
-				"tile": Vector2i(2, 0),
-			},
-			{
-				"rect": Rect2(42, 6, 8, 48),
-				"tile": Vector2i(2, 2),
-			},
-		],
-	},
-	"brantel":
-	{
-		"spawn": Vector2(160, 480),
-		"floor": Vector2i(2, 2),
-		"patches":
-		[
-			{
-				"rect": Rect2(6, 27, 84, 6),
-				"tile": Vector2i(2, 0),
-			},
-			{
-				"rect": Rect2(42, 6, 8, 48),
-				"tile": Vector2i(2, 2),
-			},
-		],
 	},
 }
 const QUEST_REQUIREMENTS := {
@@ -584,39 +419,6 @@ const QUEST_REQUIREMENTS := {
 	{
 		"reputation": 500,
 	},
-	"MQ-04-01":
-	{
-		"reputation": 800,
-	},
-}
-const MONSTER_VARIANTS := {
-	"wild_boar":
-	{
-		"title": "사나운 멧돼지",
-		"scene": "outlaw",
-		"stats": "res://data/monsters/chapter_four/wild_boar.tres",
-		"level": 16,
-	},
-	"cursed_scarecrow":
-	{
-		"title": "괴뢰 허수아비",
-		"scene": "wolf",
-		"stats": "res://data/monsters/chapter_four/cursed_scarecrow.tres",
-		"level": 18,
-	},
-	"cliff_harpy":
-	{
-		"title": "들매 하피",
-		"scene": "forest_spider",
-		"stats": "res://data/monsters/chapter_four/cliff_harpy.tres",
-		"level": 21,
-	},
-}
-const WARP_ARRIVALS := {
-	"novera_commons": Vector2(128, 384),
-	"eastern_frontier_start": Vector2(152, 504),
-	"gransia": Vector2(192, 480),
-	"brantel": Vector2(192, 480),
 }
 
 

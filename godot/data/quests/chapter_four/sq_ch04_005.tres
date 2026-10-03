@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "SQ-CH04-005"
+title = "수도에 닿은 목소리"
+offer_text = "수도로 올라온 주민들의 민원을 정리하고 마리엔에게 전해 주세요."
+prerequisite = "MQ-04-03"
+npc_id = "brantel_herald"
+accept_npc_id = "brantel_herald"
+reward_exp = 15868
+reward_gold = 4590
+reward_reputation = 50
+objective_kinds = Array[String](["INTERACT", "TALK"])
+objective_targets = Array[String](["brantel_petition", "mariel"])
+objective_sources = Array[String](["brantel_petition_site", ""])
+objective_counts = Array[int]([1, 1])
+objective_labels = Array[String](["주민 민원 접수", "마리엔와 대화 [F]"])
+objective_location_hints = Array[String](["브란텔 문장원", "브란텔 문장원"])

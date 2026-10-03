@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "MQ-04-02"
+title = "장원의 경계"
+offer_text = "가도의 멧돼지를 물리치고 그란시아 장원의 경계를 조사해 관리인에게 보고하세요."
+prerequisite = "MQ-04-01"
+npc_id = "gransia_steward"
+accept_npc_id = "han_patrol"
+reward_exp = 28000
+reward_gold = 11000
+reward_reputation = 100
+objective_kinds = Array[String](["KILL", "INTERACT"])
+objective_targets = Array[String](["wild_boar", "gransia_boundary"])
+objective_sources = Array[String](["han_boars", "gransia_boundary_site"])
+objective_counts = Array[int]([3, 1])
+objective_labels = Array[String](["사나운 멧돼지 처치", "장원 경계 조사"])
+objective_location_hints = Array[String](["한길목 가도", "그란시아 평야"])

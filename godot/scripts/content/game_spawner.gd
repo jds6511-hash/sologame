@@ -33,6 +33,16 @@ func _spawn(slot: Dictionary) -> void:
 	var dog: bool = Content.HABITATS[slot.source][3] == "feral_dog"
 	var scene: String = Content.HABITATS[slot.source][2]
 	var monster: MonsterBase = load("res://scenes/monsters/%s.tscn" % scene).instantiate()
+	var content_id: String = Content.HABITATS[slot.source][3]
+	if Content.MONSTER_VARIANTS.has(content_id):
+		monster.stats = load(Content.MONSTER_VARIANTS[content_id].stats)
+		# 임시 아트도 계열을 구별한다. 하피는 지형 충돌을 유지하는 도약 접근형이다.
+		if content_id == "wild_boar":
+			monster.modulate = Color("ad815d")
+		elif content_id == "cursed_scarecrow":
+			monster.modulate = Color("dfbd63")
+		elif content_id == "cliff_harpy":
+			monster.modulate = Color("91bcec")
 	monster.position = slot.point
 	monster.target = world.get_node("Player")
 	if dog:
