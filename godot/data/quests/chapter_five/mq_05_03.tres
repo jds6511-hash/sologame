@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "MQ-05-03"
+title = "갈밭의 촉매"
+offer_text = "갈밭의 은폐 운송로와 촉매 거래 흔적을 확인한 뒤 아르셀 연구원에게 자문을 구하세요."
+prerequisite = "MQ-05-02"
+npc_id = "arsel_scholar"
+accept_npc_id = "coast_patrol"
+reward_exp = 50000
+reward_gold = 16000
+reward_reputation = 125
+objective_kinds = Array[String](["KILL", "INTERACT", "INTERACT"])
+objective_targets = Array[String](["marsh_lizard", "marsh_cache", "marsh_route"])
+objective_sources = Array[String](["marsh_lizards", "marsh_cache_site", "marsh_route_site"])
+objective_counts = Array[int]([3, 1, 1])
+objective_labels = Array[String](["습지 도마뱀전사 처치", "촉매 밀거래 흔적", "은폐 운송로 조사"])
+objective_location_hints = Array[String](["갈밭 습지", "갈밭 습지", "갈밭 습지"])

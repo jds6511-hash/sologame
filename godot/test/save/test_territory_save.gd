@@ -104,6 +104,29 @@ func test_invalid_territory_and_travel_are_not_stripped_without_validation() -> 
 	assert_ne(conversion.validate(data, account), "")
 
 
+func test_old_content_revision_rejects_new_quest_region_and_visited_city() -> void:
+	var conversion = Conversion.new()
+	var old: Dictionary = conversion.upgrade(old_snapshot(), account).data
+	old.content_revision = 3
+	assert_eq(conversion.validate(old, account), "")
+	assert_eq(conversion.upgrade(old, account).data, old)
+	var forged := old.duplicate(true)
+	forged.progress.quests["MQ-05-01"] = {"state": "active", "counts": [0]}
+	assert_eq(conversion.validate(forged, account), "unsupported_content")
+	forged = old.duplicate(true)
+	forged.world.map_id = "saleno"
+	assert_eq(conversion.validate(forged, account), "unsupported_content")
+	forged = old.duplicate(true)
+	forged.progress.travel.unlocked.append("saleno")
+	assert_eq(conversion.validate(forged, account), "unsupported_content")
+	forged = old.duplicate(true)
+	forged.content_revision = 5
+	assert_eq(conversion.validate(forged, account), "unsupported_content")
+	forged = old.duplicate(true)
+	forged.world = false
+	assert_ne(conversion.validate(forged, account), "")
+
+
 func test_failed_world_change_does_not_charge_gold_or_start_return_cooldown() -> void:
 	var world = load("res://scripts/world/game_product.gd").instantiate_world()
 	world.set_meta("save_directory", "user://product_territory_probe")

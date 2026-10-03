@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "SQ-CH05-004"
+title = "밀물의 표식"
+offer_text = "밀물의 표식 — 현장을 확인하고 의뢰인에게 결과를 보고하세요."
+prerequisite = "MQ-05-02"
+npc_id = "coast_patrol"
+accept_npc_id = "coast_patrol"
+reward_exp = 23466
+reward_gold = 7950
+reward_reputation = 60
+objective_kinds = Array[String](["INTERACT", "INTERACT"])
+objective_targets = Array[String](["coast_tide", "coast_beacon"])
+objective_sources = Array[String](["coast_tide_site", "coast_beacon_site"])
+objective_counts = Array[int]([1, 1])
+objective_labels = Array[String](["밀물 표식 확인", "해안 등표 점검"])
+objective_location_hints = Array[String](["살레노 해안", "살레노 해안"])

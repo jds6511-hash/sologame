@@ -39,6 +39,18 @@ func validate(data: Dictionary, account: Dictionary) -> String:
 	error = Travel.validate(data.progress.get("travel"))
 	if error != "":
 		return error
+	# 콘텐츠 개정은 스키마 버전과 별개다. 옛 개정에 후속 장 ID를 섞지 않는다.
+	for id in data.progress.quests:
+		if Content.QUEST_REVISIONS.get(id, 0) > revision:
+			return "unsupported_content"
+	var saved_map: Variant = ""
+	if data.get("world") is Dictionary:
+		saved_map = data.world.get("map_id", "")
+	if Content.REGION_REVISIONS.get(saved_map, 0) > revision:
+		return "unsupported_content"
+	for city in data.progress.travel.unlocked:
+		if Content.REGION_REVISIONS.get(Travel.CITIES[city].map_id, 0) > revision:
+			return "unsupported_content"
 	var copy := data.duplicate(true)
 	copy.erase("content_revision")
 	copy.character_save_version = 5

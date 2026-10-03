@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "SQ-CH05-005"
+title = "갈밭 통행로"
+offer_text = "갈밭 통행로 — 현장을 확인하고 의뢰인에게 결과를 보고하세요."
+prerequisite = "MQ-05-02"
+npc_id = "marsh_guide"
+accept_npc_id = "marsh_guide"
+reward_exp = 23466
+reward_gold = 7950
+reward_reputation = 60
+objective_kinds = Array[String](["KILL", "INTERACT"])
+objective_targets = Array[String](["marsh_lizard", "marsh_walkway"])
+objective_sources = Array[String](["marsh_lizards", "marsh_walkway_site"])
+objective_counts = Array[int]([3, 1])
+objective_labels = Array[String](["습지 도마뱀전사 처치", "둑길 안전 확인"])
+objective_location_hints = Array[String](["갈밭 습지", "갈밭 습지"])

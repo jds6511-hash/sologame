@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "SQ-CH05-006"
+title = "안개 속 이정표"
+offer_text = "안개 속 이정표 — 현장을 확인하고 의뢰인에게 결과를 보고하세요."
+prerequisite = "MQ-05-03"
+npc_id = "marsh_guide"
+accept_npc_id = "marsh_guide"
+reward_exp = 23466
+reward_gold = 7950
+reward_reputation = 60
+objective_kinds = Array[String](["KILL", "INTERACT"])
+objective_targets = Array[String](["water_mist", "marsh_marker"])
+objective_sources = Array[String](["marsh_mist", "marsh_marker_site"])
+objective_counts = Array[int]([3, 1])
+objective_labels = Array[String](["물안개 정령 처치", "습지 이정표 복구"])
+objective_location_hints = Array[String](["갈밭 습지", "갈밭 습지"])

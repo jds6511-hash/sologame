@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "MQ-05-04"
+title = "대도서관의 빈칸"
+offer_text = "대도서관의 남아 있는 기록과 운송 자료를 대조하세요. 확인한 사실과 확인하지 못한 부분을 구분해 기록합니다."
+prerequisite = "MQ-05-03"
+npc_id = "arsel_librarian"
+accept_npc_id = "arsel_scholar"
+reward_exp = 55000
+reward_gold = 17000
+reward_reputation = 150
+objective_kinds = Array[String](["TALK", "INTERACT", "INTERACT"])
+objective_targets = Array[String](["arsel_librarian", "arsel_ledger", "arsel_gap"])
+objective_sources = Array[String](["", "arsel_ledger_site", "arsel_gap_site"])
+objective_counts = Array[int]([1, 1, 1])
+objective_labels = Array[String](["대도서관 사서와 대화 [F]", "소장 기록 조사", "기록 누락 대조"])
+objective_location_hints = Array[String](["아르셀 대도서관", "아르셀 대도서관", "아르셀 대도서관"])

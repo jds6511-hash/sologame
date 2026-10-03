@@ -6,6 +6,7 @@ const DIRECTORY := "user://product_territory_probe"
 var world: Node
 var failed := false
 var finished := false
+var chapter := 4
 
 
 func _initialize() -> void:
@@ -20,9 +21,15 @@ func check(value: bool, label: String) -> void:
 
 func _run() -> void:
 	var args := OS.get_cmdline_user_args()
-	if args.size() != 1 or args[0] not in ["cleanup", "seed", "reload", "reload_mid"]:
+	if args.size() not in [1, 2] or args[0] not in ["cleanup", "seed", "reload", "reload_mid"]:
 		quit(2)
 		return
+	if args.size() == 2:
+		if args[1] != "5":
+			quit(2)
+			return
+		chapter = 5
+	print("CHAPTER_CONTENT_API: ", chapter)
 	if args[0] == "cleanup":
 		if DirAccess.dir_exists_absolute(DIRECTORY):
 			for file in DirAccess.get_files_at(DIRECTORY):
@@ -132,25 +139,18 @@ func seed_session() -> void:
 	var journal: QuestJournal = world.get_node("QuestController").journal
 	var states := {}
 	for id in journal.catalog.ordered_ids():
-		if not (id.begins_with("MQ-04-") or id.begins_with("SQ-CH04-")):
+		if RegionsM7.QUEST_REVISIONS[id] < chapter - 1:
 			states[id] = {
 				"state": "completed",
 				"counts": Array(journal.catalog.definitions[id].objective_counts)
 			}
-	check(journal.restore_state(states) == "", "1막 완료 준비 fixture")
-	world.get_node("Player/PlayerProgression").add_exp(79291)
+	check(journal.restore_state(states) == "", "이전 장 완료 준비 fixture")
+	world.get_node("Player/PlayerProgression").add_exp(79291 if chapter == 4 else 283297)
 	world.get_node("Player/Inventory").add_gold(40000)
-	var ids := [
-		"MQ-04-01",
-		"MQ-04-02",
-		"MQ-04-03",
-		"MQ-04-04",
-		"SQ-CH04-001",
-		"SQ-CH04-002",
-		"SQ-CH04-003",
-		"SQ-CH04-004",
-		"SQ-CH04-005"
-	]
+	var ids := []
+	for id in journal.catalog.ordered_ids():
+		if RegionsM7.QUEST_REVISIONS[id] == chapter - 1:
+			ids.append(id)
 	for id in ids:
 		journal = world.get_node("QuestController").journal
 		var definition: QuestData = journal.catalog.definitions[id]
@@ -177,7 +177,7 @@ func seed_session() -> void:
 				check(killed == definition.objective_counts[index], "생성 수와 실제 사망 신호")
 				await process_frame
 				await process_frame
-				if id == "MQ-04-02" and index == 0:
+				if id in ["MQ-04-02", "MQ-05-03"] and index == 0:
 					await save_snapshot(2, "middle.json")
 			elif RegionsM7.SITES.has(target):
 				var site: Array = RegionsM7.SITES[target]
@@ -211,7 +211,10 @@ func seed_session() -> void:
 		check(controller.report(id, definition.npc_id) == "", "보고 " + id)
 		check(controller.report(id, definition.npc_id) != "", "중복 보고 거부")
 		check(world.get_node("Player/Inventory").gold == gold + definition.reward_gold, "보상 단회 지급")
-	check(world.get_node("QuestController").journal.reputation() == 1950, "4장 기준 공훈 합계")
+	check(
+		world.get_node("QuestController").journal.reputation() == (1950 if chapter == 4 else 3100),
+		"장 기준 공훈 합계"
+	)
 	await territory_session()
 	await save_snapshot(1, "expected.json")
 	finished = true

@@ -5,7 +5,9 @@ const Model = preload("res://scripts/territory/territory_model.gd")
 const CITIES := {
 	"novera": {"map_id": "novera_commons", "level": 10, "index": 0},
 	"gransia": {"map_id": "gransia", "level": 18, "index": 1},
-	"brantel": {"map_id": "brantel", "level": 22, "index": 2}
+	"brantel": {"map_id": "brantel", "level": 22, "index": 2},
+	"saleno": {"map_id": "saleno", "level": 26, "index": 3},
+	"arsel": {"map_id": "arsel", "level": 30, "index": 4}
 }
 const SOURCES := {
 	"eastern_frontier_start": "novera",
@@ -16,7 +18,12 @@ const SOURCES := {
 	"novera_commons": "novera",
 	"han_gilmok": "novera",
 	"gransia": "gransia",
-	"brantel": "brantel"
+	"brantel": "brantel",
+	"saleno": "saleno",
+	"saleno_coast": "saleno",
+	"reed_marsh": "saleno",
+	"arsel": "arsel",
+	"arsel_library": "arsel"
 }
 const RETURN_MS := 900000
 
@@ -33,7 +40,7 @@ static func visit(data: Dictionary, map_id: String) -> void:
 	var city := ""
 	if map_id in ["novera_gate", "novera_commons"]:
 		city = "novera"
-	elif map_id in ["gransia", "brantel"]:
+	elif CITIES.has(map_id):
 		city = map_id
 	if city != "" and city not in data.unlocked:
 		data.unlocked.append(city)

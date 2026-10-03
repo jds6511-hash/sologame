@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "SQ-CH05-007"
+title = "호반의 참고 목록"
+offer_text = "호반의 참고 목록 — 현장을 확인하고 의뢰인에게 결과를 보고하세요."
+prerequisite = "MQ-05-04"
+npc_id = "arsel_librarian"
+accept_npc_id = "arsel_librarian"
+reward_exp = 23469
+reward_gold = 7950
+reward_reputation = 90
+objective_kinds = Array[String](["INTERACT", "INTERACT"])
+objective_targets = Array[String](["arsel_notes", "arsel_index"])
+objective_sources = Array[String](["arsel_notes_site", "arsel_index_site"])
+objective_counts = Array[int]([1, 1])
+objective_labels = Array[String](["호반 주민 기록", "참고 목록 정리"])
+objective_location_hints = Array[String](["아르셀 호반", "아르셀 대도서관"])

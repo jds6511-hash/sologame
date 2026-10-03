@@ -20,7 +20,13 @@ def load_manifest(root):
 
 def merged(data):
     constants = copy.deepcopy(data['constants'])
+    quest_revisions = {key: 1 for key in constants['QUESTS']}
+    region_revisions = {key: 1 for key in constants['SCENES']}
     for chapter in data['chapters']:
+        revision = chapter.get('content_revision', chapter['chapter'] - 1)
+        if type(revision) is not int or not 1 <= revision <= constants['CURRENT_REVISION']:
+            raise ValueError('장 콘텐츠 개정 범위 오류')
+        region_revisions.update({key: revision for key in chapter['constants'].get('SCENES', {})})
         for name, value in chapter['constants'].items():
             target = constants.setdefault(name, {})
             if set(target) & set(value):
@@ -30,6 +36,9 @@ def merged(data):
             if quest['quest_id'] in constants['QUESTS']:
                 raise ValueError('중복 의뢰: ' + quest['quest_id'])
             constants['QUESTS'][quest['quest_id']] = quest['path']
+            quest_revisions[quest['quest_id']] = revision
+    constants['QUEST_REVISIONS'] = quest_revisions
+    constants['REGION_REVISIONS'] = region_revisions
     return constants
 
 

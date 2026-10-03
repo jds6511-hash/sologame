@@ -12,7 +12,7 @@ func before_each() -> void:
 	var journal: QuestJournal = world.get_node("QuestController").journal
 	var states := {}
 	for id in journal.catalog.ordered_ids():
-		if id.begins_with("MQ-04-") or id.begins_with("SQ-CH04-"):
+		if load("res://scripts/content/game_content.gd").QUEST_REVISIONS[id] > 2:
 			continue
 		states[id] = {
 			"state": "completed", "counts": Array(journal.catalog.definitions[id].objective_counts)

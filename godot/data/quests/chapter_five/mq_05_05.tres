@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "MQ-05-05"
+title = "기록을 잇는 보고"
+offer_text = "항구의 물자 흐름과 학술 기록을 대조한 조사서를 작성해 브란텔 문장원에 보고하세요."
+prerequisite = "MQ-05-04"
+npc_id = "brantel_herald"
+accept_npc_id = "arsel_librarian"
+reward_exp = 56398
+reward_gold = 17500
+reward_reputation = 200
+objective_kinds = Array[String](["INTERACT", "TALK"])
+objective_targets = Array[String](["arsel_comparison", "arsel_scholar"])
+objective_sources = Array[String](["arsel_comparison_site", ""])
+objective_counts = Array[int]([1, 1])
+objective_labels = Array[String](["항구와 도서관 기록 대조", "아르셀 기록 연구원과 대화 [F]"])
+objective_location_hints = Array[String](["아르셀 호반", "아르셀 호반"])

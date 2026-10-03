@@ -1,0 +1,1590 @@
+{
+  "chapter": 5,
+  "budget": {
+    "reward_exp": 410663,
+    "reward_gold": 135150,
+    "reward_reputation": 1150,
+    "main_exp": 246398,
+    "side_exp": 164265,
+    "main_reputation": 700,
+    "side_reputation": 450
+  },
+  "constants": {
+    "BGM_CONTEXTS": {
+      "saleno": "res://scenes/world/eastern_frontier_starting_area.tscn",
+      "saleno_coast": "res://scenes/world/eastern_frontier_starting_area.tscn",
+      "reed_marsh": "res://scenes/world/eastern_frontier_starting_area.tscn",
+      "arsel": "res://scenes/world/novera_gate.tscn",
+      "arsel_library": "res://scenes/world/novera_gate.tscn"
+    },
+    "SCENES": {
+      "saleno": "res://scenes/world/product_world.tscn",
+      "saleno_coast": "res://scenes/world/product_world.tscn",
+      "reed_marsh": "res://scenes/world/product_world.tscn",
+      "arsel": "res://scenes/world/product_world.tscn",
+      "arsel_library": "res://scenes/world/product_world.tscn"
+    },
+    "NAMES": {
+      "saleno": "살레노 항구",
+      "saleno_coast": "살레노 해안",
+      "reed_marsh": "갈밭 습지",
+      "arsel": "아르셀 호반",
+      "arsel_library": "아르셀 대도서관"
+    },
+    "BOUNDS": {
+      "saleno": {
+        "$rect": [
+          0,
+          0,
+          1536,
+          960
+        ]
+      },
+      "saleno_coast": {
+        "$rect": [
+          0,
+          0,
+          1536,
+          960
+        ]
+      },
+      "reed_marsh": {
+        "$rect": [
+          0,
+          0,
+          1536,
+          960
+        ]
+      },
+      "arsel": {
+        "$rect": [
+          0,
+          0,
+          1536,
+          960
+        ]
+      },
+      "arsel_library": {
+        "$rect": [
+          0,
+          0,
+          1536,
+          960
+        ]
+      }
+    },
+    "REGION_REQUIREMENTS": {
+      "saleno": "MQ-04-04",
+      "saleno_coast": "MQ-05-01",
+      "reed_marsh": "MQ-05-02",
+      "arsel": "MQ-05-02",
+      "arsel_library": "MQ-05-03"
+    },
+    "EDGES": {
+      "brantel_to_saleno": [
+        "brantel",
+        "saleno",
+        {
+          "$vector": [
+            1408,
+            480
+          ]
+        },
+        {
+          "$vector": [
+            176,
+            480
+          ]
+        },
+        "saleno_to_brantel"
+      ],
+      "saleno_to_brantel": [
+        "saleno",
+        "brantel",
+        {
+          "$vector": [
+            96,
+            480
+          ]
+        },
+        {
+          "$vector": [
+            1344,
+            480
+          ]
+        },
+        "brantel_to_saleno"
+      ],
+      "saleno_to_saleno_coast": [
+        "saleno",
+        "saleno_coast",
+        {
+          "$vector": [
+            1408,
+            480
+          ]
+        },
+        {
+          "$vector": [
+            176,
+            480
+          ]
+        },
+        "saleno_coast_to_saleno"
+      ],
+      "saleno_coast_to_saleno": [
+        "saleno_coast",
+        "saleno",
+        {
+          "$vector": [
+            96,
+            480
+          ]
+        },
+        {
+          "$vector": [
+            1344,
+            480
+          ]
+        },
+        "saleno_to_saleno_coast"
+      ],
+      "saleno_coast_to_reed_marsh": [
+        "saleno_coast",
+        "reed_marsh",
+        {
+          "$vector": [
+            1408,
+            480
+          ]
+        },
+        {
+          "$vector": [
+            176,
+            480
+          ]
+        },
+        "reed_marsh_to_saleno_coast"
+      ],
+      "reed_marsh_to_saleno_coast": [
+        "reed_marsh",
+        "saleno_coast",
+        {
+          "$vector": [
+            96,
+            480
+          ]
+        },
+        {
+          "$vector": [
+            1344,
+            480
+          ]
+        },
+        "saleno_coast_to_reed_marsh"
+      ],
+      "reed_marsh_to_arsel": [
+        "reed_marsh",
+        "arsel",
+        {
+          "$vector": [
+            1408,
+            480
+          ]
+        },
+        {
+          "$vector": [
+            176,
+            480
+          ]
+        },
+        "arsel_to_reed_marsh"
+      ],
+      "arsel_to_reed_marsh": [
+        "arsel",
+        "reed_marsh",
+        {
+          "$vector": [
+            96,
+            480
+          ]
+        },
+        {
+          "$vector": [
+            1344,
+            480
+          ]
+        },
+        "reed_marsh_to_arsel"
+      ],
+      "arsel_to_arsel_library": [
+        "arsel",
+        "arsel_library",
+        {
+          "$vector": [
+            1408,
+            480
+          ]
+        },
+        {
+          "$vector": [
+            176,
+            480
+          ]
+        },
+        "arsel_library_to_arsel"
+      ],
+      "arsel_library_to_arsel": [
+        "arsel_library",
+        "arsel",
+        {
+          "$vector": [
+            96,
+            480
+          ]
+        },
+        {
+          "$vector": [
+            1344,
+            480
+          ]
+        },
+        "arsel_to_arsel_library"
+      ]
+    },
+    "NPCS": {
+      "saleno_factor": [
+        "saleno",
+        {
+          "$vector": [
+            400,
+            432
+          ]
+        },
+        "살레노 운송 담당"
+      ],
+      "saleno_fisher": [
+        "saleno",
+        {
+          "$vector": [
+            736,
+            736
+          ]
+        },
+        "부두 어민 대표"
+      ],
+      "coast_patrol": [
+        "saleno_coast",
+        {
+          "$vector": [
+            288,
+            480
+          ]
+        },
+        "해안 순찰대장"
+      ],
+      "marsh_guide": [
+        "reed_marsh",
+        {
+          "$vector": [
+            304,
+            480
+          ]
+        },
+        "갈밭 길잡이"
+      ],
+      "arsel_scholar": [
+        "arsel",
+        {
+          "$vector": [
+            576,
+            480
+          ]
+        },
+        "아르셀 기록 연구원"
+      ],
+      "arsel_librarian": [
+        "arsel_library",
+        {
+          "$vector": [
+            304,
+            480
+          ]
+        },
+        "대도서관 사서"
+      ]
+    },
+    "SITES": {
+      "saleno_arrival": [
+        {
+          "$vector": [
+            240,
+            480
+          ]
+        },
+        "saleno_arrival_site",
+        "REACH",
+        "살레노 항구 도착",
+        "saleno"
+      ],
+      "saleno_manifest": [
+        {
+          "$vector": [
+            880,
+            240
+          ]
+        },
+        "saleno_manifest_site",
+        "INTERACT",
+        "창고 운송장 확인",
+        "saleno"
+      ],
+      "coast_cargo": [
+        {
+          "$vector": [
+            1120,
+            400
+          ]
+        },
+        "coast_cargo_site",
+        "INTERACT",
+        "유실 화물 조사",
+        "saleno_coast"
+      ],
+      "coast_seal": [
+        {
+          "$vector": [
+            704,
+            656
+          ]
+        },
+        "coast_seal_site",
+        "INTERACT",
+        "화물 봉인 대조",
+        "saleno_coast"
+      ],
+      "marsh_cache": [
+        {
+          "$vector": [
+            1120,
+            416
+          ]
+        },
+        "marsh_cache_site",
+        "INTERACT",
+        "촉매 밀거래 흔적",
+        "reed_marsh"
+      ],
+      "marsh_route": [
+        {
+          "$vector": [
+            752,
+            576
+          ]
+        },
+        "marsh_route_site",
+        "INTERACT",
+        "은폐 운송로 조사",
+        "reed_marsh"
+      ],
+      "arsel_ledger": [
+        {
+          "$vector": [
+            576,
+            400
+          ]
+        },
+        "arsel_ledger_site",
+        "INTERACT",
+        "소장 기록 조사",
+        "arsel_library"
+      ],
+      "arsel_gap": [
+        {
+          "$vector": [
+            944,
+            448
+          ]
+        },
+        "arsel_gap_site",
+        "INTERACT",
+        "기록 누락 대조",
+        "arsel_library"
+      ],
+      "arsel_comparison": [
+        {
+          "$vector": [
+            960,
+            480
+          ]
+        },
+        "arsel_comparison_site",
+        "INTERACT",
+        "항구와 도서관 기록 대조",
+        "arsel"
+      ],
+      "saleno_mooring": [
+        {
+          "$vector": [
+            1152,
+            240
+          ]
+        },
+        "saleno_mooring_site",
+        "INTERACT",
+        "북쪽 계류줄 확인",
+        "saleno"
+      ],
+      "saleno_pier": [
+        {
+          "$vector": [
+            1216,
+            736
+          ]
+        },
+        "saleno_pier_site",
+        "INTERACT",
+        "남쪽 부두 확인",
+        "saleno"
+      ],
+      "saleno_count": [
+        {
+          "$vector": [
+            592,
+            304
+          ]
+        },
+        "saleno_count_site",
+        "INTERACT",
+        "창고 재고 확인",
+        "saleno"
+      ],
+      "saleno_receipt": [
+        {
+          "$vector": [
+            832,
+            480
+          ]
+        },
+        "saleno_receipt_site",
+        "INTERACT",
+        "하역 영수증 대조",
+        "saleno"
+      ],
+      "coast_net": [
+        {
+          "$vector": [
+            896,
+            608
+          ]
+        },
+        "coast_net_site",
+        "INTERACT",
+        "유실 그물 회수",
+        "saleno_coast"
+      ],
+      "coast_tide": [
+        {
+          "$vector": [
+            544,
+            400
+          ]
+        },
+        "coast_tide_site",
+        "INTERACT",
+        "밀물 표식 확인",
+        "saleno_coast"
+      ],
+      "coast_beacon": [
+        {
+          "$vector": [
+            1248,
+            640
+          ]
+        },
+        "coast_beacon_site",
+        "INTERACT",
+        "해안 등표 점검",
+        "saleno_coast"
+      ],
+      "marsh_walkway": [
+        {
+          "$vector": [
+            768,
+            752
+          ]
+        },
+        "marsh_walkway_site",
+        "INTERACT",
+        "둑길 안전 확인",
+        "reed_marsh"
+      ],
+      "marsh_marker": [
+        {
+          "$vector": [
+            1232,
+            672
+          ]
+        },
+        "marsh_marker_site",
+        "INTERACT",
+        "습지 이정표 복구",
+        "reed_marsh"
+      ],
+      "arsel_notes": [
+        {
+          "$vector": [
+            528,
+            320
+          ]
+        },
+        "arsel_notes_site",
+        "INTERACT",
+        "호반 주민 기록",
+        "arsel"
+      ],
+      "arsel_index": [
+        {
+          "$vector": [
+            1216,
+            480
+          ]
+        },
+        "arsel_index_site",
+        "INTERACT",
+        "참고 목록 정리",
+        "arsel_library"
+      ]
+    },
+    "SITE_NOTICES": {
+      "arsel_gap": "목록에 적힌 일부 기록을 열람할 수 없다. 사서는 남아 있는 문헌의 목록을 내어준다. 누락 이유는 확인되지 않았다."
+    },
+    "LAYOUTS": {
+      "saleno": {
+        "spawn": {
+          "$vector": [
+            160,
+            480
+          ]
+        },
+        "floor": {
+          "$vectori": [
+            0,
+            0
+          ]
+        },
+        "patches": [
+          {
+            "rect": {
+              "$rect": [
+                5,
+                27,
+                85,
+                6
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                0
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                64,
+                1,
+                31,
+                58
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                1,
+                1
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                50,
+                12,
+                40,
+                5
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                0
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                50,
+                27,
+                40,
+                5
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                0
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                50,
+                44,
+                40,
+                5
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                0
+              ]
+            }
+          }
+        ]
+      },
+      "saleno_coast": {
+        "spawn": {
+          "$vector": [
+            160,
+            480
+          ]
+        },
+        "floor": {
+          "$vectori": [
+            0,
+            0
+          ]
+        },
+        "patches": [
+          {
+            "rect": {
+              "$rect": [
+                5,
+                27,
+                85,
+                6
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                0
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                1,
+                1,
+                94,
+                10
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                1,
+                1
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                8,
+                11,
+                82,
+                8
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                0
+              ]
+            }
+          }
+        ]
+      },
+      "reed_marsh": {
+        "spawn": {
+          "$vector": [
+            160,
+            480
+          ]
+        },
+        "floor": {
+          "$vectori": [
+            0,
+            0
+          ]
+        },
+        "patches": [
+          {
+            "rect": {
+              "$rect": [
+                5,
+                27,
+                85,
+                6
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                0
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                24,
+                8,
+                14,
+                16
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                1,
+                1
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                57,
+                36,
+                16,
+                17
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                1,
+                1
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                44,
+                8,
+                6,
+                45
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                0
+              ]
+            }
+          }
+        ]
+      },
+      "arsel": {
+        "spawn": {
+          "$vector": [
+            160,
+            480
+          ]
+        },
+        "floor": {
+          "$vectori": [
+            0,
+            0
+          ]
+        },
+        "patches": [
+          {
+            "rect": {
+              "$rect": [
+                5,
+                27,
+                85,
+                6
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                0
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                1,
+                1,
+                25,
+                24
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                1,
+                1
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                29,
+                8,
+                6,
+                46
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                2
+              ]
+            }
+          }
+        ]
+      },
+      "arsel_library": {
+        "spawn": {
+          "$vector": [
+            160,
+            480
+          ]
+        },
+        "floor": {
+          "$vectori": [
+            2,
+            2
+          ]
+        },
+        "patches": [
+          {
+            "rect": {
+              "$rect": [
+                5,
+                27,
+                85,
+                6
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                0
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                24,
+                7,
+                3,
+                12
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                1,
+                2
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                24,
+                38,
+                3,
+                12
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                1,
+                2
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                46,
+                7,
+                3,
+                12
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                1,
+                2
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                46,
+                38,
+                3,
+                12
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                1,
+                2
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                68,
+                7,
+                3,
+                12
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                1,
+                2
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                68,
+                38,
+                3,
+                12
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                1,
+                2
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "QUEST_REQUIREMENTS": {
+      "MQ-05-01": {
+        "reputation": 1400
+      }
+    },
+    "HABITATS": {
+      "saleno_crabs": [
+        "saleno_coast",
+        [
+          {
+            "$vector": [
+              544,
+              272
+            ]
+          },
+          {
+            "$vector": [
+              768,
+              304
+            ]
+          },
+          {
+            "$vector": [
+              1088,
+              288
+            ]
+          }
+        ],
+        "wolf",
+        "tidal_crab"
+      ],
+      "marsh_lizards": [
+        "reed_marsh",
+        [
+          {
+            "$vector": [
+              720,
+              288
+            ]
+          },
+          {
+            "$vector": [
+              960,
+              320
+            ]
+          },
+          {
+            "$vector": [
+              1216,
+              288
+            ]
+          }
+        ],
+        "outlaw",
+        "marsh_lizard"
+      ],
+      "marsh_mist": [
+        "reed_marsh",
+        [
+          {
+            "$vector": [
+              384,
+              736
+            ]
+          },
+          {
+            "$vector": [
+              640,
+              752
+            ]
+          },
+          {
+            "$vector": [
+              1280,
+              736
+            ]
+          }
+        ],
+        "rift_slime",
+        "water_mist"
+      ]
+    },
+    "MONSTER_VARIANTS": {
+      "tidal_crab": {
+        "title": "갯게 마수",
+        "scene": "wolf",
+        "stats": "res://data/monsters/chapter_five/tidal_crab.tres",
+        "level": 24
+      },
+      "marsh_lizard": {
+        "title": "습지 도마뱀전사",
+        "scene": "outlaw",
+        "stats": "res://data/monsters/chapter_five/marsh_lizard.tres",
+        "level": 27
+      },
+      "water_mist": {
+        "title": "물안개 정령",
+        "scene": "rift_slime",
+        "stats": "res://data/monsters/chapter_five/water_mist.tres",
+        "level": 29
+      }
+    },
+    "MERCHANTS": {
+      "saleno": [
+        {
+          "$vector": [
+            480,
+            528
+          ]
+        }
+      ],
+      "arsel": [
+        {
+          "$vector": [
+            448,
+            528
+          ]
+        }
+      ]
+    },
+    "WARP_ARRIVALS": {
+      "saleno": {
+        "$vector": [
+          176,
+          480
+        ]
+      },
+      "arsel": {
+        "$vector": [
+          176,
+          480
+        ]
+      }
+    }
+  },
+  "quests": [
+    {
+      "quest_id": "MQ-05-01",
+      "path": "res://data/quests/chapter_five/mq_05_01.tres",
+      "title": "바닷길의 운송장",
+      "offer_text": "살레노 항구의 운송장을 조사하세요. 변경에 흘러든 물자의 출발지를 확인해야 합니다.",
+      "prerequisite": "MQ-04-04",
+      "npc_id": "saleno_factor",
+      "accept_npc_id": "brantel_herald",
+      "reward_exp": 40000,
+      "reward_gold": 14000,
+      "reward_reputation": 100,
+      "objective_kinds": [
+        "REACH",
+        "TALK",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "saleno_arrival",
+        "saleno_factor",
+        "saleno_manifest"
+      ],
+      "objective_sources": [
+        "saleno_arrival_site",
+        "",
+        "saleno_manifest_site"
+      ],
+      "objective_counts": [
+        1,
+        1,
+        1
+      ],
+      "objective_labels": [
+        "살레노 항구 도착",
+        "살레노 운송 담당과 대화 [F]",
+        "창고 운송장 확인"
+      ],
+      "objective_location_hints": [
+        "살레노 항구",
+        "살레노 항구",
+        "살레노 항구"
+      ]
+    },
+    {
+      "quest_id": "MQ-05-02",
+      "path": "res://data/quests/chapter_five/mq_05_02.tres",
+      "title": "해안에 남은 물자",
+      "offer_text": "해안의 갯게를 물리치고 유실된 화물과 봉인을 대조하세요.",
+      "prerequisite": "MQ-05-01",
+      "npc_id": "coast_patrol",
+      "accept_npc_id": "saleno_factor",
+      "reward_exp": 45000,
+      "reward_gold": 15000,
+      "reward_reputation": 125,
+      "objective_kinds": [
+        "KILL",
+        "INTERACT",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "tidal_crab",
+        "coast_cargo",
+        "coast_seal"
+      ],
+      "objective_sources": [
+        "saleno_crabs",
+        "coast_cargo_site",
+        "coast_seal_site"
+      ],
+      "objective_counts": [
+        3,
+        1,
+        1
+      ],
+      "objective_labels": [
+        "갯게 마수 처치",
+        "유실 화물 조사",
+        "화물 봉인 대조"
+      ],
+      "objective_location_hints": [
+        "살레노 해안",
+        "살레노 해안",
+        "살레노 해안"
+      ]
+    },
+    {
+      "quest_id": "MQ-05-03",
+      "path": "res://data/quests/chapter_five/mq_05_03.tres",
+      "title": "갈밭의 촉매",
+      "offer_text": "갈밭의 은폐 운송로와 촉매 거래 흔적을 확인한 뒤 아르셀 연구원에게 자문을 구하세요.",
+      "prerequisite": "MQ-05-02",
+      "npc_id": "arsel_scholar",
+      "accept_npc_id": "coast_patrol",
+      "reward_exp": 50000,
+      "reward_gold": 16000,
+      "reward_reputation": 125,
+      "objective_kinds": [
+        "KILL",
+        "INTERACT",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "marsh_lizard",
+        "marsh_cache",
+        "marsh_route"
+      ],
+      "objective_sources": [
+        "marsh_lizards",
+        "marsh_cache_site",
+        "marsh_route_site"
+      ],
+      "objective_counts": [
+        3,
+        1,
+        1
+      ],
+      "objective_labels": [
+        "습지 도마뱀전사 처치",
+        "촉매 밀거래 흔적",
+        "은폐 운송로 조사"
+      ],
+      "objective_location_hints": [
+        "갈밭 습지",
+        "갈밭 습지",
+        "갈밭 습지"
+      ]
+    },
+    {
+      "quest_id": "MQ-05-04",
+      "path": "res://data/quests/chapter_five/mq_05_04.tres",
+      "title": "대도서관의 빈칸",
+      "offer_text": "대도서관의 남아 있는 기록과 운송 자료를 대조하세요. 확인한 사실과 확인하지 못한 부분을 구분해 기록합니다.",
+      "prerequisite": "MQ-05-03",
+      "npc_id": "arsel_librarian",
+      "accept_npc_id": "arsel_scholar",
+      "reward_exp": 55000,
+      "reward_gold": 17000,
+      "reward_reputation": 150,
+      "objective_kinds": [
+        "TALK",
+        "INTERACT",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "arsel_librarian",
+        "arsel_ledger",
+        "arsel_gap"
+      ],
+      "objective_sources": [
+        "",
+        "arsel_ledger_site",
+        "arsel_gap_site"
+      ],
+      "objective_counts": [
+        1,
+        1,
+        1
+      ],
+      "objective_labels": [
+        "대도서관 사서와 대화 [F]",
+        "소장 기록 조사",
+        "기록 누락 대조"
+      ],
+      "objective_location_hints": [
+        "아르셀 대도서관",
+        "아르셀 대도서관",
+        "아르셀 대도서관"
+      ]
+    },
+    {
+      "quest_id": "MQ-05-05",
+      "path": "res://data/quests/chapter_five/mq_05_05.tres",
+      "title": "기록을 잇는 보고",
+      "offer_text": "항구의 물자 흐름과 학술 기록을 대조한 조사서를 작성해 브란텔 문장원에 보고하세요.",
+      "prerequisite": "MQ-05-04",
+      "npc_id": "brantel_herald",
+      "accept_npc_id": "arsel_librarian",
+      "reward_exp": 56398,
+      "reward_gold": 17500,
+      "reward_reputation": 200,
+      "objective_kinds": [
+        "INTERACT",
+        "TALK"
+      ],
+      "objective_targets": [
+        "arsel_comparison",
+        "arsel_scholar"
+      ],
+      "objective_sources": [
+        "arsel_comparison_site",
+        ""
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "항구와 도서관 기록 대조",
+        "아르셀 기록 연구원과 대화 [F]"
+      ],
+      "objective_location_hints": [
+        "아르셀 호반",
+        "아르셀 호반"
+      ]
+    },
+    {
+      "quest_id": "SQ-CH05-001",
+      "path": "res://data/quests/chapter_five/sq_ch05_001.tres",
+      "title": "부두의 안전",
+      "offer_text": "부두의 안전 — 현장을 확인하고 의뢰인에게 결과를 보고하세요.",
+      "prerequisite": "MQ-05-01",
+      "npc_id": "saleno_fisher",
+      "accept_npc_id": "saleno_fisher",
+      "reward_exp": 23466,
+      "reward_gold": 7950,
+      "reward_reputation": 60,
+      "objective_kinds": [
+        "INTERACT",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "saleno_mooring",
+        "saleno_pier"
+      ],
+      "objective_sources": [
+        "saleno_mooring_site",
+        "saleno_pier_site"
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "북쪽 계류줄 확인",
+        "남쪽 부두 확인"
+      ],
+      "objective_location_hints": [
+        "살레노 항구",
+        "살레노 항구"
+      ]
+    },
+    {
+      "quest_id": "SQ-CH05-002",
+      "path": "res://data/quests/chapter_five/sq_ch05_002.tres",
+      "title": "빠진 수량",
+      "offer_text": "빠진 수량 — 현장을 확인하고 의뢰인에게 결과를 보고하세요.",
+      "prerequisite": "MQ-05-01",
+      "npc_id": "saleno_factor",
+      "accept_npc_id": "saleno_factor",
+      "reward_exp": 23466,
+      "reward_gold": 7950,
+      "reward_reputation": 60,
+      "objective_kinds": [
+        "INTERACT",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "saleno_count",
+        "saleno_receipt"
+      ],
+      "objective_sources": [
+        "saleno_count_site",
+        "saleno_receipt_site"
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "창고 재고 확인",
+        "하역 영수증 대조"
+      ],
+      "objective_location_hints": [
+        "살레노 항구",
+        "살레노 항구"
+      ]
+    },
+    {
+      "quest_id": "SQ-CH05-003",
+      "path": "res://data/quests/chapter_five/sq_ch05_003.tres",
+      "title": "어민의 그물",
+      "offer_text": "어민의 그물 — 현장을 확인하고 의뢰인에게 결과를 보고하세요.",
+      "prerequisite": "MQ-05-01",
+      "npc_id": "coast_patrol",
+      "accept_npc_id": "coast_patrol",
+      "reward_exp": 23466,
+      "reward_gold": 7950,
+      "reward_reputation": 60,
+      "objective_kinds": [
+        "KILL",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "tidal_crab",
+        "coast_net"
+      ],
+      "objective_sources": [
+        "saleno_crabs",
+        "coast_net_site"
+      ],
+      "objective_counts": [
+        3,
+        1
+      ],
+      "objective_labels": [
+        "갯게 마수 처치",
+        "유실 그물 회수"
+      ],
+      "objective_location_hints": [
+        "살레노 해안",
+        "살레노 해안"
+      ]
+    },
+    {
+      "quest_id": "SQ-CH05-004",
+      "path": "res://data/quests/chapter_five/sq_ch05_004.tres",
+      "title": "밀물의 표식",
+      "offer_text": "밀물의 표식 — 현장을 확인하고 의뢰인에게 결과를 보고하세요.",
+      "prerequisite": "MQ-05-02",
+      "npc_id": "coast_patrol",
+      "accept_npc_id": "coast_patrol",
+      "reward_exp": 23466,
+      "reward_gold": 7950,
+      "reward_reputation": 60,
+      "objective_kinds": [
+        "INTERACT",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "coast_tide",
+        "coast_beacon"
+      ],
+      "objective_sources": [
+        "coast_tide_site",
+        "coast_beacon_site"
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "밀물 표식 확인",
+        "해안 등표 점검"
+      ],
+      "objective_location_hints": [
+        "살레노 해안",
+        "살레노 해안"
+      ]
+    },
+    {
+      "quest_id": "SQ-CH05-005",
+      "path": "res://data/quests/chapter_five/sq_ch05_005.tres",
+      "title": "갈밭 통행로",
+      "offer_text": "갈밭 통행로 — 현장을 확인하고 의뢰인에게 결과를 보고하세요.",
+      "prerequisite": "MQ-05-02",
+      "npc_id": "marsh_guide",
+      "accept_npc_id": "marsh_guide",
+      "reward_exp": 23466,
+      "reward_gold": 7950,
+      "reward_reputation": 60,
+      "objective_kinds": [
+        "KILL",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "marsh_lizard",
+        "marsh_walkway"
+      ],
+      "objective_sources": [
+        "marsh_lizards",
+        "marsh_walkway_site"
+      ],
+      "objective_counts": [
+        3,
+        1
+      ],
+      "objective_labels": [
+        "습지 도마뱀전사 처치",
+        "둑길 안전 확인"
+      ],
+      "objective_location_hints": [
+        "갈밭 습지",
+        "갈밭 습지"
+      ]
+    },
+    {
+      "quest_id": "SQ-CH05-006",
+      "path": "res://data/quests/chapter_five/sq_ch05_006.tres",
+      "title": "안개 속 이정표",
+      "offer_text": "안개 속 이정표 — 현장을 확인하고 의뢰인에게 결과를 보고하세요.",
+      "prerequisite": "MQ-05-03",
+      "npc_id": "marsh_guide",
+      "accept_npc_id": "marsh_guide",
+      "reward_exp": 23466,
+      "reward_gold": 7950,
+      "reward_reputation": 60,
+      "objective_kinds": [
+        "KILL",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "water_mist",
+        "marsh_marker"
+      ],
+      "objective_sources": [
+        "marsh_mist",
+        "marsh_marker_site"
+      ],
+      "objective_counts": [
+        3,
+        1
+      ],
+      "objective_labels": [
+        "물안개 정령 처치",
+        "습지 이정표 복구"
+      ],
+      "objective_location_hints": [
+        "갈밭 습지",
+        "갈밭 습지"
+      ]
+    },
+    {
+      "quest_id": "SQ-CH05-007",
+      "path": "res://data/quests/chapter_five/sq_ch05_007.tres",
+      "title": "호반의 참고 목록",
+      "offer_text": "호반의 참고 목록 — 현장을 확인하고 의뢰인에게 결과를 보고하세요.",
+      "prerequisite": "MQ-05-04",
+      "npc_id": "arsel_librarian",
+      "accept_npc_id": "arsel_librarian",
+      "reward_exp": 23469,
+      "reward_gold": 7950,
+      "reward_reputation": 90,
+      "objective_kinds": [
+        "INTERACT",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "arsel_notes",
+        "arsel_index"
+      ],
+      "objective_sources": [
+        "arsel_notes_site",
+        "arsel_index_site"
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "호반 주민 기록",
+        "참고 목록 정리"
+      ],
+      "objective_location_hints": [
+        "아르셀 호반",
+        "아르셀 대도서관"
+      ]
+    }
+  ],
+  "content_revision": 4
+}

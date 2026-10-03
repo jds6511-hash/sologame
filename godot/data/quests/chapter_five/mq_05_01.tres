@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "MQ-05-01"
+title = "바닷길의 운송장"
+offer_text = "살레노 항구의 운송장을 조사하세요. 변경에 흘러든 물자의 출발지를 확인해야 합니다."
+prerequisite = "MQ-04-04"
+npc_id = "saleno_factor"
+accept_npc_id = "brantel_herald"
+reward_exp = 40000
+reward_gold = 14000
+reward_reputation = 100
+objective_kinds = Array[String](["REACH", "TALK", "INTERACT"])
+objective_targets = Array[String](["saleno_arrival", "saleno_factor", "saleno_manifest"])
+objective_sources = Array[String](["saleno_arrival_site", "", "saleno_manifest_site"])
+objective_counts = Array[int]([1, 1, 1])
+objective_labels = Array[String](["살레노 항구 도착", "살레노 운송 담당과 대화 [F]", "창고 운송장 확인"])
+objective_location_hints = Array[String](["살레노 항구", "살레노 항구", "살레노 항구"])

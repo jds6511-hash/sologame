@@ -95,6 +95,7 @@ try {
     foreach ($check in @(
         @{name='content-tests';script='docs/qa/tools/test_chapter_content.py';arguments=@()},
         @{name='chapter-four-tests';script='docs/qa/tools/test_chapter_four_content.py';arguments=@()},
+        @{name='chapter-five-tests';script='docs/qa/tools/test_chapter_five_content.py';arguments=@()},
         @{name='content-generated';script='tools/generate_chapter_content.py';arguments=@('--check')}
     )) {
         $log = Join-Path $out ($check.name + '.log')
@@ -138,6 +139,9 @@ try {
     Probe-Series 'product-content' '../docs/qa/tools/product_content_probe.gd' @('cleanup','seed','reload_mid','reload','cleanup') 'PRODUCT_CONTENT_PASS'
     Probe-Series 'product-defense' '../docs/qa/tools/product_defense_probe.gd' @('cleanup','seed','reload_mid','reload','cleanup') 'PRODUCT_DEFENSE_PASS'
     Probe-Series 'product-territory' '../docs/qa/tools/product_territory_probe.gd' @('cleanup','seed','reload_mid','reload','cleanup') 'PRODUCT_TERRITORY_PASS'
+    foreach ($phase in @('cleanup','seed','reload_mid','reload','cleanup')) {
+        $null = Run-Engine "product-chapter-five-$phase" ('-s ../docs/qa/tools/product_territory_probe.gd -- ' + $phase + ' 5') 'PRODUCT_TERRITORY_PASS' 180
+    }
     foreach ($slot in @(1,3)) {
         foreach ($phase in @('migrate','verify')) {
             $null = Run-Engine "real-copy-$slot-$phase" ('-s ../docs/qa/tools/product_real_copy_probe.gd -- ' + $phase + ' ' + $slot) 'PRODUCT_REAL_COPY_PASS'
@@ -176,7 +180,7 @@ try {
             $failure += ' Actual save manifest changed (possibly a concurrently running game). Original files were not restored.'
         }
     } catch { $status='failed'; $failure += ' Cannot verify final actual-save hashes: ' + $_.Exception.Message }
-    @{status=$status;error=$failure;format=7;content_revision=3;combat_requested=[bool]$Combat;actual_unchanged=($null -ne $before -and $null -ne $after -and ($before | ConvertTo-Json -Compress) -eq ($after | ConvertTo-Json -Compress));results=$records.ToArray()} | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $out 'result.json') -Encoding UTF8
+    @{status=$status;error=$failure;format=7;content_revision=4;combat_requested=[bool]$Combat;actual_unchanged=($null -ne $before -and $null -ne $after -and ($before | ConvertTo-Json -Compress) -eq ($after | ConvertTo-Json -Compress));results=$records.ToArray()} | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $out 'result.json') -Encoding UTF8
 }
 Write-Output ("VERIFY_ALL_{0} steps={1} result={2} {3}" -f $status.ToUpper(),$records.Count,(Join-Path $out 'result.json'),$failure)
 if ($status -ne 'pass') { exit 1 }

@@ -1,6 +1,6 @@
 extends RefCounted
 ## 자동 생성: tools/generate_chapter_content.py · 원본 godot/data/content/*.json
-const CURRENT_REVISION := 3
+const CURRENT_REVISION := 4
 const BGM_CONTEXTS := {
 	"eastern_frontier_start": "res://scenes/world/eastern_frontier_starting_area.tscn",
 	"novera_gate": "res://scenes/world/novera_gate.tscn",
@@ -11,6 +11,11 @@ const BGM_CONTEXTS := {
 	"han_gilmok": "res://scenes/world/novera_gate.tscn",
 	"gransia": "res://scenes/world/novera_gate.tscn",
 	"brantel": "res://scenes/world/novera_gate.tscn",
+	"saleno": "res://scenes/world/eastern_frontier_starting_area.tscn",
+	"saleno_coast": "res://scenes/world/eastern_frontier_starting_area.tscn",
+	"reed_marsh": "res://scenes/world/eastern_frontier_starting_area.tscn",
+	"arsel": "res://scenes/world/novera_gate.tscn",
+	"arsel_library": "res://scenes/world/novera_gate.tscn",
 }
 const SCENES := {
 	"eastern_frontier_start": "res://scenes/world/product_world.tscn",
@@ -22,6 +27,11 @@ const SCENES := {
 	"han_gilmok": "res://scenes/world/product_world.tscn",
 	"gransia": "res://scenes/world/product_world.tscn",
 	"brantel": "res://scenes/world/product_world.tscn",
+	"saleno": "res://scenes/world/product_world.tscn",
+	"saleno_coast": "res://scenes/world/product_world.tscn",
+	"reed_marsh": "res://scenes/world/product_world.tscn",
+	"arsel": "res://scenes/world/product_world.tscn",
+	"arsel_library": "res://scenes/world/product_world.tscn",
 }
 const NAMES := {
 	"eastern_frontier_start": "여울목",
@@ -33,6 +43,11 @@ const NAMES := {
 	"han_gilmok": "한길목 가도",
 	"gransia": "그란시아 평야",
 	"brantel": "브란텔 문장원",
+	"saleno": "살레노 항구",
+	"saleno_coast": "살레노 해안",
+	"reed_marsh": "갈밭 습지",
+	"arsel": "아르셀 호반",
+	"arsel_library": "아르셀 대도서관",
 }
 const BOUNDS := {
 	"eastern_frontier_start": Rect2(0, 0, 768, 576),
@@ -44,6 +59,11 @@ const BOUNDS := {
 	"han_gilmok": Rect2(0, 0, 1536, 960),
 	"gransia": Rect2(0, 0, 1536, 960),
 	"brantel": Rect2(0, 0, 1536, 960),
+	"saleno": Rect2(0, 0, 1536, 960),
+	"saleno_coast": Rect2(0, 0, 1536, 960),
+	"reed_marsh": Rect2(0, 0, 1536, 960),
+	"arsel": Rect2(0, 0, 1536, 960),
+	"arsel_library": Rect2(0, 0, 1536, 960),
 }
 const EDGES := {
 	"yeoulmok_gatewarden":
@@ -162,6 +182,62 @@ const EDGES := {
 	["gransia", "brantel", Vector2(1408, 480), Vector2(192, 480), "brantel_to_gransia"],
 	"brantel_to_gransia":
 	["brantel", "gransia", Vector2(112, 480), Vector2(1344, 480), "gransia_to_brantel"],
+	"brantel_to_saleno":
+	["brantel", "saleno", Vector2(1408, 480), Vector2(176, 480), "saleno_to_brantel"],
+	"saleno_to_brantel":
+	["saleno", "brantel", Vector2(96, 480), Vector2(1344, 480), "brantel_to_saleno"],
+	"saleno_to_saleno_coast":
+	[
+		"saleno",
+		"saleno_coast",
+		Vector2(1408, 480),
+		Vector2(176, 480),
+		"saleno_coast_to_saleno",
+	],
+	"saleno_coast_to_saleno":
+	[
+		"saleno_coast",
+		"saleno",
+		Vector2(96, 480),
+		Vector2(1344, 480),
+		"saleno_to_saleno_coast",
+	],
+	"saleno_coast_to_reed_marsh":
+	[
+		"saleno_coast",
+		"reed_marsh",
+		Vector2(1408, 480),
+		Vector2(176, 480),
+		"reed_marsh_to_saleno_coast",
+	],
+	"reed_marsh_to_saleno_coast":
+	[
+		"reed_marsh",
+		"saleno_coast",
+		Vector2(96, 480),
+		Vector2(1344, 480),
+		"saleno_coast_to_reed_marsh",
+	],
+	"reed_marsh_to_arsel":
+	["reed_marsh", "arsel", Vector2(1408, 480), Vector2(176, 480), "arsel_to_reed_marsh"],
+	"arsel_to_reed_marsh":
+	["arsel", "reed_marsh", Vector2(96, 480), Vector2(1344, 480), "reed_marsh_to_arsel"],
+	"arsel_to_arsel_library":
+	[
+		"arsel",
+		"arsel_library",
+		Vector2(1408, 480),
+		Vector2(176, 480),
+		"arsel_library_to_arsel",
+	],
+	"arsel_library_to_arsel":
+	[
+		"arsel_library",
+		"arsel",
+		Vector2(96, 480),
+		Vector2(1344, 480),
+		"arsel_to_arsel_library",
+	],
 }
 const QUESTS := {
 	"MQ-01-01": "res://data/quests/mq_01_01.tres",
@@ -194,6 +270,18 @@ const QUESTS := {
 	"SQ-CH04-003": "res://data/quests/chapter_four/sq_ch04_003.tres",
 	"SQ-CH04-004": "res://data/quests/chapter_four/sq_ch04_004.tres",
 	"SQ-CH04-005": "res://data/quests/chapter_four/sq_ch04_005.tres",
+	"MQ-05-01": "res://data/quests/chapter_five/mq_05_01.tres",
+	"MQ-05-02": "res://data/quests/chapter_five/mq_05_02.tres",
+	"MQ-05-03": "res://data/quests/chapter_five/mq_05_03.tres",
+	"MQ-05-04": "res://data/quests/chapter_five/mq_05_04.tres",
+	"MQ-05-05": "res://data/quests/chapter_five/mq_05_05.tres",
+	"SQ-CH05-001": "res://data/quests/chapter_five/sq_ch05_001.tres",
+	"SQ-CH05-002": "res://data/quests/chapter_five/sq_ch05_002.tres",
+	"SQ-CH05-003": "res://data/quests/chapter_five/sq_ch05_003.tres",
+	"SQ-CH05-004": "res://data/quests/chapter_five/sq_ch05_004.tres",
+	"SQ-CH05-005": "res://data/quests/chapter_five/sq_ch05_005.tres",
+	"SQ-CH05-006": "res://data/quests/chapter_five/sq_ch05_006.tres",
+	"SQ-CH05-007": "res://data/quests/chapter_five/sq_ch05_007.tres",
 }
 const NPCS := {
 	"yeoulmok_receptionist": ["eastern_frontier_start", Vector2(152, 440), "접수원"],
@@ -207,6 +295,12 @@ const NPCS := {
 	"brantel_herald": ["brantel", Vector2(432, 432), "문장원 담당관"],
 	"mariel": ["brantel", Vector2(704, 384), "마리엔"],
 	"arvein": ["brantel", Vector2(864, 384), "오르베인"],
+	"saleno_factor": ["saleno", Vector2(400, 432), "살레노 운송 담당"],
+	"saleno_fisher": ["saleno", Vector2(736, 736), "부두 어민 대표"],
+	"coast_patrol": ["saleno_coast", Vector2(288, 480), "해안 순찰대장"],
+	"marsh_guide": ["reed_marsh", Vector2(304, 480), "갈밭 길잡이"],
+	"arsel_scholar": ["arsel", Vector2(576, 480), "아르셀 기록 연구원"],
+	"arsel_librarian": ["arsel_library", Vector2(304, 480), "대도서관 사서"],
 }
 const MERCHANTS := {
 	"novera_gate": [Vector2(216, 440)],
@@ -214,6 +308,8 @@ const MERCHANTS := {
 	"han_gilmok": [Vector2(240, 528)],
 	"gransia": [Vector2(240, 528)],
 	"brantel": [Vector2(240, 528)],
+	"saleno": [Vector2(480, 528)],
+	"arsel": [Vector2(448, 528)],
 }
 const REGION_REQUIREMENTS := {
 	"novera_gate": "MQ-01-05",
@@ -224,6 +320,11 @@ const REGION_REQUIREMENTS := {
 	"han_gilmok": "MQ-03-05",
 	"gransia": "MQ-04-01",
 	"brantel": "MQ-04-02",
+	"saleno": "MQ-04-04",
+	"saleno_coast": "MQ-05-01",
+	"reed_marsh": "MQ-05-02",
+	"arsel": "MQ-05-02",
+	"arsel_library": "MQ-05-03",
 }
 const SITES := {
 	"yeoulmok_old_rift_entrance":
@@ -413,6 +514,34 @@ const SITES := {
 	"gransia_supply": [Vector2(944, 544), "gransia_supply_site", "INTERACT", "장원 보급 장부", "gransia"],
 	"brantel_petition":
 	[Vector2(1024, 624), "brantel_petition_site", "INTERACT", "주민 민원 접수", "brantel"],
+	"saleno_arrival": [Vector2(240, 480), "saleno_arrival_site", "REACH", "살레노 항구 도착", "saleno"],
+	"saleno_manifest":
+	[Vector2(880, 240), "saleno_manifest_site", "INTERACT", "창고 운송장 확인", "saleno"],
+	"coast_cargo": [Vector2(1120, 400), "coast_cargo_site", "INTERACT", "유실 화물 조사", "saleno_coast"],
+	"coast_seal": [Vector2(704, 656), "coast_seal_site", "INTERACT", "화물 봉인 대조", "saleno_coast"],
+	"marsh_cache": [Vector2(1120, 416), "marsh_cache_site", "INTERACT", "촉매 밀거래 흔적", "reed_marsh"],
+	"marsh_route": [Vector2(752, 576), "marsh_route_site", "INTERACT", "은폐 운송로 조사", "reed_marsh"],
+	"arsel_ledger":
+	[Vector2(576, 400), "arsel_ledger_site", "INTERACT", "소장 기록 조사", "arsel_library"],
+	"arsel_gap": [Vector2(944, 448), "arsel_gap_site", "INTERACT", "기록 누락 대조", "arsel_library"],
+	"arsel_comparison":
+	[Vector2(960, 480), "arsel_comparison_site", "INTERACT", "항구와 도서관 기록 대조", "arsel"],
+	"saleno_mooring":
+	[Vector2(1152, 240), "saleno_mooring_site", "INTERACT", "북쪽 계류줄 확인", "saleno"],
+	"saleno_pier": [Vector2(1216, 736), "saleno_pier_site", "INTERACT", "남쪽 부두 확인", "saleno"],
+	"saleno_count": [Vector2(592, 304), "saleno_count_site", "INTERACT", "창고 재고 확인", "saleno"],
+	"saleno_receipt": [Vector2(832, 480), "saleno_receipt_site", "INTERACT", "하역 영수증 대조", "saleno"],
+	"coast_net": [Vector2(896, 608), "coast_net_site", "INTERACT", "유실 그물 회수", "saleno_coast"],
+	"coast_tide": [Vector2(544, 400), "coast_tide_site", "INTERACT", "밀물 표식 확인", "saleno_coast"],
+	"coast_beacon":
+	[Vector2(1248, 640), "coast_beacon_site", "INTERACT", "해안 등표 점검", "saleno_coast"],
+	"marsh_walkway":
+	[Vector2(768, 752), "marsh_walkway_site", "INTERACT", "둑길 안전 확인", "reed_marsh"],
+	"marsh_marker":
+	[Vector2(1232, 672), "marsh_marker_site", "INTERACT", "습지 이정표 복구", "reed_marsh"],
+	"arsel_notes": [Vector2(528, 320), "arsel_notes_site", "INTERACT", "호반 주민 기록", "arsel"],
+	"arsel_index":
+	[Vector2(1216, 480), "arsel_index_site", "INTERACT", "참고 목록 정리", "arsel_library"],
 }
 const MARKER_HABITATS := {
 	"yeoulmok_rabbit_habitat": ["eastern_frontier_start", "Markers/MonsterSpawns_뿔토끼"],
@@ -470,6 +599,27 @@ const HABITATS := {
 	],
 	"han_highwaymen":
 	["han_gilmok", [Vector2(640, 784), Vector2(896, 784)], "highwayman", "highwayman"],
+	"saleno_crabs":
+	[
+		"saleno_coast",
+		[Vector2(544, 272), Vector2(768, 304), Vector2(1088, 288)],
+		"wolf",
+		"tidal_crab",
+	],
+	"marsh_lizards":
+	[
+		"reed_marsh",
+		[Vector2(720, 288), Vector2(960, 320), Vector2(1216, 288)],
+		"outlaw",
+		"marsh_lizard",
+	],
+	"marsh_mist":
+	[
+		"reed_marsh",
+		[Vector2(384, 736), Vector2(640, 752), Vector2(1280, 736)],
+		"rift_slime",
+		"water_mist",
+	],
 }
 const MARKER_CONTENT_IDS := {
 	"yeoulmok_rabbit_habitat": "horned_rabbit",
@@ -518,6 +668,7 @@ const RALLIES := {
 const SITE_NOTICES := {
 	"yeoulmok_shadow_trace": "무너진 방책 너머에서 그림자가 마수들에게 말을 건넨다. 눈을 돌린 순간 모습은 사라졌다. 누구인지는 알 수 없다.",
 	"arvein_dispatch": "오르베인이 원정대 앞에 선다. 왕가의 깃발 아래 병사들이 대열을 정비한다. 마리엔은 변경의 주민을 살피고 돌아오라 당부한다.",
+	"arsel_gap": "목록에 적힌 일부 기록을 열람할 수 없다. 사서는 남아 있는 문헌의 목록을 내어준다. 누락 이유는 확인되지 않았다.",
 }
 const LAYOUTS := {
 	"yeoulmok_defense":
@@ -574,6 +725,134 @@ const LAYOUTS := {
 			},
 		],
 	},
+	"saleno":
+	{
+		"spawn": Vector2(160, 480),
+		"floor": Vector2i(0, 0),
+		"patches":
+		[
+			{
+				"rect": Rect2(5, 27, 85, 6),
+				"tile": Vector2i(2, 0),
+			},
+			{
+				"rect": Rect2(64, 1, 31, 58),
+				"tile": Vector2i(1, 1),
+			},
+			{
+				"rect": Rect2(50, 12, 40, 5),
+				"tile": Vector2i(2, 0),
+			},
+			{
+				"rect": Rect2(50, 27, 40, 5),
+				"tile": Vector2i(2, 0),
+			},
+			{
+				"rect": Rect2(50, 44, 40, 5),
+				"tile": Vector2i(2, 0),
+			},
+		],
+	},
+	"saleno_coast":
+	{
+		"spawn": Vector2(160, 480),
+		"floor": Vector2i(0, 0),
+		"patches":
+		[
+			{
+				"rect": Rect2(5, 27, 85, 6),
+				"tile": Vector2i(2, 0),
+			},
+			{
+				"rect": Rect2(1, 1, 94, 10),
+				"tile": Vector2i(1, 1),
+			},
+			{
+				"rect": Rect2(8, 11, 82, 8),
+				"tile": Vector2i(2, 0),
+			},
+		],
+	},
+	"reed_marsh":
+	{
+		"spawn": Vector2(160, 480),
+		"floor": Vector2i(0, 0),
+		"patches":
+		[
+			{
+				"rect": Rect2(5, 27, 85, 6),
+				"tile": Vector2i(2, 0),
+			},
+			{
+				"rect": Rect2(24, 8, 14, 16),
+				"tile": Vector2i(1, 1),
+			},
+			{
+				"rect": Rect2(57, 36, 16, 17),
+				"tile": Vector2i(1, 1),
+			},
+			{
+				"rect": Rect2(44, 8, 6, 45),
+				"tile": Vector2i(2, 0),
+			},
+		],
+	},
+	"arsel":
+	{
+		"spawn": Vector2(160, 480),
+		"floor": Vector2i(0, 0),
+		"patches":
+		[
+			{
+				"rect": Rect2(5, 27, 85, 6),
+				"tile": Vector2i(2, 0),
+			},
+			{
+				"rect": Rect2(1, 1, 25, 24),
+				"tile": Vector2i(1, 1),
+			},
+			{
+				"rect": Rect2(29, 8, 6, 46),
+				"tile": Vector2i(2, 2),
+			},
+		],
+	},
+	"arsel_library":
+	{
+		"spawn": Vector2(160, 480),
+		"floor": Vector2i(2, 2),
+		"patches":
+		[
+			{
+				"rect": Rect2(5, 27, 85, 6),
+				"tile": Vector2i(2, 0),
+			},
+			{
+				"rect": Rect2(24, 7, 3, 12),
+				"tile": Vector2i(1, 2),
+			},
+			{
+				"rect": Rect2(24, 38, 3, 12),
+				"tile": Vector2i(1, 2),
+			},
+			{
+				"rect": Rect2(46, 7, 3, 12),
+				"tile": Vector2i(1, 2),
+			},
+			{
+				"rect": Rect2(46, 38, 3, 12),
+				"tile": Vector2i(1, 2),
+			},
+			{
+				"rect": Rect2(68, 7, 3, 12),
+				"tile": Vector2i(1, 2),
+			},
+			{
+				"rect": Rect2(68, 38, 3, 12),
+				"tile": Vector2i(1, 2),
+			},
+		],
+	},
 }
 const QUEST_REQUIREMENTS := {
 	"MQ-03-01":
@@ -587,6 +866,10 @@ const QUEST_REQUIREMENTS := {
 	"MQ-04-01":
 	{
 		"reputation": 800,
+	},
+	"MQ-05-01":
+	{
+		"reputation": 1400,
 	},
 }
 const MONSTER_VARIANTS := {
@@ -611,12 +894,95 @@ const MONSTER_VARIANTS := {
 		"stats": "res://data/monsters/chapter_four/cliff_harpy.tres",
 		"level": 21,
 	},
+	"tidal_crab":
+	{
+		"title": "갯게 마수",
+		"scene": "wolf",
+		"stats": "res://data/monsters/chapter_five/tidal_crab.tres",
+		"level": 24,
+	},
+	"marsh_lizard":
+	{
+		"title": "습지 도마뱀전사",
+		"scene": "outlaw",
+		"stats": "res://data/monsters/chapter_five/marsh_lizard.tres",
+		"level": 27,
+	},
+	"water_mist":
+	{
+		"title": "물안개 정령",
+		"scene": "rift_slime",
+		"stats": "res://data/monsters/chapter_five/water_mist.tres",
+		"level": 29,
+	},
 }
 const WARP_ARRIVALS := {
 	"novera_commons": Vector2(128, 384),
 	"eastern_frontier_start": Vector2(152, 504),
 	"gransia": Vector2(192, 480),
 	"brantel": Vector2(192, 480),
+	"saleno": Vector2(176, 480),
+	"arsel": Vector2(176, 480),
+}
+const QUEST_REVISIONS := {
+	"MQ-01-01": 1,
+	"MQ-01-02": 1,
+	"MQ-01-03": 1,
+	"MQ-01-04": 1,
+	"MQ-01-05": 1,
+	"MQ-02-01": 1,
+	"MQ-02-02": 1,
+	"MQ-02-03": 1,
+	"MQ-02-04": 1,
+	"MQ-02-05": 1,
+	"MQ-02-06": 1,
+	"SQ-NOV-001": 1,
+	"SQ-NOV-002": 1,
+	"MQ-03-01": 2,
+	"MQ-03-02": 2,
+	"MQ-03-03": 2,
+	"MQ-03-04": 2,
+	"MQ-03-05": 2,
+	"SQ-YEO-001": 2,
+	"SQ-YEO-002": 2,
+	"SQ-YEO-003": 2,
+	"MQ-04-01": 3,
+	"MQ-04-02": 3,
+	"MQ-04-03": 3,
+	"MQ-04-04": 3,
+	"SQ-CH04-001": 3,
+	"SQ-CH04-002": 3,
+	"SQ-CH04-003": 3,
+	"SQ-CH04-004": 3,
+	"SQ-CH04-005": 3,
+	"MQ-05-01": 4,
+	"MQ-05-02": 4,
+	"MQ-05-03": 4,
+	"MQ-05-04": 4,
+	"MQ-05-05": 4,
+	"SQ-CH05-001": 4,
+	"SQ-CH05-002": 4,
+	"SQ-CH05-003": 4,
+	"SQ-CH05-004": 4,
+	"SQ-CH05-005": 4,
+	"SQ-CH05-006": 4,
+	"SQ-CH05-007": 4,
+}
+const REGION_REVISIONS := {
+	"eastern_frontier_start": 1,
+	"novera_gate": 1,
+	"novera_commons": 1,
+	"novera_outskirts": 1,
+	"novera_rift": 1,
+	"yeoulmok_defense": 2,
+	"han_gilmok": 3,
+	"gransia": 3,
+	"brantel": 3,
+	"saleno": 4,
+	"saleno_coast": 4,
+	"reed_marsh": 4,
+	"arsel": 4,
+	"arsel_library": 4,
 }
 
 

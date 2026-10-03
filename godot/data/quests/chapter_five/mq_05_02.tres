@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "MQ-05-02"
+title = "해안에 남은 물자"
+offer_text = "해안의 갯게를 물리치고 유실된 화물과 봉인을 대조하세요."
+prerequisite = "MQ-05-01"
+npc_id = "coast_patrol"
+accept_npc_id = "saleno_factor"
+reward_exp = 45000
+reward_gold = 15000
+reward_reputation = 125
+objective_kinds = Array[String](["KILL", "INTERACT", "INTERACT"])
+objective_targets = Array[String](["tidal_crab", "coast_cargo", "coast_seal"])
+objective_sources = Array[String](["saleno_crabs", "coast_cargo_site", "coast_seal_site"])
+objective_counts = Array[int]([3, 1, 1])
+objective_labels = Array[String](["갯게 마수 처치", "유실 화물 조사", "화물 봉인 대조"])
+objective_location_hints = Array[String](["살레노 해안", "살레노 해안", "살레노 해안"])

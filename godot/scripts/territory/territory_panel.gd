@@ -1,6 +1,7 @@
 extends CanvasLayer
 const Model = preload("res://scripts/territory/territory_model.gd")
 const Travel = preload("res://scripts/territory/territory_travel.gd")
+const Content = preload("res://scripts/content/game_content.gd")
 const ERRORS := {
 	"onsite": "영지 관리인 가까이에서 이용하세요.",
 	"gold": "골드가 부족합니다.",
@@ -159,7 +160,7 @@ func _refresh() -> void:
 	else:
 		_label("영지 없음 · 여울목 방어와 문장원 심사 후 관리가 열립니다")
 	_label("개방한 도시로 워프 · 요금은 목적지와 공훈 인장 등급에 따라 계산합니다")
-	for city in ["novera", "gransia", "brantel"]:
+	for city in Travel.CITIES:
 		var quote: Dictionary = Travel.quote(
 			runtime.travel_state(),
 			data,
@@ -167,7 +168,7 @@ func _refresh() -> void:
 			city,
 			runtime.world.get_node("QuestController").journal.reputation()
 		)
-		var title: String = {"novera": "노베라", "gransia": "그란시아", "brantel": "브란텔"}[city]
+		var title: String = Content.NAMES[Travel.CITIES[city].map_id]
 		_button(
 			title + (" · %dG" % quote.cost if quote.error == "" else " · 미개방/현재 위치"),
 			_ask_warp.bind(city),
@@ -205,7 +206,7 @@ func _ask_warp(city: String) -> void:
 	)
 	confirmation.dialog_text = (
 		"%s로 이동 · %dG를 지불합니다. 저장은 별도입니다."
-		% [{"novera": "노베라", "gransia": "그란시아", "brantel": "브란텔"}[city], offer.cost]
+		% [Content.NAMES[Travel.CITIES[city].map_id], offer.cost]
 	)
 	confirmation.popup_centered(Vector2i(640, 220))
 

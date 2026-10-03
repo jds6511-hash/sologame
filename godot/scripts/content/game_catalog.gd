@@ -100,8 +100,10 @@ func selected_view(states: Dictionary, npc: String, selected_quest_id: String) -
 			definitions[id], states.get(id, {}), self, npc
 		)
 	if states.get("MQ-03-05", {}).get("state") == "completed":
+		if states.get("MQ-05-05", {}).get("state") == "completed":
+			return _notice("기록의 대조", "5장 메인 완료 · 항구와 호반의 남은 의뢰를 확인하세요.")
 		if states.get("MQ-04-04", {}).get("state") == "completed":
-			return _notice("왕도의 조사관", "4장 메인 완료 · 남은 지역 의뢰와 영지 관리를 이어갈 수 있습니다.")
+			return _notice("남부의 운송 기록", "브란텔에서 살레노행 관문을 이용해 항구의 운송 담당을 찾아가세요.")
 		return _notice("왕도의 부름", honors(states) + "\n노베라 문장원에서 왕도행 안내를 확인하세요.")
 	if states.get("MQ-02-06", {}).get("state") == "completed":
 		return _notice("여울목 방어 지원", "노베라 접수원에게 여울목의 소식을 확인하세요.")

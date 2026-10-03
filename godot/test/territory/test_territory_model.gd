@@ -136,3 +136,19 @@ func test_return_cooldown_and_discount_thresholds() -> void:
 	assert_eq(travel.return_ms, 1)
 	Travel.advance(travel, 1)
 	assert_eq(travel.return_ms, 0)
+
+func test_chapter_five_visits_and_field_return_use_registered_cities() -> void:
+	var travel = Travel.initial(owned(), "novera_commons")
+	assert_false("saleno" in travel.unlocked)
+	Travel.visit(travel, "saleno_coast")
+	assert_false("saleno" in travel.unlocked)
+	Travel.visit(travel, "saleno")
+	Travel.visit(travel, "arsel")
+	Travel.visit(travel, "arsel")
+	assert_eq(travel.unlocked.count("arsel"), 1)
+	assert_eq(Travel.validate(travel), "")
+	var territory = Model.initial(owned())
+	for region in ["saleno_coast", "reed_marsh", "arsel_library"]:
+		assert_eq(Travel.quote(travel, territory, region, "", 1950, true).error, "")
+	assert_eq(Travel.quote(travel, territory, "saleno", "arsel", 1950).cost, 7403)
+	assert_eq(Travel.quote(travel, territory, "novera_commons", "saleno", 1950).cost, 14310)
