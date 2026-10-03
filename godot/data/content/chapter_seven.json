@@ -688,7 +688,7 @@
       "prerequisite": "MQ-06-05",
       "npc_id": "durgan_foreman",
       "accept_npc_id": "misran_envoy",
-      "reward_exp": 1153000,
+      "reward_exp": 1000000,
       "reward_gold": 30000,
       "reward_reputation": 200,
       "objective_kinds": [
@@ -730,7 +730,7 @@
       "prerequisite": "MQ-07-01",
       "npc_id": "mine_surveyor",
       "accept_npc_id": "durgan_foreman",
-      "reward_exp": 119400,
+      "reward_exp": 150000,
       "reward_gold": 32000,
       "reward_reputation": 220,
       "objective_kinds": [
@@ -772,7 +772,7 @@
       "prerequisite": "MQ-07-02",
       "npc_id": "karndurum_envoy",
       "accept_npc_id": "mine_surveyor",
-      "reward_exp": 129400,
+      "reward_exp": 160000,
       "reward_gold": 34000,
       "reward_reputation": 230,
       "objective_kinds": [
@@ -814,7 +814,7 @@
       "prerequisite": "MQ-07-03",
       "npc_id": "frost_quartermaster",
       "accept_npc_id": "karndurum_envoy",
-      "reward_exp": 134400,
+      "reward_exp": 165000,
       "reward_gold": 34000,
       "reward_reputation": 240,
       "objective_kinds": [
@@ -856,7 +856,7 @@
       "prerequisite": "MQ-07-04",
       "npc_id": "hafna_courier",
       "accept_npc_id": "frost_quartermaster",
-      "reward_exp": 139400,
+      "reward_exp": 170000,
       "reward_gold": 35000,
       "reward_reputation": 250,
       "objective_kinds": [
@@ -898,7 +898,7 @@
       "prerequisite": "MQ-07-05",
       "npc_id": "durgan_foreman",
       "accept_npc_id": "hafna_courier",
-      "reward_exp": 142296,
+      "reward_exp": 172896,
       "reward_gold": 36480,
       "reward_reputation": 260,
       "objective_kinds": [
