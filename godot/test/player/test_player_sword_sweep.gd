@@ -42,3 +42,13 @@ func test_sweep_canvas_keeps_body_center_and_feet() -> void:
 		var texture := sprite.sprite_frames.get_frame_texture(animation, 0)
 		assert_eq(texture.get_size(), Vector2(64, 64), "몸 확대 없이 무기 회전 여백 확보")
 	assert_eq(sprite.offset, Vector2(0, -18), "몸은 기존 중심에 패딩하여 발 위치 유지")
+
+
+func test_walk_uses_padded_carry_without_changing_cycle_or_feet() -> void:
+	for direction in ["front", "side", "back"]:
+		var animation: String = "walk_" + direction
+		assert_eq(sprite.sprite_frames.get_frame_count(animation), 6)
+		var texture := sprite.sprite_frames.get_frame_texture(animation, 0)
+		assert_eq(texture.get_size(), Vector2(64, 64), "낮게 든 검을 위한 보행 여백")
+		assert_eq(sprite.sprite_frames.get_animation_speed(animation), 10.0)
+	assert_eq(sprite.offset, Vector2(0, -18), "보행과 공격의 발 기준은 같아야 한다")

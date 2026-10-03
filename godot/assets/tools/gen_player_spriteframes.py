@@ -52,13 +52,20 @@ JOBS = {
 }
 
 
+def sheet_spec(prefix: str, state: str):
+    cols = STATES[state][0]
+    if prefix == "player_warrior_v2":
+        if state in ("attack", "attack2"):
+            return 8, 64, 64, "_sweep"
+        if state == "walk":
+            return cols, 64, 64, "_carry"
+    return cols, FRAME_W, FRAME_H, ""
+
+
 def validate_left_sheets(prefix: str, states: list[str], folder: Path) -> bool:
     expected = []
     for state in states:
-        sweep = prefix == "player_warrior_v2" and state in ("attack", "attack2")
-        cols = 8 if sweep else STATES[state][0]
-        width, height = (64, 64) if sweep else (FRAME_W, FRAME_H)
-        suffix = "_sweep" if sweep else ""
+        cols, width, height, suffix = sheet_spec(prefix, state)
         expected.append((folder / f"{prefix}_{state}{suffix}_left.png", (cols * width, height)))
     if not any(path.exists() for path, _ in expected):
         return False
@@ -78,11 +85,8 @@ def build(prefix: str, states: list[str], with_left: bool = False) -> str:
 
     for si, state in enumerate(states):
         cols, fps, loop = STATES[state]
-        sweep = prefix == "player_warrior_v2" and state in ("attack", "attack2")
-        width, height = (64, 64) if sweep else (FRAME_W, FRAME_H)
-        if sweep:
-            cols = 8
-        filename = f"{prefix}_{state}" + ("_sweep" if sweep else "")
+        cols, width, height, suffix = sheet_spec(prefix, state)
+        filename = f"{prefix}_{state}{suffix}"
         ext_id = f"tex_{state}"
         ext.append(
             f'[ext_resource type="Texture2D" '
@@ -134,8 +138,7 @@ def main() -> int:
     pending = []
     for prefix, states in JOBS.items():
         missing = [s for s in states if not (OUT_DIR / (
-            f"{prefix}_{s}" + ("_sweep" if prefix == "player_warrior_v2"
-                              and s in ("attack", "attack2") else "") + ".png"
+            f"{prefix}_{s}{sheet_spec(prefix, s)[3]}.png"
         )).exists()]
         if missing:
             print(f"[실패] {prefix}: 시트 없음 {missing} - gen_player_lpc.py와 gen_sword_sweep.py 실행 필요")

@@ -1,7 +1,20 @@
 extends "res://scripts/npc/quest_npc.gd"
 const Content = preload("res://scripts/content/game_content.gd")
+const Investigation = preload("res://scripts/content/field_investigation.gd")
 var source := ""
 var kind := "REACH"
+var investigation: Node2D
+
+
+func setup(
+	player: PlayerController, controller: QuestController, dialog: QuestDialog, hud: Hud
+) -> void:
+	super.setup(player, controller, dialog, hud)
+	if Investigation.CONFIG.has(npc_id):
+		investigation = Investigation.new()
+		investigation.name = "FieldInvestigation"
+		add_child(investigation)
+		investigation.setup(self, get_parent().get_node("WorldInteraction"))
 
 
 func update_target() -> void:
@@ -13,6 +26,8 @@ func update_target() -> void:
 func interact() -> bool:
 	if not can_interact():
 		return false
+	if investigation != null:
+		return investigation.begin()
 	_controller.journal.record_event(kind, npc_id, source, 0)
 	if Content.SITE_NOTICES.has(npc_id):
 		_dialog.open_notice(Content.SITE_NOTICES[npc_id])
@@ -23,6 +38,10 @@ func can_interact() -> bool:
 	# REACH는 자동 관측만 한다. 미수락/완료 표식은 드롭의 F 입력을 가로채지 않는다.
 	if kind != "INTERACT" or not _can_interact():
 		return false
+	return expects_interaction()
+
+
+func expects_interaction() -> bool:
 	for id in _controller.journal.catalog.ordered_ids():
 		if _controller.journal.expects_event(id, kind, npc_id, source):
 			return true

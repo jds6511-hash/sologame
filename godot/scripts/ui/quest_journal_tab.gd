@@ -123,15 +123,7 @@ func refresh() -> void:
 		_buttons[entry.quest_id] = button
 	_count.text = "표시 %d건 / 수락한 의뢰 %d건" % [_entries.size(), _states.size()]
 	if _journal:
-		_lead.text = (
-			"다음 행동 · "
-			+ (
-				Presentation
-				. select(_journal.catalog, _states, "yeoulmok_receptionist")
-				. tracker
-				. replace("\n", " · ")
-			)
-		)
+		_lead.text = "다음 행동 · " + _current_view().tracker.replace("\n", " · ")
 	else:
 		_lead.text = "연결된 캐릭터가 없습니다."
 	_refresh_detail()
@@ -175,12 +167,23 @@ func focus_current() -> void:
 	refresh()
 	if not _journal:
 		return
-	var current := Presentation.select(_journal.catalog, _states, "yeoulmok_receptionist")
+	var current := _current_view()
 	if _states.get(current.quest_id, {}).get("state") in ["active", "ready"]:
 		select_quest(current.quest_id)
 	else:
 		selected_quest_id = ""
 		_refresh_detail()
+
+
+func _current_view() -> Dictionary:
+	var npc_id := "yeoulmok_receptionist"
+	if _journal.catalog.has_method("available_ids"):
+		var ids: Array = _journal.catalog.available_ids(_states)
+		if not ids.is_empty():
+			var id: String = ids[0]
+			var definition: QuestData = _journal.catalog.definitions[id]
+			npc_id = definition.npc_id if _states.has(id) else definition.giver_id()
+	return Presentation.for_journal(_journal, npc_id)
 
 
 func _refresh_detail() -> void:
@@ -220,7 +223,11 @@ func _refresh_detail() -> void:
 
 
 func _report_selected() -> void:
-	if _controller == null or not _report_button.visible or Time.get_ticks_msec() < _report_debounce_until:
+	if (
+		_controller == null
+		or not _report_button.visible
+		or Time.get_ticks_msec() < _report_debounce_until
+	):
 		return
 	_report_debounce_until = Time.get_ticks_msec() + 300
 	var id := selected_quest_id

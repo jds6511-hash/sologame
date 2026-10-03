@@ -15,9 +15,8 @@ class LeftSheetTest(unittest.TestCase):
         self.states = generator.JOBS[self.prefix]
 
     def _write(self, folder, state, bad=False):
-        sweep = state in ("attack", "attack2")
-        width, height = (512, 64) if sweep else (generator.STATES[state][0] * 28, 36)
-        suffix = "_sweep" if sweep else ""
+        cols, cell_width, height, suffix = generator.sheet_spec(self.prefix, state)
+        width = cols * cell_width
         Image.new("RGBA", (width, height + int(bad))).save(folder / f"{self.prefix}_{state}{suffix}_left.png")
 
     def test_no_left_keeps_deployed_resource_identical(self):
@@ -55,7 +54,7 @@ class LeftSheetTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             folder = Path(directory)
             for state in self.states:
-                suffix = "_sweep" if state in ("attack", "attack2") else ""
+                suffix = generator.sheet_spec(self.prefix, state)[3]
                 (folder / f"{self.prefix}_{state}{suffix}.png").touch()
             resource = folder / f"{self.prefix}_frames.tres"
             resource.write_text("기존 리소스", encoding="utf-8")

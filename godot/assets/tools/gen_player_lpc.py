@@ -297,6 +297,14 @@ WALK_SWORD_POSE: dict[str, list[tuple[float, float, float, float]]] = {
     ],
 }
 
+# 런타임 걷기는 gen_sword_sweep의 64px 여백에 이 화면 각도로 낮게 든다.
+# 기존 28px 시트는 소스 접점/구형 자산 검증용으로 유지한다.
+WALK_CARRY_ANGLES = {
+    "front": [158, 156, 160, 158, 156, 160],
+    "side": [22, 20, 18, 22, 24, 20],
+    "back": [22, 24, 20, 22, 24, 20],
+}
+
 # 활: (활 크기, 당김 0~1, 화살 표시, hx, hy). 활 손은 표적을 향해 뻗은 앞손이다.
 BOW_POSE: dict[str, list[tuple[float, float, bool, float, float]]] = {
     "idle": [(5, 0.0, False, 4, 16)] * 4,

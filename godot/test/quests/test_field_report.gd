@@ -18,7 +18,10 @@ func before_each() -> void:
 	var states := {}
 	for id in journal.catalog.ordered_ids():
 		if id.begins_with("MQ-"):
-			states[id] = {"state": "completed", "counts": Array(journal.catalog.definitions[id].objective_counts)}
+			states[id] = {
+				"state": "completed",
+				"counts": Array(journal.catalog.definitions[id].objective_counts)
+			}
 	assert_eq(journal.restore_state(states), "")
 
 
@@ -34,7 +37,12 @@ func make_ready(id: String) -> void:
 	for index in quest.objective_counts.size():
 		for count in quest.objective_counts[index]:
 			_token += 1
-			journal.record_event(quest.objective_kinds[index], quest.objective_targets[index], quest.objective_sources[index], _token)
+			journal.record_event(
+				quest.objective_kinds[index],
+				quest.objective_targets[index],
+				quest.objective_sources[index],
+				_token
+			)
 
 
 func test_all_22_side_rewards_use_normal_completion_once() -> void:
@@ -74,7 +82,9 @@ func test_journal_button_claims_and_duplicate_click_does_nothing() -> void:
 	tab.set_filter("ready")
 	tab.select_quest("SQ-CH04-001")
 	assert_true(tab._report_button.visible)
-	assert_string_contains(View.detail(journal.catalog, journal.export_state(), "SQ-CH04-001").next_action, "돌아가지 않아도")
+	assert_string_contains(
+		View.detail(journal.catalog, journal.export_state(), "SQ-CH04-001").next_action, "돌아가지 않아도"
+	)
 	tab._report_button.pressed.emit()
 	assert_eq(journal.export_state()["SQ-CH04-001"].state, "completed")
 	var gold: int = world.get_node("Player/Inventory").gold
