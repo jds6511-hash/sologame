@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="MonsterStatsData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ai/monster_stats_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+display_name = "가시덩굴"
+max_hp = 1560.0
+attack_power = 158.0
+defense = 18.0
+perception_range_tiles = 5.0
+leash_range_tiles = -1.0
+wander_speed_tiles = 0.0
+combat_move_speed_tiles = 0.0
+melee_range_tiles = 3.2
+melee_telegraph_sec = 0.85
+melee_recovery_sec = 0.8
+anchored = true

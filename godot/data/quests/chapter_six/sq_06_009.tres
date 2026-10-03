@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "SQ-06-009"
+title = "조사원들의 안전선"
+offer_text = "조사원들의 안전선 현장을 확인하고 의뢰인에게 결과를 보고하세요."
+prerequisite = "MQ-06-03"
+npc_id = "sylvien_observer"
+accept_npc_id = "sylvien_observer"
+reward_exp = 37773
+reward_gold = 11910
+reward_reputation = 60
+objective_kinds = Array[String](["KILL", "INTERACT"])
+objective_targets = Array[String](["corrupted_treant", "sylvien_boundary"])
+objective_sources = Array[String](["sylvien_treants", "sylvien_boundary_site"])
+objective_counts = Array[int]([3, 1])
+objective_labels = Array[String](["오염 트렌트 처치", "조사 경계 점검 [F]"])
+objective_location_hints = Array[String](["실비엔 조사구역", "실비엔 조사구역"])

@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "SQ-06-001"
+title = "약초 교역 재개"
+offer_text = "약초 교역 재개 현장을 확인하고 의뢰인에게 결과를 보고하세요."
+prerequisite = "MQ-06-01"
+npc_id = "misran_healer"
+accept_npc_id = "misran_healer"
+reward_exp = 37774
+reward_gold = 11910
+reward_reputation = 60
+objective_kinds = Array[String](["INTERACT", "INTERACT"])
+objective_targets = Array[String](["misran_herbs", "misran_request"])
+objective_sources = Array[String](["misran_herbs_site", "misran_request_site"])
+objective_counts = Array[int]([1, 1])
+objective_labels = Array[String](["약초 교역 목록 [F]", "협력 요청서 확인 [F]"])
+objective_location_hints = Array[String](["미스란 교역구", "미스란 교역구"])

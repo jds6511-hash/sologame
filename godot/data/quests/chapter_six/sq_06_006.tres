@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "SQ-06-006"
+title = "봉인할 오염 표본"
+offer_text = "봉인할 오염 표본 현장을 확인하고 의뢰인에게 결과를 보고하세요."
+prerequisite = "MQ-06-02"
+npc_id = "mosswood_scout"
+accept_npc_id = "mosswood_scout"
+reward_exp = 37774
+reward_gold = 11910
+reward_reputation = 60
+objective_kinds = Array[String](["KILL", "INTERACT"])
+objective_targets = Array[String](["poison_mushroom", "mosswood_sample"])
+objective_sources = Array[String](["mosswood_mushrooms", "mosswood_sample_site"])
+objective_counts = Array[int]([3, 1])
+objective_labels = Array[String](["독버섯 마수 처치", "오염 표본 봉인 [F]"])
+objective_location_hints = Array[String](["이끼내 수림길", "이끼내 수림길"])

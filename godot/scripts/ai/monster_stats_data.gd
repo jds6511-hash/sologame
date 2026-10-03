@@ -53,6 +53,8 @@ extends Resource
 @export var leash_range_tiles: float = -1.0
 
 @export_group("이동")
+## 고정형도 피격 경직은 받지만 넉백으로 자리를 옮기지 않는다.
+@export var anchored: bool = false
 @export var wander_speed_tiles: float = 1.5
 @export var combat_move_speed_tiles: float = 3.0  ## 추적/도주 시 이동 속도
 

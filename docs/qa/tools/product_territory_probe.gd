@@ -25,10 +25,10 @@ func _run() -> void:
 		quit(2)
 		return
 	if args.size() == 2:
-		if args[1] != "5":
+		if args[1] not in ["5", "6"]:
 			quit(2)
 			return
-		chapter = 5
+		chapter = int(args[1])
 	print("CHAPTER_CONTENT_API: ", chapter)
 	if args[0] == "cleanup":
 		if DirAccess.dir_exists_absolute(DIRECTORY):
@@ -145,7 +145,7 @@ func seed_session() -> void:
 				"counts": Array(journal.catalog.definitions[id].objective_counts)
 			}
 	check(journal.restore_state(states) == "", "이전 장 완료 준비 fixture")
-	world.get_node("Player/PlayerProgression").add_exp(79291 if chapter == 4 else 283297)
+	world.get_node("Player/PlayerProgression").add_exp({4: 79291, 5: 283297, 6: 704457}[chapter])
 	world.get_node("Player/Inventory").add_gold(40000)
 	var ids := []
 	for id in journal.catalog.ordered_ids():
@@ -177,7 +177,7 @@ func seed_session() -> void:
 				check(killed == definition.objective_counts[index], "생성 수와 실제 사망 신호")
 				await process_frame
 				await process_frame
-				if id in ["MQ-04-02", "MQ-05-03"] and index == 0:
+				if id in ["MQ-04-02", "MQ-05-03", "MQ-06-03"] and index == 0:
 					await save_snapshot(2, "middle.json")
 			elif RegionsM7.SITES.has(target):
 				var site: Array = RegionsM7.SITES[target]
@@ -212,7 +212,7 @@ func seed_session() -> void:
 		check(controller.report(id, definition.npc_id) != "", "중복 보고 거부")
 		check(world.get_node("Player/Inventory").gold == gold + definition.reward_gold, "보상 단회 지급")
 	check(
-		world.get_node("QuestController").journal.reputation() == (1950 if chapter == 4 else 3100),
+		world.get_node("QuestController").journal.reputation() == {4: 1950, 5: 3100, 6: 4600}[chapter],
 		"장 기준 공훈 합계"
 	)
 	await territory_session()
@@ -238,7 +238,7 @@ func capture(label: String) -> void:
 
 func go_region(destination: String) -> void:
 	var hops := 0
-	while world.map_id != destination and hops < 8:
+	while world.map_id != destination and hops < RegionsM7.REGION_REVISIONS.size():
 		var gate := RegionsM7.next_gate(world.map_id, destination)
 		if gate == "":
 			check(false, "지역 연결 없음 " + destination)

@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "MQ-06-01"
+title = "닫힌 숲에 보내는 요청"
+offer_text = "미스란에서 협력 요청서를 확인하고 교역 사절에게 조사 계획을 설명하세요."
+prerequisite = "MQ-05-05"
+npc_id = "misran_envoy"
+accept_npc_id = "arsel_scholar"
+reward_exp = 95000
+reward_gold = 20000
+reward_reputation = 150
+objective_kinds = Array[String](["REACH", "INTERACT", "TALK"])
+objective_targets = Array[String](["misran_arrival", "misran_request", "misran_envoy"])
+objective_sources = Array[String](["misran_arrival_site", "misran_request_site", ""])
+objective_counts = Array[int]([1, 1, 1])
+objective_labels = Array[String](["미스란 교역구 도착", "협력 요청서 확인 [F]", "미스란 교역 사절와 대화 [F]"])
+objective_location_hints = Array[String](["미스란 교역구", "미스란 교역구", "미스란 교역구"])

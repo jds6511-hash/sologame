@@ -282,6 +282,9 @@ func _register_stagger_hit(hit_grade: String, attacker: Node2D) -> void:
 	var result := _stagger.register_hit(is_heavy)
 	if not result["staggered"]:
 		return
+	if stats.anchored:
+		_knockback_velocity = Vector2.ZERO
+		return
 	var rules := _stagger.rules
 	var stagger_duration := rules.heavy_stagger_sec if is_heavy else rules.light_stagger_sec
 	var knockback_tiles := rules.heavy_knockback_tiles if is_heavy else rules.light_knockback_tiles

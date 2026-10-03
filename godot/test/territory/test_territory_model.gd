@@ -153,3 +153,17 @@ func test_chapter_five_visits_and_field_return_use_registered_cities() -> void:
 		assert_eq(Travel.quote(travel, territory, region, "", 1950, true).error, "")
 	assert_eq(Travel.quote(travel, territory, "saleno", "arsel", 1950).cost, 7403)
 	assert_eq(Travel.quote(travel, territory, "novera_commons", "saleno", 1950).cost, 14310)
+
+
+func test_chapter_six_uses_misran_city_and_keeps_sylvien_non_destination() -> void:
+	var travel = Travel.initial(owned(), "arsel")
+	Travel.visit(travel, "sylvien")
+	assert_false("sylvien" in travel.unlocked)
+	assert_false("misran" in travel.unlocked)
+	Travel.visit(travel, "misran")
+	assert_eq(Travel.validate(travel), "")
+	var territory = Model.initial(owned())
+	for region in ["forest_edge", "mosswood", "sylvien"]:
+		assert_eq(Travel.quote(travel, territory, region, "", 3100, true).error, "")
+	assert_eq(Travel.quote(travel, territory, "sylvien", "misran", 3100).cost, 8933)
+	assert_eq(Travel.quote(travel, territory, "misran", "sylvien", 3100).error, "locked")

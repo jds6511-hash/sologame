@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "SQ-06-008"
+title = "이끼내의 물길"
+offer_text = "이끼내의 물길 현장을 확인하고 의뢰인에게 결과를 보고하세요."
+prerequisite = "MQ-06-02"
+npc_id = "mosswood_scout"
+accept_npc_id = "mosswood_scout"
+reward_exp = 37774
+reward_gold = 11910
+reward_reputation = 60
+objective_kinds = Array[String](["INTERACT", "INTERACT"])
+objective_targets = Array[String](["mosswood_water", "mosswood_resonance"])
+objective_sources = Array[String](["mosswood_water_site", "mosswood_resonance_site"])
+objective_counts = Array[int]([1, 1])
+objective_labels = Array[String](["수림 물길 대조 [F]", "감응 흔적 채록 [F]"])
+objective_location_hints = Array[String](["이끼내 수림길", "이끼내 수림길"])

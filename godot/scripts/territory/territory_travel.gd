@@ -7,7 +7,8 @@ const CITIES := {
 	"gransia": {"map_id": "gransia", "level": 18, "index": 1},
 	"brantel": {"map_id": "brantel", "level": 22, "index": 2},
 	"saleno": {"map_id": "saleno", "level": 26, "index": 3},
-	"arsel": {"map_id": "arsel", "level": 30, "index": 4}
+	"arsel": {"map_id": "arsel", "level": 30, "index": 4},
+	"misran": {"map_id": "misran", "level": 34, "index": 5}
 }
 const SOURCES := {
 	"eastern_frontier_start": "novera",
@@ -23,7 +24,11 @@ const SOURCES := {
 	"saleno_coast": "saleno",
 	"reed_marsh": "saleno",
 	"arsel": "arsel",
-	"arsel_library": "arsel"
+	"arsel_library": "arsel",
+	"misran": "misran",
+	"forest_edge": "misran",
+	"mosswood": "misran",
+	"sylvien": "misran"
 }
 const RETURN_MS := 900000
 

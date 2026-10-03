@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "SQ-06-002"
+title = "조사대의 보급 목록"
+offer_text = "조사대의 보급 목록 현장을 확인하고 의뢰인에게 결과를 보고하세요."
+prerequisite = "MQ-06-01"
+npc_id = "misran_envoy"
+accept_npc_id = "misran_envoy"
+reward_exp = 37774
+reward_gold = 11910
+reward_reputation = 60
+objective_kinds = Array[String](["INTERACT", "TALK"])
+objective_targets = Array[String](["misran_supplies", "forest_keeper"])
+objective_sources = Array[String](["misran_supplies_site", ""])
+objective_counts = Array[int]([1, 1])
+objective_labels = Array[String](["조사 보급품 대조 [F]", "숲가 경계지기와 대화 [F]"])
+objective_location_hints = Array[String](["미스란 교역구", "숲가 마을길"])

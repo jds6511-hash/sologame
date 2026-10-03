@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "MQ-06-04"
+title = "함께 읽는 숲"
+offer_text = "일리엔과 감응을 대조하고 오염 트렌트를 물리쳐 조사구역을 확보하세요."
+prerequisite = "MQ-06-03"
+npc_id = "illien"
+accept_npc_id = "mosswood_scout"
+reward_exp = 120000
+reward_gold = 25000
+reward_reputation = 200
+objective_kinds = Array[String](["TALK", "KILL", "INTERACT", "INTERACT"])
+objective_targets = Array[String](["illien", "corrupted_treant", "sylvien_resonance", "sylvien_seal"])
+objective_sources = Array[String](["", "sylvien_treants", "sylvien_resonance_site", "sylvien_seal_site"])
+objective_counts = Array[int]([1, 3, 1, 1])
+objective_labels = Array[String](["일리엔와 대화 [F]", "오염 트렌트 처치", "일리엔과 감응 조사 [F]", "군인 흔적 채록 [F]"])
+objective_location_hints = Array[String](["실비엔 조사구역", "실비엔 조사구역", "실비엔 조사구역", "실비엔 조사구역"])

@@ -15,6 +15,10 @@ extends RefCounted
 
 ## 종 표시명 → 드랍 테이블. 신규 종을 추가할 때 이 표에만 한 줄 넣으면 드랍·EXP가 함께 붙는다.
 const TABLES := {
+	"가시덩굴": preload("res://data/drops/thorn_vine_drop_table.tres"),
+	"독버섯 마수": preload("res://data/drops/poison_mushroom_drop_table.tres"),
+	"수림 표범": preload("res://data/drops/forest_panther_drop_table.tres"),
+	"오염 트렌트": preload("res://data/drops/corrupted_treant_drop_table.tres"),
 	"갯게 마수": preload("res://data/drops/tidal_crab_drop_table.tres"),
 	"습지 도마뱀전사": preload("res://data/drops/marsh_lizard_drop_table.tres"),
 	"물안개 정령": preload("res://data/drops/water_mist_drop_table.tres"),

@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "MQ-06-03"
+title = "이끼 아래의 감응"
+offer_text = "이끼내의 오염과 맹수 흔적을 조사해 길잡이에게 기록을 전하세요."
+prerequisite = "MQ-06-02"
+npc_id = "mosswood_scout"
+accept_npc_id = "forest_keeper"
+reward_exp = 115000
+reward_gold = 24000
+reward_reputation = 175
+objective_kinds = Array[String](["KILL", "KILL", "INTERACT"])
+objective_targets = Array[String](["poison_mushroom", "forest_panther", "mosswood_resonance"])
+objective_sources = Array[String](["mosswood_mushrooms", "mosswood_panthers", "mosswood_resonance_site"])
+objective_counts = Array[int]([3, 3, 1])
+objective_labels = Array[String](["독버섯 마수 처치", "수림 표범 처치", "감응 흔적 채록 [F]"])
+objective_location_hints = Array[String](["이끼내 수림길", "이끼내 수림길", "이끼내 수림길"])

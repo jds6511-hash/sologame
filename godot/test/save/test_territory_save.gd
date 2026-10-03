@@ -120,11 +120,28 @@ func test_old_content_revision_rejects_new_quest_region_and_visited_city() -> vo
 	forged.progress.travel.unlocked.append("saleno")
 	assert_eq(conversion.validate(forged, account), "unsupported_content")
 	forged = old.duplicate(true)
-	forged.content_revision = 5
+	forged.content_revision = load("res://scripts/content/game_content.gd").CURRENT_REVISION + 1
 	assert_eq(conversion.validate(forged, account), "unsupported_content")
 	forged = old.duplicate(true)
 	forged.world = false
 	assert_ne(conversion.validate(forged, account), "")
+
+
+func test_revision_four_cannot_claim_chapter_six_content() -> void:
+	var conversion = Conversion.new()
+	var old: Dictionary = conversion.upgrade(old_snapshot(), account).data
+	old.content_revision = 4
+	assert_eq(conversion.validate(old, account), "")
+	assert_eq(conversion.upgrade(old, account).data, old)
+	var forged := old.duplicate(true)
+	forged.world.map_id = "misran"
+	assert_eq(conversion.validate(forged, account), "unsupported_content")
+	forged = old.duplicate(true)
+	forged.progress.quests["MQ-06-01"] = {"state": "active", "counts": [0]}
+	assert_eq(conversion.validate(forged, account), "unsupported_content")
+	forged = old.duplicate(true)
+	forged.progress.travel.unlocked.append("misran")
+	assert_eq(conversion.validate(forged, account), "unsupported_content")
 
 
 func test_failed_world_change_does_not_charge_gold_or_start_return_cooldown() -> void:

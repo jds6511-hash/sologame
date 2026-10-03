@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="MonsterStatsData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ai/monster_stats_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+display_name = "독버섯 마수"
+max_hp = 1650.0
+attack_power = 170.0
+defense = 14.0
+perception_range_tiles = 7.0
+leash_range_tiles = 10.0
+wander_speed_tiles = 0.4
+combat_move_speed_tiles = 1.4
+projectile_range_tiles = 7.0
+projectile_speed_tiles = 5.0
+projectile_telegraph_sec = 1.1
+projectile_cooldown_sec = 2.6
+self_destruct_telegraph_sec = 0.8
+self_destruct_radius_tiles = 2.5
+self_destruct_duration_sec = 3.0
+self_destruct_dps_ratio = 0.3

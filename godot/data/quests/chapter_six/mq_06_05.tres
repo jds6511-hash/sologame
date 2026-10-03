@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "MQ-06-05"
+title = "숲의 공동 보고"
+offer_text = "관측을 정리하고 일리엔의 협력 의사를 미스란에 전하세요."
+prerequisite = "MQ-06-04"
+npc_id = "misran_envoy"
+accept_npc_id = "illien"
+reward_exp = 131607
+reward_gold = 28100
+reward_reputation = 200
+objective_kinds = Array[String](["INTERACT", "INTERACT", "TALK"])
+objective_targets = Array[String](["sylvien_record", "sylvien_report", "misran_envoy"])
+objective_sources = Array[String](["sylvien_record_site", "sylvien_report_site", ""])
+objective_counts = Array[int]([1, 1, 1])
+objective_labels = Array[String](["공동 관측 기록 [F]", "공동 조사 보고서 [F]", "미스란 교역 사절와 대화 [F]"])
+objective_location_hints = Array[String](["실비엔 조사구역", "실비엔 조사구역", "미스란 교역구"])

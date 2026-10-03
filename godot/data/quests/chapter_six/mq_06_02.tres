@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "MQ-06-02"
+title = "경계의 통행로"
+offer_text = "숲가의 통행을 막은 가시덩굴을 정리하고 경계 표지를 확인하세요."
+prerequisite = "MQ-06-01"
+npc_id = "forest_keeper"
+accept_npc_id = "misran_envoy"
+reward_exp = 105000
+reward_gold = 22000
+reward_reputation = 175
+objective_kinds = Array[String](["KILL", "INTERACT", "INTERACT"])
+objective_targets = Array[String](["thorn_vine", "forest_boundary", "forest_crossing"])
+objective_sources = Array[String](["forest_vines", "forest_boundary_site", "forest_crossing_site"])
+objective_counts = Array[int]([3, 1, 1])
+objective_labels = Array[String](["가시덩굴 처치", "벌목 경계 표지 [F]", "통행로 상태 조사 [F]"])
+objective_location_hints = Array[String](["숲가 마을길", "숲가 마을길", "숲가 마을길"])

@@ -1,0 +1,1899 @@
+{
+  "chapter": 6,
+  "budget": {
+    "reward_exp": 944345,
+    "reward_gold": 238200,
+    "reward_reputation": 1500,
+    "main_exp": 566607,
+    "side_exp": 377738,
+    "main_reputation": 900,
+    "side_reputation": 600
+  },
+  "constants": {
+    "BGM_CONTEXTS": {
+      "misran": "res://scenes/world/novera_gate.tscn",
+      "forest_edge": "res://scenes/world/eastern_frontier_starting_area.tscn",
+      "mosswood": "res://scenes/world/eastern_frontier_starting_area.tscn",
+      "sylvien": "res://scenes/world/eastern_frontier_starting_area.tscn"
+    },
+    "SCENES": {
+      "misran": "res://scenes/world/product_world.tscn",
+      "forest_edge": "res://scenes/world/product_world.tscn",
+      "mosswood": "res://scenes/world/product_world.tscn",
+      "sylvien": "res://scenes/world/product_world.tscn"
+    },
+    "NAMES": {
+      "misran": "미스란 교역구",
+      "forest_edge": "숲가 마을길",
+      "mosswood": "이끼내 수림길",
+      "sylvien": "실비엔 조사구역"
+    },
+    "BOUNDS": {
+      "misran": {
+        "$rect": [
+          0,
+          0,
+          1600,
+          1024
+        ]
+      },
+      "forest_edge": {
+        "$rect": [
+          0,
+          0,
+          1792,
+          1152
+        ]
+      },
+      "mosswood": {
+        "$rect": [
+          0,
+          0,
+          2112,
+          1344
+        ]
+      },
+      "sylvien": {
+        "$rect": [
+          0,
+          0,
+          1920,
+          1280
+        ]
+      }
+    },
+    "REGION_REQUIREMENTS": {
+      "misran": "MQ-05-05",
+      "forest_edge": "MQ-06-01",
+      "mosswood": "MQ-06-02",
+      "sylvien": "MQ-06-03"
+    },
+    "EDGES": {
+      "brantel_to_misran": [
+        "brantel",
+        "misran",
+        {
+          "$vector": [
+            1424,
+            736
+          ]
+        },
+        {
+          "$vector": [
+            176,
+            512
+          ]
+        },
+        "misran_to_brantel"
+      ],
+      "misran_to_brantel": [
+        "misran",
+        "brantel",
+        {
+          "$vector": [
+            96,
+            512
+          ]
+        },
+        {
+          "$vector": [
+            1344,
+            736
+          ]
+        },
+        "brantel_to_misran"
+      ],
+      "misran_to_forest_edge": [
+        "misran",
+        "forest_edge",
+        {
+          "$vector": [
+            1488,
+            512
+          ]
+        },
+        {
+          "$vector": [
+            176,
+            576
+          ]
+        },
+        "forest_edge_to_misran"
+      ],
+      "forest_edge_to_misran": [
+        "forest_edge",
+        "misran",
+        {
+          "$vector": [
+            96,
+            576
+          ]
+        },
+        {
+          "$vector": [
+            1408,
+            512
+          ]
+        },
+        "misran_to_forest_edge"
+      ],
+      "forest_edge_to_mosswood": [
+        "forest_edge",
+        "mosswood",
+        {
+          "$vector": [
+            1680,
+            576
+          ]
+        },
+        {
+          "$vector": [
+            176,
+            672
+          ]
+        },
+        "mosswood_to_forest_edge"
+      ],
+      "mosswood_to_forest_edge": [
+        "mosswood",
+        "forest_edge",
+        {
+          "$vector": [
+            96,
+            672
+          ]
+        },
+        {
+          "$vector": [
+            1600,
+            576
+          ]
+        },
+        "forest_edge_to_mosswood"
+      ],
+      "mosswood_to_sylvien": [
+        "mosswood",
+        "sylvien",
+        {
+          "$vector": [
+            2000,
+            672
+          ]
+        },
+        {
+          "$vector": [
+            176,
+            640
+          ]
+        },
+        "sylvien_to_mosswood"
+      ],
+      "sylvien_to_mosswood": [
+        "sylvien",
+        "mosswood",
+        {
+          "$vector": [
+            96,
+            640
+          ]
+        },
+        {
+          "$vector": [
+            1920,
+            672
+          ]
+        },
+        "mosswood_to_sylvien"
+      ]
+    },
+    "NPCS": {
+      "misran_envoy": [
+        "misran",
+        {
+          "$vector": [
+            480,
+            464
+          ]
+        },
+        "미스란 교역 사절"
+      ],
+      "misran_healer": [
+        "misran",
+        {
+          "$vector": [
+            800,
+            592
+          ]
+        },
+        "미스란 약초사"
+      ],
+      "forest_keeper": [
+        "forest_edge",
+        {
+          "$vector": [
+            448,
+            528
+          ]
+        },
+        "숲가 경계지기"
+      ],
+      "forest_woodworker": [
+        "forest_edge",
+        {
+          "$vector": [
+            896,
+            640
+          ]
+        },
+        "숲가 목공"
+      ],
+      "mosswood_scout": [
+        "mosswood",
+        {
+          "$vector": [
+            448,
+            624
+          ]
+        },
+        "이끼내 길잡이"
+      ],
+      "illien": [
+        "sylvien",
+        {
+          "$vector": [
+            704,
+            592
+          ]
+        },
+        "일리엔"
+      ],
+      "sylvien_observer": [
+        "sylvien",
+        {
+          "$vector": [
+            1216,
+            704
+          ]
+        },
+        "실비엔 조사원"
+      ]
+    },
+    "SITES": {
+      "misran_arrival": [
+        {
+          "$vector": [
+            256,
+            512
+          ]
+        },
+        "misran_arrival_site",
+        "REACH",
+        "미스란 교역구 도착",
+        "misran"
+      ],
+      "misran_request": [
+        {
+          "$vector": [
+            1056,
+            352
+          ]
+        },
+        "misran_request_site",
+        "INTERACT",
+        "협력 요청서 확인",
+        "misran"
+      ],
+      "misran_herbs": [
+        {
+          "$vector": [
+            672,
+            688
+          ]
+        },
+        "misran_herbs_site",
+        "INTERACT",
+        "약초 교역 목록",
+        "misran"
+      ],
+      "misran_supplies": [
+        {
+          "$vector": [
+            1184,
+            688
+          ]
+        },
+        "misran_supplies_site",
+        "INTERACT",
+        "조사 보급품 대조",
+        "misran"
+      ],
+      "forest_boundary": [
+        {
+          "$vector": [
+            1136,
+            352
+          ]
+        },
+        "forest_boundary_site",
+        "INTERACT",
+        "벌목 경계 표지",
+        "forest_edge"
+      ],
+      "forest_crossing": [
+        {
+          "$vector": [
+            1456,
+            800
+          ]
+        },
+        "forest_crossing_site",
+        "INTERACT",
+        "통행로 상태 조사",
+        "forest_edge"
+      ],
+      "forest_water": [
+        {
+          "$vector": [
+            640,
+            800
+          ]
+        },
+        "forest_water_site",
+        "INTERACT",
+        "숲가 수원 기록",
+        "forest_edge"
+      ],
+      "forest_tools": [
+        {
+          "$vector": [
+            480,
+            352
+          ]
+        },
+        "forest_tools_site",
+        "INTERACT",
+        "분실 연장 확인",
+        "forest_edge"
+      ],
+      "mosswood_resonance": [
+        {
+          "$vector": [
+            1376,
+            352
+          ]
+        },
+        "mosswood_resonance_site",
+        "INTERACT",
+        "감응 흔적 채록",
+        "mosswood"
+      ],
+      "mosswood_marker": [
+        {
+          "$vector": [
+            1728,
+            992
+          ]
+        },
+        "mosswood_marker_site",
+        "INTERACT",
+        "이끼내 길표식 복원",
+        "mosswood"
+      ],
+      "mosswood_sample": [
+        {
+          "$vector": [
+            672,
+            992
+          ]
+        },
+        "mosswood_sample_site",
+        "INTERACT",
+        "오염 표본 봉인",
+        "mosswood"
+      ],
+      "mosswood_water": [
+        {
+          "$vector": [
+            1184,
+            992
+          ]
+        },
+        "mosswood_water_site",
+        "INTERACT",
+        "수림 물길 대조",
+        "mosswood"
+      ],
+      "sylvien_resonance": [
+        {
+          "$vector": [
+            960,
+            544
+          ]
+        },
+        "sylvien_resonance_site",
+        "INTERACT",
+        "일리엔과 감응 조사",
+        "sylvien"
+      ],
+      "sylvien_seal": [
+        {
+          "$vector": [
+            1472,
+            352
+          ]
+        },
+        "sylvien_seal_site",
+        "INTERACT",
+        "군인 흔적 채록",
+        "sylvien"
+      ],
+      "sylvien_record": [
+        {
+          "$vector": [
+            1056,
+            928
+          ]
+        },
+        "sylvien_record_site",
+        "INTERACT",
+        "공동 관측 기록",
+        "sylvien"
+      ],
+      "sylvien_boundary": [
+        {
+          "$vector": [
+            1504,
+            928
+          ]
+        },
+        "sylvien_boundary_site",
+        "INTERACT",
+        "조사 경계 점검",
+        "sylvien"
+      ],
+      "sylvien_report": [
+        {
+          "$vector": [
+            960,
+            736
+          ]
+        },
+        "sylvien_report_site",
+        "INTERACT",
+        "공동 조사 보고서",
+        "sylvien"
+      ]
+    },
+    "SITE_NOTICES": {
+      "misran_request": "숲의 감응 조사는 경계 주민과 엘프 조사자의 동의 아래 진행한다.",
+      "forest_boundary": "경계 너머의 벌목은 멈추었다. 훼손된 표지는 주민과 조사자가 함께 다시 세운다.",
+      "sylvien_resonance": "일리엔이 감응을 읽는 동안 주변의 진동을 기록한다. 조사자는 같은 흔적이 이어지는 방향을 표시한다.",
+      "sylvien_seal": "일리엔은 마수 무리 뒤에 군인을 지닌 지성체의 개입이 있음을 확인한다. 확인된 관측만 공동 보고서에 남긴다.",
+      "sylvien_report": "일리엔은 앞으로도 감응 조사에 협력하기로 한다. 미스란과 실비엔은 확인된 관측을 함께 보관한다."
+    },
+    "LAYOUTS": {
+      "misran": {
+        "spawn": {
+          "$vector": [
+            176,
+            512
+          ]
+        },
+        "floor": {
+          "$vectori": [
+            0,
+            0
+          ]
+        },
+        "patches": [
+          {
+            "rect": {
+              "$rect": [
+                18,
+                8,
+                16,
+                8
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                1,
+                2
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                65,
+                8,
+                16,
+                8
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                1,
+                2
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                18,
+                48,
+                16,
+                8
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                1,
+                2
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                65,
+                48,
+                16,
+                8
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                1,
+                2
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                4,
+                28,
+                92,
+                8
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                0
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                47,
+                5,
+                6,
+                54
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                0
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                8,
+                19,
+                84,
+                6
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                0
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                8,
+                39,
+                84,
+                6
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                0
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                36,
+                23,
+                28,
+                18
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                2
+              ]
+            }
+          }
+        ]
+      },
+      "forest_edge": {
+        "spawn": {
+          "$vector": [
+            176,
+            576
+          ]
+        },
+        "floor": {
+          "$vectori": [
+            0,
+            0
+          ]
+        },
+        "patches": [
+          {
+            "rect": {
+              "$rect": [
+                18,
+                8,
+                16,
+                8
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                1,
+                2
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                77,
+                8,
+                16,
+                8
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                1,
+                2
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                18,
+                56,
+                16,
+                8
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                1,
+                2
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                77,
+                56,
+                16,
+                8
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                1,
+                2
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                4,
+                32,
+                104,
+                8
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                0
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                53,
+                5,
+                6,
+                62
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                0
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                8,
+                19,
+                96,
+                6
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                0
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                8,
+                47,
+                96,
+                6
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                0
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                43,
+                8,
+                20,
+                8
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                1,
+                2
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                43,
+                56,
+                20,
+                8
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                1,
+                2
+              ]
+            }
+          }
+        ]
+      },
+      "mosswood": {
+        "spawn": {
+          "$vector": [
+            176,
+            672
+          ]
+        },
+        "floor": {
+          "$vectori": [
+            0,
+            0
+          ]
+        },
+        "patches": [
+          {
+            "rect": {
+              "$rect": [
+                18,
+                8,
+                16,
+                8
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                1,
+                2
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                97,
+                8,
+                16,
+                8
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                1,
+                2
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                18,
+                68,
+                16,
+                8
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                1,
+                2
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                97,
+                68,
+                16,
+                8
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                1,
+                2
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                4,
+                38,
+                124,
+                8
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                0
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                63,
+                5,
+                6,
+                74
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                0
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                8,
+                19,
+                116,
+                6
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                0
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                8,
+                59,
+                116,
+                6
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                0
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                50,
+                7,
+                4,
+                16
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                1,
+                1
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                50,
+                60,
+                4,
+                17
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                1,
+                1
+              ]
+            }
+          }
+        ]
+      },
+      "sylvien": {
+        "spawn": {
+          "$vector": [
+            176,
+            640
+          ]
+        },
+        "floor": {
+          "$vectori": [
+            0,
+            0
+          ]
+        },
+        "patches": [
+          {
+            "rect": {
+              "$rect": [
+                18,
+                8,
+                16,
+                8
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                1,
+                2
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                85,
+                8,
+                16,
+                8
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                1,
+                2
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                18,
+                64,
+                16,
+                8
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                1,
+                2
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                85,
+                64,
+                16,
+                8
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                1,
+                2
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                4,
+                36,
+                112,
+                8
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                0
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                57,
+                5,
+                6,
+                70
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                0
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                8,
+                19,
+                104,
+                6
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                0
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                8,
+                55,
+                104,
+                6
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                0
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                49,
+                29,
+                22,
+                22
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                2
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "QUEST_REQUIREMENTS": {
+      "MQ-06-01": {
+        "reputation": 2300
+      }
+    },
+    "HABITATS": {
+      "forest_vines": [
+        "forest_edge",
+        [
+          {
+            "$vector": [
+              704,
+              384
+            ]
+          },
+          {
+            "$vector": [
+              928,
+              368
+            ]
+          },
+          {
+            "$vector": [
+              1248,
+              400
+            ]
+          }
+        ],
+        "wolf",
+        "thorn_vine"
+      ],
+      "mosswood_mushrooms": [
+        "mosswood",
+        [
+          {
+            "$vector": [
+              640,
+              384
+            ]
+          },
+          {
+            "$vector": [
+              1152,
+              368
+            ]
+          },
+          {
+            "$vector": [
+              1472,
+              400
+            ]
+          }
+        ],
+        "rift_slime",
+        "poison_mushroom"
+      ],
+      "mosswood_panthers": [
+        "mosswood",
+        [
+          {
+            "$vector": [
+              544,
+              928
+            ]
+          },
+          {
+            "$vector": [
+              1376,
+              944
+            ]
+          },
+          {
+            "$vector": [
+              1664,
+              912
+            ]
+          }
+        ],
+        "outlaw",
+        "forest_panther"
+      ],
+      "sylvien_treants": [
+        "sylvien",
+        [
+          {
+            "$vector": [
+              576,
+              368
+            ]
+          },
+          {
+            "$vector": [
+              1152,
+              384
+            ]
+          },
+          {
+            "$vector": [
+              1472,
+              416
+            ]
+          }
+        ],
+        "wolf",
+        "corrupted_treant"
+      ]
+    },
+    "MONSTER_VARIANTS": {
+      "thorn_vine": {
+        "title": "가시덩굴",
+        "scene": "wolf",
+        "stats": "res://data/monsters/chapter_six/thorn_vine.tres",
+        "level": 31
+      },
+      "poison_mushroom": {
+        "title": "독버섯 마수",
+        "scene": "rift_slime",
+        "stats": "res://data/monsters/chapter_six/poison_mushroom.tres",
+        "level": 33
+      },
+      "forest_panther": {
+        "title": "수림 표범",
+        "scene": "outlaw",
+        "stats": "res://data/monsters/chapter_six/forest_panther.tres",
+        "level": 35
+      },
+      "corrupted_treant": {
+        "title": "오염 트렌트",
+        "scene": "wolf",
+        "stats": "res://data/monsters/chapter_six/corrupted_treant.tres",
+        "level": 38
+      }
+    },
+    "MERCHANTS": {
+      "misran": [
+        {
+          "$vector": [
+            608,
+            592
+          ]
+        }
+      ]
+    },
+    "WARP_ARRIVALS": {
+      "misran": {
+        "$vector": [
+          176,
+          512
+        ]
+      }
+    }
+  },
+  "quests": [
+    {
+      "quest_id": "MQ-06-01",
+      "path": "res://data/quests/chapter_six/mq_06_01.tres",
+      "title": "닫힌 숲에 보내는 요청",
+      "offer_text": "미스란에서 협력 요청서를 확인하고 교역 사절에게 조사 계획을 설명하세요.",
+      "prerequisite": "MQ-05-05",
+      "npc_id": "misran_envoy",
+      "accept_npc_id": "arsel_scholar",
+      "reward_exp": 95000,
+      "reward_gold": 20000,
+      "reward_reputation": 150,
+      "objective_kinds": [
+        "REACH",
+        "INTERACT",
+        "TALK"
+      ],
+      "objective_targets": [
+        "misran_arrival",
+        "misran_request",
+        "misran_envoy"
+      ],
+      "objective_sources": [
+        "misran_arrival_site",
+        "misran_request_site",
+        ""
+      ],
+      "objective_counts": [
+        1,
+        1,
+        1
+      ],
+      "objective_labels": [
+        "미스란 교역구 도착",
+        "협력 요청서 확인 [F]",
+        "미스란 교역 사절와 대화 [F]"
+      ],
+      "objective_location_hints": [
+        "미스란 교역구",
+        "미스란 교역구",
+        "미스란 교역구"
+      ]
+    },
+    {
+      "quest_id": "MQ-06-02",
+      "path": "res://data/quests/chapter_six/mq_06_02.tres",
+      "title": "경계의 통행로",
+      "offer_text": "숲가의 통행을 막은 가시덩굴을 정리하고 경계 표지를 확인하세요.",
+      "prerequisite": "MQ-06-01",
+      "npc_id": "forest_keeper",
+      "accept_npc_id": "misran_envoy",
+      "reward_exp": 105000,
+      "reward_gold": 22000,
+      "reward_reputation": 175,
+      "objective_kinds": [
+        "KILL",
+        "INTERACT",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "thorn_vine",
+        "forest_boundary",
+        "forest_crossing"
+      ],
+      "objective_sources": [
+        "forest_vines",
+        "forest_boundary_site",
+        "forest_crossing_site"
+      ],
+      "objective_counts": [
+        3,
+        1,
+        1
+      ],
+      "objective_labels": [
+        "가시덩굴 처치",
+        "벌목 경계 표지 [F]",
+        "통행로 상태 조사 [F]"
+      ],
+      "objective_location_hints": [
+        "숲가 마을길",
+        "숲가 마을길",
+        "숲가 마을길"
+      ]
+    },
+    {
+      "quest_id": "MQ-06-03",
+      "path": "res://data/quests/chapter_six/mq_06_03.tres",
+      "title": "이끼 아래의 감응",
+      "offer_text": "이끼내의 오염과 맹수 흔적을 조사해 길잡이에게 기록을 전하세요.",
+      "prerequisite": "MQ-06-02",
+      "npc_id": "mosswood_scout",
+      "accept_npc_id": "forest_keeper",
+      "reward_exp": 115000,
+      "reward_gold": 24000,
+      "reward_reputation": 175,
+      "objective_kinds": [
+        "KILL",
+        "KILL",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "poison_mushroom",
+        "forest_panther",
+        "mosswood_resonance"
+      ],
+      "objective_sources": [
+        "mosswood_mushrooms",
+        "mosswood_panthers",
+        "mosswood_resonance_site"
+      ],
+      "objective_counts": [
+        3,
+        3,
+        1
+      ],
+      "objective_labels": [
+        "독버섯 마수 처치",
+        "수림 표범 처치",
+        "감응 흔적 채록 [F]"
+      ],
+      "objective_location_hints": [
+        "이끼내 수림길",
+        "이끼내 수림길",
+        "이끼내 수림길"
+      ]
+    },
+    {
+      "quest_id": "MQ-06-04",
+      "path": "res://data/quests/chapter_six/mq_06_04.tres",
+      "title": "함께 읽는 숲",
+      "offer_text": "일리엔과 감응을 대조하고 오염 트렌트를 물리쳐 조사구역을 확보하세요.",
+      "prerequisite": "MQ-06-03",
+      "npc_id": "illien",
+      "accept_npc_id": "mosswood_scout",
+      "reward_exp": 120000,
+      "reward_gold": 25000,
+      "reward_reputation": 200,
+      "objective_kinds": [
+        "TALK",
+        "KILL",
+        "INTERACT",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "illien",
+        "corrupted_treant",
+        "sylvien_resonance",
+        "sylvien_seal"
+      ],
+      "objective_sources": [
+        "",
+        "sylvien_treants",
+        "sylvien_resonance_site",
+        "sylvien_seal_site"
+      ],
+      "objective_counts": [
+        1,
+        3,
+        1,
+        1
+      ],
+      "objective_labels": [
+        "일리엔와 대화 [F]",
+        "오염 트렌트 처치",
+        "일리엔과 감응 조사 [F]",
+        "군인 흔적 채록 [F]"
+      ],
+      "objective_location_hints": [
+        "실비엔 조사구역",
+        "실비엔 조사구역",
+        "실비엔 조사구역",
+        "실비엔 조사구역"
+      ]
+    },
+    {
+      "quest_id": "MQ-06-05",
+      "path": "res://data/quests/chapter_six/mq_06_05.tres",
+      "title": "숲의 공동 보고",
+      "offer_text": "관측을 정리하고 일리엔의 협력 의사를 미스란에 전하세요.",
+      "prerequisite": "MQ-06-04",
+      "npc_id": "misran_envoy",
+      "accept_npc_id": "illien",
+      "reward_exp": 131607,
+      "reward_gold": 28100,
+      "reward_reputation": 200,
+      "objective_kinds": [
+        "INTERACT",
+        "INTERACT",
+        "TALK"
+      ],
+      "objective_targets": [
+        "sylvien_record",
+        "sylvien_report",
+        "misran_envoy"
+      ],
+      "objective_sources": [
+        "sylvien_record_site",
+        "sylvien_report_site",
+        ""
+      ],
+      "objective_counts": [
+        1,
+        1,
+        1
+      ],
+      "objective_labels": [
+        "공동 관측 기록 [F]",
+        "공동 조사 보고서 [F]",
+        "미스란 교역 사절와 대화 [F]"
+      ],
+      "objective_location_hints": [
+        "실비엔 조사구역",
+        "실비엔 조사구역",
+        "미스란 교역구"
+      ]
+    },
+    {
+      "quest_id": "SQ-06-001",
+      "path": "res://data/quests/chapter_six/sq_06_001.tres",
+      "title": "약초 교역 재개",
+      "offer_text": "약초 교역 재개 현장을 확인하고 의뢰인에게 결과를 보고하세요.",
+      "prerequisite": "MQ-06-01",
+      "npc_id": "misran_healer",
+      "accept_npc_id": "misran_healer",
+      "reward_exp": 37774,
+      "reward_gold": 11910,
+      "reward_reputation": 60,
+      "objective_kinds": [
+        "INTERACT",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "misran_herbs",
+        "misran_request"
+      ],
+      "objective_sources": [
+        "misran_herbs_site",
+        "misran_request_site"
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "약초 교역 목록 [F]",
+        "협력 요청서 확인 [F]"
+      ],
+      "objective_location_hints": [
+        "미스란 교역구",
+        "미스란 교역구"
+      ]
+    },
+    {
+      "quest_id": "SQ-06-002",
+      "path": "res://data/quests/chapter_six/sq_06_002.tres",
+      "title": "조사대의 보급 목록",
+      "offer_text": "조사대의 보급 목록 현장을 확인하고 의뢰인에게 결과를 보고하세요.",
+      "prerequisite": "MQ-06-01",
+      "npc_id": "misran_envoy",
+      "accept_npc_id": "misran_envoy",
+      "reward_exp": 37774,
+      "reward_gold": 11910,
+      "reward_reputation": 60,
+      "objective_kinds": [
+        "INTERACT",
+        "TALK"
+      ],
+      "objective_targets": [
+        "misran_supplies",
+        "forest_keeper"
+      ],
+      "objective_sources": [
+        "misran_supplies_site",
+        ""
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "조사 보급품 대조 [F]",
+        "숲가 경계지기와 대화 [F]"
+      ],
+      "objective_location_hints": [
+        "미스란 교역구",
+        "숲가 마을길"
+      ]
+    },
+    {
+      "quest_id": "SQ-06-003",
+      "path": "res://data/quests/chapter_six/sq_06_003.tres",
+      "title": "경계를 지키는 손길",
+      "offer_text": "경계를 지키는 손길 현장을 확인하고 의뢰인에게 결과를 보고하세요.",
+      "prerequisite": "MQ-06-01",
+      "npc_id": "forest_keeper",
+      "accept_npc_id": "forest_keeper",
+      "reward_exp": 37774,
+      "reward_gold": 11910,
+      "reward_reputation": 60,
+      "objective_kinds": [
+        "KILL",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "thorn_vine",
+        "forest_boundary"
+      ],
+      "objective_sources": [
+        "forest_vines",
+        "forest_boundary_site"
+      ],
+      "objective_counts": [
+        3,
+        1
+      ],
+      "objective_labels": [
+        "가시덩굴 처치",
+        "벌목 경계 표지 [F]"
+      ],
+      "objective_location_hints": [
+        "숲가 마을길",
+        "숲가 마을길"
+      ]
+    },
+    {
+      "quest_id": "SQ-06-004",
+      "path": "res://data/quests/chapter_six/sq_06_004.tres",
+      "title": "숲가의 잃어버린 연장",
+      "offer_text": "숲가의 잃어버린 연장 현장을 확인하고 의뢰인에게 결과를 보고하세요.",
+      "prerequisite": "MQ-06-01",
+      "npc_id": "forest_woodworker",
+      "accept_npc_id": "forest_woodworker",
+      "reward_exp": 37774,
+      "reward_gold": 11910,
+      "reward_reputation": 60,
+      "objective_kinds": [
+        "INTERACT",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "forest_tools",
+        "forest_crossing"
+      ],
+      "objective_sources": [
+        "forest_tools_site",
+        "forest_crossing_site"
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "분실 연장 확인 [F]",
+        "통행로 상태 조사 [F]"
+      ],
+      "objective_location_hints": [
+        "숲가 마을길",
+        "숲가 마을길"
+      ]
+    },
+    {
+      "quest_id": "SQ-06-005",
+      "path": "res://data/quests/chapter_six/sq_06_005.tres",
+      "title": "마을의 물 기록",
+      "offer_text": "마을의 물 기록 현장을 확인하고 의뢰인에게 결과를 보고하세요.",
+      "prerequisite": "MQ-06-01",
+      "npc_id": "forest_keeper",
+      "accept_npc_id": "forest_keeper",
+      "reward_exp": 37774,
+      "reward_gold": 11910,
+      "reward_reputation": 60,
+      "objective_kinds": [
+        "INTERACT",
+        "TALK"
+      ],
+      "objective_targets": [
+        "forest_water",
+        "misran_healer"
+      ],
+      "objective_sources": [
+        "forest_water_site",
+        ""
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "숲가 수원 기록 [F]",
+        "미스란 약초사와 대화 [F]"
+      ],
+      "objective_location_hints": [
+        "숲가 마을길",
+        "미스란 교역구"
+      ]
+    },
+    {
+      "quest_id": "SQ-06-006",
+      "path": "res://data/quests/chapter_six/sq_06_006.tres",
+      "title": "봉인할 오염 표본",
+      "offer_text": "봉인할 오염 표본 현장을 확인하고 의뢰인에게 결과를 보고하세요.",
+      "prerequisite": "MQ-06-02",
+      "npc_id": "mosswood_scout",
+      "accept_npc_id": "mosswood_scout",
+      "reward_exp": 37774,
+      "reward_gold": 11910,
+      "reward_reputation": 60,
+      "objective_kinds": [
+        "KILL",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "poison_mushroom",
+        "mosswood_sample"
+      ],
+      "objective_sources": [
+        "mosswood_mushrooms",
+        "mosswood_sample_site"
+      ],
+      "objective_counts": [
+        3,
+        1
+      ],
+      "objective_labels": [
+        "독버섯 마수 처치",
+        "오염 표본 봉인 [F]"
+      ],
+      "objective_location_hints": [
+        "이끼내 수림길",
+        "이끼내 수림길"
+      ]
+    },
+    {
+      "quest_id": "SQ-06-007",
+      "path": "res://data/quests/chapter_six/sq_06_007.tres",
+      "title": "수림길의 발자국",
+      "offer_text": "수림길의 발자국 현장을 확인하고 의뢰인에게 결과를 보고하세요.",
+      "prerequisite": "MQ-06-02",
+      "npc_id": "mosswood_scout",
+      "accept_npc_id": "mosswood_scout",
+      "reward_exp": 37774,
+      "reward_gold": 11910,
+      "reward_reputation": 60,
+      "objective_kinds": [
+        "KILL",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "forest_panther",
+        "mosswood_marker"
+      ],
+      "objective_sources": [
+        "mosswood_panthers",
+        "mosswood_marker_site"
+      ],
+      "objective_counts": [
+        3,
+        1
+      ],
+      "objective_labels": [
+        "수림 표범 처치",
+        "이끼내 길표식 복원 [F]"
+      ],
+      "objective_location_hints": [
+        "이끼내 수림길",
+        "이끼내 수림길"
+      ]
+    },
+    {
+      "quest_id": "SQ-06-008",
+      "path": "res://data/quests/chapter_six/sq_06_008.tres",
+      "title": "이끼내의 물길",
+      "offer_text": "이끼내의 물길 현장을 확인하고 의뢰인에게 결과를 보고하세요.",
+      "prerequisite": "MQ-06-02",
+      "npc_id": "mosswood_scout",
+      "accept_npc_id": "mosswood_scout",
+      "reward_exp": 37774,
+      "reward_gold": 11910,
+      "reward_reputation": 60,
+      "objective_kinds": [
+        "INTERACT",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "mosswood_water",
+        "mosswood_resonance"
+      ],
+      "objective_sources": [
+        "mosswood_water_site",
+        "mosswood_resonance_site"
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "수림 물길 대조 [F]",
+        "감응 흔적 채록 [F]"
+      ],
+      "objective_location_hints": [
+        "이끼내 수림길",
+        "이끼내 수림길"
+      ]
+    },
+    {
+      "quest_id": "SQ-06-009",
+      "path": "res://data/quests/chapter_six/sq_06_009.tres",
+      "title": "조사원들의 안전선",
+      "offer_text": "조사원들의 안전선 현장을 확인하고 의뢰인에게 결과를 보고하세요.",
+      "prerequisite": "MQ-06-03",
+      "npc_id": "sylvien_observer",
+      "accept_npc_id": "sylvien_observer",
+      "reward_exp": 37773,
+      "reward_gold": 11910,
+      "reward_reputation": 60,
+      "objective_kinds": [
+        "KILL",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "corrupted_treant",
+        "sylvien_boundary"
+      ],
+      "objective_sources": [
+        "sylvien_treants",
+        "sylvien_boundary_site"
+      ],
+      "objective_counts": [
+        3,
+        1
+      ],
+      "objective_labels": [
+        "오염 트렌트 처치",
+        "조사 경계 점검 [F]"
+      ],
+      "objective_location_hints": [
+        "실비엔 조사구역",
+        "실비엔 조사구역"
+      ]
+    },
+    {
+      "quest_id": "SQ-06-010",
+      "path": "res://data/quests/chapter_six/sq_06_010.tres",
+      "title": "서로의 관측 기록",
+      "offer_text": "서로의 관측 기록 현장을 확인하고 의뢰인에게 결과를 보고하세요.",
+      "prerequisite": "MQ-06-04",
+      "npc_id": "illien",
+      "accept_npc_id": "illien",
+      "reward_exp": 37773,
+      "reward_gold": 11910,
+      "reward_reputation": 60,
+      "objective_kinds": [
+        "INTERACT",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "sylvien_record",
+        "misran_supplies"
+      ],
+      "objective_sources": [
+        "sylvien_record_site",
+        "misran_supplies_site"
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "공동 관측 기록 [F]",
+        "조사 보급품 대조 [F]"
+      ],
+      "objective_location_hints": [
+        "실비엔 조사구역",
+        "미스란 교역구"
+      ]
+    }
+  ],
+  "content_revision": 5
+}

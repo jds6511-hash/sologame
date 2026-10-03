@@ -1,7 +1,7 @@
 extends RefCounted
 # gdlint: disable=max-file-lines
 ## 자동 생성: tools/generate_chapter_content.py · 원본 godot/data/content/*.json
-const CURRENT_REVISION := 4
+const CURRENT_REVISION := 5
 const BGM_CONTEXTS := {
 	"eastern_frontier_start": "res://scenes/world/eastern_frontier_starting_area.tscn",
 	"novera_gate": "res://scenes/world/novera_gate.tscn",
@@ -17,6 +17,10 @@ const BGM_CONTEXTS := {
 	"reed_marsh": "res://scenes/world/eastern_frontier_starting_area.tscn",
 	"arsel": "res://scenes/world/novera_gate.tscn",
 	"arsel_library": "res://scenes/world/novera_gate.tscn",
+	"misran": "res://scenes/world/novera_gate.tscn",
+	"forest_edge": "res://scenes/world/eastern_frontier_starting_area.tscn",
+	"mosswood": "res://scenes/world/eastern_frontier_starting_area.tscn",
+	"sylvien": "res://scenes/world/eastern_frontier_starting_area.tscn",
 }
 const SCENES := {
 	"eastern_frontier_start": "res://scenes/world/product_world.tscn",
@@ -33,6 +37,10 @@ const SCENES := {
 	"reed_marsh": "res://scenes/world/product_world.tscn",
 	"arsel": "res://scenes/world/product_world.tscn",
 	"arsel_library": "res://scenes/world/product_world.tscn",
+	"misran": "res://scenes/world/product_world.tscn",
+	"forest_edge": "res://scenes/world/product_world.tscn",
+	"mosswood": "res://scenes/world/product_world.tscn",
+	"sylvien": "res://scenes/world/product_world.tscn",
 }
 const NAMES := {
 	"eastern_frontier_start": "여울목",
@@ -49,6 +57,10 @@ const NAMES := {
 	"reed_marsh": "갈밭 습지",
 	"arsel": "아르셀 호반",
 	"arsel_library": "아르셀 대도서관",
+	"misran": "미스란 교역구",
+	"forest_edge": "숲가 마을길",
+	"mosswood": "이끼내 수림길",
+	"sylvien": "실비엔 조사구역",
 }
 const BOUNDS := {
 	"eastern_frontier_start": Rect2(0, 0, 768, 576),
@@ -65,6 +77,10 @@ const BOUNDS := {
 	"reed_marsh": Rect2(0, 0, 1536, 960),
 	"arsel": Rect2(0, 0, 1536, 960),
 	"arsel_library": Rect2(0, 0, 1536, 960),
+	"misran": Rect2(0, 0, 1600, 1024),
+	"forest_edge": Rect2(0, 0, 1792, 1152),
+	"mosswood": Rect2(0, 0, 2112, 1344),
+	"sylvien": Rect2(0, 0, 1920, 1280),
 }
 const EDGES := {
 	"yeoulmok_gatewarden":
@@ -239,6 +255,46 @@ const EDGES := {
 		Vector2(1344, 480),
 		"arsel_to_arsel_library",
 	],
+	"brantel_to_misran":
+	["brantel", "misran", Vector2(1424, 736), Vector2(176, 512), "misran_to_brantel"],
+	"misran_to_brantel":
+	["misran", "brantel", Vector2(96, 512), Vector2(1344, 736), "brantel_to_misran"],
+	"misran_to_forest_edge":
+	[
+		"misran",
+		"forest_edge",
+		Vector2(1488, 512),
+		Vector2(176, 576),
+		"forest_edge_to_misran",
+	],
+	"forest_edge_to_misran":
+	[
+		"forest_edge",
+		"misran",
+		Vector2(96, 576),
+		Vector2(1408, 512),
+		"misran_to_forest_edge",
+	],
+	"forest_edge_to_mosswood":
+	[
+		"forest_edge",
+		"mosswood",
+		Vector2(1680, 576),
+		Vector2(176, 672),
+		"mosswood_to_forest_edge",
+	],
+	"mosswood_to_forest_edge":
+	[
+		"mosswood",
+		"forest_edge",
+		Vector2(96, 672),
+		Vector2(1600, 576),
+		"forest_edge_to_mosswood",
+	],
+	"mosswood_to_sylvien":
+	["mosswood", "sylvien", Vector2(2000, 672), Vector2(176, 640), "sylvien_to_mosswood"],
+	"sylvien_to_mosswood":
+	["sylvien", "mosswood", Vector2(96, 640), Vector2(1920, 672), "mosswood_to_sylvien"],
 }
 const QUESTS := {
 	"MQ-01-01": "res://data/quests/mq_01_01.tres",
@@ -283,6 +339,21 @@ const QUESTS := {
 	"SQ-CH05-005": "res://data/quests/chapter_five/sq_ch05_005.tres",
 	"SQ-CH05-006": "res://data/quests/chapter_five/sq_ch05_006.tres",
 	"SQ-CH05-007": "res://data/quests/chapter_five/sq_ch05_007.tres",
+	"MQ-06-01": "res://data/quests/chapter_six/mq_06_01.tres",
+	"MQ-06-02": "res://data/quests/chapter_six/mq_06_02.tres",
+	"MQ-06-03": "res://data/quests/chapter_six/mq_06_03.tres",
+	"MQ-06-04": "res://data/quests/chapter_six/mq_06_04.tres",
+	"MQ-06-05": "res://data/quests/chapter_six/mq_06_05.tres",
+	"SQ-06-001": "res://data/quests/chapter_six/sq_06_001.tres",
+	"SQ-06-002": "res://data/quests/chapter_six/sq_06_002.tres",
+	"SQ-06-003": "res://data/quests/chapter_six/sq_06_003.tres",
+	"SQ-06-004": "res://data/quests/chapter_six/sq_06_004.tres",
+	"SQ-06-005": "res://data/quests/chapter_six/sq_06_005.tres",
+	"SQ-06-006": "res://data/quests/chapter_six/sq_06_006.tres",
+	"SQ-06-007": "res://data/quests/chapter_six/sq_06_007.tres",
+	"SQ-06-008": "res://data/quests/chapter_six/sq_06_008.tres",
+	"SQ-06-009": "res://data/quests/chapter_six/sq_06_009.tres",
+	"SQ-06-010": "res://data/quests/chapter_six/sq_06_010.tres",
 }
 const NPCS := {
 	"yeoulmok_receptionist": ["eastern_frontier_start", Vector2(152, 440), "접수원"],
@@ -302,6 +373,13 @@ const NPCS := {
 	"marsh_guide": ["reed_marsh", Vector2(304, 480), "갈밭 길잡이"],
 	"arsel_scholar": ["arsel", Vector2(576, 480), "아르셀 기록 연구원"],
 	"arsel_librarian": ["arsel_library", Vector2(304, 480), "대도서관 사서"],
+	"misran_envoy": ["misran", Vector2(480, 464), "미스란 교역 사절"],
+	"misran_healer": ["misran", Vector2(800, 592), "미스란 약초사"],
+	"forest_keeper": ["forest_edge", Vector2(448, 528), "숲가 경계지기"],
+	"forest_woodworker": ["forest_edge", Vector2(896, 640), "숲가 목공"],
+	"mosswood_scout": ["mosswood", Vector2(448, 624), "이끼내 길잡이"],
+	"illien": ["sylvien", Vector2(704, 592), "일리엔"],
+	"sylvien_observer": ["sylvien", Vector2(1216, 704), "실비엔 조사원"],
 }
 const MERCHANTS := {
 	"novera_gate": [Vector2(216, 440)],
@@ -311,6 +389,7 @@ const MERCHANTS := {
 	"brantel": [Vector2(240, 528)],
 	"saleno": [Vector2(480, 528)],
 	"arsel": [Vector2(448, 528)],
+	"misran": [Vector2(608, 592)],
 }
 const REGION_REQUIREMENTS := {
 	"novera_gate": "MQ-01-05",
@@ -326,6 +405,10 @@ const REGION_REQUIREMENTS := {
 	"reed_marsh": "MQ-05-02",
 	"arsel": "MQ-05-02",
 	"arsel_library": "MQ-05-03",
+	"misran": "MQ-05-05",
+	"forest_edge": "MQ-06-01",
+	"mosswood": "MQ-06-02",
+	"sylvien": "MQ-06-03",
 }
 const SITES := {
 	"yeoulmok_old_rift_entrance":
@@ -543,6 +626,35 @@ const SITES := {
 	"arsel_notes": [Vector2(528, 320), "arsel_notes_site", "INTERACT", "호반 주민 기록", "arsel"],
 	"arsel_index":
 	[Vector2(1216, 480), "arsel_index_site", "INTERACT", "참고 목록 정리", "arsel_library"],
+	"misran_arrival": [Vector2(256, 512), "misran_arrival_site", "REACH", "미스란 교역구 도착", "misran"],
+	"misran_request":
+	[Vector2(1056, 352), "misran_request_site", "INTERACT", "협력 요청서 확인", "misran"],
+	"misran_herbs": [Vector2(672, 688), "misran_herbs_site", "INTERACT", "약초 교역 목록", "misran"],
+	"misran_supplies":
+	[Vector2(1184, 688), "misran_supplies_site", "INTERACT", "조사 보급품 대조", "misran"],
+	"forest_boundary":
+	[Vector2(1136, 352), "forest_boundary_site", "INTERACT", "벌목 경계 표지", "forest_edge"],
+	"forest_crossing":
+	[Vector2(1456, 800), "forest_crossing_site", "INTERACT", "통행로 상태 조사", "forest_edge"],
+	"forest_water": [Vector2(640, 800), "forest_water_site", "INTERACT", "숲가 수원 기록", "forest_edge"],
+	"forest_tools": [Vector2(480, 352), "forest_tools_site", "INTERACT", "분실 연장 확인", "forest_edge"],
+	"mosswood_resonance":
+	[Vector2(1376, 352), "mosswood_resonance_site", "INTERACT", "감응 흔적 채록", "mosswood"],
+	"mosswood_marker":
+	[Vector2(1728, 992), "mosswood_marker_site", "INTERACT", "이끼내 길표식 복원", "mosswood"],
+	"mosswood_sample":
+	[Vector2(672, 992), "mosswood_sample_site", "INTERACT", "오염 표본 봉인", "mosswood"],
+	"mosswood_water":
+	[Vector2(1184, 992), "mosswood_water_site", "INTERACT", "수림 물길 대조", "mosswood"],
+	"sylvien_resonance":
+	[Vector2(960, 544), "sylvien_resonance_site", "INTERACT", "일리엔과 감응 조사", "sylvien"],
+	"sylvien_seal": [Vector2(1472, 352), "sylvien_seal_site", "INTERACT", "군인 흔적 채록", "sylvien"],
+	"sylvien_record":
+	[Vector2(1056, 928), "sylvien_record_site", "INTERACT", "공동 관측 기록", "sylvien"],
+	"sylvien_boundary":
+	[Vector2(1504, 928), "sylvien_boundary_site", "INTERACT", "조사 경계 점검", "sylvien"],
+	"sylvien_report":
+	[Vector2(960, 736), "sylvien_report_site", "INTERACT", "공동 조사 보고서", "sylvien"],
 }
 const MARKER_HABITATS := {
 	"yeoulmok_rabbit_habitat": ["eastern_frontier_start", "Markers/MonsterSpawns_뿔토끼"],
@@ -621,6 +733,34 @@ const HABITATS := {
 		"rift_slime",
 		"water_mist",
 	],
+	"forest_vines":
+	[
+		"forest_edge",
+		[Vector2(704, 384), Vector2(928, 368), Vector2(1248, 400)],
+		"wolf",
+		"thorn_vine",
+	],
+	"mosswood_mushrooms":
+	[
+		"mosswood",
+		[Vector2(640, 384), Vector2(1152, 368), Vector2(1472, 400)],
+		"rift_slime",
+		"poison_mushroom",
+	],
+	"mosswood_panthers":
+	[
+		"mosswood",
+		[Vector2(544, 928), Vector2(1376, 944), Vector2(1664, 912)],
+		"outlaw",
+		"forest_panther",
+	],
+	"sylvien_treants":
+	[
+		"sylvien",
+		[Vector2(576, 368), Vector2(1152, 384), Vector2(1472, 416)],
+		"wolf",
+		"corrupted_treant",
+	],
 }
 const MARKER_CONTENT_IDS := {
 	"yeoulmok_rabbit_habitat": "horned_rabbit",
@@ -670,6 +810,11 @@ const SITE_NOTICES := {
 	"yeoulmok_shadow_trace": "무너진 방책 너머에서 그림자가 마수들에게 말을 건넨다. 눈을 돌린 순간 모습은 사라졌다. 누구인지는 알 수 없다.",
 	"arvein_dispatch": "오르베인이 원정대 앞에 선다. 왕가의 깃발 아래 병사들이 대열을 정비한다. 마리엔은 변경의 주민을 살피고 돌아오라 당부한다.",
 	"arsel_gap": "목록에 적힌 일부 기록을 열람할 수 없다. 사서는 남아 있는 문헌의 목록을 내어준다. 누락 이유는 확인되지 않았다.",
+	"misran_request": "숲의 감응 조사는 경계 주민과 엘프 조사자의 동의 아래 진행한다.",
+	"forest_boundary": "경계 너머의 벌목은 멈추었다. 훼손된 표지는 주민과 조사자가 함께 다시 세운다.",
+	"sylvien_resonance": "일리엔이 감응을 읽는 동안 주변의 진동을 기록한다. 조사자는 같은 흔적이 이어지는 방향을 표시한다.",
+	"sylvien_seal": "일리엔은 마수 무리 뒤에 군인을 지닌 지성체의 개입이 있음을 확인한다. 확인된 관측만 공동 보고서에 남긴다.",
+	"sylvien_report": "일리엔은 앞으로도 감응 조사에 협력하기로 한다. 미스란과 실비엔은 확인된 관측을 함께 보관한다.",
 }
 const LAYOUTS := {
 	"yeoulmok_defense":
@@ -854,6 +999,190 @@ const LAYOUTS := {
 			},
 		],
 	},
+	"misran":
+	{
+		"spawn": Vector2(176, 512),
+		"floor": Vector2i(0, 0),
+		"patches":
+		[
+			{
+				"rect": Rect2(18, 8, 16, 8),
+				"tile": Vector2i(1, 2),
+			},
+			{
+				"rect": Rect2(65, 8, 16, 8),
+				"tile": Vector2i(1, 2),
+			},
+			{
+				"rect": Rect2(18, 48, 16, 8),
+				"tile": Vector2i(1, 2),
+			},
+			{
+				"rect": Rect2(65, 48, 16, 8),
+				"tile": Vector2i(1, 2),
+			},
+			{
+				"rect": Rect2(4, 28, 92, 8),
+				"tile": Vector2i(2, 0),
+			},
+			{
+				"rect": Rect2(47, 5, 6, 54),
+				"tile": Vector2i(2, 0),
+			},
+			{
+				"rect": Rect2(8, 19, 84, 6),
+				"tile": Vector2i(2, 0),
+			},
+			{
+				"rect": Rect2(8, 39, 84, 6),
+				"tile": Vector2i(2, 0),
+			},
+			{
+				"rect": Rect2(36, 23, 28, 18),
+				"tile": Vector2i(2, 2),
+			},
+		],
+	},
+	"forest_edge":
+	{
+		"spawn": Vector2(176, 576),
+		"floor": Vector2i(0, 0),
+		"patches":
+		[
+			{
+				"rect": Rect2(18, 8, 16, 8),
+				"tile": Vector2i(1, 2),
+			},
+			{
+				"rect": Rect2(77, 8, 16, 8),
+				"tile": Vector2i(1, 2),
+			},
+			{
+				"rect": Rect2(18, 56, 16, 8),
+				"tile": Vector2i(1, 2),
+			},
+			{
+				"rect": Rect2(77, 56, 16, 8),
+				"tile": Vector2i(1, 2),
+			},
+			{
+				"rect": Rect2(4, 32, 104, 8),
+				"tile": Vector2i(2, 0),
+			},
+			{
+				"rect": Rect2(53, 5, 6, 62),
+				"tile": Vector2i(2, 0),
+			},
+			{
+				"rect": Rect2(8, 19, 96, 6),
+				"tile": Vector2i(2, 0),
+			},
+			{
+				"rect": Rect2(8, 47, 96, 6),
+				"tile": Vector2i(2, 0),
+			},
+			{
+				"rect": Rect2(43, 8, 20, 8),
+				"tile": Vector2i(1, 2),
+			},
+			{
+				"rect": Rect2(43, 56, 20, 8),
+				"tile": Vector2i(1, 2),
+			},
+		],
+	},
+	"mosswood":
+	{
+		"spawn": Vector2(176, 672),
+		"floor": Vector2i(0, 0),
+		"patches":
+		[
+			{
+				"rect": Rect2(18, 8, 16, 8),
+				"tile": Vector2i(1, 2),
+			},
+			{
+				"rect": Rect2(97, 8, 16, 8),
+				"tile": Vector2i(1, 2),
+			},
+			{
+				"rect": Rect2(18, 68, 16, 8),
+				"tile": Vector2i(1, 2),
+			},
+			{
+				"rect": Rect2(97, 68, 16, 8),
+				"tile": Vector2i(1, 2),
+			},
+			{
+				"rect": Rect2(4, 38, 124, 8),
+				"tile": Vector2i(2, 0),
+			},
+			{
+				"rect": Rect2(63, 5, 6, 74),
+				"tile": Vector2i(2, 0),
+			},
+			{
+				"rect": Rect2(8, 19, 116, 6),
+				"tile": Vector2i(2, 0),
+			},
+			{
+				"rect": Rect2(8, 59, 116, 6),
+				"tile": Vector2i(2, 0),
+			},
+			{
+				"rect": Rect2(50, 7, 4, 16),
+				"tile": Vector2i(1, 1),
+			},
+			{
+				"rect": Rect2(50, 60, 4, 17),
+				"tile": Vector2i(1, 1),
+			},
+		],
+	},
+	"sylvien":
+	{
+		"spawn": Vector2(176, 640),
+		"floor": Vector2i(0, 0),
+		"patches":
+		[
+			{
+				"rect": Rect2(18, 8, 16, 8),
+				"tile": Vector2i(1, 2),
+			},
+			{
+				"rect": Rect2(85, 8, 16, 8),
+				"tile": Vector2i(1, 2),
+			},
+			{
+				"rect": Rect2(18, 64, 16, 8),
+				"tile": Vector2i(1, 2),
+			},
+			{
+				"rect": Rect2(85, 64, 16, 8),
+				"tile": Vector2i(1, 2),
+			},
+			{
+				"rect": Rect2(4, 36, 112, 8),
+				"tile": Vector2i(2, 0),
+			},
+			{
+				"rect": Rect2(57, 5, 6, 70),
+				"tile": Vector2i(2, 0),
+			},
+			{
+				"rect": Rect2(8, 19, 104, 6),
+				"tile": Vector2i(2, 0),
+			},
+			{
+				"rect": Rect2(8, 55, 104, 6),
+				"tile": Vector2i(2, 0),
+			},
+			{
+				"rect": Rect2(49, 29, 22, 22),
+				"tile": Vector2i(2, 2),
+			},
+		],
+	},
 }
 const QUEST_REQUIREMENTS := {
 	"MQ-03-01":
@@ -871,6 +1200,10 @@ const QUEST_REQUIREMENTS := {
 	"MQ-05-01":
 	{
 		"reputation": 1400,
+	},
+	"MQ-06-01":
+	{
+		"reputation": 2300,
 	},
 }
 const MONSTER_VARIANTS := {
@@ -916,6 +1249,34 @@ const MONSTER_VARIANTS := {
 		"stats": "res://data/monsters/chapter_five/water_mist.tres",
 		"level": 29,
 	},
+	"thorn_vine":
+	{
+		"title": "가시덩굴",
+		"scene": "wolf",
+		"stats": "res://data/monsters/chapter_six/thorn_vine.tres",
+		"level": 31,
+	},
+	"poison_mushroom":
+	{
+		"title": "독버섯 마수",
+		"scene": "rift_slime",
+		"stats": "res://data/monsters/chapter_six/poison_mushroom.tres",
+		"level": 33,
+	},
+	"forest_panther":
+	{
+		"title": "수림 표범",
+		"scene": "outlaw",
+		"stats": "res://data/monsters/chapter_six/forest_panther.tres",
+		"level": 35,
+	},
+	"corrupted_treant":
+	{
+		"title": "오염 트렌트",
+		"scene": "wolf",
+		"stats": "res://data/monsters/chapter_six/corrupted_treant.tres",
+		"level": 38,
+	},
 }
 const WARP_ARRIVALS := {
 	"novera_commons": Vector2(128, 384),
@@ -924,6 +1285,7 @@ const WARP_ARRIVALS := {
 	"brantel": Vector2(192, 480),
 	"saleno": Vector2(176, 480),
 	"arsel": Vector2(176, 480),
+	"misran": Vector2(176, 512),
 }
 const QUEST_REVISIONS := {
 	"MQ-01-01": 1,
@@ -968,6 +1330,21 @@ const QUEST_REVISIONS := {
 	"SQ-CH05-005": 4,
 	"SQ-CH05-006": 4,
 	"SQ-CH05-007": 4,
+	"MQ-06-01": 5,
+	"MQ-06-02": 5,
+	"MQ-06-03": 5,
+	"MQ-06-04": 5,
+	"MQ-06-05": 5,
+	"SQ-06-001": 5,
+	"SQ-06-002": 5,
+	"SQ-06-003": 5,
+	"SQ-06-004": 5,
+	"SQ-06-005": 5,
+	"SQ-06-006": 5,
+	"SQ-06-007": 5,
+	"SQ-06-008": 5,
+	"SQ-06-009": 5,
+	"SQ-06-010": 5,
 }
 const REGION_REVISIONS := {
 	"eastern_frontier_start": 1,
@@ -984,6 +1361,10 @@ const REGION_REVISIONS := {
 	"reed_marsh": 4,
 	"arsel": 4,
 	"arsel_library": 4,
+	"misran": 5,
+	"forest_edge": 5,
+	"mosswood": 5,
+	"sylvien": 5,
 }
 
 

@@ -1,32 +1,32 @@
 ## 기본 게임과 격리된 장 시작 준비 상태를 하나의 시작 화면에서 선택한다.
 extends Node
 
+const Content = preload("res://scripts/content/game_content.gd")
+const START_REGIONS := ["eastern_frontier_start", "eastern_frontier_start", "novera_gate", "novera_commons", "novera_commons", "brantel", "arsel"]
+const START_EXP := [0, 0, 3820, 42828, 79291, 283297, 704457]
+
 var _starting := false
 var _message: Label
 
 
 func start_options() -> Array:
-	return [
-		{"label": "기본 게임 · 기존 저장은 F6에서 불러오기", "chapter": 0, "directory": "user://saves"},
-		{"label": "1장 시작 체험 · 새 모험가", "chapter": 1, "directory": "user://product_chapter_preview"},
-		{
-			"label": "2장 시작 체험 · 1장 완료 준비",
-			"chapter": 2,
-			"directory": "user://product_chapter_preview"
-		},
-		{
-			"label": "3장 시작 체험 · 2장 완료 준비",
-			"chapter": 3,
-			"directory": "user://product_chapter_preview"
-		}
-	]
+	var options := [{"label": "기본 게임 · 기존 저장은 F6에서 불러오기", "chapter": 0, "directory": "user://saves"}]
+	for chapter in range(1, 7):
+		options.append({"label": "%d장 시작 체험 · %s" % [chapter, "새 모험가" if chapter == 1 else "%d장까지 완료 준비" % (chapter - 1)], "chapter": chapter, "directory": "user://product_chapter_preview"})
+	return options
+
+
+func start_region(chapter: int) -> String:
+	return START_REGIONS[chapter]
+
 
 
 func preparation(catalog: QuestCatalog, chapter: int) -> Dictionary:
 	var quests := {}
 	for id in catalog.ordered_ids():
 		if (
-			(chapter == 2 and String(id).begins_with("MQ-01-"))
+			(chapter >= 4 and Content.QUEST_REVISIONS[id] < chapter - 1)
+			or (chapter == 2 and String(id).begins_with("MQ-01-"))
 			or (
 				chapter == 3
 				and (
@@ -41,8 +41,8 @@ func preparation(catalog: QuestCatalog, chapter: int) -> Dictionary:
 			}
 	return {
 		"quests": quests,
-		"exp": 3820 if chapter == 2 else (42828 if chapter == 3 else 0),
-		"gold": 1130 if chapter == 2 else (23628 if chapter == 3 else 0)
+		"exp": START_EXP[chapter],
+		"gold": 40000 if chapter >= 4 else (1130 if chapter == 2 else (23628 if chapter == 3 else 0))
 	}
 
 
@@ -61,7 +61,7 @@ func _ready() -> void:
 	layer.add_child(center)
 	var column := VBoxContainer.new()
 	column.custom_minimum_size = Vector2(780, 0)
-	column.add_theme_constant_override("separation", 20)
+	column.add_theme_constant_override("separation", 10)
 	center.add_child(column)
 	var title := Label.new()
 	title.text = "여울목에서 시작하는 이야기"
@@ -70,14 +70,14 @@ func _ready() -> void:
 	_message = Label.new()
 	_message.text = (
 		"기본 게임: 실제 저장 사용\n장 시작 체험: 별도 QA 저장 · 매번 준비 상태로 시작\n"
-		+ "2장 준비 골드: 1장 의뢰 보상만 반영 · 처치·판매 골드는 제외됩니다."
+		+ "4~6장 체험: 이전 의뢰 완료·성장 표본 EXP·4만 골드를 준비합니다."
 	)
 	UiStyle.apply_body_font(_message, 24)
 	column.add_child(_message)
 	for option in start_options():
 		var button := Button.new()
 		button.text = option.label
-		button.custom_minimum_size.y = 72
+		button.custom_minimum_size.y = 64
 		UiStyle.apply_action_button(button)
 		button.pressed.connect(_start.bind(option.chapter, option.directory))
 		column.add_child(button)
@@ -93,11 +93,7 @@ func _start(chapter: int, directory: String) -> void:
 	if _starting:
 		return
 	_starting = true
-	var region := (
-		"eastern_frontier_start"
-		if chapter < 2
-		else ("novera_gate" if chapter == 2 else "novera_commons")
-	)
+	var region := start_region(chapter)
 	var world: Node = load("res://scripts/world/game_product.gd").instantiate_world(region)
 	world.set_meta("save_directory", directory)
 	get_tree().root.add_child(world)
