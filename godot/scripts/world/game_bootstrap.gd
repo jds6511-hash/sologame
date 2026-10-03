@@ -2,7 +2,15 @@
 extends Node
 
 const Content = preload("res://scripts/content/game_content.gd")
-const START_REGIONS := ["eastern_frontier_start", "eastern_frontier_start", "novera_gate", "novera_commons", "novera_commons", "brantel", "arsel"]
+const START_REGIONS := [
+	"eastern_frontier_start",
+	"eastern_frontier_start",
+	"novera_gate",
+	"novera_commons",
+	"novera_commons",
+	"brantel",
+	"arsel"
+]
 const START_EXP := [0, 0, 3820, 42828, 79291, 283297, 704457]
 
 var _starting := false
@@ -10,15 +18,26 @@ var _message: Label
 
 
 func start_options() -> Array:
-	var options := [{"label": "기본 게임 · 기존 저장은 F6에서 불러오기", "chapter": 0, "directory": "user://saves"}]
+	var options := [
+		{"label": "기본 게임 · 기존 저장은 F6에서 불러오기", "chapter": 0, "directory": "user://saves"}
+	]
 	for chapter in range(1, 7):
-		options.append({"label": "%d장 시작 체험 · %s" % [chapter, "새 모험가" if chapter == 1 else "%d장까지 완료 준비" % (chapter - 1)], "chapter": chapter, "directory": "user://product_chapter_preview"})
+		options.append(
+			{
+				"label":
+				(
+					"%d장 시작 체험 · %s"
+					% [chapter, "새 모험가" if chapter == 1 else "%d장까지 완료 준비" % (chapter - 1)]
+				),
+				"chapter": chapter,
+				"directory": "user://product_chapter_preview"
+			}
+		)
 	return options
 
 
 func start_region(chapter: int) -> String:
 	return START_REGIONS[chapter]
-
 
 
 func preparation(catalog: QuestCatalog, chapter: int) -> Dictionary:
@@ -42,7 +61,8 @@ func preparation(catalog: QuestCatalog, chapter: int) -> Dictionary:
 	return {
 		"quests": quests,
 		"exp": START_EXP[chapter],
-		"gold": 40000 if chapter >= 4 else (1130 if chapter == 2 else (23628 if chapter == 3 else 0))
+		"gold":
+		40000 if chapter >= 4 else (1130 if chapter == 2 else (23628 if chapter == 3 else 0))
 	}
 
 

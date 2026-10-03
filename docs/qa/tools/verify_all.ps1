@@ -78,6 +78,8 @@ function Probe-Series([string]$Name, [string]$Script, [string[]]$Phases, [string
 }
 
 try {
+    $ownsQa = $qaMutex.WaitOne(0)
+    if (-not $ownsQa) { throw 'Another verify_all is using shared QA directories. No QA files were changed.' }
     $before = Save-Manifest $actual
     $before | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $out 'actual-before.json') -Encoding UTF8
     foreach ($required in @('account.json','character_01.json','character_03.json')) {

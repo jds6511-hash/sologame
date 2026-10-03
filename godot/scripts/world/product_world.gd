@@ -1,4 +1,5 @@
 extends "res://scripts/world/eastern_frontier_starting_area.gd"
+const TerritoryManager = preload("res://scripts/territory/territory_manager.gd")
 const Content = preload("res://scripts/content/game_content.gd")
 const Runtime = preload("res://scripts/economy/economy_runtime.gd")
 const Site = preload("res://scripts/content/game_site.gd")
@@ -151,13 +152,13 @@ func _ready() -> void:
 	add_child(territory_panel)
 	territory_panel.setup(territory)
 	if map_id == "eastern_frontier_start":
-		var manager = load("res://scripts/territory/territory_manager.gd").new()
+		var manager = TerritoryManager.new()
 		manager.position = territory.DESK
 		add_child(manager)
 		manager.configure(_player, territory_panel)
 		get_node("WorldInteraction").candidates.append(manager)
 	elif load("res://scripts/territory/territory_travel.gd").is_city(map_id):
-		var gate = load("res://scripts/territory/territory_manager.gd").new()
+		var gate = TerritoryManager.new()
 		gate.name = "CityWarpGate"
 		gate.position = Content.WARP_ARRIVALS[map_id]
 		add_child(gate)

@@ -47,9 +47,9 @@ func test_fifteen_quests_restore_mid_objective_and_report_exact_budget() -> void
 					quest.objective_sources[index],
 					token
 				)
-			var restored := QuestJournal.new(catalog)
-			assert_eq(restored.restore_state(journal.export_state()), "", id + " 중간 복원")
-			journal = restored
+				var restored := QuestJournal.new(catalog)
+				assert_eq(restored.restore_state(journal.export_state()), "", id + " 중간 복원")
+				journal = restored
 		assert_eq(journal.export_state()[id].state, "ready")
 		journal.complete(id)
 		totals += Vector3i(quest.reward_exp, quest.reward_gold, quest.reward_reputation)
@@ -126,6 +126,7 @@ func test_new_enemy_telegraphs_and_approaches_are_distinct() -> void:
 	assert_gte(panther.charge_recovery_sec, 1.0)
 	assert_gt(treant.melee_range_tiles, vine.melee_range_tiles)
 	assert_gte(treant.melee_telegraph_sec, 1.4)
+
 
 func freeze_processes(node: Node) -> void:
 	node.set_process(false)

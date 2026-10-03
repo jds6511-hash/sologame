@@ -172,7 +172,17 @@ func test_chapter_six_uses_misran_city_and_keeps_sylvien_non_destination() -> vo
 func test_paid_warp_rejects_fields_and_has_middle_price_band() -> void:
 	var travel = Travel.initial(owned(), "brantel")
 	var territory = Model.initial(owned())
-	for region in ["novera_rift", "yeoulmok_defense", "novera_outskirts", "han_gilmok", "saleno_coast", "reed_marsh", "forest_edge", "mosswood", "sylvien"]:
+	for region in [
+		"novera_rift",
+		"yeoulmok_defense",
+		"novera_outskirts",
+		"han_gilmok",
+		"saleno_coast",
+		"reed_marsh",
+		"forest_edge",
+		"mosswood",
+		"sylvien"
+	]:
 		assert_eq(Travel.quote(travel, territory, region, "brantel", 500).error, "warp_departure")
 		assert_eq(Travel.quote(travel, territory, region, "", 500, true).error, "")
 	assert_eq(Travel.quote(travel, territory, "novera_commons", "brantel", 500).cost, 7416)
@@ -185,7 +195,17 @@ func test_paid_departure_requires_gate_radius_and_owned_territory() -> void:
 		var region: String = Travel.CITIES[city].map_id
 		var point: Vector2 = content.WARP_ARRIVALS[region]
 		assert_eq(Travel.departure_error(region, point + Vector2(40, 0), territory), "")
-		assert_eq(Travel.departure_error(region, point + Vector2(40.1, 0), territory), "warp_departure")
-	assert_eq(Travel.departure_error("eastern_frontier_start", Travel.TERRITORY_GATE, territory), "")
-	assert_eq(Travel.departure_error("eastern_frontier_start", Travel.TERRITORY_GATE, Model.initial({})), "ownership")
-	assert_eq(Travel.departure_error("eastern_frontier_start", Vector2(152, 504), territory), "warp_departure")
+		assert_eq(
+			Travel.departure_error(region, point + Vector2(40.1, 0), territory), "warp_departure"
+		)
+	assert_eq(
+		Travel.departure_error("eastern_frontier_start", Travel.TERRITORY_GATE, territory), ""
+	)
+	assert_eq(
+		Travel.departure_error("eastern_frontier_start", Travel.TERRITORY_GATE, Model.initial({})),
+		"ownership"
+	)
+	assert_eq(
+		Travel.departure_error("eastern_frontier_start", Vector2(152, 504), territory),
+		"warp_departure"
+	)

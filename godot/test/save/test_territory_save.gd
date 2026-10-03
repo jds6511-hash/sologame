@@ -1,4 +1,5 @@
 extends GutTest
+const Product = preload("res://scripts/world/game_product.gd")
 const Frozen = preload("res://scripts/save/frozen_v6/conversion.gd")
 const BaseCodec = preload("res://scripts/save/character_save_codec.gd")
 const PLAYER = preload("res://scenes/player/player.tscn")
@@ -145,7 +146,7 @@ func test_revision_four_cannot_claim_chapter_six_content() -> void:
 
 
 func test_failed_world_change_does_not_charge_gold_or_start_return_cooldown() -> void:
-	var world = load("res://scripts/world/game_product.gd").instantiate_world()
+	var world = Product.instantiate_world()
 	world.set_meta("save_directory", "user://product_territory_probe")
 	add_child(world)
 	world.process_mode = Node.PROCESS_MODE_DISABLED
@@ -182,7 +183,7 @@ func test_failed_world_change_does_not_charge_gold_or_start_return_cooldown() ->
 
 
 func test_session_rechecks_paid_departure_before_charging() -> void:
-	var world = load("res://scripts/world/game_product.gd").instantiate_world()
+	var world = Product.instantiate_world()
 	world.set_meta("save_directory", "user://product_territory_probe")
 	add_child(world)
 	world.process_mode = Node.PROCESS_MODE_DISABLED
@@ -193,7 +194,9 @@ func test_session_rechecks_paid_departure_before_charging() -> void:
 	actor.get_node("Inventory").gold = 20000
 	var session = world.get_node("SaveSession")
 	var travel: Dictionary = world.get_meta("travel_state").duplicate(true)
-	for region in ["eastern_frontier_start", "novera_commons", "novera_rift", "yeoulmok_defense", "forest_edge"]:
+	for region in [
+		"eastern_frontier_start", "novera_commons", "novera_rift", "yeoulmok_defense", "forest_edge"
+	]:
 		world.map_id = region
 		actor.position = Vector2(600, 500)
 		assert_eq(session.warp("novera").code, "warp_departure")

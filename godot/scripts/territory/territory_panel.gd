@@ -171,11 +171,20 @@ func _refresh() -> void:
 			runtime.world.get_node("QuestController").journal.reputation()
 		)
 		var title: String = Content.NAMES[Travel.CITIES[city].map_id]
-		var departure: String = Travel.departure_error(runtime.world.map_id, runtime.player.position, data)
+		var departure: String = Travel.departure_error(
+			runtime.world.map_id, runtime.player.position, data
+		)
 		if departure != "":
 			quote.error = departure
 		_button(
-			title + (" · %dG" % quote.cost if quote.error == "" else (" · 게이트에서 출발" if quote.error == "warp_departure" else " · 미개방/현재 위치")),
+			(
+				title
+				+ (
+					" · %dG" % quote.cost
+					if quote.error == ""
+					else (" · 게이트에서 출발" if quote.error == "warp_departure" else " · 미개방/현재 위치")
+				)
+			),
 			_ask_warp.bind(city),
 			quote.error != ""
 		)
@@ -201,7 +210,9 @@ func _ask(action: String) -> void:
 
 
 func _ask_warp(city: String) -> void:
-	var departure: String = Travel.departure_error(runtime.world.map_id, runtime.player.position, runtime.state())
+	var departure: String = Travel.departure_error(
+		runtime.world.map_id, runtime.player.position, runtime.state()
+	)
 	if departure != "":
 		message.text = ERRORS.get(departure, "이동 조건을 확인하세요.")
 		return
