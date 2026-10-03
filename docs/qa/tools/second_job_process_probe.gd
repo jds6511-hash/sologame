@@ -66,14 +66,22 @@ func prepare(first_job: StringName, trial: String) -> void:
 	var player: PlayerController = world.get_node("Player")
 	var progression: PlayerProgression = player.get_node("PlayerProgression")
 	while progression.current_level < 40:
-		progression.add_exp(progression.level_curve.req(progression.current_level) - progression.current_exp)
+		progression.add_exp(
+			progression.level_curve.req(progression.current_level) - progression.current_exp
+		)
 	var journal: QuestJournal = world.get_node("QuestController").journal
 	var states := {}
 	for id in journal.catalog.ordered_ids():
 		if CONTENT.QUEST_REVISIONS[id] < 6 or id in ["MQ-07-01", trial]:
-			states[id] = {"state": "completed", "counts": Array(journal.catalog.definitions[id].objective_counts)}
+			states[id] = {
+				"state": "completed",
+				"counts": Array(journal.catalog.definitions[id].objective_counts)
+			}
 	check(journal.restore_state(states) == "", "이전 장·첫 보고·계열 시련 완료 fixture")
-	check(player.get_node("PlayerJobTransition").perform_transition(first_job), "제품 1차 전직 " + String(first_job))
+	check(
+		player.get_node("PlayerJobTransition").perform_transition(first_job),
+		"제품 1차 전직 " + String(first_job)
+	)
 
 
 func seed_slots() -> void:
@@ -90,9 +98,14 @@ func seed_slots() -> void:
 		check(transition.perform_transition(job), "제품 2차 전직 " + String(job))
 		check(not transition.perform_transition(job), "중복 전직 거부")
 		var skill := StringName(player.skill_slot_4.skill_name)
-		check(player.get_node("PlayerSkillPoints").try_upgrade_skill(skill, false), "제품 전용 스킬 포인트 투자")
+		check(
+			player.get_node("PlayerSkillPoints").try_upgrade_skill(skill, false), "제품 전용 스킬 포인트 투자"
+		)
 		var runtime: Node = player.get_meta("economy_candidate")
-		check(runtime.state().equipment.weapon == ("WPN-BW-40-B" if archer else "WPN-GS-40-B"), "계열 Lv40 B 무기 지급")
+		check(
+			runtime.state().equipment.weapon == ("WPN-BW-40-B" if archer else "WPN-GS-40-B"),
+			"계열 Lv40 B 무기 지급"
+		)
 		if archer:
 			# 집중 모델 fixture: 비영구 값이 디스크 복원으로 유출되지 않는지만 확인.
 			var cast: int = player._shots.focus.begin_cast(1)
@@ -112,7 +125,9 @@ func seed_slots() -> void:
 
 
 func reload_slots() -> void:
-	var expected: Variant = JSON.parse_string(FileAccess.get_file_as_string(DIRECTORY.path_join(SNAPSHOT_FILE)))
+	var expected: Variant = JSON.parse_string(
+		FileAccess.get_file_as_string(DIRECTORY.path_join(SNAPSHOT_FILE))
+	)
 	if not expected is Dictionary or not expected.has("1") or not expected.has("2"):
 		check(false, "준비 스냅샷 존재")
 		return
@@ -122,18 +137,33 @@ func reload_slots() -> void:
 		if not loaded.ok:
 			return
 		await refresh()
-		check(expected[str(slot)] == JSON.parse_string(JSON.stringify(snapshot(), "", false, true)), "직업·SP 지출·장비·가방·의뢰 복원 동등")
+		check(
+			expected[str(slot)] == JSON.parse_string(JSON.stringify(snapshot(), "", false, true)),
+			"직업·SP 지출·장비·가방·의뢰 복원 동등"
+		)
 		var player: PlayerController = world.get_node("Player")
 		check(player._shots.focus.value == 0, "불러오기 집중 0")
-		check(not player.get_node("PlayerJobTransition").perform_transition(&"gladiator" if slot == 1 else &"sharpshooter"), "로드 후 중복 지급 거부")
-		check(expected[str(slot)] == JSON.parse_string(JSON.stringify(snapshot(), "", false, true)), "중복 전직 거부 뒤 장비·SP 불변")
+		check(
+			not player.get_node("PlayerJobTransition").perform_transition(
+				&"gladiator" if slot == 1 else &"sharpshooter"
+			),
+			"로드 후 중복 지급 거부"
+		)
+		check(
+			expected[str(slot)] == JSON.parse_string(JSON.stringify(snapshot(), "", false, true)),
+			"중복 전직 거부 뒤 장비·SP 불변"
+		)
 	finished = true
 
 
 func snapshot() -> Dictionary:
 	var session: Node = world.get_node("SaveSession")
-	var data: Dictionary = session.codec.capture(world.get_node("Player"), session.account.account_id)
+	var data: Dictionary = session.codec.capture(
+		world.get_node("Player"), session.account.account_id
+	)
 	var player := {}
-	for key in ["job_id", "level", "exp", "skill_points", "spent_points", "skill_levels", "skill_costs"]:
+	for key in [
+		"job_id", "level", "exp", "skill_points", "spent_points", "skill_levels", "skill_costs"
+	]:
 		player[key] = data.player[key]
 	return {"player": player, "inventory": data.inventory, "quests": data.progress.quests}
