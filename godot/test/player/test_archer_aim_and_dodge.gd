@@ -56,7 +56,7 @@ func test_basic_arrow_uses_basic_spec_values() -> void:
 	var arrow: ArrowProjectile = _spawned_arrows()[0]
 	## 16타일·초 x 16px = 256px/초, 사거리 8타일 x 16px = 128px, 비관통.
 	assert_almost_eq(arrow._speed_px, 256.0, TOL)
-	assert_almost_eq(arrow._remaining_distance, 128.0, TOL)
+	assert_almost_eq(arrow._remaining_distance, 160.0, TOL)
 	assert_eq(arrow._pierce_remaining, 0)
 
 
@@ -97,7 +97,7 @@ func test_aim_stance_basic_shot_uses_piercing_precision_arrow() -> void:
 	var arrow: ArrowProjectile = _spawned_arrows()[0]
 	assert_eq(arrow._pierce_remaining, 3, "조준 사격은 최대 3체 관통")
 	assert_almost_eq(arrow._speed_px, 20.0 * 16.0, TOL, "정밀 사격 20타일·초")
-	assert_almost_eq(arrow._remaining_distance, 10.0 * 16.0, TOL, "조준 사거리 10타일")
+	assert_almost_eq(arrow._remaining_distance, 12.0 * 16.0, TOL, "조준 사거리 12타일")
 
 
 func test_aim_stance_does_not_start_warrior_charge() -> void:

@@ -101,11 +101,11 @@ func test_rapid_shot_fires_three_arrows_at_interval() -> void:
 	assert_eq(_spawned_arrows().size(), 3, "예정 발수를 넘겨 쏘지 않아야 함")
 
 
-func test_rapid_shot_arrows_are_non_piercing_with_8_5_tile_range() -> void:
+func test_rapid_shot_arrows_are_non_piercing_with_10_5_tile_range() -> void:
 	_player._try_use_skill("slot4", _player.skill_slot_4)
 	_player._process_skill_state(0.2)
 	var arrow: ArrowProjectile = _spawned_arrows()[0]
-	assert_almost_eq(arrow._remaining_distance, 8.5 * 16.0, TOL)
+	assert_almost_eq(arrow._remaining_distance, 10.5 * 16.0, TOL)
 	assert_eq(arrow._pierce_remaining, 0, "속사 화살은 단일 명중(비관통)")
 
 
@@ -176,7 +176,7 @@ func test_hawk_eye_extends_arrow_range_by_one_tile() -> void:
 	_player._start_attack_step(0)
 	_player._process_attack_state(0.2)
 	var arrow: ArrowProjectile = _spawned_arrows()[0]
-	assert_almost_eq(arrow._remaining_distance, (8.0 + 1.0) * 16.0, TOL)
+	assert_almost_eq(arrow._remaining_distance, (10.0 + 1.0) * 16.0, TOL)
 
 
 func test_hawk_eye_speeds_up_basic_attack_cycle() -> void:

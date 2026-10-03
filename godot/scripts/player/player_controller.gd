@@ -35,6 +35,9 @@ const AUTO_AIM_RANGE_TILES := 3.0  ## 자동 조준 스냅을 허용하는 최�
 ## 공격 중 이동 속도 배율(평소의 45%). combat.md "정지 스윙 전제" 설계와 상충 가능 —
 ## 이 계수 조정으로 밸런스 재조율 가능하게 분리했다.
 const ATTACK_MOVE_SPEED_MULTIPLIER := 0.45
+const RUN_SPEED_MULTIPLIER := 1.5
+## 실행 세션 설정. 지역 교체에도 유지하며 캐릭터 저장에는 넣지 않는다.
+static var run_toggle_mode: bool = false
 const MONSTER_GROUP := "monsters"  ## 자동 조준 후보 우선 탐색 그룹
 
 @export var movement_data: PlayerMovementData
@@ -74,6 +77,8 @@ var rage := PlayerRageModule.new()
 var visual := PlayerVisualModule.new()
 
 var _move_input := Vector2.ZERO
+var _run_latched := false
+var _previous_run_mode := false
 var _last_move_direction := Vector2.DOWN  ## 대시 기본 방향(이동 입력 없을 시 마지막 방향 유지)
 var _attack_step_index: int = -1
 ## 다음 _update_visual에서 공격 애니메이션을 프레임0부터 강제 재생하라는 1회성 요청.
@@ -150,9 +155,11 @@ func _physics_process(delta: float) -> void:
 	## 사망~부활 구간(M3 D3-2)은 입력을 읽기 전에 갈라 나간다 — 아래 어떤 처리도 돌지 않아야
 	## 사망 모션이 다른 상태에 덮이지 않는다.
 	if is_input_locked or is_dead():
+		_run_latched = false
 		_process_death_lock()
 		return
 
+	_update_run_input()
 	_move_input = Input.get_vector("move_left", "move_right", "move_up", "move_down")
 	if _move_input.length_squared() > 0.0:
 		_last_move_direction = _move_input.normalized()
@@ -230,7 +237,22 @@ func _resolve_move_speed_px(is_attacking: bool) -> float:
 		return speed * aim_multiplier
 	if is_attacking:
 		return speed * ATTACK_MOVE_SPEED_MULTIPLIER
+	if _run_latched if run_toggle_mode else Input.is_action_pressed("walk_toggle"):
+		return speed * RUN_SPEED_MULTIPLIER
 	return speed
+
+
+func _update_run_input() -> void:
+	if _previous_run_mode != run_toggle_mode:
+		_run_latched = false
+		_previous_run_mode = run_toggle_mode
+	if run_toggle_mode and Input.is_action_just_pressed("walk_toggle"):
+		_run_latched = not _run_latched
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_PAUSED or what == NOTIFICATION_APPLICATION_FOCUS_OUT:
+		_run_latched = false
 
 
 ## 몬스터(숲거미 거미줄 등)가 호출하는 이동 둔화 공개 API — 걷기 속도를 percent 비율만큼

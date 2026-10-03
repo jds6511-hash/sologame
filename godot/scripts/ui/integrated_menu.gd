@@ -201,9 +201,20 @@ func _create_settings() -> void:
 	_tabs.add_child(box)
 	_tabs.set_tab_title(Tab.SETTINGS, "설정")
 	var label := Label.new()
-	label.text = "B 가방 · C 캐릭터/장비 · K 스킬 · J 의뢰 · M 지도\n음량·그래픽 세부 설정은 준비 중입니다."
+	label.text = "Shift 달리기 · Space 회피 · F 대화/주변 줍기\nB 가방 · C 캐릭터/장비 · K 스킬 · J 의뢰 · M 지도"
 	UiStyle.apply_body_font(label, 26)
 	box.add_child(label)
+	var run_mode := CheckButton.new()
+	run_mode.name = "RunToggle"
+	run_mode.text = "달리기 켜고 끄기 (끄면 Shift를 누르는 동안 달리기)"
+	run_mode.button_pressed = PlayerController.run_toggle_mode
+	UiStyle.apply_body_font(run_mode, 26)
+	box.add_child(run_mode)
+	run_mode.toggled.connect(func(value: bool): PlayerController.run_toggle_mode = value)
+	var hint := Label.new()
+	hint.text = "달리기 설정은 게임을 종료할 때까지 유지됩니다."
+	UiStyle.apply_body_font(hint, 24)
+	box.add_child(hint)
 	_menu_button(box, "뒤로", open_settings)
 	var confirm := ConfirmationDialog.new()
 	confirm.name = "QuitConfirmation"
