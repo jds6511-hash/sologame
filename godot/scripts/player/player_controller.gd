@@ -98,9 +98,7 @@ var _shots := ArcherShotModule.new()
 var _move_slow_percent: float = 0.0
 var _move_slow_timer: float = 0.0
 
-## 슈퍼아머 — combat.md 5-1 "슈퍼아머 스킬 시전 중: 경직 무시, 무적은 아님(피해는 그대로)".
-## 두 출처를 합산한다: ① 시전 중 슈퍼아머(차지 강타·대지 분쇄, self_superarmor_during_cast)
-## ② 결의의 외침이 부여하는 시간제 버프(_buff_superarmor_timer).
+## 시전 슈퍼아머와 시간제 버프를 합산한다. 경직만 막으며 피해는 그대로다.
 var _cast_superarmor_active: bool = false
 var _buff_superarmor_timer: float = 0.0
 

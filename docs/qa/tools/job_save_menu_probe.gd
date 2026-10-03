@@ -1,4 +1,5 @@
 ## 전직/공격/회피와 저장 메뉴의 입력 배선 검사. 레벨 준비는 기존 디버그 키다.
+## 초기 월드는 스폰 마커 경로를 비워 적 없는 fixture로 만든다. 실전 저장 안전 검사가 아니다.
 extends SceneTree
 
 var world: Node
@@ -82,9 +83,14 @@ func _job(id: String, label: String, level: int) -> void:
 func _scenario(job: String, phase: String) -> void:
 	world = load("res://scenes/world/eastern_frontier_starting_area.tscn").instantiate()
 	world.set_meta("save_directory", directory)
+	var spawner = world.get_node("MonsterSpawner")
+	for property in spawner.get_property_list():
+		if str(property.name).ends_with("_spawn_root_path"):
+			spawner.set(property.name, NodePath())
 	root.add_child(world)
 	current_scene = world
 	await _refresh()
+	_check(spawner.get_child_count() == 0, "메뉴 전용 적 없는 준비 환경")
 	if phase == "play":
 		await _job(
 			"archer" if job == "archer" else "warrior",
