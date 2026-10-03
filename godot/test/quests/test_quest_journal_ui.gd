@@ -110,6 +110,21 @@ func test_viewing_history_does_not_change_main_tracker() -> void:
 	assert_string_contains(before, "균열")
 
 
+func test_tracker_can_collapse_without_changing_progress() -> void:
+	if not _implemented():
+		return
+	var tracker = world.get_node("QuestTracker")
+	var before := journal.export_state()
+	tracker._toggle.pressed.emit()
+	assert_false(tracker._label.visible)
+	assert_true(tracker._toggle.visible)
+	tracker._refresh()
+	assert_false(tracker._label.visible, "목표 갱신이 접은 안내를 다시 열지 않음")
+	tracker._toggle.pressed.emit()
+	assert_true(tracker._label.visible)
+	assert_eq(journal.export_state(), before)
+
+
 func test_rebinding_clears_ui_preferences_and_old_journal_subscription() -> void:
 	if not _implemented():
 		return

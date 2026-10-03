@@ -92,6 +92,17 @@ func test_multi_level_up_accumulates_increases() -> void:
 func test_recompute_stats_does_not_bump_current() -> void:
 	## 세이브 로드·전직용 공개 API: 스탯만 세팅, 현재 HP/MP 불변.
 	_stats_comp.current_hp = 100.0
+	_stats_comp.current_mp = 7.0
 	_growth.recompute_stats(40)
 	assert_almost_eq(_stats.max_hp, 1065.0, TOL, "Lv40 최대 HP 세팅")
 	assert_almost_eq(_stats_comp.current_hp, 100.0, TOL, "현재 HP는 불변")
+	assert_almost_eq(_stats_comp.current_mp, 7.0, TOL, "재계산은 MP를 회복하지 않음")
+
+
+func test_level_up_refills_spent_mana() -> void:
+	_stats_comp.spend_mp(70.0)
+	_prog.add_exp(LEVEL_CURVE.req(1))
+	assert_almost_eq(_stats_comp.current_mp, _stats.max_mp, TOL, "레벨업 시 MP 전량 회복")
+	_stats_comp.spend_mp(80.0)
+	_prog.add_exp(LEVEL_CURVE.req(2) + LEVEL_CURVE.req(3))
+	assert_almost_eq(_stats_comp.current_mp, _stats.max_mp, TOL, "다중 레벨업도 최종 최대 MP")

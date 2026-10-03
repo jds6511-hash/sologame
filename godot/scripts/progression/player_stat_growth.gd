@@ -37,19 +37,20 @@ func _ready() -> void:
 		_progression.leveled_up.connect(_on_leveled_up)
 
 
-## 레벨업 1회분 처리. 재계산 후 늘어난 최대 HP/MP만큼 현재값을 가산해 "레벨업 = 약간 회복"
-## 체감을 준다(spec 3-2 규약, 전체 회복 아님). 다중 레벨업은 레벨마다 이 함수가 호출되어
-## 각 단계 증가분이 순차 가산된다.
+## 레벨업: HP는 기존 증가분 회복, MP는 새 최대치까지 회복한다(2026-10-03 체감 피드백).
+## 장착·로드가 쓰는 recompute_stats와 분리하여 능력치 재계산만으로 회복하지 않는다.
 func _on_leveled_up(new_level: int) -> void:
 	if combat_stats == null:
 		return
 	var old_max_hp := combat_stats.max_hp
-	var old_max_mp := combat_stats.max_mp
 	recompute_stats(new_level)
 	if _stats_component:
 		_stats_component.grow_max_stats(
-			combat_stats.max_hp - old_max_hp, combat_stats.max_mp - old_max_mp
+			combat_stats.max_hp - old_max_hp, 0.0
 		)
+		if not _stats_component.is_dead():
+			_stats_component.current_mp = combat_stats.max_mp
+			_stats_component.mp_changed.emit(combat_stats.max_mp, combat_stats.max_mp)
 
 
 ## (레벨, 직업)으로 스탯만 재계산한다(현재 HP/MP는 건드리지 않음). 세이브 로드·전직 완료 등

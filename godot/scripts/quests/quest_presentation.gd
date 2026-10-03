@@ -65,7 +65,7 @@ static func _view(
 	if state.is_empty():
 		action = "accept"
 		button = definition.title + " 수락"
-		tracker = "%s에게 %s 수락 [F]" % [catalog.npc_names[definition.giver_id()], definition.title]
+		tracker = "%s에게 수락 [F]" % catalog.npc_names[definition.giver_id()]
 	elif state.state == "ready":
 		action = "report" if npc_id == definition.npc_id else ""
 		button = "모험가 패 받기" if definition.grants_adventurer_pass else "보고하고 보상 받기"

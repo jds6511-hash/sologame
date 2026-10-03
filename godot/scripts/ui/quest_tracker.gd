@@ -5,16 +5,27 @@ const Presentation = preload("res://scripts/quests/quest_presentation.gd")
 var journal: QuestJournal
 var _label: Label
 var _notification: Label
+var _toggle: Button
 
 
 func setup(controller: QuestController) -> void:
 	layer = 5
 	journal = controller.journal
+	_toggle = Button.new()
+	_toggle.position = Vector2(24, 222)
+	_toggle.custom_minimum_size = Vector2(440, 36)
+	_toggle.text = "의뢰 안내 접기 −  ·  J 상세"
+	UiStyle.apply_body_font(_toggle, 22)
+	_toggle.pressed.connect(_toggle_tracking)
+	add_child(_toggle)
 	_label = Label.new()
-	_label.position = Vector2(1300, 340)
-	_label.custom_minimum_size = Vector2(540, 100)
+	_label.position = Vector2(24, 264)
+	_label.custom_minimum_size = Vector2(440, 120)
+	_label.max_lines_visible = 4
+	_label.clip_text = true
+	_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	UiStyle.apply_body_font(_label, 24)
+	UiStyle.apply_body_font(_label, 22)
 	_label.add_theme_color_override("font_outline_color", Color.BLACK)
 	_label.add_theme_constant_override("outline_size", 4)
 	add_child(_label)
@@ -27,6 +38,11 @@ func setup(controller: QuestController) -> void:
 	journal.changed.connect(_refresh)
 	controller.reward_claimed.connect(_on_reward)
 	_refresh()
+
+
+func _toggle_tracking() -> void:
+	_label.visible = not _label.visible
+	_toggle.text = "의뢰 안내 접기 −  ·  J 상세" if _label.visible else "의뢰 안내 펼치기 +  ·  J 상세"
 
 
 func _refresh() -> void:
