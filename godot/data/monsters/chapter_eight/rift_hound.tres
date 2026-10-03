@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="MonsterStatsData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ai/monster_stats_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+display_name = "균열 사냥개"
+max_hp = 4950.0
+attack_power = 375.0
+defense = 38.0
+perception_range_tiles = 7.0
+leash_range_tiles = 12.0
+wander_speed_tiles = 1.6
+combat_move_speed_tiles = 4.0
+charge_telegraph_sec = 1.0
+charge_speed_tiles = 10.0
+charge_distance_tiles = 7.0
+charge_recovery_sec = 0.9
+charge_wall_stun_sec = 1.2
+charge_damage_mult = 1.3
+charge_cooldown_sec = 4.0
+guard_duration_sec = 0.6
+guard_cooldown_sec = 8.0

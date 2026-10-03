@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "MQ-08-02"
+title = "성터를 지나는 순례"
+offer_text = "살레노에서 순례길로 들어가 통행 기록과 오래된 강하 흔적을 조사한 뒤 안내관에게 보고하세요. 순례길과 성역에서는 전투하지 않습니다."
+prerequisite = "MQ-08-01"
+npc_id = "pilgrimage_steward"
+accept_npc_id = "brantel_herald"
+reward_exp = 380000
+reward_gold = 45000
+reward_reputation = 100
+objective_kinds = Array[String](["INTERACT", "INTERACT", "REACH"])
+objective_targets = Array[String](["pilgrimage_passage", "pilgrimage_gargoyle_trace", "pilgrimage_safe_route"])
+objective_sources = Array[String]([
+	"pilgrimage_passage_site",
+	"pilgrimage_gargoyle_trace_site",
+	"pilgrimage_safe_route_site",
+])
+objective_counts = Array[int]([1, 1, 1])
+objective_labels = Array[String](["순례 통행 기록 [F]", "오래된 강하 흔적 조사 [F]", "낙석 우회 통로 확인"])
+objective_location_hints = Array[String](["성터 순례길", "성터 순례길", "성터 순례길"])

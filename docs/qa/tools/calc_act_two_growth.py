@@ -74,7 +74,7 @@ def kill_exp(mob_level, total, profile=None, night=1.0):
 
 chapters = {
     number: json.loads(read(f"godot/data/content/chapter_{name}.json"))
-    for number, name in [(4, "four"), (5, "five"), (6, "six"), (7, "seven")]
+    for number, name in [(4, "four"), (5, "five"), (6, "six"), (7, "seven"), (8, "eight")]
 }
 
 
@@ -155,7 +155,7 @@ for row in expected:
     mob_level = max(v['level'] for v in data['MONSTER_VARIANTS'].values())
     for _ in range(max_kills):
         total += kill_exp(mob_level, total, profile, night=scalar(curve, 'night_exp_multiplier'))
-    next_entry = {4:22, 5:30, 6:39, 7:50}[number]
+    next_entry = {4:22, 5:30, 6:39, 7:50, 8:60}[number]
     farms.append(dict(chapter=number, max_kills=max_kills, total=total, level=reached(total),
                       next_entry=next_entry, within_two_levels=reached(total)<=next_entry+2))
 gate_rows = []

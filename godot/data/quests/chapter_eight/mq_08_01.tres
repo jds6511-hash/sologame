@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "MQ-08-01"
+title = "작위 심사의 문턱"
+offer_text = "공헌 기록을 대조하고 성역 증언 요청서를 받으세요. 공헌은 소모되지 않습니다."
+prerequisite = "MQ-07-06"
+npc_id = "brantel_herald"
+accept_npc_id = "brantel_herald"
+reward_exp = 350000
+reward_gold = 40000
+reward_reputation = 100
+objective_kinds = Array[String](["INTERACT", "INTERACT"])
+objective_targets = Array[String](["barony_ledger", "barony_witness_request"])
+objective_sources = Array[String](["barony_ledger_site", "barony_witness_request_site"])
+objective_counts = Array[int]([1, 1])
+objective_labels = Array[String](["작위 심사 공헌 기록 [F]", "증언 요청서 수령 [F]"])
+objective_location_hints = Array[String](["브란텔 문장원", "브란텔 문장원"])

@@ -61,6 +61,20 @@ static func prosperity(data: Dictionary) -> int:
 	)
 
 
+static func preview_barony(data: Dictionary, quests: Dictionary) -> Dictionary:
+	var error := validate(data, quests)
+	if error != "":
+		return {"ok": false, "code": error}
+	if quests.get("MQ-08-04", {}).get("state") != "ready":
+		return {"ok": false, "code": "quest_not_ready"}
+	var next_quests := quests.duplicate(true)
+	next_quests["MQ-08-04"].state = "completed"
+	var next := data.duplicate(true)
+	sync_ownership(next, next_quests)
+	error = validate(next, next_quests)
+	return {"ok": error == "", "code": error, "territory": next}
+
+
 static func daily_rate(data: Dictionary) -> int:
 	if data.representative == "":
 		return 0

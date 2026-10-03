@@ -105,6 +105,9 @@ def validate(data, root):
         if id not in quests:
             quests[id] = read_quest(local(root, path))
     npcs = set(c['NPCS']) | set(c['EDGES'])
+    for id, allowed in c.get('FIELD_REPORTS', {}).items():
+        if id not in quests or not id.startswith('SQ-') or type(allowed) is not bool:
+            raise ValueError('잘못된 현장 제출 속성: ' + id)
     for id, q in quests.items():
         if q['quest_id'] != id or q.get('prerequisite', '') not in set(quests) | {''}:
             raise ValueError('없는 선행 의뢰: ' + id)

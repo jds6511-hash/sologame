@@ -64,3 +64,22 @@ func test_facility_prices_and_ungranted_state_rejected() -> void:
 	assert_eq(Model.daily_rate(state), 4807)
 	assert_ne(Model.validate(state, quests()), "")
 	assert_eq(Model.validate(state, quests(true)), "")
+
+
+func test_reward_preview_is_atomic_and_rejects_corrupt_current_state() -> void:
+	var states := quests()
+	states["MQ-08-04"] = {"state": "ready", "counts": [1]}
+	var state := Model.initial(states)
+	Model.advance(state, 1234)
+	var before := state.duplicate(true)
+	var result: Dictionary = Model.preview_barony(state, states)
+	assert_true(result.ok)
+	assert_eq(state, before, "사전 검사는 원본을 바꾸지 않음")
+	assert_eq(states["MQ-08-04"].state, "ready")
+	assert_eq(result.territory.representative, "jaetgol")
+	assert_eq(result.territory.day_ms, 1234)
+	state.treasury = -1
+	assert_false(Model.preview_barony(state, states).ok)
+	state = before
+	states["MQ-08-04"].state = "active"
+	assert_false(Model.preview_barony(state, states).ok)

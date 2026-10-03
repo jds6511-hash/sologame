@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "MQ-08-05"
+title = "잿골의 첫 인계"
+offer_text = "노베라 외곽에서 잿골 접근로를 확보하고 인계서를 확인하세요. 관리 창구의 거래는 선택입니다."
+prerequisite = "MQ-08-04"
+npc_id = "jaetgol_steward"
+accept_npc_id = "brantel_herald"
+reward_exp = 456662
+reward_gold = 54800
+reward_reputation = 150
+objective_kinds = Array[String](["KILL", "KILL", "REACH", "INTERACT"])
+objective_targets = Array[String](["stone_gargoyle", "rift_hound", "jaetgol_road", "jaetgol_handover"])
+objective_sources = Array[String](["jaetgol_gargoyles", "jaetgol_hounds", "jaetgol_road_site", "jaetgol_handover_site"])
+objective_counts = Array[int]([3, 3, 1, 1])
+objective_labels = Array[String](["석상 가고일 처치", "균열 사냥개 처치", "잿골 통행로 확보 확인", "새 영지 관리 인계서 [F]"])
+objective_location_hints = Array[String](["잿골 접근로", "잿골 접근로", "잿골 접근로", "잿골 마을"])

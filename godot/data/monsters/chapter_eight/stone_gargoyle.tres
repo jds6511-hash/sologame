@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="MonsterStatsData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ai/monster_stats_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+display_name = "석상 가고일"
+max_hp = 4600.0
+attack_power = 350.0
+defense = 42.0
+perception_range_tiles = 7.0
+leash_range_tiles = 12.0
+wander_speed_tiles = 0.4
+combat_move_speed_tiles = 1.5
+leap_telegraph_sec = 1.35
+leap_travel_sec = 0.22
+leap_max_range_tiles = 5.0
+leap_land_radius_tiles = 1.8
+leap_recovery_sec = 1.1
+leap_damage_mult = 1.35
+leap_cooldown_sec = 4.5
+web_cooldown_sec = 8.0

@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "SQ-08-005"
+title = "성벽 아래 강하 흔적"
+offer_text = "비어 있는 석상 받침과 오래된 강하 흔적을 조사하고 안전한 순례 표식을 복구하세요."
+prerequisite = "MQ-08-01"
+npc_id = "pilgrimage_steward"
+accept_npc_id = "pilgrimage_steward"
+reward_exp = 113148
+reward_gold = 24480
+reward_reputation = 33
+objective_kinds = Array[String](["INTERACT", "INTERACT"])
+objective_targets = Array[String](["pilgrimage_gargoyle_trace", "pilgrimage_marker"])
+objective_sources = Array[String](["pilgrimage_gargoyle_trace_site", "pilgrimage_marker_site"])
+objective_counts = Array[int]([1, 1])
+objective_labels = Array[String](["오래된 강하 흔적 조사 [F]", "훼손된 순례 표식 복구 [F]"])
+objective_location_hints = Array[String](["성터 순례길", "성터 순례길"])

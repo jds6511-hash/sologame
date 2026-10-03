@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "SQ-08-006"
+title = "우회로의 마지막 표식"
+offer_text = "우회 통로의 끝과 복구한 안내 표식이 같은 길을 가리키는지 확인하세요."
+prerequisite = "MQ-08-02"
+npc_id = "pilgrimage_steward"
+accept_npc_id = "pilgrimage_steward"
+reward_exp = 113148
+reward_gold = 24480
+reward_reputation = 33
+objective_kinds = Array[String](["REACH", "INTERACT"])
+objective_targets = Array[String](["pilgrimage_safe_route", "pilgrimage_marker"])
+objective_sources = Array[String](["pilgrimage_safe_route_site", "pilgrimage_marker_site"])
+objective_counts = Array[int]([1, 1])
+objective_labels = Array[String](["낙석 우회 통로 확인", "훼손된 순례 표식 복구 [F]"])
+objective_location_hints = Array[String](["성터 순례길", "성터 순례길"])

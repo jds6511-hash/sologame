@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "SQ-08-003"
+title = "돌아온 기록의 봉인"
+offer_text = "돌아온 증언의 서명과 기존 공헌 기록을 비교하세요."
+prerequisite = "MQ-08-03"
+npc_id = "brantel_herald"
+accept_npc_id = "brantel_herald"
+reward_exp = 113148
+reward_gold = 24480
+reward_reputation = 34
+objective_kinds = Array[String](["INTERACT", "INTERACT"])
+objective_targets = Array[String](["barony_testimony_seal", "barony_ledger"])
+objective_sources = Array[String](["barony_testimony_seal_site", "barony_ledger_site"])
+objective_counts = Array[int]([1, 1])
+objective_labels = Array[String](["증언 서류 교차 확인 [F]", "작위 심사 공헌 기록 [F]"])
+objective_location_hints = Array[String](["브란텔 문장원", "브란텔 문장원"])

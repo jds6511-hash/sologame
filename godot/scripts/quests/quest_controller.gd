@@ -68,13 +68,38 @@ func report(quest_id: String, npc_id: String) -> String:
 			return "inventory_full"
 		if inventory.get_bag_quantity(item.item_id) > MAX_VALUE - definition.reward_item_count:
 			return "reward_overflow"
+	var grant := {}
+	if quest_id == "MQ-08-04":
+		grant = _barony_preview(definition)
+		if not grant.ok:
+			return grant.code
 	_reward_busy = true
 	if item != null and not inventory.add_to_bag(item, definition.reward_item_count):
 		_reward_busy = false
 		return "inventory_full"
 	inventory.add_gold(definition.reward_gold)
 	progression.add_exp(definition.reward_exp)
+	if not grant.is_empty():
+		_player.get_parent().set_meta("territory_state", grant.territory)
 	journal.complete(quest_id)
 	_reward_busy = false
 	reward_claimed.emit(quest_id)
 	return ""
+
+
+func _barony_preview(definition: QuestData) -> Dictionary:
+	var world := _player.get_parent()
+	var content = preload("res://scripts/content/game_content.gd")
+	if (
+		world.get("map_id") != "brantel"
+		or not content.NPCS.has(definition.npc_id)
+		or _player.position.distance_to(content.NPCS[definition.npc_id][1]) > 40.0
+	):
+		return {"ok": false, "code": "ceremony_onsite"}
+	if _player.get_node("PlayerStats").is_dead() or _player.is_input_locked:
+		return {"ok": false, "code": "player_unavailable"}
+	if not world.has_meta("territory_state"):
+		return {"ok": false, "code": "territory_ownership"}
+	return preload("res://scripts/territory/territory_model.gd").preview_barony(
+		world.get_meta("territory_state"), journal.export_state()
+	)

@@ -153,11 +153,13 @@ func _ready() -> void:
 	territory_panel.name = "TerritoryPanel"
 	add_child(territory_panel)
 	territory_panel.setup(territory)
-	if map_id == "eastern_frontier_start":
+	if map_id in ["eastern_frontier_start", "jaetgol"]:
 		var manager = TerritoryManager.new()
 		manager.position = territory.DESK
 		add_child(manager)
-		manager.configure(_player, territory_panel)
+		manager.configure(
+			_player, territory_panel, false, "jaetgol" if map_id == "jaetgol" else "yeoulmok"
+		)
 		get_node("WorldInteraction").candidates.append(manager)
 	elif load("res://scripts/territory/territory_travel.gd").is_city(map_id):
 		var gate = TerritoryManager.new()

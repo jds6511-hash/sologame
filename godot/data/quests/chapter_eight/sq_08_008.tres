@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "SQ-08-008"
+title = "동명이인의 발자취"
+offer_text = "출발지와 동행자를 대조해 동명이인의 행적을 나누고 문장원에 보고하세요."
+prerequisite = "MQ-08-02"
+npc_id = "brantel_herald"
+accept_npc_id = "oranse_pilgrim"
+reward_exp = 113148
+reward_gold = 24480
+reward_reputation = 33
+objective_kinds = Array[String](["INTERACT", "TALK"])
+objective_targets = Array[String](["oranse_names", "oranse_pilgrim"])
+objective_sources = Array[String](["oranse_names_site", ""])
+objective_counts = Array[int]([1, 1])
+objective_labels = Array[String](["순례 명부의 동명이인 확인 [F]", "성역 순례자에게 증언 확인 [F]"])
+objective_location_hints = Array[String](["오란세 성역", "오란세 성역"])

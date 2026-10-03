@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "SQ-08-007"
+title = "치유 기록의 날짜"
+offer_text = "치유 기록의 날짜를 당사자에게 확인해 문장원으로 전하세요."
+prerequisite = "MQ-08-02"
+npc_id = "brantel_herald"
+accept_npc_id = "oranse_healer"
+reward_exp = 113148
+reward_gold = 24480
+reward_reputation = 33
+objective_kinds = Array[String](["INTERACT", "TALK"])
+objective_targets = Array[String](["oranse_testimony", "oranse_healer"])
+objective_sources = Array[String](["oranse_testimony_site", ""])
+objective_counts = Array[int]([1, 1])
+objective_labels = Array[String](["치유 기록과 증언 대조 [F]", "오란세 치유사에게 증언 확인 [F]"])
+objective_location_hints = Array[String](["오란세 성역", "오란세 성역"])

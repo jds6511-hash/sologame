@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "SQ-08-001"
+title = "겹친 이름의 민원"
+offer_text = "민원 원본과 공헌 기록의 이름·접수일을 대조하세요."
+prerequisite = "MQ-08-01"
+npc_id = "brantel_herald"
+accept_npc_id = "brantel_herald"
+reward_exp = 113148
+reward_gold = 24480
+reward_reputation = 34
+objective_kinds = Array[String](["INTERACT", "INTERACT"])
+objective_targets = Array[String](["barony_petitions", "barony_ledger"])
+objective_sources = Array[String](["barony_petitions_site", "barony_ledger_site"])
+objective_counts = Array[int]([1, 1])
+objective_labels = Array[String](["민원 원본 대조 [F]", "작위 심사 공헌 기록 [F]"])
+objective_location_hints = Array[String](["브란텔 문장원", "브란텔 문장원"])

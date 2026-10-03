@@ -3,14 +3,19 @@ var panel: CanvasLayer
 var city_gate := false
 
 
-func configure(actor: PlayerController, display: CanvasLayer, gate: bool = false) -> void:
+func configure(
+	actor: PlayerController,
+	display: CanvasLayer,
+	gate: bool = false,
+	holding_id: String = "yeoulmok"
+) -> void:
 	_player = actor
 	panel = display
 	city_gate = gate
-	npc_id = "city_warp_gate" if gate else "yeoulmok_manager"
+	npc_id = "city_warp_gate" if gate else holding_id + "_manager"
 	var label := Label.new()
 	label.name = "Name"
-	label.text = "도시 워프" if gate else "여울목 관리인"
+	label.text = "도시 워프" if gate else ("잿골 영지 관리" if holding_id == "jaetgol" else "여울목 관리인")
 	label.position = Vector2(-40, -40)
 	label.size = Vector2(80, 16)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER

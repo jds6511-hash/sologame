@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "SQ-08-004"
+title = "같은 길을 걷는 사람들"
+offer_text = "통행 인원과 보급 꾸러미를 맞춰 귀환 행렬의 몫을 확인하세요."
+prerequisite = "MQ-08-01"
+npc_id = "pilgrimage_steward"
+accept_npc_id = "pilgrimage_steward"
+reward_exp = 113148
+reward_gold = 24480
+reward_reputation = 34
+objective_kinds = Array[String](["INTERACT", "INTERACT"])
+objective_targets = Array[String](["pilgrimage_passage", "pilgrimage_provisions"])
+objective_sources = Array[String](["pilgrimage_passage_site", "pilgrimage_provisions_site"])
+objective_counts = Array[int]([1, 1])
+objective_labels = Array[String](["순례 통행 기록 [F]", "순례 보급 물자 대조 [F]"])
+objective_location_hints = Array[String](["성터 순례길", "성터 순례길"])

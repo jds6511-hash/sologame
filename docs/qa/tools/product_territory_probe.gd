@@ -25,7 +25,7 @@ func _run() -> void:
 		quit(2)
 		return
 	if args.size() == 2:
-		if args[1] not in ["5", "6", "7"]:
+		if args[1] not in ["5", "6", "7", "8"]:
 			quit(2)
 			return
 		chapter = int(args[1])
@@ -62,6 +62,11 @@ func _run() -> void:
 			)
 			if failed:
 				print("기대: ", expected, " 실제: ", snapshot())
+			if chapter == 8:
+				check_barony()
+				var quests: Dictionary = world.get_node("QuestController").journal.export_state()
+				check(quests["MQ-08-04"].state == "completed", "의식 완료 복원")
+				check(quests.has("MQ-08-05") == (args[0] == "reload"), "중간과 완료 저장 경계")
 			finished = true
 		else:
 			await seed_session()
@@ -146,7 +151,7 @@ func seed_session() -> void:
 			}
 	check(journal.restore_state(states) == "", "이전 장 완료 준비 fixture")
 	world.get_node("Player/PlayerProgression").add_exp(
-		{4: 79291, 5: 283297, 6: 704457, 7: 1674227}[chapter]
+		{4: 79291, 5: 283297, 6: 704457, 7: 1806766, 8: 4587988}[chapter]
 	)
 	world.get_node("Player/Inventory").add_gold(40000)
 	var ids := []
@@ -158,7 +163,7 @@ func seed_session() -> void:
 		var definition: QuestData = journal.catalog.definitions[id]
 		await go_npc(definition.giver_id())
 		journal = world.get_node("QuestController").journal
-		check(journal.accept(id) == "", "API 순차 수락 " + id)
+		check(world.get_node("QuestController").accept(id) == "", "API 순차 수락 " + id)
 		for index in definition.objective_counts.size():
 			var target: String = definition.objective_targets[index]
 			var source: String = definition.objective_sources[index]
@@ -203,7 +208,7 @@ func seed_session() -> void:
 								check(clue.interact(), "현장 단서 대조 " + target)
 								world.get_node("QuestDialog").close_dialog()
 				check(found, "실제 표식 존재 " + target)
-				if RegionsM7.SITE_NOTICES.has(target):
+				if kind == "INTERACT" and RegionsM7.SITE_NOTICES.has(target):
 					check(world.get_node("QuestDialog").panel.visible, "공개 장면 안내")
 					await capture("shadow")
 					world.get_node("QuestDialog").close_dialog()
@@ -224,14 +229,20 @@ func seed_session() -> void:
 		check(controller.report(id, definition.npc_id) == "", "보고 " + id)
 		check(controller.report(id, definition.npc_id) != "", "중복 보고 거부")
 		check(world.get_node("Player/Inventory").gold == gold + definition.reward_gold, "보상 단회 지급")
+		if id == "MQ-08-04":
+			check_barony()
+			await save_snapshot(2, "middle.json")
 	check(
 		(
 			world.get_node("QuestController").journal.reputation()
-			== {4: 1950, 5: 3100, 6: 4600, 7: 6700}[chapter]
+			== {4: 1950, 5: 3100, 6: 4600, 7: 6700, 8: 7800}[chapter]
 		),
 		"장 기준 공훈 합계"
 	)
-	await territory_session()
+	if chapter == 8:
+		await barony_session()
+	else:
+		await territory_session()
 	await save_snapshot(1, "expected.json")
 	finished = true
 
@@ -325,3 +336,48 @@ func territory_session() -> void:
 		world.get_meta("territory_state").holdings.yeoulmok.facilities == ["market"],
 		"월드 교체 후 시설 보존"
 	)
+
+
+func check_barony() -> void:
+	var data: Dictionary = world.get_meta("territory_state")
+	check(data.revision == 2, "영지 개정2")
+	check(data.representative == "jaetgol", "대표 영지 잿골")
+	check(data.holdings.keys().size() == 2, "두 소유 영지 보존")
+	check(data.holdings.has("yeoulmok") and data.holdings.has("jaetgol"), "여울목과 잿골 보존")
+	check(snapshot().content_revision == 7, "제품 콘텐츠 개정7")
+
+
+func barony_session() -> void:
+	await go_region("brantel")
+	world.get_node("Player").position = RegionsM7.WARP_ARRIVALS.brantel
+	check(world.get_node("SaveSession").warp("jaetgol", true).ok, "새 영지 무료 귀환")
+	await refresh()
+	check(world.map_id == "jaetgol", "잿골 귀환 도착")
+	var runtime = world.get_node("TerritoryRuntime")
+	var travel_model = load("res://scripts/territory/territory_travel.gd")
+	world.get_node("Player").position = travel_model.JAETGOL_GATE
+	check(runtime.onsite() == "jaetgol", "잿골 현장 판정")
+	var model = load("res://scripts/territory/territory_model.gd")
+	model.advance(runtime.state(), model.DAY_MS)
+	var expected: int = runtime.state().treasury
+	var before: int = world.get_node("Player/Inventory").gold
+	check(runtime.act("collect") == "", "잿골에서 공통 금고 수령")
+	check(world.get_node("Player/Inventory").gold == before + expected, "금고 단회 지급")
+	before = world.get_node("Player/Inventory").gold
+	check(runtime.act("market") == "", "잿골 시장 건설")
+	check(world.get_node("Player/Inventory").gold == before - 141400, "잿골 고정 가격")
+	check(runtime.act("market") != "", "잿골 시장 중복 거부")
+	var economy: Node = world.get_node("Player").get_meta("economy_candidate")
+	var inventory: Dictionary = economy.state()
+	inventory.bag.append({"item_id": "MAT-DOG-FANG", "quantity": 3})
+	economy.apply_state(inventory)
+	check(runtime.act("deliver") == "", "승계 이전 주문 납품")
+	check(runtime.act("deliver") != "", "중복 납품 거부")
+	check(runtime.state().holdings.jaetgol.order_prosperity == 2, "납품 당시 대표 영지 번영")
+	check(runtime.state().holdings.yeoulmok.order_prosperity == 0, "하위 영지 번영 불변")
+	var blocked: Dictionary = world.get_node("SaveSession").warp("yeoulmok", true)
+	check(not blocked.ok and blocked.code == "cooldown", "두 영지 공통 귀환 대기")
+	check(world.get_node("SaveSession").warp("brantel").ok, "잿골에서 수도 워프")
+	await refresh()
+	check_barony()
+	check(world.get_meta("territory_state").holdings.jaetgol.facilities == ["market"], "시설 보존")

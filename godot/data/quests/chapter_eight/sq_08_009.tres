@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "SQ-08-009"
+title = "주민의 첫 요청"
+offer_text = "주민 요청과 인계 재고를 비교하세요. 물품 구매나 납품은 필요하지 않습니다."
+prerequisite = "MQ-08-04"
+npc_id = "jaetgol_steward"
+accept_npc_id = "jaetgol_steward"
+reward_exp = 113148
+reward_gold = 24480
+reward_reputation = 33
+objective_kinds = Array[String](["INTERACT", "INTERACT"])
+objective_targets = Array[String](["jaetgol_residents", "jaetgol_handover"])
+objective_sources = Array[String](["jaetgol_residents_site", "jaetgol_handover_site"])
+objective_counts = Array[int]([1, 1])
+objective_labels = Array[String](["주민 물자 요청 대조 [F]", "새 영지 관리 인계서 [F]"])
+objective_location_hints = Array[String](["잿골 마을", "잿골 마을"])

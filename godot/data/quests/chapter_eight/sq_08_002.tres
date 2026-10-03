@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "SQ-08-002"
+title = "증언 요청의 출처"
+offer_text = "요청서의 발신처를 민원 원본과 비교해 잘못 묶인 기록을 가려내세요."
+prerequisite = "MQ-08-01"
+npc_id = "brantel_herald"
+accept_npc_id = "brantel_herald"
+reward_exp = 113148
+reward_gold = 24480
+reward_reputation = 34
+objective_kinds = Array[String](["INTERACT", "INTERACT"])
+objective_targets = Array[String](["barony_witness_request", "barony_petitions"])
+objective_sources = Array[String](["barony_witness_request_site", "barony_petitions_site"])
+objective_counts = Array[int]([1, 1])
+objective_labels = Array[String](["증언 요청서 수령 [F]", "민원 원본 대조 [F]"])
+objective_location_hints = Array[String](["브란텔 문장원", "브란텔 문장원"])

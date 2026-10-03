@@ -4,6 +4,9 @@ extends RefCounted
 const Model = preload("res://scripts/territory/territory_model.gd")
 const Content = preload("res://scripts/content/game_content.gd")
 const TERRITORY_GATE := Vector2(320, 488)
+const JAETGOL_GATE := Vector2(320, 488)
+const HOLDING_MAPS := {"yeoulmok": "eastern_frontier_start", "jaetgol": "jaetgol"}
+const HOLDING_NAMES := {"yeoulmok": "여울목", "jaetgol": "잿골"}
 const CITIES := {
 	"novera": {"map_id": "novera_commons", "level": 10, "index": 0},
 	"gransia": {"map_id": "gransia", "level": 18, "index": 1},
@@ -14,6 +17,9 @@ const CITIES := {
 	"durgan": {"map_id": "durgan", "level": 40, "index": 6}
 }
 const SOURCES := {
+	"jaetgol": "novera",
+	"jaetgol_approach": "novera",
+	"pilgrimage_path": "saleno",
 	"eastern_frontier_start": "novera",
 	"yeoulmok_defense": "novera",
 	"novera_gate": "novera",
@@ -93,18 +99,18 @@ static func quote(
 		result.error = "source"
 		return result
 	if returning:
-		if territory.get("representative", "") == "":
+		if not HOLDING_MAPS.has(destination) or not territory.get("holdings", {}).has(destination):
 			result.error = "ownership"
 		elif travel.return_ms > 0:
 			result.error = "cooldown"
 		else:
-			result.destination = "yeoulmok"
-			result.map_id = "eastern_frontier_start"
+			result.map_id = HOLDING_MAPS[destination]
 		return result
-	if not is_city(source_map) and source_map != "eastern_frontier_start":
+	var holding_id := holding_for_map(source_map)
+	if not is_city(source_map) and holding_id == "":
 		result.error = "warp_departure"
 		return result
-	if source_map == "eastern_frontier_start" and territory.get("representative", "") == "":
+	if holding_id != "" and not territory.get("holdings", {}).has(holding_id):
 		result.error = "ownership"
 		return result
 	if is_city(source_map) and SOURCES[source_map] not in travel.unlocked:
@@ -139,8 +145,9 @@ static func is_city(map_id: String) -> bool:
 
 
 static func departure_error(map_id: String, position: Vector2, territory: Dictionary) -> String:
-	if map_id == "eastern_frontier_start":
-		if territory.get("representative", "") == "":
+	var holding_id := holding_for_map(map_id)
+	if holding_id != "":
+		if not territory.get("holdings", {}).has(holding_id):
 			return "ownership"
 		return "" if position.distance_to(TERRITORY_GATE) <= 40.0 else "warp_departure"
 	if not is_city(map_id):
@@ -160,4 +167,11 @@ static func commit(travel: Dictionary, economy: Dictionary, offer: Dictionary) -
 	economy.gold -= offer.cost
 	if offer.returning:
 		travel.return_ms = RETURN_MS
+	return ""
+
+
+static func holding_for_map(map_id: String) -> String:
+	for holding_id in HOLDING_MAPS:
+		if HOLDING_MAPS[holding_id] == map_id:
+			return holding_id
 	return ""

@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "SQ-08-010"
+title = "시장이 들어설 자리"
+offer_text = "시장 예정지의 동선을 주민 요청과 비교하세요. 건설은 선택입니다."
+prerequisite = "MQ-08-04"
+npc_id = "jaetgol_steward"
+accept_npc_id = "jaetgol_steward"
+reward_exp = 113148
+reward_gold = 24480
+reward_reputation = 33
+objective_kinds = Array[String](["INTERACT", "INTERACT"])
+objective_targets = Array[String](["jaetgol_market_plan", "jaetgol_residents"])
+objective_sources = Array[String](["jaetgol_market_plan_site", "jaetgol_residents_site"])
+objective_counts = Array[int]([1, 1])
+objective_labels = Array[String](["시장 예정지 점검 [F]", "주민 물자 요청 대조 [F]"])
+objective_location_hints = Array[String](["잿골 마을", "잿골 마을"])

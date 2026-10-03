@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "SQ-08-012"
+title = "마을로 이어지는 길"
+offer_text = "접근로의 사냥개 위협과 복구 전후 생활길을 확인해 인계 담당관에게 보고하세요."
+prerequisite = "MQ-08-04"
+npc_id = "jaetgol_steward"
+accept_npc_id = "jaetgol_steward"
+reward_exp = 113147
+reward_gold = 24480
+reward_reputation = 33
+objective_kinds = Array[String](["KILL", "REACH", "INTERACT"])
+objective_targets = Array[String](["rift_hound", "jaetgol_road", "jaetgol_repair"])
+objective_sources = Array[String](["jaetgol_hounds", "jaetgol_road_site", "jaetgol_repair_site"])
+objective_counts = Array[int]([2, 1, 1])
+objective_labels = Array[String](["균열 사냥개 처치", "잿골 통행로 확보 확인", "복구 전후 생활길 확인 [F]"])
+objective_location_hints = Array[String](["잿골 접근로", "잿골 접근로", "잿골 마을"])

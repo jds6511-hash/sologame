@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "MQ-08-04"
+title = "남작의 서약"
+offer_text = "서약을 확인한 뒤 문장원 담당관에게 최종 보고하세요. 이 보고가 작위와 잿골 하사를 확정합니다."
+prerequisite = "MQ-08-03"
+npc_id = "brantel_herald"
+accept_npc_id = "brantel_herald"
+reward_exp = 440000
+reward_gold = 55000
+reward_reputation = 200
+objective_kinds = Array[String](["INTERACT"])
+objective_targets = Array[String](["barony_ceremony"])
+objective_sources = Array[String](["barony_ceremony_site"])
+objective_counts = Array[int]([1])
+objective_labels = Array[String](["남작 의식 서약 확인 [F]"])
+objective_location_hints = Array[String](["브란텔 문장원"])

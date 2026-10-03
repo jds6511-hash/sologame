@@ -50,8 +50,8 @@ func _process(delta: float) -> void:
 
 
 func onsite() -> String:
-	if world.map_id == "eastern_frontier_start" and player.position.distance_to(DESK) <= 40.0:
-		return "yeoulmok"
+	if player.position.distance_to(DESK) <= 40.0:
+		return Travel.holding_for_map(world.map_id)
 	return ""
 
 
@@ -74,16 +74,17 @@ func act(action: String) -> String:
 
 
 func _refresh_buildings() -> void:
-	if world.map_id != "eastern_frontier_start" or not state().holdings.has("yeoulmok"):
+	var holding_id := Travel.holding_for_map(world.map_id)
+	if not state().holdings.has(holding_id):
 		return
-	var holding: Dictionary = state().holdings.yeoulmok
+	var holding: Dictionary = state().holdings[holding_id]
 	if "workshop" in holding.facilities and not is_instance_valid(workshop):
 		workshop = load("res://scripts/economy/economy_merchant.gd").new()
 		workshop.name = "TerritoryWorkshop"
 		workshop.position = Vector2(368, 488)
 		world.add_child(workshop)
 		workshop.configure(player, world.get_node("EconomyPanel"))
-		workshop.get_node("Name").text = "여울목 공방"
+		workshop.get_node("Name").text = Travel.HOLDING_NAMES[holding_id] + " 공방"
 		world.get_node("WorldInteraction").candidates.append(workshop)
 	if not is_instance_valid(restoration):
 		restoration = load("res://scripts/territory/territory_restoration.gd").new()

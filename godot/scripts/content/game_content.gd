@@ -1,7 +1,7 @@
 extends RefCounted
 # gdlint: disable=max-file-lines
 ## 자동 생성: tools/generate_chapter_content.py · 원본 godot/data/content/*.json
-const CURRENT_REVISION := 6
+const CURRENT_REVISION := 7
 const BGM_CONTEXTS := {
 	"eastern_frontier_start": "res://scenes/world/eastern_frontier_starting_area.tscn",
 	"novera_gate": "res://scenes/world/novera_gate.tscn",
@@ -26,6 +26,10 @@ const BGM_CONTEXTS := {
 	"karndurum": "res://scenes/world/novera_gate.tscn",
 	"frost_pass": "res://scenes/world/novera_gate.tscn",
 	"durgan_training": "res://scenes/world/novera_gate.tscn",
+	"pilgrimage_path": "res://scenes/world/novera_gate.tscn",
+	"oranse": "res://scenes/world/novera_gate.tscn",
+	"jaetgol_approach": "res://scenes/world/novera_gate.tscn",
+	"jaetgol": "res://scenes/world/novera_gate.tscn",
 }
 const SCENES := {
 	"eastern_frontier_start": "res://scenes/world/product_world.tscn",
@@ -51,6 +55,10 @@ const SCENES := {
 	"karndurum": "res://scenes/world/product_world.tscn",
 	"frost_pass": "res://scenes/world/product_world.tscn",
 	"durgan_training": "res://scenes/world/product_world.tscn",
+	"pilgrimage_path": "res://scenes/world/product_world.tscn",
+	"oranse": "res://scenes/world/product_world.tscn",
+	"jaetgol_approach": "res://scenes/world/product_world.tscn",
+	"jaetgol": "res://scenes/world/product_world.tscn",
 }
 const NAMES := {
 	"eastern_frontier_start": "여울목",
@@ -76,6 +84,10 @@ const NAMES := {
 	"karndurum": "카른두름 교섭구역",
 	"frost_pass": "서리재·하프나 보급로",
 	"durgan_training": "두르간 훈련장",
+	"pilgrimage_path": "성터 순례길",
+	"oranse": "오란세 성역",
+	"jaetgol_approach": "잿골 접근로",
+	"jaetgol": "잿골 마을",
 }
 const BOUNDS := {
 	"eastern_frontier_start": Rect2(0, 0, 768, 576),
@@ -101,6 +113,10 @@ const BOUNDS := {
 	"karndurum": Rect2(0, 0, 1920, 1280),
 	"frost_pass": Rect2(0, 0, 1920, 1280),
 	"durgan_training": Rect2(0, 0, 640, 480),
+	"pilgrimage_path": Rect2(0, 0, 1792, 960),
+	"oranse": Rect2(0, 0, 1280, 1024),
+	"jaetgol_approach": Rect2(0, 0, 1664, 896),
+	"jaetgol": Rect2(0, 0, 1408, 1152),
 }
 const EDGES := {
 	"yeoulmok_gatewarden":
@@ -371,6 +387,70 @@ const EDGES := {
 		Vector2(640, 432),
 		"durgan_to_training",
 	],
+	"saleno_to_pilgrimage_path":
+	[
+		"saleno",
+		"pilgrimage_path",
+		Vector2(1424, 736),
+		Vector2(176, 480),
+		"pilgrimage_path_to_saleno",
+	],
+	"pilgrimage_path_to_saleno":
+	[
+		"pilgrimage_path",
+		"saleno",
+		Vector2(96, 480),
+		Vector2(1344, 736),
+		"saleno_to_pilgrimage_path",
+	],
+	"pilgrimage_path_to_oranse":
+	[
+		"pilgrimage_path",
+		"oranse",
+		Vector2(1680, 480),
+		Vector2(176, 480),
+		"oranse_to_pilgrimage_path",
+	],
+	"oranse_to_pilgrimage_path":
+	[
+		"oranse",
+		"pilgrimage_path",
+		Vector2(96, 480),
+		Vector2(1600, 480),
+		"pilgrimage_path_to_oranse",
+	],
+	"novera_outskirts_to_jaetgol_approach":
+	[
+		"novera_outskirts",
+		"jaetgol_approach",
+		Vector2(1168, 672),
+		Vector2(176, 480),
+		"jaetgol_approach_to_novera_outskirts",
+	],
+	"jaetgol_approach_to_novera_outskirts":
+	[
+		"jaetgol_approach",
+		"novera_outskirts",
+		Vector2(96, 480),
+		Vector2(1088, 672),
+		"novera_outskirts_to_jaetgol_approach",
+	],
+	"jaetgol_approach_to_jaetgol":
+	[
+		"jaetgol_approach",
+		"jaetgol",
+		Vector2(1552, 480),
+		Vector2(176, 480),
+		"jaetgol_to_jaetgol_approach",
+	],
+	"jaetgol_to_jaetgol_approach":
+	[
+		"jaetgol",
+		"jaetgol_approach",
+		Vector2(96, 480),
+		Vector2(1472, 480),
+		"jaetgol_approach_to_jaetgol",
+	],
 }
 const QUESTS := {
 	"MQ-01-01": "res://data/quests/mq_01_01.tres",
@@ -451,6 +531,23 @@ const QUESTS := {
 	"SQ-07-013": "res://data/quests/chapter_seven/sq_07_013.tres",
 	"TR-WAR-02": "res://data/quests/job_trials/tr_war_02.tres",
 	"TR-ARC-02": "res://data/quests/job_trials/tr_arc_02.tres",
+	"MQ-08-01": "res://data/quests/chapter_eight/mq_08_01.tres",
+	"MQ-08-02": "res://data/quests/chapter_eight/mq_08_02.tres",
+	"MQ-08-03": "res://data/quests/chapter_eight/mq_08_03.tres",
+	"MQ-08-04": "res://data/quests/chapter_eight/mq_08_04.tres",
+	"MQ-08-05": "res://data/quests/chapter_eight/mq_08_05.tres",
+	"SQ-08-001": "res://data/quests/chapter_eight/sq_08_001.tres",
+	"SQ-08-002": "res://data/quests/chapter_eight/sq_08_002.tres",
+	"SQ-08-003": "res://data/quests/chapter_eight/sq_08_003.tres",
+	"SQ-08-004": "res://data/quests/chapter_eight/sq_08_004.tres",
+	"SQ-08-005": "res://data/quests/chapter_eight/sq_08_005.tres",
+	"SQ-08-006": "res://data/quests/chapter_eight/sq_08_006.tres",
+	"SQ-08-007": "res://data/quests/chapter_eight/sq_08_007.tres",
+	"SQ-08-008": "res://data/quests/chapter_eight/sq_08_008.tres",
+	"SQ-08-009": "res://data/quests/chapter_eight/sq_08_009.tres",
+	"SQ-08-010": "res://data/quests/chapter_eight/sq_08_010.tres",
+	"SQ-08-011": "res://data/quests/chapter_eight/sq_08_011.tres",
+	"SQ-08-012": "res://data/quests/chapter_eight/sq_08_012.tres",
 }
 const NPCS := {
 	"yeoulmok_receptionist": ["eastern_frontier_start", Vector2(152, 440), "접수원"],
@@ -486,6 +583,10 @@ const NPCS := {
 	"frost_quartermaster": ["frost_pass", Vector2(448, 592), "서리재 보급관"],
 	"hafna_courier": ["frost_pass", Vector2(1248, 704), "하프나 연락원"],
 	"durgan_trainer": ["durgan_training", Vector2(160, 320), "두르간 훈련 담당"],
+	"pilgrimage_steward": ["pilgrimage_path", Vector2(384, 432), "순례길 안내관"],
+	"oranse_healer": ["oranse", Vector2(448, 432), "오란세 치유사"],
+	"oranse_pilgrim": ["oranse", Vector2(832, 624), "성역 순례자"],
+	"jaetgol_steward": ["jaetgol", Vector2(576, 432), "잿골 인계 담당관"],
 }
 const MERCHANTS := {
 	"novera_gate": [Vector2(216, 440)],
@@ -521,6 +622,10 @@ const REGION_REQUIREMENTS := {
 	"karndurum": "MQ-07-02",
 	"frost_pass": "MQ-07-03",
 	"durgan_training": "MQ-07-01",
+	"pilgrimage_path": "MQ-08-01",
+	"oranse": "MQ-08-01",
+	"jaetgol_approach": "MQ-08-04",
+	"jaetgol": "MQ-08-04",
 }
 const SITES := {
 	"yeoulmok_old_rift_entrance":
@@ -800,6 +905,90 @@ const SITES := {
 	[Vector2(800, 928), "frost_dispatch_site", "INTERACT", "보급로 재개 전령 기록", "frost_pass"],
 	"durgan_treaty":
 	[Vector2(1440, 928), "durgan_treaty_site", "INTERACT", "상호 협력 조약 기록", "durgan"],
+	"barony_ledger":
+	[Vector2(1088, 576), "barony_ledger_site", "INTERACT", "작위 심사 공헌 기록", "brantel"],
+	"barony_petitions":
+	[Vector2(1152, 752), "barony_petitions_site", "INTERACT", "민원 원본 대조", "brantel"],
+	"barony_witness_request":
+	[
+		Vector2(624, 720),
+		"barony_witness_request_site",
+		"INTERACT",
+		"증언 요청서 수령",
+		"brantel",
+	],
+	"pilgrimage_passage":
+	[
+		Vector2(640, 400),
+		"pilgrimage_passage_site",
+		"INTERACT",
+		"순례 통행 기록",
+		"pilgrimage_path",
+	],
+	"pilgrimage_provisions":
+	[
+		Vector2(704, 720),
+		"pilgrimage_provisions_site",
+		"INTERACT",
+		"순례 보급 물자 대조",
+		"pilgrimage_path",
+	],
+	"pilgrimage_marker":
+	[
+		Vector2(1376, 672),
+		"pilgrimage_marker_site",
+		"INTERACT",
+		"훼손된 순례 표식 복구",
+		"pilgrimage_path",
+	],
+	"pilgrimage_safe_route":
+	[
+		Vector2(1456, 352),
+		"pilgrimage_safe_route_site",
+		"REACH",
+		"낙석 우회 통로 확인",
+		"pilgrimage_path",
+	],
+	"oranse_testimony":
+	[Vector2(768, 320), "oranse_testimony_site", "INTERACT", "치유 기록과 증언 대조", "oranse"],
+	"oranse_names":
+	[Vector2(1056, 448), "oranse_names_site", "INTERACT", "순례 명부의 동명이인 확인", "oranse"],
+	"barony_testimony_seal":
+	[
+		Vector2(1056, 336),
+		"barony_testimony_seal_site",
+		"INTERACT",
+		"증언 서류 교차 확인",
+		"brantel",
+	],
+	"barony_ceremony":
+	[Vector2(640, 256), "barony_ceremony_site", "INTERACT", "남작 의식 서약 확인", "brantel"],
+	"jaetgol_road":
+	[
+		Vector2(1280, 320),
+		"jaetgol_road_site",
+		"REACH",
+		"잿골 통행로 확보 확인",
+		"jaetgol_approach",
+	],
+	"jaetgol_handover":
+	[Vector2(864, 320), "jaetgol_handover_site", "INTERACT", "새 영지 관리 인계서", "jaetgol"],
+	"jaetgol_residents":
+	[Vector2(1056, 576), "jaetgol_residents_site", "INTERACT", "주민 물자 요청 대조", "jaetgol"],
+	"jaetgol_market_plan":
+	[Vector2(864, 800), "jaetgol_market_plan_site", "INTERACT", "시장 예정지 점검", "jaetgol"],
+	"jaetgol_workshop_plan":
+	[Vector2(448, 864), "jaetgol_workshop_plan_site", "INTERACT", "공방 예정지 점검", "jaetgol"],
+	"jaetgol_repair":
+	[Vector2(1152, 928), "jaetgol_repair_site", "INTERACT", "복구 전후 생활길 확인", "jaetgol"],
+	"pilgrimage_gargoyle_trace":
+	[
+		Vector2(1056, 272),
+		"pilgrimage_gargoyle_trace_site",
+		"INTERACT",
+		"성벽 아래 오래된 강하 흔적 조사",
+		"pilgrimage_path",
+	],
 }
 const MARKER_HABITATS := {
 	"yeoulmok_rabbit_habitat": ["eastern_frontier_start", "Markers/MonsterSpawns_뿔토끼"],
@@ -941,10 +1130,61 @@ const HABITATS := {
 		"rift_slime",
 		"ice_spirit",
 	],
+	"jaetgol_hounds":
+	[
+		"jaetgol_approach",
+		[Vector2(704, 704), Vector2(928, 720), Vector2(1152, 672)],
+		"outlaw",
+		"rift_hound",
+	],
+	"jaetgol_gargoyles":
+	[
+		"jaetgol_approach",
+		[Vector2(800, 192), Vector2(1056, 192), Vector2(1280, 192)],
+		"forest_spider",
+		"stone_gargoyle",
+	],
 }
 const MARKER_CONTENT_IDS := {
 	"yeoulmok_rabbit_habitat": "horned_rabbit",
 	"yeoulmok_dog_habitat": "feral_dog",
+}
+const FIELD_REPORTS := {
+	"SQ-CH05-001": true,
+	"SQ-CH05-002": true,
+	"SQ-CH05-003": true,
+	"SQ-CH05-004": true,
+	"SQ-CH05-005": true,
+	"SQ-CH05-006": true,
+	"SQ-CH05-007": true,
+	"SQ-CH04-001": true,
+	"SQ-CH04-002": true,
+	"SQ-CH04-003": true,
+	"SQ-CH04-004": true,
+	"SQ-CH04-005": true,
+	"SQ-07-001": true,
+	"SQ-07-002": true,
+	"SQ-07-003": true,
+	"SQ-07-004": true,
+	"SQ-07-005": true,
+	"SQ-07-006": true,
+	"SQ-07-007": true,
+	"SQ-07-008": true,
+	"SQ-07-009": true,
+	"SQ-07-010": true,
+	"SQ-07-011": true,
+	"SQ-07-012": true,
+	"SQ-07-013": true,
+	"SQ-06-001": true,
+	"SQ-06-002": true,
+	"SQ-06-003": true,
+	"SQ-06-004": true,
+	"SQ-06-005": true,
+	"SQ-06-006": true,
+	"SQ-06-007": true,
+	"SQ-06-008": true,
+	"SQ-06-009": true,
+	"SQ-06-010": true,
 }
 const DEFENSE_WAVES := {
 	"yeoulmok_defense_wave_1":
@@ -999,6 +1239,24 @@ const SITE_NOTICES := {
 	"karndurum_terms": "교섭관은 광석의 일방 반출 대신 공구와 식량의 정기 공급을 요구한다. 공동 조사 기록을 바탕으로 조건을 맞춘다.",
 	"frost_beacon": "눈보라에 끊겼던 신호가 하프나 쪽 봉우리에서 응답한다. 보급대가 움직일 길이 다시 이어졌다.",
 	"durgan_treaty": "광산 안전 조사와 룬 기술 교류, 서리재 보급 협력을 하나의 조약에 남긴다.",
+	"barony_ledger": "공헌은 소모되지 않는다. 심사 자격과 남작 작위는 다르며, 최종 의식 보고 전까지 잿골은 하사되지 않는다.",
+	"barony_petitions": "이름이 같은 두 민원을 접수 날짜와 거주지로 구분했다.",
+	"barony_witness_request": "살레노에서 성터 순례길을 거쳐 오란세로 간다. 성역은 도보로 들어가며 전투와 세금이 없다.",
+	"pilgrimage_passage": "통행인은 무장 유무가 아닌 순례 기록으로 확인한다.",
+	"pilgrimage_provisions": "식량 꾸러미 수와 이동 인원을 대조했다. 남은 물자는 귀환 행렬 몫이다.",
+	"pilgrimage_marker": "먼 길 안내 표식이 다시 오란세를 가리킨다.",
+	"pilgrimage_safe_route": "낡은 성벽 아래 강하 흔적을 피해 열린 통로를 확인했다.",
+	"oranse_testimony": "치유사의 진료 시각과 순례자의 통행 시각이 맞는다. 서로 다른 출처의 증언을 함께 기록했다.",
+	"oranse_names": "같은 이름이지만 출발지와 동행자가 다르다. 섣불리 한 사람의 행적으로 합치지 않는다.",
+	"barony_testimony_seal": "성역에서 정리한 증언을 문장원 기록과 맞췄다. 공헌 보상은 왕국의 보고에서 지급한다.",
+	"barony_ceremony": "이 확인만으로 의식은 끝나지 않는다. 문장원 담당관에게 최종 보고하면 남작 작위와 잿골 하사가 함께 확정된다.",
+	"jaetgol_road": "균열 사냥개의 돌진 흔적 너머로 주민의 수레길이 이어진다.",
+	"jaetgol_handover": "관리 창구에서는 두 영지를 조회하고 무료 귀환 목적지를 고른다. 수령·건설·개발·주문 납품은 선택이며 인계의 필수 거래가 아니다.",
+	"jaetgol_residents": "주민 명부와 창고 재고를 대조했다. 영지 시설에 돈을 쓰지 않아도 요청 조사를 마칠 수 있다.",
+	"jaetgol_market_plan": "시장 예정지의 배수와 수레 진입 공간을 확인했다. 건설은 관리 창구에서 따로 선택한다.",
+	"jaetgol_workshop_plan": "공방 예정지와 주민 우물을 구분했다. 점검은 유료 공방 건설을 요구하지 않는다.",
+	"jaetgol_repair": "무너진 길의 잔해와 복구 표식을 비교했다. 주민의 일상 동선이 이어진다.",
+	"pilgrimage_gargoyle_trace": "순례길에는 전투가 없다. 비어 있는 석상 받침과 오래된 강하 자국을 조사해 안전한 통행 구간을 기록한다.",
 }
 const LAYOUTS := {
 	"yeoulmok_defense":
@@ -1373,6 +1631,70 @@ const LAYOUTS := {
 		"spawn": Vector2(144, 384),
 		"patches": [],
 	},
+	"pilgrimage_path":
+	{
+		"spawn": Vector2(176, 480),
+		"floor": Vector2i(0, 0),
+		"patches":
+		[
+			{
+				"rect": Rect2(6, 27, 100, 6),
+				"tile": Vector2i(2, 0),
+			},
+			{
+				"rect": Rect2(18, 8, 6, 44),
+				"tile": Vector2i(2, 2),
+			},
+		],
+	},
+	"oranse":
+	{
+		"spawn": Vector2(176, 480),
+		"floor": Vector2i(0, 0),
+		"patches":
+		[
+			{
+				"rect": Rect2(6, 27, 68, 6),
+				"tile": Vector2i(2, 0),
+			},
+			{
+				"rect": Rect2(36, 8, 6, 48),
+				"tile": Vector2i(2, 2),
+			},
+		],
+	},
+	"jaetgol_approach":
+	{
+		"spawn": Vector2(176, 480),
+		"floor": Vector2i(0, 0),
+		"patches":
+		[
+			{
+				"rect": Rect2(6, 27, 92, 6),
+				"tile": Vector2i(2, 0),
+			},
+			{
+				"rect": Rect2(18, 8, 6, 40),
+				"tile": Vector2i(2, 2),
+			},
+		],
+	},
+	"jaetgol":
+	{
+		"spawn": Vector2(176, 480),
+		"floor": Vector2i(0, 0),
+		"patches":
+		[
+			{
+				"rect": Rect2(6, 27, 76, 6),
+				"tile": Vector2i(2, 0),
+			},
+			{
+				"rect": Rect2(18, 8, 6, 56),
+				"tile": Vector2i(2, 2),
+			},
+		],
+	},
 }
 const QUEST_REQUIREMENTS := {
 	"MQ-03-01":
@@ -1394,6 +1716,10 @@ const QUEST_REQUIREMENTS := {
 	"MQ-06-01":
 	{
 		"reputation": 2300,
+	},
+	"MQ-08-01":
+	{
+		"reputation": 5500,
 	},
 }
 const MONSTER_VARIANTS := {
@@ -1502,6 +1828,20 @@ const MONSTER_VARIANTS := {
 		"stats": "res://data/monsters/chapter_seven/ice_spirit.tres",
 		"level": 48,
 	},
+	"stone_gargoyle":
+	{
+		"title": "석상 가고일",
+		"scene": "forest_spider",
+		"stats": "res://data/monsters/chapter_eight/stone_gargoyle.tres",
+		"level": 52,
+	},
+	"rift_hound":
+	{
+		"title": "균열 사냥개",
+		"scene": "outlaw",
+		"stats": "res://data/monsters/chapter_eight/rift_hound.tres",
+		"level": 56,
+	},
 }
 const WARP_ARRIVALS := {
 	"novera_commons": Vector2(128, 384),
@@ -1512,6 +1852,7 @@ const WARP_ARRIVALS := {
 	"arsel": Vector2(176, 480),
 	"misran": Vector2(176, 512),
 	"durgan": Vector2(176, 640),
+	"jaetgol": Vector2(320, 536),
 }
 const EXP_PROFILES := {
 	"4":
@@ -1554,6 +1895,16 @@ const EXP_PROFILES := {
 		"overlevel_factors": [1.0, 0.5, 0.25],
 		"respawn_seconds": 90,
 	},
+	"8":
+	{
+		"expected_kills": 120,
+		"objective_kills": 8,
+		"encounter_kills": 112,
+		"budget": 1454758,
+		"base_exp": 12123,
+		"overlevel_factors": [1, 0.5, 0.25],
+		"respawn_seconds": 90,
+	},
 }
 const MONSTER_EXP_PROFILES := {
 	"wild_boar": "4",
@@ -1571,6 +1922,8 @@ const MONSTER_EXP_PROFILES := {
 	"rock_golem": "7",
 	"frost_wolf": "7",
 	"ice_spirit": "7",
+	"stone_gargoyle": "8",
+	"rift_hound": "8",
 }
 const TRIAL_TARGETS := {
 	"trial_war_heavy":
@@ -1688,6 +2041,23 @@ const QUEST_REVISIONS := {
 	"SQ-07-013": 6,
 	"TR-WAR-02": 6,
 	"TR-ARC-02": 6,
+	"MQ-08-01": 7,
+	"MQ-08-02": 7,
+	"MQ-08-03": 7,
+	"MQ-08-04": 7,
+	"MQ-08-05": 7,
+	"SQ-08-001": 7,
+	"SQ-08-002": 7,
+	"SQ-08-003": 7,
+	"SQ-08-004": 7,
+	"SQ-08-005": 7,
+	"SQ-08-006": 7,
+	"SQ-08-007": 7,
+	"SQ-08-008": 7,
+	"SQ-08-009": 7,
+	"SQ-08-010": 7,
+	"SQ-08-011": 7,
+	"SQ-08-012": 7,
 }
 const REGION_REVISIONS := {
 	"eastern_frontier_start": 1,
@@ -1713,6 +2083,10 @@ const REGION_REVISIONS := {
 	"karndurum": 6,
 	"frost_pass": 6,
 	"durgan_training": 6,
+	"pilgrimage_path": 7,
+	"oranse": 7,
+	"jaetgol_approach": 7,
+	"jaetgol": 7,
 }
 
 

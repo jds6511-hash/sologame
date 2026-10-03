@@ -20,7 +20,7 @@ func ordered_ids() -> Array:
 
 
 func allows_field_report(id: String) -> bool:
-	return id.begins_with("SQ-") and Content.QUEST_REVISIONS.get(id, 0) in [3, 4, 5, 6]
+	return Content.FIELD_REPORTS.get(id, false)
 
 
 func eligibility_error(quest_id: String, states: Dictionary) -> String:
@@ -33,6 +33,8 @@ func eligibility_error(quest_id: String, states: Dictionary) -> String:
 
 
 func honors(states: Dictionary) -> String:
+	if states.get("MQ-08-04", {}).get("state") == "completed":
+		return "신분: 남작\n대표 영지: 잿골 · 여울목 보유\n두 영지 관리·공용 금고\n영지 경영: 각 영지 관리인 [F]"
 	if states.get("MQ-03-05", {}).get("state") == "completed":
 		return "신분: 향사\n여울목 복구권 보유\n주민 보호·통치 책임\n영지 경영: 여울목 관리인 [F]"
 	return "신분: 모험가 · 영지: 없음"

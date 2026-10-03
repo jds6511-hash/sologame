@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "MQ-08-03"
+title = "두 사람의 증언"
+offer_text = "오란세 치유사와 순례자의 증언을 대조한 뒤 브란텔로 돌아와 보고하세요."
+prerequisite = "MQ-08-02"
+npc_id = "brantel_herald"
+accept_npc_id = "pilgrimage_steward"
+reward_exp = 410000
+reward_gold = 50000
+reward_reputation = 150
+objective_kinds = Array[String](["TALK", "TALK", "INTERACT", "INTERACT"])
+objective_targets = Array[String](["oranse_healer", "oranse_pilgrim", "oranse_testimony", "barony_testimony_seal"])
+objective_sources = Array[String](["", "", "oranse_testimony_site", "barony_testimony_seal_site"])
+objective_counts = Array[int]([1, 1, 1, 1])
+objective_labels = Array[String](["오란세 치유사에게 증언 확인 [F]", "성역 순례자에게 증언 확인 [F]", "치유 기록과 증언 대조 [F]", "증언 서류 교차 확인 [F]"])
+objective_location_hints = Array[String](["오란세 성역", "오란세 성역", "오란세 성역", "브란텔 문장원"])

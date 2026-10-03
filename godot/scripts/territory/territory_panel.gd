@@ -25,6 +25,7 @@ var message: Label
 var opened := false
 var confirmation: ConfirmationDialog
 var pending := ""
+var selected_holding := ""
 
 
 func setup(controller: Node) -> void:
@@ -59,6 +60,7 @@ func open() -> bool:
 	if runtime.player.get_node("PlayerStats").is_dead() or not arbiter.acquire(self):
 		return false
 	opened = true
+	selected_holding = runtime.onsite()
 	show()
 	_refresh()
 	return true
@@ -109,14 +111,30 @@ func _refresh() -> void:
 	var data: Dictionary = runtime.state()
 	var economy: Dictionary = runtime.player.get_meta("economy_candidate").state()
 	_label("보유 골드: %dG" % economy.gold)
-	var owned: bool = data.holdings.has("yeoulmok")
-	var onsite: bool = runtime.onsite() != ""
-	_label("현장 관리" if onsite else "원격 조회 · 수령/투자는 여울목 관리인 앞에서 가능합니다")
+	var owned: bool = not data.holdings.is_empty()
+	if not data.holdings.has(selected_holding):
+		selected_holding = data.representative
+	var onsite: bool = runtime.onsite() == selected_holding and owned
+	_label("현장 관리" if onsite else "원격 조회 · 수령/납품/투자는 해당 영지 관리인 앞에서 가능합니다")
 	if owned:
-		var holding: Dictionary = data.holdings.yeoulmok
+		for holding_id in data.holdings:
+			_button(Travel.HOLDING_NAMES[holding_id] + " 조회", _select_holding.bind(holding_id))
 		_label(
 			(
-				"금고 %dG / 상한 %dG · 순수입 %dG/일 · 번영 %d"
+				"조회: %s · 대표 영지: %s"
+				% [
+					Travel.HOLDING_NAMES[selected_holding],
+					Travel.HOLDING_NAMES[data.representative]
+				]
+			)
+		)
+		var holding: Dictionary = data.holdings[selected_holding]
+		var costs: Dictionary = (
+			Model.VILLAGE_COSTS if selected_holding == "jaetgol" else Model.COSTS
+		)
+		_label(
+			(
+				"공용 금고 %dG / 상한 %dG · 대표 순수입 %dG/일 · 대표 번영 %d"
 				% [
 					data.treasury,
 					Model.daily_rate(data) * 7,
@@ -127,23 +145,31 @@ func _refresh() -> void:
 		)
 		_label(
 			(
-				"시설 %d/2 · 외형 복구 %d/5 · 조수입에서 유지비를 뺀 수입입니다"
-				% [holding.facilities.size(), holding.development]
+				"시설 %d/%d · 외형 복구 %d/5 · 조수입에서 유지비를 뺀 수입입니다"
+				% [
+					holding.facilities.size(),
+					4 if selected_holding == "jaetgol" else 2,
+					holding.development
+				]
 			)
 		)
+		if selected_holding == "jaetgol":
+			_label("시설 2칸은 후속 개방 예정 · 현재 시장/공방만 건설 가능")
+		if selected_holding != data.representative:
+			_label("하위 영지의 시설·복구는 보존됩니다. 수입과 주문 주기는 대표 영지 기준입니다.")
 		_button("금고 수령", _act.bind("collect"), not onsite or data.treasury == 0)
 		_button(
-			"시장 건설 · 12,600G · 주문 갱신 주기 절반",
+			"시장 건설 · %dG · 대표 영지일 때 주문 갱신 주기 절반" % costs.market,
 			_ask.bind("market"),
 			not onsite or "market" in holding.facilities
 		)
 		_button(
-			"공방 건설 · 18,900G · C급 장비/포션 상점",
+			"공방 건설 · %dG · C급 장비/포션 상점" % costs.workshop,
 			_ask.bind("workshop"),
 			not onsite or "workshop" in holding.facilities
 		)
 		_button(
-			"외형 복구 투자 · 25,200G · 수입 증가 없음",
+			"외형 복구 투자 · %dG · 수입 증가 없음" % costs.develop,
 			_ask.bind("develop"),
 			not onsite or holding.development >= 5
 		)
@@ -157,7 +183,9 @@ func _refresh() -> void:
 			)
 		)
 		_button(
-			"들개 이빨 3개 납품 · 1,260G + 번영2", _act.bind("deliver"), not onsite or data.order.completed
+			"들개 이빨 3개 납품 · %dG + 대표 영지 번영2" % data.order.reward,
+			_act.bind("deliver"),
+			not onsite or data.order.completed
 		)
 	else:
 		_label("영지 없음 · 여울목 방어와 문장원 심사 후 관리가 열립니다")
@@ -189,22 +217,33 @@ func _refresh() -> void:
 			quote.error != ""
 		)
 	var cooldown: int = runtime.travel_state().return_ms
-	_button(
-		"여울목 무료 귀환 · 재사용까지 %d초" % int(ceil(cooldown / 1000.0)),
-		_warp.bind("yeoulmok", true),
-		not owned or cooldown > 0
-	)
+	_label("무료 귀환 공통 재사용까지 %d초" % int(ceil(cooldown / 1000.0)))
+	for holding_id in data.holdings:
+		var offer: Dictionary = Travel.quote(
+			runtime.travel_state(), data, runtime.world.map_id, holding_id, 0, true
+		)
+		_button(
+			Travel.HOLDING_NAMES[holding_id] + " 무료 귀환",
+			_warp.bind(holding_id, true),
+			offer.error != ""
+		)
 	message = _label("")
 
 
+func _select_holding(holding_id: String) -> void:
+	selected_holding = holding_id
+	_refresh()
+
+
 func _ask(action: String) -> void:
+	if runtime.onsite() != selected_holding:
+		message.text = ERRORS.onsite
+		return
 	pending = action
+	var costs: Dictionary = Model.VILLAGE_COSTS if selected_holding == "jaetgol" else Model.COSTS
 	confirmation.dialog_text = (
 		"%s에 %dG를 사용합니다. 실행할까요?"
-		% [
-			{"market": "시장 건설", "workshop": "공방 건설", "develop": "외형 복구"}[action],
-			Model.COSTS[action]
-		]
+		% [{"market": "시장 건설", "workshop": "공방 건설", "develop": "외형 복구"}[action], costs[action]]
 	)
 	confirmation.popup_centered(Vector2i(640, 220))
 
@@ -240,6 +279,9 @@ func _confirm() -> void:
 
 
 func _act(action: String) -> void:
+	if runtime.onsite() != selected_holding:
+		message.text = ERRORS.onsite
+		return
 	var error: String = runtime.act(action)
 	_refresh()
 	message.text = "처리 완료" if error.is_empty() else ERRORS.get(error, "조건을 확인한 뒤 다시 시도하세요.")

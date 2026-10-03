@@ -1,0 +1,1427 @@
+{
+  "chapter": 8,
+  "content_revision": 7,
+  "budget": {
+    "reward_exp": 3394437,
+    "reward_gold": 538560,
+    "reward_reputation": 1100,
+    "main_exp": 2036662,
+    "side_exp": 1357775,
+    "main_reputation": 700,
+    "side_reputation": 400
+  },
+  "constants": {
+    "BGM_CONTEXTS": {
+      "pilgrimage_path": "res://scenes/world/novera_gate.tscn",
+      "oranse": "res://scenes/world/novera_gate.tscn",
+      "jaetgol_approach": "res://scenes/world/novera_gate.tscn",
+      "jaetgol": "res://scenes/world/novera_gate.tscn"
+    },
+    "SCENES": {
+      "pilgrimage_path": "res://scenes/world/product_world.tscn",
+      "oranse": "res://scenes/world/product_world.tscn",
+      "jaetgol_approach": "res://scenes/world/product_world.tscn",
+      "jaetgol": "res://scenes/world/product_world.tscn"
+    },
+    "NAMES": {
+      "pilgrimage_path": "성터 순례길",
+      "oranse": "오란세 성역",
+      "jaetgol_approach": "잿골 접근로",
+      "jaetgol": "잿골 마을"
+    },
+    "BOUNDS": {
+      "pilgrimage_path": {
+        "$rect": [
+          0,
+          0,
+          1792,
+          960
+        ]
+      },
+      "oranse": {
+        "$rect": [
+          0,
+          0,
+          1280,
+          1024
+        ]
+      },
+      "jaetgol_approach": {
+        "$rect": [
+          0,
+          0,
+          1664,
+          896
+        ]
+      },
+      "jaetgol": {
+        "$rect": [
+          0,
+          0,
+          1408,
+          1152
+        ]
+      }
+    },
+    "REGION_REQUIREMENTS": {
+      "pilgrimage_path": "MQ-08-01",
+      "oranse": "MQ-08-01",
+      "jaetgol_approach": "MQ-08-04",
+      "jaetgol": "MQ-08-04"
+    },
+    "EDGES": {
+      "saleno_to_pilgrimage_path": [
+        "saleno",
+        "pilgrimage_path",
+        {
+          "$vector": [
+            1424,
+            736
+          ]
+        },
+        {
+          "$vector": [
+            176,
+            480
+          ]
+        },
+        "pilgrimage_path_to_saleno"
+      ],
+      "pilgrimage_path_to_saleno": [
+        "pilgrimage_path",
+        "saleno",
+        {
+          "$vector": [
+            96,
+            480
+          ]
+        },
+        {
+          "$vector": [
+            1344,
+            736
+          ]
+        },
+        "saleno_to_pilgrimage_path"
+      ],
+      "pilgrimage_path_to_oranse": [
+        "pilgrimage_path",
+        "oranse",
+        {
+          "$vector": [
+            1680,
+            480
+          ]
+        },
+        {
+          "$vector": [
+            176,
+            480
+          ]
+        },
+        "oranse_to_pilgrimage_path"
+      ],
+      "oranse_to_pilgrimage_path": [
+        "oranse",
+        "pilgrimage_path",
+        {
+          "$vector": [
+            96,
+            480
+          ]
+        },
+        {
+          "$vector": [
+            1600,
+            480
+          ]
+        },
+        "pilgrimage_path_to_oranse"
+      ],
+      "novera_outskirts_to_jaetgol_approach": [
+        "novera_outskirts",
+        "jaetgol_approach",
+        {
+          "$vector": [
+            1168,
+            672
+          ]
+        },
+        {
+          "$vector": [
+            176,
+            480
+          ]
+        },
+        "jaetgol_approach_to_novera_outskirts"
+      ],
+      "jaetgol_approach_to_novera_outskirts": [
+        "jaetgol_approach",
+        "novera_outskirts",
+        {
+          "$vector": [
+            96,
+            480
+          ]
+        },
+        {
+          "$vector": [
+            1088,
+            672
+          ]
+        },
+        "novera_outskirts_to_jaetgol_approach"
+      ],
+      "jaetgol_approach_to_jaetgol": [
+        "jaetgol_approach",
+        "jaetgol",
+        {
+          "$vector": [
+            1552,
+            480
+          ]
+        },
+        {
+          "$vector": [
+            176,
+            480
+          ]
+        },
+        "jaetgol_to_jaetgol_approach"
+      ],
+      "jaetgol_to_jaetgol_approach": [
+        "jaetgol",
+        "jaetgol_approach",
+        {
+          "$vector": [
+            96,
+            480
+          ]
+        },
+        {
+          "$vector": [
+            1472,
+            480
+          ]
+        },
+        "jaetgol_approach_to_jaetgol"
+      ]
+    },
+    "NPCS": {
+      "pilgrimage_steward": [
+        "pilgrimage_path",
+        {
+          "$vector": [
+            384,
+            432
+          ]
+        },
+        "순례길 안내관"
+      ],
+      "oranse_healer": [
+        "oranse",
+        {
+          "$vector": [
+            448,
+            432
+          ]
+        },
+        "오란세 치유사"
+      ],
+      "oranse_pilgrim": [
+        "oranse",
+        {
+          "$vector": [
+            832,
+            624
+          ]
+        },
+        "성역 순례자"
+      ],
+      "jaetgol_steward": [
+        "jaetgol",
+        {
+          "$vector": [
+            576,
+            432
+          ]
+        },
+        "잿골 인계 담당관"
+      ]
+    },
+    "SITES": {
+      "barony_ledger": [
+        {
+          "$vector": [
+            1088,
+            576
+          ]
+        },
+        "barony_ledger_site",
+        "INTERACT",
+        "작위 심사 공헌 기록",
+        "brantel"
+      ],
+      "barony_petitions": [
+        {
+          "$vector": [
+            1152,
+            752
+          ]
+        },
+        "barony_petitions_site",
+        "INTERACT",
+        "민원 원본 대조",
+        "brantel"
+      ],
+      "barony_witness_request": [
+        {
+          "$vector": [
+            624,
+            720
+          ]
+        },
+        "barony_witness_request_site",
+        "INTERACT",
+        "증언 요청서 수령",
+        "brantel"
+      ],
+      "pilgrimage_passage": [
+        {
+          "$vector": [
+            640,
+            400
+          ]
+        },
+        "pilgrimage_passage_site",
+        "INTERACT",
+        "순례 통행 기록",
+        "pilgrimage_path"
+      ],
+      "pilgrimage_provisions": [
+        {
+          "$vector": [
+            704,
+            720
+          ]
+        },
+        "pilgrimage_provisions_site",
+        "INTERACT",
+        "순례 보급 물자 대조",
+        "pilgrimage_path"
+      ],
+      "pilgrimage_marker": [
+        {
+          "$vector": [
+            1376,
+            672
+          ]
+        },
+        "pilgrimage_marker_site",
+        "INTERACT",
+        "훼손된 순례 표식 복구",
+        "pilgrimage_path"
+      ],
+      "pilgrimage_safe_route": [
+        {
+          "$vector": [
+            1456,
+            352
+          ]
+        },
+        "pilgrimage_safe_route_site",
+        "REACH",
+        "낙석 우회 통로 확인",
+        "pilgrimage_path"
+      ],
+      "oranse_testimony": [
+        {
+          "$vector": [
+            768,
+            320
+          ]
+        },
+        "oranse_testimony_site",
+        "INTERACT",
+        "치유 기록과 증언 대조",
+        "oranse"
+      ],
+      "oranse_names": [
+        {
+          "$vector": [
+            1056,
+            448
+          ]
+        },
+        "oranse_names_site",
+        "INTERACT",
+        "순례 명부의 동명이인 확인",
+        "oranse"
+      ],
+      "barony_testimony_seal": [
+        {
+          "$vector": [
+            1056,
+            336
+          ]
+        },
+        "barony_testimony_seal_site",
+        "INTERACT",
+        "증언 서류 교차 확인",
+        "brantel"
+      ],
+      "barony_ceremony": [
+        {
+          "$vector": [
+            640,
+            256
+          ]
+        },
+        "barony_ceremony_site",
+        "INTERACT",
+        "남작 의식 서약 확인",
+        "brantel"
+      ],
+      "jaetgol_road": [
+        {
+          "$vector": [
+            1280,
+            320
+          ]
+        },
+        "jaetgol_road_site",
+        "REACH",
+        "잿골 통행로 확보 확인",
+        "jaetgol_approach"
+      ],
+      "jaetgol_handover": [
+        {
+          "$vector": [
+            864,
+            320
+          ]
+        },
+        "jaetgol_handover_site",
+        "INTERACT",
+        "새 영지 관리 인계서",
+        "jaetgol"
+      ],
+      "jaetgol_residents": [
+        {
+          "$vector": [
+            1056,
+            576
+          ]
+        },
+        "jaetgol_residents_site",
+        "INTERACT",
+        "주민 물자 요청 대조",
+        "jaetgol"
+      ],
+      "jaetgol_market_plan": [
+        {
+          "$vector": [
+            864,
+            800
+          ]
+        },
+        "jaetgol_market_plan_site",
+        "INTERACT",
+        "시장 예정지 점검",
+        "jaetgol"
+      ],
+      "jaetgol_workshop_plan": [
+        {
+          "$vector": [
+            448,
+            864
+          ]
+        },
+        "jaetgol_workshop_plan_site",
+        "INTERACT",
+        "공방 예정지 점검",
+        "jaetgol"
+      ],
+      "jaetgol_repair": [
+        {
+          "$vector": [
+            1152,
+            928
+          ]
+        },
+        "jaetgol_repair_site",
+        "INTERACT",
+        "복구 전후 생활길 확인",
+        "jaetgol"
+      ],
+      "pilgrimage_gargoyle_trace": [
+        {
+          "$vector": [
+            1056,
+            272
+          ]
+        },
+        "pilgrimage_gargoyle_trace_site",
+        "INTERACT",
+        "성벽 아래 오래된 강하 흔적 조사",
+        "pilgrimage_path"
+      ]
+    },
+    "SITE_NOTICES": {
+      "barony_ledger": "공헌은 소모되지 않는다. 심사 자격과 남작 작위는 다르며, 최종 의식 보고 전까지 잿골은 하사되지 않는다.",
+      "barony_petitions": "이름이 같은 두 민원을 접수 날짜와 거주지로 구분했다.",
+      "barony_witness_request": "살레노에서 성터 순례길을 거쳐 오란세로 간다. 성역은 도보로 들어가며 전투와 세금이 없다.",
+      "pilgrimage_passage": "통행인은 무장 유무가 아닌 순례 기록으로 확인한다.",
+      "pilgrimage_provisions": "식량 꾸러미 수와 이동 인원을 대조했다. 남은 물자는 귀환 행렬 몫이다.",
+      "pilgrimage_marker": "먼 길 안내 표식이 다시 오란세를 가리킨다.",
+      "pilgrimage_safe_route": "낡은 성벽 아래 강하 흔적을 피해 열린 통로를 확인했다.",
+      "oranse_testimony": "치유사의 진료 시각과 순례자의 통행 시각이 맞는다. 서로 다른 출처의 증언을 함께 기록했다.",
+      "oranse_names": "같은 이름이지만 출발지와 동행자가 다르다. 섣불리 한 사람의 행적으로 합치지 않는다.",
+      "barony_testimony_seal": "성역에서 정리한 증언을 문장원 기록과 맞췄다. 공헌 보상은 왕국의 보고에서 지급한다.",
+      "barony_ceremony": "이 확인만으로 의식은 끝나지 않는다. 문장원 담당관에게 최종 보고하면 남작 작위와 잿골 하사가 함께 확정된다.",
+      "jaetgol_road": "균열 사냥개의 돌진 흔적 너머로 주민의 수레길이 이어진다.",
+      "jaetgol_handover": "관리 창구에서는 두 영지를 조회하고 무료 귀환 목적지를 고른다. 수령·건설·개발·주문 납품은 선택이며 인계의 필수 거래가 아니다.",
+      "jaetgol_residents": "주민 명부와 창고 재고를 대조했다. 영지 시설에 돈을 쓰지 않아도 요청 조사를 마칠 수 있다.",
+      "jaetgol_market_plan": "시장 예정지의 배수와 수레 진입 공간을 확인했다. 건설은 관리 창구에서 따로 선택한다.",
+      "jaetgol_workshop_plan": "공방 예정지와 주민 우물을 구분했다. 점검은 유료 공방 건설을 요구하지 않는다.",
+      "jaetgol_repair": "무너진 길의 잔해와 복구 표식을 비교했다. 주민의 일상 동선이 이어진다.",
+      "pilgrimage_gargoyle_trace": "순례길에는 전투가 없다. 비어 있는 석상 받침과 오래된 강하 자국을 조사해 안전한 통행 구간을 기록한다."
+    },
+    "LAYOUTS": {
+      "pilgrimage_path": {
+        "spawn": {
+          "$vector": [
+            176,
+            480
+          ]
+        },
+        "floor": {
+          "$vectori": [
+            0,
+            0
+          ]
+        },
+        "patches": [
+          {
+            "rect": {
+              "$rect": [
+                6,
+                27,
+                100,
+                6
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                0
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                18,
+                8,
+                6,
+                44
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                2
+              ]
+            }
+          }
+        ]
+      },
+      "oranse": {
+        "spawn": {
+          "$vector": [
+            176,
+            480
+          ]
+        },
+        "floor": {
+          "$vectori": [
+            0,
+            0
+          ]
+        },
+        "patches": [
+          {
+            "rect": {
+              "$rect": [
+                6,
+                27,
+                68,
+                6
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                0
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                36,
+                8,
+                6,
+                48
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                2
+              ]
+            }
+          }
+        ]
+      },
+      "jaetgol_approach": {
+        "spawn": {
+          "$vector": [
+            176,
+            480
+          ]
+        },
+        "floor": {
+          "$vectori": [
+            0,
+            0
+          ]
+        },
+        "patches": [
+          {
+            "rect": {
+              "$rect": [
+                6,
+                27,
+                92,
+                6
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                0
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                18,
+                8,
+                6,
+                40
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                2
+              ]
+            }
+          }
+        ]
+      },
+      "jaetgol": {
+        "spawn": {
+          "$vector": [
+            176,
+            480
+          ]
+        },
+        "floor": {
+          "$vectori": [
+            0,
+            0
+          ]
+        },
+        "patches": [
+          {
+            "rect": {
+              "$rect": [
+                6,
+                27,
+                76,
+                6
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                0
+              ]
+            }
+          },
+          {
+            "rect": {
+              "$rect": [
+                18,
+                8,
+                6,
+                56
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                2
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "QUEST_REQUIREMENTS": {
+      "MQ-08-01": {
+        "reputation": 5500
+      }
+    },
+    "HABITATS": {
+      "jaetgol_hounds": [
+        "jaetgol_approach",
+        [
+          {
+            "$vector": [
+              704,
+              704
+            ]
+          },
+          {
+            "$vector": [
+              928,
+              720
+            ]
+          },
+          {
+            "$vector": [
+              1152,
+              672
+            ]
+          }
+        ],
+        "outlaw",
+        "rift_hound"
+      ],
+      "jaetgol_gargoyles": [
+        "jaetgol_approach",
+        [
+          {
+            "$vector": [
+              800,
+              192
+            ]
+          },
+          {
+            "$vector": [
+              1056,
+              192
+            ]
+          },
+          {
+            "$vector": [
+              1280,
+              192
+            ]
+          }
+        ],
+        "forest_spider",
+        "stone_gargoyle"
+      ]
+    },
+    "MONSTER_VARIANTS": {
+      "stone_gargoyle": {
+        "title": "석상 가고일",
+        "scene": "forest_spider",
+        "stats": "res://data/monsters/chapter_eight/stone_gargoyle.tres",
+        "level": 52
+      },
+      "rift_hound": {
+        "title": "균열 사냥개",
+        "scene": "outlaw",
+        "stats": "res://data/monsters/chapter_eight/rift_hound.tres",
+        "level": 56
+      }
+    },
+    "WARP_ARRIVALS": {
+      "jaetgol": {
+        "$vector": [
+          320,
+          536
+        ]
+      }
+    },
+    "EXP_PROFILES": {
+      "8": {
+        "expected_kills": 120,
+        "objective_kills": 8,
+        "encounter_kills": 112,
+        "budget": 1454758,
+        "base_exp": 12123,
+        "overlevel_factors": [
+          1,
+          0.5,
+          0.25
+        ],
+        "respawn_seconds": 90
+      }
+    },
+    "MONSTER_EXP_PROFILES": {
+      "stone_gargoyle": "8",
+      "rift_hound": "8"
+    }
+  },
+  "quests": [
+    {
+      "quest_id": "MQ-08-01",
+      "path": "res://data/quests/chapter_eight/mq_08_01.tres",
+      "title": "작위 심사의 문턱",
+      "offer_text": "공헌 기록을 대조하고 성역 증언 요청서를 받으세요. 공헌은 소모되지 않습니다.",
+      "prerequisite": "MQ-07-06",
+      "npc_id": "brantel_herald",
+      "accept_npc_id": "brantel_herald",
+      "reward_exp": 350000,
+      "reward_gold": 40000,
+      "reward_reputation": 100,
+      "objective_kinds": [
+        "INTERACT",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "barony_ledger",
+        "barony_witness_request"
+      ],
+      "objective_sources": [
+        "barony_ledger_site",
+        "barony_witness_request_site"
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "작위 심사 공헌 기록 [F]",
+        "증언 요청서 수령 [F]"
+      ],
+      "objective_location_hints": [
+        "브란텔 문장원",
+        "브란텔 문장원"
+      ]
+    },
+    {
+      "quest_id": "MQ-08-02",
+      "path": "res://data/quests/chapter_eight/mq_08_02.tres",
+      "title": "성터를 지나는 순례",
+      "offer_text": "살레노에서 순례길로 들어가 통행 기록과 오래된 강하 흔적을 조사한 뒤 안내관에게 보고하세요. 순례길과 성역에서는 전투하지 않습니다.",
+      "prerequisite": "MQ-08-01",
+      "npc_id": "pilgrimage_steward",
+      "accept_npc_id": "brantel_herald",
+      "reward_exp": 380000,
+      "reward_gold": 45000,
+      "reward_reputation": 100,
+      "objective_kinds": [
+        "INTERACT",
+        "INTERACT",
+        "REACH"
+      ],
+      "objective_targets": [
+        "pilgrimage_passage",
+        "pilgrimage_gargoyle_trace",
+        "pilgrimage_safe_route"
+      ],
+      "objective_sources": [
+        "pilgrimage_passage_site",
+        "pilgrimage_gargoyle_trace_site",
+        "pilgrimage_safe_route_site"
+      ],
+      "objective_counts": [
+        1,
+        1,
+        1
+      ],
+      "objective_labels": [
+        "순례 통행 기록 [F]",
+        "오래된 강하 흔적 조사 [F]",
+        "낙석 우회 통로 확인"
+      ],
+      "objective_location_hints": [
+        "성터 순례길",
+        "성터 순례길",
+        "성터 순례길"
+      ]
+    },
+    {
+      "quest_id": "MQ-08-03",
+      "path": "res://data/quests/chapter_eight/mq_08_03.tres",
+      "title": "두 사람의 증언",
+      "offer_text": "오란세 치유사와 순례자의 증언을 대조한 뒤 브란텔로 돌아와 보고하세요.",
+      "prerequisite": "MQ-08-02",
+      "npc_id": "brantel_herald",
+      "accept_npc_id": "pilgrimage_steward",
+      "reward_exp": 410000,
+      "reward_gold": 50000,
+      "reward_reputation": 150,
+      "objective_kinds": [
+        "TALK",
+        "TALK",
+        "INTERACT",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "oranse_healer",
+        "oranse_pilgrim",
+        "oranse_testimony",
+        "barony_testimony_seal"
+      ],
+      "objective_sources": [
+        "",
+        "",
+        "oranse_testimony_site",
+        "barony_testimony_seal_site"
+      ],
+      "objective_counts": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "objective_labels": [
+        "오란세 치유사에게 증언 확인 [F]",
+        "성역 순례자에게 증언 확인 [F]",
+        "치유 기록과 증언 대조 [F]",
+        "증언 서류 교차 확인 [F]"
+      ],
+      "objective_location_hints": [
+        "오란세 성역",
+        "오란세 성역",
+        "오란세 성역",
+        "브란텔 문장원"
+      ]
+    },
+    {
+      "quest_id": "MQ-08-04",
+      "path": "res://data/quests/chapter_eight/mq_08_04.tres",
+      "title": "남작의 서약",
+      "offer_text": "서약을 확인한 뒤 문장원 담당관에게 최종 보고하세요. 이 보고가 작위와 잿골 하사를 확정합니다.",
+      "prerequisite": "MQ-08-03",
+      "npc_id": "brantel_herald",
+      "accept_npc_id": "brantel_herald",
+      "reward_exp": 440000,
+      "reward_gold": 55000,
+      "reward_reputation": 200,
+      "objective_kinds": [
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "barony_ceremony"
+      ],
+      "objective_sources": [
+        "barony_ceremony_site"
+      ],
+      "objective_counts": [
+        1
+      ],
+      "objective_labels": [
+        "남작 의식 서약 확인 [F]"
+      ],
+      "objective_location_hints": [
+        "브란텔 문장원"
+      ]
+    },
+    {
+      "quest_id": "MQ-08-05",
+      "path": "res://data/quests/chapter_eight/mq_08_05.tres",
+      "title": "잿골의 첫 인계",
+      "offer_text": "노베라 외곽에서 잿골 접근로를 확보하고 인계서를 확인하세요. 관리 창구의 거래는 선택입니다.",
+      "prerequisite": "MQ-08-04",
+      "npc_id": "jaetgol_steward",
+      "accept_npc_id": "brantel_herald",
+      "reward_exp": 456662,
+      "reward_gold": 54800,
+      "reward_reputation": 150,
+      "objective_kinds": [
+        "KILL",
+        "KILL",
+        "REACH",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "stone_gargoyle",
+        "rift_hound",
+        "jaetgol_road",
+        "jaetgol_handover"
+      ],
+      "objective_sources": [
+        "jaetgol_gargoyles",
+        "jaetgol_hounds",
+        "jaetgol_road_site",
+        "jaetgol_handover_site"
+      ],
+      "objective_counts": [
+        3,
+        3,
+        1,
+        1
+      ],
+      "objective_labels": [
+        "석상 가고일 처치",
+        "균열 사냥개 처치",
+        "잿골 통행로 확보 확인",
+        "새 영지 관리 인계서 [F]"
+      ],
+      "objective_location_hints": [
+        "잿골 접근로",
+        "잿골 접근로",
+        "잿골 접근로",
+        "잿골 마을"
+      ]
+    },
+    {
+      "quest_id": "SQ-08-001",
+      "path": "res://data/quests/chapter_eight/sq_08_001.tres",
+      "title": "겹친 이름의 민원",
+      "offer_text": "민원 원본과 공헌 기록의 이름·접수일을 대조하세요.",
+      "prerequisite": "MQ-08-01",
+      "npc_id": "brantel_herald",
+      "accept_npc_id": "brantel_herald",
+      "reward_exp": 113148,
+      "reward_gold": 24480,
+      "reward_reputation": 34,
+      "objective_kinds": [
+        "INTERACT",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "barony_petitions",
+        "barony_ledger"
+      ],
+      "objective_sources": [
+        "barony_petitions_site",
+        "barony_ledger_site"
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "민원 원본 대조 [F]",
+        "작위 심사 공헌 기록 [F]"
+      ],
+      "objective_location_hints": [
+        "브란텔 문장원",
+        "브란텔 문장원"
+      ]
+    },
+    {
+      "quest_id": "SQ-08-002",
+      "path": "res://data/quests/chapter_eight/sq_08_002.tres",
+      "title": "증언 요청의 출처",
+      "offer_text": "요청서의 발신처를 민원 원본과 비교해 잘못 묶인 기록을 가려내세요.",
+      "prerequisite": "MQ-08-01",
+      "npc_id": "brantel_herald",
+      "accept_npc_id": "brantel_herald",
+      "reward_exp": 113148,
+      "reward_gold": 24480,
+      "reward_reputation": 34,
+      "objective_kinds": [
+        "INTERACT",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "barony_witness_request",
+        "barony_petitions"
+      ],
+      "objective_sources": [
+        "barony_witness_request_site",
+        "barony_petitions_site"
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "증언 요청서 수령 [F]",
+        "민원 원본 대조 [F]"
+      ],
+      "objective_location_hints": [
+        "브란텔 문장원",
+        "브란텔 문장원"
+      ]
+    },
+    {
+      "quest_id": "SQ-08-003",
+      "path": "res://data/quests/chapter_eight/sq_08_003.tres",
+      "title": "돌아온 기록의 봉인",
+      "offer_text": "돌아온 증언의 서명과 기존 공헌 기록을 비교하세요.",
+      "prerequisite": "MQ-08-03",
+      "npc_id": "brantel_herald",
+      "accept_npc_id": "brantel_herald",
+      "reward_exp": 113148,
+      "reward_gold": 24480,
+      "reward_reputation": 34,
+      "objective_kinds": [
+        "INTERACT",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "barony_testimony_seal",
+        "barony_ledger"
+      ],
+      "objective_sources": [
+        "barony_testimony_seal_site",
+        "barony_ledger_site"
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "증언 서류 교차 확인 [F]",
+        "작위 심사 공헌 기록 [F]"
+      ],
+      "objective_location_hints": [
+        "브란텔 문장원",
+        "브란텔 문장원"
+      ]
+    },
+    {
+      "quest_id": "SQ-08-004",
+      "path": "res://data/quests/chapter_eight/sq_08_004.tres",
+      "title": "같은 길을 걷는 사람들",
+      "offer_text": "통행 인원과 보급 꾸러미를 맞춰 귀환 행렬의 몫을 확인하세요.",
+      "prerequisite": "MQ-08-01",
+      "npc_id": "pilgrimage_steward",
+      "accept_npc_id": "pilgrimage_steward",
+      "reward_exp": 113148,
+      "reward_gold": 24480,
+      "reward_reputation": 34,
+      "objective_kinds": [
+        "INTERACT",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "pilgrimage_passage",
+        "pilgrimage_provisions"
+      ],
+      "objective_sources": [
+        "pilgrimage_passage_site",
+        "pilgrimage_provisions_site"
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "순례 통행 기록 [F]",
+        "순례 보급 물자 대조 [F]"
+      ],
+      "objective_location_hints": [
+        "성터 순례길",
+        "성터 순례길"
+      ]
+    },
+    {
+      "quest_id": "SQ-08-005",
+      "path": "res://data/quests/chapter_eight/sq_08_005.tres",
+      "title": "성벽 아래 강하 흔적",
+      "offer_text": "비어 있는 석상 받침과 오래된 강하 흔적을 조사하고 안전한 순례 표식을 복구하세요.",
+      "prerequisite": "MQ-08-01",
+      "npc_id": "pilgrimage_steward",
+      "accept_npc_id": "pilgrimage_steward",
+      "reward_exp": 113148,
+      "reward_gold": 24480,
+      "reward_reputation": 33,
+      "objective_kinds": [
+        "INTERACT",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "pilgrimage_gargoyle_trace",
+        "pilgrimage_marker"
+      ],
+      "objective_sources": [
+        "pilgrimage_gargoyle_trace_site",
+        "pilgrimage_marker_site"
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "오래된 강하 흔적 조사 [F]",
+        "훼손된 순례 표식 복구 [F]"
+      ],
+      "objective_location_hints": [
+        "성터 순례길",
+        "성터 순례길"
+      ]
+    },
+    {
+      "quest_id": "SQ-08-006",
+      "path": "res://data/quests/chapter_eight/sq_08_006.tres",
+      "title": "우회로의 마지막 표식",
+      "offer_text": "우회 통로의 끝과 복구한 안내 표식이 같은 길을 가리키는지 확인하세요.",
+      "prerequisite": "MQ-08-02",
+      "npc_id": "pilgrimage_steward",
+      "accept_npc_id": "pilgrimage_steward",
+      "reward_exp": 113148,
+      "reward_gold": 24480,
+      "reward_reputation": 33,
+      "objective_kinds": [
+        "REACH",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "pilgrimage_safe_route",
+        "pilgrimage_marker"
+      ],
+      "objective_sources": [
+        "pilgrimage_safe_route_site",
+        "pilgrimage_marker_site"
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "낙석 우회 통로 확인",
+        "훼손된 순례 표식 복구 [F]"
+      ],
+      "objective_location_hints": [
+        "성터 순례길",
+        "성터 순례길"
+      ]
+    },
+    {
+      "quest_id": "SQ-08-007",
+      "path": "res://data/quests/chapter_eight/sq_08_007.tres",
+      "title": "치유 기록의 날짜",
+      "offer_text": "치유 기록의 날짜를 당사자에게 확인해 문장원으로 전하세요.",
+      "prerequisite": "MQ-08-02",
+      "npc_id": "brantel_herald",
+      "accept_npc_id": "oranse_healer",
+      "reward_exp": 113148,
+      "reward_gold": 24480,
+      "reward_reputation": 33,
+      "objective_kinds": [
+        "INTERACT",
+        "TALK"
+      ],
+      "objective_targets": [
+        "oranse_testimony",
+        "oranse_healer"
+      ],
+      "objective_sources": [
+        "oranse_testimony_site",
+        ""
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "치유 기록과 증언 대조 [F]",
+        "오란세 치유사에게 증언 확인 [F]"
+      ],
+      "objective_location_hints": [
+        "오란세 성역",
+        "오란세 성역"
+      ]
+    },
+    {
+      "quest_id": "SQ-08-008",
+      "path": "res://data/quests/chapter_eight/sq_08_008.tres",
+      "title": "동명이인의 발자취",
+      "offer_text": "출발지와 동행자를 대조해 동명이인의 행적을 나누고 문장원에 보고하세요.",
+      "prerequisite": "MQ-08-02",
+      "npc_id": "brantel_herald",
+      "accept_npc_id": "oranse_pilgrim",
+      "reward_exp": 113148,
+      "reward_gold": 24480,
+      "reward_reputation": 33,
+      "objective_kinds": [
+        "INTERACT",
+        "TALK"
+      ],
+      "objective_targets": [
+        "oranse_names",
+        "oranse_pilgrim"
+      ],
+      "objective_sources": [
+        "oranse_names_site",
+        ""
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "순례 명부의 동명이인 확인 [F]",
+        "성역 순례자에게 증언 확인 [F]"
+      ],
+      "objective_location_hints": [
+        "오란세 성역",
+        "오란세 성역"
+      ]
+    },
+    {
+      "quest_id": "SQ-08-009",
+      "path": "res://data/quests/chapter_eight/sq_08_009.tres",
+      "title": "주민의 첫 요청",
+      "offer_text": "주민 요청과 인계 재고를 비교하세요. 물품 구매나 납품은 필요하지 않습니다.",
+      "prerequisite": "MQ-08-04",
+      "npc_id": "jaetgol_steward",
+      "accept_npc_id": "jaetgol_steward",
+      "reward_exp": 113148,
+      "reward_gold": 24480,
+      "reward_reputation": 33,
+      "objective_kinds": [
+        "INTERACT",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "jaetgol_residents",
+        "jaetgol_handover"
+      ],
+      "objective_sources": [
+        "jaetgol_residents_site",
+        "jaetgol_handover_site"
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "주민 물자 요청 대조 [F]",
+        "새 영지 관리 인계서 [F]"
+      ],
+      "objective_location_hints": [
+        "잿골 마을",
+        "잿골 마을"
+      ]
+    },
+    {
+      "quest_id": "SQ-08-010",
+      "path": "res://data/quests/chapter_eight/sq_08_010.tres",
+      "title": "시장이 들어설 자리",
+      "offer_text": "시장 예정지의 동선을 주민 요청과 비교하세요. 건설은 선택입니다.",
+      "prerequisite": "MQ-08-04",
+      "npc_id": "jaetgol_steward",
+      "accept_npc_id": "jaetgol_steward",
+      "reward_exp": 113148,
+      "reward_gold": 24480,
+      "reward_reputation": 33,
+      "objective_kinds": [
+        "INTERACT",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "jaetgol_market_plan",
+        "jaetgol_residents"
+      ],
+      "objective_sources": [
+        "jaetgol_market_plan_site",
+        "jaetgol_residents_site"
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "시장 예정지 점검 [F]",
+        "주민 물자 요청 대조 [F]"
+      ],
+      "objective_location_hints": [
+        "잿골 마을",
+        "잿골 마을"
+      ]
+    },
+    {
+      "quest_id": "SQ-08-011",
+      "path": "res://data/quests/chapter_eight/sq_08_011.tres",
+      "title": "공방과 우물 사이",
+      "offer_text": "공방 예정지와 생활길의 간격을 확인하세요. 시설 구매는 요구하지 않습니다.",
+      "prerequisite": "MQ-08-04",
+      "npc_id": "jaetgol_steward",
+      "accept_npc_id": "jaetgol_steward",
+      "reward_exp": 113148,
+      "reward_gold": 24480,
+      "reward_reputation": 33,
+      "objective_kinds": [
+        "INTERACT",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "jaetgol_workshop_plan",
+        "jaetgol_repair"
+      ],
+      "objective_sources": [
+        "jaetgol_workshop_plan_site",
+        "jaetgol_repair_site"
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "공방 예정지 점검 [F]",
+        "복구 전후 생활길 확인 [F]"
+      ],
+      "objective_location_hints": [
+        "잿골 마을",
+        "잿골 마을"
+      ]
+    },
+    {
+      "quest_id": "SQ-08-012",
+      "path": "res://data/quests/chapter_eight/sq_08_012.tres",
+      "title": "마을로 이어지는 길",
+      "offer_text": "접근로의 사냥개 위협과 복구 전후 생활길을 확인해 인계 담당관에게 보고하세요.",
+      "prerequisite": "MQ-08-04",
+      "npc_id": "jaetgol_steward",
+      "accept_npc_id": "jaetgol_steward",
+      "reward_exp": 113147,
+      "reward_gold": 24480,
+      "reward_reputation": 33,
+      "objective_kinds": [
+        "KILL",
+        "REACH",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "rift_hound",
+        "jaetgol_road",
+        "jaetgol_repair"
+      ],
+      "objective_sources": [
+        "jaetgol_hounds",
+        "jaetgol_road_site",
+        "jaetgol_repair_site"
+      ],
+      "objective_counts": [
+        2,
+        1,
+        1
+      ],
+      "objective_labels": [
+        "균열 사냥개 처치",
+        "잿골 통행로 확보 확인",
+        "복구 전후 생활길 확인 [F]"
+      ],
+      "objective_location_hints": [
+        "잿골 접근로",
+        "잿골 접근로",
+        "잿골 마을"
+      ]
+    }
+  ]
+}

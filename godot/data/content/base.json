@@ -1,6 +1,6 @@
 {
   "constants": {
-    "CURRENT_REVISION": 6,
+    "CURRENT_REVISION": 7,
     "BGM_CONTEXTS": {
       "eastern_frontier_start": "res://scenes/world/eastern_frontier_starting_area.tscn",
       "novera_gate": "res://scenes/world/novera_gate.tscn",
@@ -538,6 +538,43 @@
     "MARKER_CONTENT_IDS": {
       "yeoulmok_rabbit_habitat": "horned_rabbit",
       "yeoulmok_dog_habitat": "feral_dog"
+    },
+    "FIELD_REPORTS": {
+      "SQ-CH05-001": true,
+      "SQ-CH05-002": true,
+      "SQ-CH05-003": true,
+      "SQ-CH05-004": true,
+      "SQ-CH05-005": true,
+      "SQ-CH05-006": true,
+      "SQ-CH05-007": true,
+      "SQ-CH04-001": true,
+      "SQ-CH04-002": true,
+      "SQ-CH04-003": true,
+      "SQ-CH04-004": true,
+      "SQ-CH04-005": true,
+      "SQ-07-001": true,
+      "SQ-07-002": true,
+      "SQ-07-003": true,
+      "SQ-07-004": true,
+      "SQ-07-005": true,
+      "SQ-07-006": true,
+      "SQ-07-007": true,
+      "SQ-07-008": true,
+      "SQ-07-009": true,
+      "SQ-07-010": true,
+      "SQ-07-011": true,
+      "SQ-07-012": true,
+      "SQ-07-013": true,
+      "SQ-06-001": true,
+      "SQ-06-002": true,
+      "SQ-06-003": true,
+      "SQ-06-004": true,
+      "SQ-06-005": true,
+      "SQ-06-006": true,
+      "SQ-06-007": true,
+      "SQ-06-008": true,
+      "SQ-06-009": true,
+      "SQ-06-010": true
     }
   }
 }
