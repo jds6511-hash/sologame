@@ -3,10 +3,14 @@ extends "res://scripts/save/save_content_registry.gd"
 const SHARPSHOOTER = preload("res://data/jobs/job_def_sharpshooter.tres")
 const NEW_ITEM = preload("res://data/items/wpn_bw_40_b.tres")
 const NEW_SKILLS := {
-	"sharpshooter_precision_burst": preload("res://data/player/skills/sharpshooter/skill_slot4_precision_burst.tres"),
-	"sharpshooter_retreat_shot": preload("res://data/player/skills/sharpshooter/skill_slotq_retreat_shot.tres"),
-	"sharpshooter_breathing": preload("res://data/player/skills/sharpshooter/skill_slote_breathing.tres"),
-	"sharpshooter_focus_pierce": preload("res://data/player/skills/sharpshooter/skill_ultimate_focus_pierce.tres"),
+	"sharpshooter_precision_burst":
+	preload("res://data/player/skills/sharpshooter/skill_slot4_precision_burst.tres"),
+	"sharpshooter_retreat_shot":
+	preload("res://data/player/skills/sharpshooter/skill_slotq_retreat_shot.tres"),
+	"sharpshooter_breathing":
+	preload("res://data/player/skills/sharpshooter/skill_slote_breathing.tres"),
+	"sharpshooter_focus_pierce":
+	preload("res://data/player/skills/sharpshooter/skill_ultimate_focus_pierce.tres"),
 }
 
 

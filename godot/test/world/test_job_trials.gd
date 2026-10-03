@@ -42,7 +42,9 @@ func fixture(id: String) -> Dictionary:
 		definition.objective_kinds.append("INTERACT")
 		definition.objective_targets.append("trial_target")
 		definition.objective_sources.append(source)
-		definition.objective_counts.append(1 if source.ends_with("guard") or source.ends_with("moving") else 2)
+		definition.objective_counts.append(
+			1 if source.ends_with("guard") or source.ends_with("moving") else 2
+		)
 		definition.objective_labels.append(source)
 		definition.objective_location_hints.append("훈련장")
 	catalog.definitions[id] = definition
@@ -55,7 +57,9 @@ func fixture(id: String) -> Dictionary:
 	var manager := Manager.new()
 	world.add_child(manager)
 	manager.start(world)
-	return {"world": world, "player": player, "journal": journal, "manager": manager, "holder": holder}
+	return {
+		"world": world, "player": player, "journal": journal, "manager": manager, "holder": holder
+	}
 
 
 func test_resume_subtracts_living_and_only_strong_finisher_counts() -> void:
@@ -131,7 +135,9 @@ func test_death_suspends_existing_targets_until_explicit_resume() -> void:
 
 func test_product_trials_report_then_unlock_both_job_families() -> void:
 	for job in [&"warrior", &"archer"]:
-		var world: Node = load("res://scripts/world/game_product.gd").instantiate_world("durgan_training")
+		var world: Node = load("res://scripts/world/game_product.gd").instantiate_world(
+			"durgan_training"
+		)
 		world.set_meta("save_directory", "user://product_verify")
 		add_child(world)
 		freeze(world)
@@ -140,7 +146,10 @@ func test_product_trials_report_then_unlock_both_job_families() -> void:
 		var bootstrap: Node = load("res://scripts/world/game_bootstrap.gd").new()
 		var states: Dictionary = bootstrap.preparation(journal.catalog, 7).quests
 		bootstrap.free()
-		states["MQ-07-01"] = {"state": "completed", "counts": Array(journal.catalog.definitions["MQ-07-01"].objective_counts)}
+		states["MQ-07-01"] = {
+			"state": "completed",
+			"counts": Array(journal.catalog.definitions["MQ-07-01"].objective_counts)
+		}
 		assert_eq(journal.restore_state(states), "")
 		var player: PlayerController = world.get_node("Player")
 		var transition: PlayerJobTransition = player.get_node("PlayerJobTransition")
@@ -150,7 +159,10 @@ func test_product_trials_report_then_unlock_both_job_families() -> void:
 		var trial := "TR-WAR-02" if job == &"warrior" else "TR-ARC-02"
 		var next_job: StringName = &"gladiator" if job == &"warrior" else &"sharpshooter"
 		assert_false(transition.can_transition(next_job), "보고 전 승급 불가")
-		assert_eq(controller.accept("TR-ARC-02" if job == &"warrior" else "TR-WAR-02"), "trial_job_required")
+		assert_eq(
+			controller.accept("TR-ARC-02" if job == &"warrior" else "TR-WAR-02"),
+			"trial_job_required"
+		)
 		var dialog: QuestDialog = world.get_node("QuestDialog")
 		assert_true(dialog.open_dialog("durgan_trainer"))
 		dialog._select(trial)
@@ -182,10 +194,14 @@ func test_product_trials_report_then_unlock_both_job_families() -> void:
 func actual_arrow(world: Node, player: PlayerController, target: Node2D, distance: float) -> void:
 	var arrow: ArrowProjectile = preload("res://scenes/player/arrow_projectile.tscn").instantiate()
 	world.add_child(arrow)
-	arrow.global_position = target.get_node("CollisionShape2D").global_position - Vector2(distance, 0)
+	arrow.global_position = (
+		target.get_node("CollisionShape2D").global_position - Vector2(distance, 0)
+	)
 	var action: Resource = preload("res://data/player/archer_basic_combo.tres").steps[0]
 	arrow.configure(action, preload("res://data/player/arrows/arrow_basic.tres"), 16)
-	arrow.arrow_hit_landed.connect(func(step: Resource, body: Node): player.attack_hit.emit(step, body))
+	arrow.arrow_hit_landed.connect(
+		func(step: Resource, body: Node): player.attack_hit.emit(step, body)
+	)
 	arrow.launch(Vector2.RIGHT, 224)
 	for _frame in 90:
 		await get_tree().physics_frame

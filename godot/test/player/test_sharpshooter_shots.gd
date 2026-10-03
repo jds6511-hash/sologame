@@ -254,3 +254,65 @@ func test_breathing_movement_lasts_after_one_time_hit_bonus_is_consumed() -> voi
 	assert_eq(shots.focus.value, 45.0)
 	shots.advance(6.0)
 	assert_eq(shots.move_speed_multiplier(), 0.4)
+
+
+func test_new_arrow_wall_stops_flight_once_and_does_not_damage_target_behind() -> void:
+	var wall := StaticBody2D.new()
+	wall.collision_layer = 1
+	wall.collision_mask = 0
+	wall.position = Vector2(40, 0)
+	var wall_shape := CollisionShape2D.new()
+	var rectangle := RectangleShape2D.new()
+	rectangle.size = Vector2(8, 40)
+	wall_shape.shape = rectangle
+	wall.add_child(wall_shape)
+	world.add_child(wall)
+	var enemy := StaticBody2D.new()
+	enemy.collision_layer = 4
+	enemy.collision_mask = 0
+	enemy.position = Vector2(80, 0)
+	var enemy_shape := CollisionShape2D.new()
+	var circle := CircleShape2D.new()
+	circle.radius = 8
+	enemy_shape.shape = circle
+	enemy.add_child(enemy_shape)
+	world.add_child(enemy)
+	var hp := {"value": 100}
+	shots.arrow_hit_landed.connect(
+		func(_action: Resource, _body_node: Node) -> void:
+			hp.value -= 10
+			shots.confirm_valid_damage()
+	)
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	var skill := SHARP_SKILL.new()
+	assert_true(shots.fire(skill, _spec(3), Vector2.RIGHT))
+	var arrow := _arrows()[0]
+	watch_signals(arrow)
+	arrow._physics_process(1.0)
+	assert_almost_eq(arrow.global_position.x, 36.0, 0.01)
+	assert_true(arrow.is_queued_for_deletion())
+	arrow._physics_process(1.0)
+	assert_signal_emit_count(arrow, "flight_ended", 1)
+	assert_eq(shots.focus.value, 0.0)
+	assert_eq(shots.focus._casts[shots.focus._last_id].outcome, 0)
+	assert_eq(shots.focus._casts[shots.focus._last_id].pending, 0)
+	await get_tree().physics_frame
+	assert_eq(hp.value, 100)
+	# 실제 적 충돌이 활성화된 대조: 벽을 치우면 같은 사격이 피해를 준다.
+	wall.queue_free()
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	assert_true(shots.fire(skill, _spec(3), Vector2.RIGHT))
+	for frame in 30:
+		await get_tree().physics_frame
+	assert_eq(hp.value, 90)
+	assert_eq(shots.focus.value, 10.0)
+
+
+func test_large_step_cannot_move_past_remaining_range() -> void:
+	assert_true(shots.fire(SHARP_SKILL.new(), _spec(), Vector2.RIGHT))
+	var arrow := _arrows()[0]
+	arrow._physics_process(2.0)
+	assert_almost_eq(arrow.global_position.x, 160.0, 0.001)
+	assert_true(arrow.is_queued_for_deletion())

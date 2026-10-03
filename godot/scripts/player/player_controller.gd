@@ -202,7 +202,6 @@ func _update_facing_to_mouse() -> void:
 
 
 ## 현재 상태의 최종 이동 속도(px/초).
-##
 ## 조준 모드(궁수 우클릭 스탠스, m3-archer-skills 5장)는 자체 페널티(×0.4)가 공격 중 이동
 ## 페널티(×0.45)를 대체한다 — 두 페널티를 곱하면 ×0.18로 사실상 정지가 되어 "느리지만
 ## 멈추지는 않음" 규격에서 벗어나기 때문이다. 둔화 디버프는 그 위에 곱해진다.
@@ -257,7 +256,6 @@ func _update_move_slow(delta: float) -> void:
 
 ## 스윙 STARTUP 동안 매 프레임 호출된다 — 마우스 방향 기준 자동 조준 대상이 있으면 그
 ## 적으로, 없으면 순수 마우스 방향으로 Facing을 갱신한다.
-##
 ## 근접만 사거리 안 적으로 스냅한다. 궁수는 몸 중심에서 커서를 향한다.
 func _apply_attack_aim(range_tiles: float = AUTO_AIM_RANGE_TILES) -> void:
 	if _shots.aim_stance != null:
@@ -524,12 +522,7 @@ func _on_arrow_hit_landed(action: Resource, body: Node) -> void:
 # --- 전직 로드아웃 교체 (M3 B-5, 승계형 교체 — m3-warrior-tier2-skills.md 1장) ---
 
 
-## 전직 시 활성 스킬 슬롯과 기본 공격 콤보를 교체한다(PlayerJobTransition이 호출).
-## slots는 슬롯 이름("slot_1"~"slot_3"·"slot_4"·"slot_q"·"slot_e"·"ultimate"·"charge") ->
-## WarriorSkillData 사전이며, 값이 없거나 null이면 해당 슬롯은 미개방으로 둔다(승계형 교체 —
-## 새 키를 만들지 않고 같은 슬롯을 직업 스킬로 채운다). combo가 주어지면 기본 공격 무기를
-## 교체한다(대검 -> 활 등). 진행 중 콤보/스킬/차지와 쿨다운을 초기화해 이전 직업의 잔여
-## 상태가 남지 않게 한다.
+## 전직 시 슬롯·무기를 교체하고 이전 행동과 일시 자원을 초기화한다.
 func apply_transition_loadout(slots: Dictionary, combo: WarriorComboData = null) -> void:
 	skill_slot_1 = slots.get("slot_1") as WarriorSkillData
 	skill_slot_2 = slots.get("slot_2") as WarriorSkillData
@@ -757,7 +750,6 @@ func is_dead() -> bool:
 ## 사망~부활 구간(M3 D3-2) 처리 — 입력을 읽지 않고, 진행 중이던 행동만 정리한 뒤 애니메이션을
 ## 갱신한다. PlayerVisualModule이 is_dead()를 최우선으로 보므로 이 구간에 `death_*`(방향별
 ## 4프레임)가 재생되고, 부활 후 페이드인 동안에는 대기 자세로 서 있는다.
-##
 ## move_and_slide()는 부르지 않는다 — 속도를 0으로 눌러 두므로 이동이 없고, 시체가 지형에
 ## 밀려 미끄러지는 잔여 이동도 생기지 않는다.
 func _process_death_lock() -> void:
@@ -805,7 +797,6 @@ func _update_superarmor_state(delta: float) -> void:
 
 ## move_and_slide() 직전 트랜스폼·속도 유한성 가드 — monster_base.gd의
 ## _guard_finite_before_move()와 동일한 근본 수정(2026-07-26 경고 스팸).
-##
 ## CharacterBody2D.global_position이 한번 non-finite(NaN/Inf)가 되면 그 이후
 ## move_and_slide()는 velocity가 (0,0)이어도 매 프레임 충돌 법선을 normalize하며
 ## "Vector2 cannot be normalized" 경고를 무한 반복한다 — 위치는 스스로 낫지 않으므로

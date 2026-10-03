@@ -116,9 +116,19 @@ func _snapshot_trial_distances() -> void:
 
 
 func _physics_process(delta: float) -> void:
-	if _velocity == Vector2.ZERO:
+	if _flight_finished or _velocity == Vector2.ZERO:
 		return  ## 아직 발사되지 않음(configure 직후 프레임) — 이동/소멸 판정 없음
-	var step := _velocity * delta
+	var step := (_velocity * delta).limit_length(maxf(_remaining_distance, 0.0))
+	# 명사수의 새 기술은 고속 이동 구간 전체에서 지형을 검사한다.
+	# 기존 궁수 화살의 지형 계약은 변경하지 않는다.
+	if _action is SharpshooterSkillData and step.length_squared() > 0.0:
+		var query := PhysicsRayQueryParameters2D.create(global_position, global_position + step, 1)
+		query.hit_from_inside = true
+		var hit := get_world_2d().direct_space_state.intersect_ray(query)
+		if not hit.is_empty():
+			global_position = hit.position
+			_expire()
+			return
 	global_position += step
 	_remaining_distance -= step.length()
 	if _remaining_distance <= 0.0:

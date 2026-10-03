@@ -12,7 +12,9 @@ var _arrow_context: Array = []
 
 
 func begin_trial_arrow(distance_tiles: float) -> void:
-	_arrow_context.append([has_meta("trial_arrow_distance"), get_meta("trial_arrow_distance", -1.0)])
+	_arrow_context.append(
+		[has_meta("trial_arrow_distance"), get_meta("trial_arrow_distance", -1.0)]
+	)
 	set_meta("trial_arrow_distance", distance_tiles * 16.0)
 
 

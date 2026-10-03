@@ -145,7 +145,9 @@ func seed_session() -> void:
 				"counts": Array(journal.catalog.definitions[id].objective_counts)
 			}
 	check(journal.restore_state(states) == "", "이전 장 완료 준비 fixture")
-	world.get_node("Player/PlayerProgression").add_exp({4: 79291, 5: 283297, 6: 704457, 7: 1674227}[chapter])
+	world.get_node("Player/PlayerProgression").add_exp(
+		{4: 79291, 5: 283297, 6: 704457, 7: 1674227}[chapter]
+	)
 	world.get_node("Player/Inventory").add_gold(40000)
 	var ids := []
 	for id in journal.catalog.ordered_ids():

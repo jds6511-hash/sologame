@@ -47,7 +47,9 @@ func pending() -> Dictionary:
 			var source: String = CONFIG[id][index]
 			if not journal.expects_event(id, "INTERACT", "trial_target", source):
 				continue
-			var remaining: int = definition.objective_counts[index] - journal.export_state()[id].counts[index]
+			var remaining: int = (
+				definition.objective_counts[index] - journal.export_state()[id].counts[index]
+			)
 			var living := 0
 			for child in targets():
 				if child is MonsterBase and not child.is_dead() and child.trial_source == source:

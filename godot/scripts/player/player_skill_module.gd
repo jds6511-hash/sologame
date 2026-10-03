@@ -140,7 +140,10 @@ func process_state(delta: float) -> void:
 			else:
 				_player.velocity = Vector2.ZERO
 			if _phase_timer >= skill.get_active_duration_sec():
-				if skill is SharpshooterSkillData and skill.skill_type == WarriorSkillData.SkillType.DASH:
+				if (
+					skill is SharpshooterSkillData
+					and skill.skill_type == WarriorSkillData.SkillType.DASH
+				):
 					if not _commit_precision(skill):
 						cancel()
 						return
