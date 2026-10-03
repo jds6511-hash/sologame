@@ -119,7 +119,7 @@ for match in re.finditer(r"^\| ([2-6]) \| ([\d,]+) \| ([\d,]+) \| ([\d,]+) \|", 
                           loss_a=half_up(side * 0.2), loss_b=half_up((side + kills) * 0.2)))
 assert len(loss_rows) == 5
 first = chapters[7]["quests"][0]
-assert first["quest_id"] == "MQ-07-01" and first["reward_exp"] == 1000000
+assert first["quest_id"] == "MQ-07-01" and first["reward_exp"] == 1153000
 assert "KILL" not in first["objective_kinds"]
 assert chapters[7]["budget"]["main_exp"] == 1317896 + 500000
 assert sum(q["reward_exp"] for q in chapters[7]["quests"] if q["quest_id"].startswith("MQ-")) == 1817896

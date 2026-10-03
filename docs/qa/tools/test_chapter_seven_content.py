@@ -26,8 +26,10 @@ class ChapterSevenTests(unittest.TestCase):
         self.assertEqual([sum(q[k] for q in quests) for k in ['reward_exp', 'reward_gold', 'reward_reputation']], [2696494, 402960, 2100])
         first = mains[0]
         self.assertEqual(first['prerequisite'], 'MQ-06-05')
-        self.assertEqual(first['reward_exp'], 1000000)
-        self.assertEqual(sum(q['reward_exp'] for q in mains[1:]), 817896)
+        self.assertEqual(first['reward_exp'], 1153000)
+        self.assertEqual(sum(q['reward_exp'] for q in mains[1:]), 664896)
+        # 공식 B 손실을 첫 보고에서만 차감해도 G40에 최소1% 여유를 둔다.
+        self.assertGreaterEqual(1674227 + first['reward_exp'] - 269087, 2557825)
         self.assertFalse(ch['constants'].get('QUEST_REQUIREMENTS', {}).get('MQ-07-01'))
         self.assertNotIn('KILL', first['objective_kinds'])
         self.assertNotIn('TR-', str(first))
