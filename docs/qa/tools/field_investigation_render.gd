@@ -31,7 +31,8 @@ func run() -> void:
 		for number in range(1, 3):
 			var main := "MQ-%02d-%02d" % [chapter, number]
 			states[main] = {
-				"state": "completed", "counts": Array(journal.catalog.definitions[main].objective_counts)
+				"state": "completed",
+				"counts": Array(journal.catalog.definitions[main].objective_counts)
 			}
 		var quest := "MQ-05-03" if chapter == 5 else "SQ-06-008"
 		states[quest] = {"state": "active", "counts": [3, 1, 0] if chapter == 5 else [0, 0]}
@@ -65,6 +66,8 @@ func run() -> void:
 func capture(label: String) -> void:
 	await process_frame
 	await RenderingServer.frame_post_draw
-	var directory := ProjectSettings.globalize_path("res://../docs/qa/screenshots/field-investigation")
+	var directory := ProjectSettings.globalize_path(
+		"res://../docs/qa/screenshots/field-investigation"
+	)
 	DirAccess.make_dir_recursive_absolute(directory)
 	assert(root.get_texture().get_image().save_png(directory.path_join(label + ".png")) == OK)

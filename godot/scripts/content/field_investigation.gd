@@ -2,9 +2,11 @@
 extends Node2D
 
 const CONFIG := {
-	"marsh_route": {
+	"marsh_route":
+	{
 		"correct": 2,
-		"notice": (
+		"notice":
+		(
 			"진흙에 세 갈래 흔적이 남아 있다. 운송 수레는 폭이 일정한 두 바퀴 홈을 남긴다.\n"
 			+ "발자국이나 끊긴 홈과 구별해, 두 홈이 끝까지 이어지는 갈래로 걸어가 [F]로 확인하세요."
 		),
@@ -12,9 +14,11 @@ const CONFIG := {
 		"wrong": ["발자국은 짐승의 것이다. 수레의 두 바퀴 홈을 찾아보자.", "홈이 중간에서 끊긴다. 짐을 실은 수레가 계속 지나간 길이 아니다."],
 		"success": "두 바퀴 홈이 갈대 사이로 이어진다. 은폐 운송로의 방향을 기록했다.",
 	},
-	"mosswood_water": {
+	"mosswood_water":
+	{
 		"correct": 0,
-		"notice": (
+		"notice":
+		(
 			"세 갈래 물길을 대조한다. 떠내려오는 잎은 상류에서 합류점 쪽으로 흐른다.\n"
 			+ "잎 모양과 화살표를 보고 이곳으로 흘러드는 갈래를 찾아, 직접 걸어가 [F]로 확인하세요."
 		),
@@ -31,7 +35,8 @@ var solved := false
 var config: Dictionary
 
 
-class Clue extends "res://scripts/npc/quest_npc.gd":
+class Clue:
+	extends "res://scripts/npc/quest_npc.gd"
 	var field: Node2D
 	var index := 0
 
@@ -71,9 +76,10 @@ class Clue extends "res://scripts/npc/quest_npc.gd":
 			for side in [-1, 1]:
 				draw_line(direction * 12, direction.rotated(side * 0.65) * 5, ink, 2)
 			draw_colored_polygon(
-				PackedVector2Array([
-					Vector2(-3, -2), Vector2(0, -6), Vector2(3, -2), Vector2(0, 2)
-				]), ink
+				PackedVector2Array(
+					[Vector2(-3, -2), Vector2(0, -6), Vector2(3, -2), Vector2(0, 2)]
+				),
+				ink
 			)
 
 

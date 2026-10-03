@@ -43,7 +43,8 @@ func fixture(id: String) -> Dictionary:
 	for number in range(1, 3):
 		var main := "MQ-%02d-%02d" % [chapter, number]
 		states[main] = {
-			"state": "completed", "counts": Array(journal.catalog.definitions[main].objective_counts)
+			"state": "completed",
+			"counts": Array(journal.catalog.definitions[main].objective_counts)
 		}
 	var quest := "MQ-05-03" if chapter == 5 else "SQ-06-008"
 	states[quest] = {"state": "active", "counts": [3, 1, 0] if chapter == 5 else [0, 0]}
