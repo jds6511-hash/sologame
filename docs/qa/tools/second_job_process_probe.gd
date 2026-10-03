@@ -63,13 +63,13 @@ func refresh() -> void:
 
 
 func prepare(first_job: StringName, trial: String) -> void:
-	var player: PlayerController = world.get_node("Player")
-	var progression: PlayerProgression = player.get_node("PlayerProgression")
+	var player: Node = world.get_node("Player")
+	var progression: Node = player.get_node("PlayerProgression")
 	while progression.current_level < 40:
 		progression.add_exp(
 			progression.level_curve.req(progression.current_level) - progression.current_exp
 		)
-	var journal: QuestJournal = world.get_node("QuestController").journal
+	var journal = world.get_node("QuestController").journal
 	var states := {}
 	for id in journal.catalog.ordered_ids():
 		if CONTENT.QUEST_REVISIONS[id] < 6 or id in ["MQ-07-01", trial]:
@@ -93,8 +93,8 @@ func seed_slots() -> void:
 		var archer: bool = slot == 2
 		var job: StringName = &"sharpshooter" if archer else &"gladiator"
 		prepare(&"archer" if archer else &"warrior", "TR-ARC-02" if archer else "TR-WAR-02")
-		var player: PlayerController = world.get_node("Player")
-		var transition: PlayerJobTransition = player.get_node("PlayerJobTransition")
+		var player: Node = world.get_node("Player")
+		var transition: Node = player.get_node("PlayerJobTransition")
 		check(transition.perform_transition(job), "제품 2차 전직 " + String(job))
 		check(not transition.perform_transition(job), "중복 전직 거부")
 		var skill := StringName(player.skill_slot_4.skill_name)
@@ -106,6 +106,8 @@ func seed_slots() -> void:
 			runtime.state().equipment.weapon == ("WPN-BW-40-B" if archer else "WPN-GS-40-B"),
 			"계열 Lv40 B 무기 지급"
 		)
+		# 새 월드의 저장 유예는 실제 시간으로 기다린다. 안전 타이머는 주입하지 않는다.
+		await create_timer(5.1).timeout
 		if archer:
 			# 집중 모델 fixture: 비영구 값이 디스크 복원으로 유출되지 않는지만 확인.
 			var cast: int = player._shots.focus.begin_cast(1)
@@ -141,7 +143,7 @@ func reload_slots() -> void:
 			expected[str(slot)] == JSON.parse_string(JSON.stringify(snapshot(), "", false, true)),
 			"직업·SP 지출·장비·가방·의뢰 복원 동등"
 		)
-		var player: PlayerController = world.get_node("Player")
+		var player: Node = world.get_node("Player")
 		check(player._shots.focus.value == 0, "불러오기 집중 0")
 		check(
 			not player.get_node("PlayerJobTransition").perform_transition(
