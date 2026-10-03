@@ -13,7 +13,7 @@
 
 ## 주의 사항
 
-- 최신 [편의 통합 검토 요청](qa/act-one-convenience-review-request.md)은 `15397a7` 대상이다. 결과 `docs/qa/reviews/15397a7.md`를 새 묶음/커밋/다음 요청 전에 확인한다. 이번 요청 범위 세 기능은 완료됐으며 다른 제안을 승인된 작업으로 확대하지 않는다.
+- 최신 [반격 통합 검토 요청](qa/monster-hit-retaliation-review-request.md)은 `a08a715` 대상이다. 결과 `docs/qa/reviews/a08a715.md`를 새 묶음/커밋/다음 요청 전에 확인한다. 이전 편의 `15397a7` 결과는 처리 완료했다. 디렉터의 반격 요구는 구현·검증 완료이며 새 의뢰/영지/아트를 이 수정에 섞지 않았다.
 
 - 실제 `user://saves`는 검증 전후 해시·복사에만 사용한다. 이관 검사는 QA 복사본에서만 하며 원본을 덮어쓰기·복원·삭제하지 않는다. 실행 중 게임이 원본을 바꾸면 실패로 기록한다.
 - 기본 명령은 `powershell -NoProfile -ExecutionPolicy Bypass -File docs/qa/tools/verify_all.ps1`. 기본 실패 가드도 창·포인터를 사용할 수 있다. `-Combat`은 참고 옵션이며 채택 조건이 아니다.
