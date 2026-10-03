@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "SQ-09-012"
+title = "패를 받은 사람"
+offer_text = "패를 받은 사람의 현장 목표를 확인하세요. 가방 물품이나 확률 드롭 없이 현장 통신으로 보고할 수 있습니다."
+prerequisite = "MQ-09-04"
+npc_id = "valkren_commander"
+accept_npc_id = "valkren_commander"
+reward_exp = 198462
+reward_gold = 32160
+reward_reputation = 38
+objective_kinds = Array[String](["INTERACT", "INTERACT"])
+objective_targets = Array[String](["ch9_zahel_badge", "ch9_guild_record"])
+objective_sources = Array[String](["ch9_zahel_badge_site", "ch9_guild_record_site"])
+objective_counts = Array[int]([1, 1])
+objective_labels = Array[String](["자헬의 패 확인", "조합 기록"])
+objective_location_hints = Array[String](["발크렌", "발크렌"])

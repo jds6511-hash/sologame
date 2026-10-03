@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "MQ-09-05"
+title = "남겨진 물증"
+offer_text = "자헬의 증언과 현장 물증을 확인하고 발크렌 지휘관에게 마지막 보고를 하세요."
+prerequisite = "MQ-09-04"
+npc_id = "valkren_commander"
+accept_npc_id = "valkren_commander"
+reward_exp = 770011
+reward_gold = 61600
+reward_reputation = 200
+objective_kinds = Array[String](["INTERACT", "INTERACT"])
+objective_targets = Array[String](["zahel_testimony", "valkren_evidence"])
+objective_sources = Array[String](["zahel_testimony_site", "valkren_evidence_site"])
+objective_counts = Array[int]([1, 1])
+objective_labels = Array[String](["자헬 증언", "현장 물증"])
+objective_location_hints = Array[String](["발크렌", "균열 전장"])

@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "SQ-09-009"
+title = "폐허의 울림"
+offer_text = "폐허의 울림의 현장 목표를 확인하세요. 가방 물품이나 확률 드롭 없이 현장 통신으로 보고할 수 있습니다."
+prerequisite = "MQ-09-02"
+npc_id = "valkren_commander"
+accept_npc_id = "valkren_commander"
+reward_exp = 198462
+reward_gold = 32160
+reward_reputation = 38
+objective_kinds = Array[String](["KILL"])
+objective_targets = Array[String](["ruin_wraith"])
+objective_sources = Array[String](["old_front_wraiths"])
+objective_counts = Array[int]([2])
+objective_labels = Array[String](["폐허 망령 처치"])
+objective_location_hints = Array[String](["옛 전선"])

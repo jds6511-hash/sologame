@@ -89,6 +89,7 @@ func _setup_quest_ui(quests: QuestController) -> void:
 			rally.configure(defense)
 			selection.candidates.append(rally)
 	load("res://scripts/content/job_trial_install.gd").install(self)
+	load("res://scripts/content/encounter_install.gd").install(self)
 
 
 func _npc(id: String, point: Vector2, title: String) -> Node2D:

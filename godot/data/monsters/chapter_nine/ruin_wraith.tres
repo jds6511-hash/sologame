@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="MonsterStatsData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ai/monster_stats_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+display_name = "폐허 망령"
+max_hp = 5100.0
+attack_power = 420.0
+defense = 46.0
+perception_range_tiles = 7.0
+leash_range_tiles = 14.0
+combat_move_speed_tiles = 3.0
+blink_telegraph_sec = 0.8
+blink_recovery_sec = 0.8
+melee_telegraph_sec = 0.9
+melee_range_tiles = 2.5

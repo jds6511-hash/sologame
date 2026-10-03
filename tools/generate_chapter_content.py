@@ -106,7 +106,7 @@ def validate(data, root):
             quests[id] = read_quest(local(root, path))
     npcs = set(c['NPCS']) | set(c['EDGES'])
     for id, allowed in c.get('FIELD_REPORTS', {}).items():
-        if id not in quests or not id.startswith('SQ-') or type(allowed) is not bool:
+        if id not in quests or type(allowed) is not bool:
             raise ValueError('잘못된 현장 제출 속성: ' + id)
     for id, q in quests.items():
         if q['quest_id'] != id or q.get('prerequisite', '') not in set(quests) | {''}:
@@ -121,7 +121,12 @@ def validate(data, root):
             kind, target, source, count, label, hint = (q[key][index] for key in FIELDS)
             if type(count) is not int or count < 1 or not label:
                 raise ValueError('목표 수량/표시: ' + id)
-            if kind == 'KILL':
+            if source in c.get('ENCOUNTERS', {}):
+                encounter = c['ENCOUNTERS'][source]
+                valid = (encounter['quest_id'] == id and encounter['index'] == index
+                         and encounter['target'] == target
+                         and kind == ('INTERACT' if encounter['kind'] == 'evacuation' else 'KILL'))
+            elif kind == 'KILL':
                 if source in c.get('DEFENSE_WAVES', {}):
                     wave = c['DEFENSE_WAVES'][source]
                     valid = wave['content_id'] == target and wave['quest_id'] == id and wave['index'] == index and count <= len(wave['points'])
@@ -206,6 +211,16 @@ def validate(data, root):
             raise ValueError('서식지 몬스터 변형 씬 불일치')
     for rally in c.get('RALLIES', {}).values():
         point(rally['region'], rally['position'])
+    for source, encounter in c.get('ENCOUNTERS', {}).items():
+        point(encounter['region'], encounter['position'])
+        for position in encounter['points']:
+            point(encounter['region'], position)
+        if (encounter['kind'] not in ['evacuation', 'wave', 'boss']
+                or encounter['max_active'] != 4
+                or source in [site[1] for site in c['SITES'].values()]
+                or not local(root, encounter['stats']).is_file()
+                or not (root / 'godot/scenes/monsters' / (encounter['scene'] + '.tscn')).is_file()):
+            raise ValueError('잘못된 예약 전장 사건: ' + source)
     for site in c.get('SITE_NOTICES', {}):
         if site not in c['SITES']:
             raise ValueError('없는 안내 표식')
@@ -233,7 +248,24 @@ def validate_exp_profile(ch, root):
             raise ValueError('처치 EXP 양의 정수 필요')
     if profile['objective_kills'] != objectives or profile['expected_kills'] != objectives + profile['encounter_kills']:
         raise ValueError('처치 수 계획 불일치')
-    if profile['budget'] != budget or abs(profile['expected_kills'] * profile['base_exp'] - budget) > profile['expected_kills'] / 2:
+    # 실제 보상 경로와 같이 보스/정예 등급 배율을 한 번만 반영한다.
+    curve = (root / 'godot/data/progression/level_curve.tres').read_text(encoding='utf-8')
+    multipliers = {name: float(re.search(r'^' + name + r'_multiplier = ([\d.]+)', curve, re.M)[1]) for name in ['elite', 'boss']}
+    weighted = float(profile['expected_kills'])
+    for quest in ch['quests']:
+        for kind, target, count in zip(quest['objective_kinds'], quest['objective_targets'], quest['objective_counts']):
+            if kind != 'KILL':
+                continue
+            variant = ch['constants']['MONSTER_VARIANTS'].get(target)
+            if variant is None:
+                continue
+            stats = local(root, variant['stats']).read_text(encoding='utf-8')
+            grade = 'boss' if re.search(r'^is_boss = true$', stats, re.M) else 'elite' if re.search(r'^is_elite = true$', stats, re.M) else ''
+            if grade:
+                weighted += count * (multipliers[grade] - 1)
+    if profile.get('weighted_kills', profile['expected_kills']) != weighted:
+        raise ValueError('처치 등급 가중 수 불일치')
+    if profile['budget'] != budget or abs(weighted * profile['base_exp'] - budget) > weighted / 2:
         raise ValueError('처치 EXP 예산 불일치')
     if profile['overlevel_factors'] != [1.0, 0.5, 0.25] or profile['respawn_seconds'] != 90:
         raise ValueError('반복 사냥 제한 계약 불일치')

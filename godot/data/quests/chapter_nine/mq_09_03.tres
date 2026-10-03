@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "MQ-09-03"
+title = "함께 버티는 성벽"
+offer_text = "두림의 안전 통로와 일리엔의 감응 표식을 확인하고 소집 표식에서 척후를 저지하세요. 동료들은 현장 지원으로 함께합니다."
+prerequisite = "MQ-09-02"
+npc_id = "valkren_commander"
+accept_npc_id = "valkren_commander"
+reward_exp = 800000
+reward_gold = 65000
+reward_reputation = 200
+objective_kinds = Array[String](["INTERACT", "INTERACT", "KILL"])
+objective_targets = Array[String](["durim_barricade", "ilien_resonance", "demon_scout"])
+objective_sources = Array[String](["durim_barricade_site", "ilien_resonance_site", "old_front_organized_scouts"])
+objective_counts = Array[int]([1, 1, 3])
+objective_labels = Array[String](["두림의 방벽 장치", "일리엔 감응 표식", "조직된 척후 저지"])
+objective_location_hints = Array[String](["옛 전선", "옛 전선", "옛 전선"])

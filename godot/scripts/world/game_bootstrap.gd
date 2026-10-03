@@ -11,9 +11,10 @@ const START_REGIONS := [
 	"brantel",
 	"arsel",
 	"misran",
-	"brantel"
+	"brantel",
+	"jaetgol"
 ]
-const START_EXP := [0, 0, 3820, 42828, 79291, 283297, 704457, 1806766, 4587988]
+const START_EXP := [0, 0, 3820, 42828, 79291, 283297, 704457, 1806766, 4587988, 8086684]
 
 var _starting := false
 var _message: Label
@@ -23,7 +24,7 @@ func start_options() -> Array:
 	var options := [
 		{"label": "기본 게임 · 기존 저장은 F6에서 불러오기", "chapter": 0, "directory": "user://saves"}
 	]
-	for chapter in range(1, 9):
+	for chapter in range(1, 10):
 		options.append(
 			{
 				"label":
@@ -92,7 +93,7 @@ func _ready() -> void:
 	_message = Label.new()
 	_message.text = (
 		"기본 게임: 실제 저장 사용\n장 시작 체험: 별도 QA 저장 · 매번 준비 상태로 시작\n"
-		+ "4~8장 체험: 이전 의뢰 완료·목표 기반 성장 표본 EXP·4만 골드를 준비합니다."
+		+ "4~9장 체험: 이전 의뢰 완료·목표 기반 성장 표본 EXP·4만 골드를 준비합니다."
 	)
 	UiStyle.apply_body_font(_message, 24)
 	column.add_child(_message)

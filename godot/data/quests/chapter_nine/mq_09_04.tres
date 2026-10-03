@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "MQ-09-04"
+title = "군인을 끊다"
+offer_text = "균열 전장의 소집 표식에서 군후전에 도전하세요. 이탈·사망 후에는 HP와 단계가 초기화되며 완료 처치는 보존됩니다."
+prerequisite = "MQ-09-03"
+npc_id = "valkren_commander"
+accept_npc_id = "valkren_commander"
+reward_exp = 1000000
+reward_gold = 70000
+reward_reputation = 250
+objective_kinds = Array[String](["REACH", "KILL"])
+objective_targets = Array[String](["valkren_rift_arrival", "warlord"])
+objective_sources = Array[String](["valkren_rift_arrival_site", "valkren_warlord"])
+objective_counts = Array[int]([1, 1])
+objective_labels = Array[String](["균열 전장 도착", "군후 소집"])
+objective_location_hints = Array[String](["균열 전장", "균열 전장"])

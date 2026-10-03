@@ -1,0 +1,54 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://scripts/ai/warlord_monster.gd" id="1"]
+[ext_resource type="Resource" path="res://data/monsters/warlord_stats.tres" id="2"]
+[ext_resource type="Texture2D" path="res://assets/sprites/monsters/mob_outlaw_thug_idle.png" id="3"]
+[ext_resource type="Script" path="res://scripts/combat/monster_attack_resolver.gd" id="4"]
+[ext_resource type="Resource" path="res://data/combat/damage_formula.tres" id="5"]
+
+[sub_resource type="AtlasTexture" id="Frame0"]
+atlas = ExtResource("3")
+region = Rect2(0, 36, 28, 36)
+
+[sub_resource type="AtlasTexture" id="Frame1"]
+atlas = ExtResource("3")
+region = Rect2(28, 36, 28, 36)
+
+[sub_resource type="AtlasTexture" id="Frame2"]
+atlas = ExtResource("3")
+region = Rect2(56, 36, 28, 36)
+
+[sub_resource type="SpriteFrames" id="Frames"]
+animations = [{
+"name": &"idle",
+"speed": 4.0,
+"loop": true,
+"frames": [{"duration": 1.0, "texture": SubResource("Frame0")}, {"duration": 1.0, "texture": SubResource("Frame1")}, {"duration": 1.0, "texture": SubResource("Frame2")}]
+}]
+
+[sub_resource type="CapsuleShape2D" id="Body"]
+radius = 9.0
+height = 24.0
+
+[node name="WarlordMonster" type="CharacterBody2D"]
+collision_layer = 4
+collision_mask = 1
+script = ExtResource("1")
+stats = ExtResource("2")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -10)
+shape = SubResource("Body")
+
+[node name="Sprite" type="AnimatedSprite2D" parent="."]
+scale = Vector2(1.6, 1.6)
+offset = Vector2(0, -18)
+modulate = Color(0.8, 0.45, 0.45, 1)
+sprite_frames = SubResource("Frames")
+animation = &"idle"
+autoplay = "idle"
+
+[node name="AttackResolver" type="Node" parent="."]
+script = ExtResource("4")
+monster_path = NodePath("..")
+formula_data = ExtResource("5")

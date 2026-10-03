@@ -277,6 +277,9 @@ func _replace_world(
 	if tree.current_scene == world:
 		tree.current_scene = next_world
 	world.get_node("SaveMenu").close_menu(false)
+	var encounter := world.get_node_or_null("EncounterController")
+	if encounter != null and encounter.has_method("suspend"):
+		encounter.suspend()
 	world.process_mode = Node.PROCESS_MODE_DISABLED
 	world.hide()
 	# TileMapLayer의 충돌은 process_mode만 꺼도 남는다. queue_free까지 한 프레임

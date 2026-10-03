@@ -1,0 +1,1642 @@
+{
+  "chapter": 9,
+  "content_revision": 8,
+  "budget": {
+    "reward_exp": 6450019,
+    "reward_gold": 739680,
+    "reward_reputation": 1400,
+    "main_exp": 3870011,
+    "side_exp": 2580008,
+    "main_reputation": 900,
+    "side_reputation": 500
+  },
+  "constants": {
+    "BGM_CONTEXTS": {
+      "suretgul": "res://scenes/world/novera_gate.tscn",
+      "valkren": "res://scenes/world/novera_gate.tscn",
+      "old_front": "res://scenes/world/novera_gate.tscn",
+      "valkren_rift": "res://scenes/world/novera_gate.tscn"
+    },
+    "SCENES": {
+      "suretgul": "res://scenes/world/product_world.tscn",
+      "valkren": "res://scenes/world/product_world.tscn",
+      "old_front": "res://scenes/world/product_world.tscn",
+      "valkren_rift": "res://scenes/world/product_world.tscn"
+    },
+    "NAMES": {
+      "suretgul": "수렛골",
+      "valkren": "발크렌",
+      "old_front": "옛 전선",
+      "valkren_rift": "균열 전장"
+    },
+    "BOUNDS": {
+      "suretgul": {
+        "$rect": [
+          0,
+          0,
+          1536,
+          896
+        ]
+      },
+      "valkren": {
+        "$rect": [
+          0,
+          0,
+          1536,
+          1024
+        ]
+      },
+      "old_front": {
+        "$rect": [
+          0,
+          0,
+          1792,
+          1024
+        ]
+      },
+      "valkren_rift": {
+        "$rect": [
+          0,
+          0,
+          1152,
+          896
+        ]
+      }
+    },
+    "REGION_REQUIREMENTS": {
+      "suretgul": "MQ-08-05",
+      "valkren": "MQ-08-05",
+      "old_front": "MQ-09-01",
+      "valkren_rift": "MQ-09-03"
+    },
+    "EDGES": {
+      "jaetgol_to_suretgul": [
+        "jaetgol",
+        "suretgul",
+        {
+          "$vector": [
+            1328,
+            768
+          ]
+        },
+        {
+          "$vector": [
+            160,
+            704
+          ]
+        },
+        "suretgul_to_jaetgol"
+      ],
+      "suretgul_to_jaetgol": [
+        "suretgul",
+        "jaetgol",
+        {
+          "$vector": [
+            96,
+            704
+          ]
+        },
+        {
+          "$vector": [
+            1264,
+            768
+          ]
+        },
+        "jaetgol_to_suretgul"
+      ],
+      "suretgul_to_valkren": [
+        "suretgul",
+        "valkren",
+        {
+          "$vector": [
+            1440,
+            448
+          ]
+        },
+        {
+          "$vector": [
+            160,
+            640
+          ]
+        },
+        "valkren_to_suretgul"
+      ],
+      "valkren_to_suretgul": [
+        "valkren",
+        "suretgul",
+        {
+          "$vector": [
+            96,
+            640
+          ]
+        },
+        {
+          "$vector": [
+            1376,
+            448
+          ]
+        },
+        "suretgul_to_valkren"
+      ],
+      "valkren_to_old_front": [
+        "valkren",
+        "old_front",
+        {
+          "$vector": [
+            768,
+            96
+          ]
+        },
+        {
+          "$vector": [
+            896,
+            864
+          ]
+        },
+        "old_front_to_valkren"
+      ],
+      "old_front_to_valkren": [
+        "old_front",
+        "valkren",
+        {
+          "$vector": [
+            896,
+            928
+          ]
+        },
+        {
+          "$vector": [
+            768,
+            160
+          ]
+        },
+        "valkren_to_old_front"
+      ],
+      "old_front_to_valkren_rift": [
+        "old_front",
+        "valkren_rift",
+        {
+          "$vector": [
+            1696,
+            448
+          ]
+        },
+        {
+          "$vector": [
+            160,
+            448
+          ]
+        },
+        "valkren_rift_to_old_front"
+      ],
+      "valkren_rift_to_old_front": [
+        "valkren_rift",
+        "old_front",
+        {
+          "$vector": [
+            96,
+            448
+          ]
+        },
+        {
+          "$vector": [
+            1632,
+            448
+          ]
+        },
+        "old_front_to_valkren_rift"
+      ]
+    },
+    "NPCS": {
+      "valkren_commander": [
+        "valkren",
+        {
+          "$vector": [
+            768,
+            640
+          ]
+        },
+        "발크렌 지휘관"
+      ]
+    },
+    "SITES": {
+      "suretgul_transport": [
+        {
+          "$vector": [
+            512,
+            576
+          ]
+        },
+        "suretgul_transport_site",
+        "INTERACT",
+        "수렛골 운송 기록",
+        "suretgul"
+      ],
+      "valkren_command": [
+        {
+          "$vector": [
+            768,
+            736
+          ]
+        },
+        "valkren_command_site",
+        "REACH",
+        "발크렌 지휘소 도착",
+        "valkren"
+      ],
+      "durim_barricade": [
+        {
+          "$vector": [
+            768,
+            736
+          ]
+        },
+        "durim_barricade_site",
+        "INTERACT",
+        "두림의 방벽 장치",
+        "old_front"
+      ],
+      "ilien_resonance": [
+        {
+          "$vector": [
+            768,
+            640
+          ]
+        },
+        "ilien_resonance_site",
+        "INTERACT",
+        "일리엔 감응 표식",
+        "old_front"
+      ],
+      "valkren_rift_arrival": [
+        {
+          "$vector": [
+            192,
+            448
+          ]
+        },
+        "valkren_rift_arrival_site",
+        "REACH",
+        "균열 전장 도착",
+        "valkren_rift"
+      ],
+      "zahel_testimony": [
+        {
+          "$vector": [
+            944,
+            736
+          ]
+        },
+        "zahel_testimony_site",
+        "INTERACT",
+        "자헬 증언",
+        "valkren"
+      ],
+      "valkren_evidence": [
+        {
+          "$vector": [
+            832,
+            576
+          ]
+        },
+        "valkren_evidence_site",
+        "INTERACT",
+        "현장 물증",
+        "valkren_rift"
+      ],
+      "ch9_axle_west": [
+        {
+          "$vector": [
+            384,
+            320
+          ]
+        },
+        "ch9_axle_west_site",
+        "INTERACT",
+        "운송 흔적 서쪽",
+        "suretgul"
+      ],
+      "ch9_axle_east": [
+        {
+          "$vector": [
+            640,
+            320
+          ]
+        },
+        "ch9_axle_east_site",
+        "INTERACT",
+        "운송 흔적 동쪽",
+        "suretgul"
+      ],
+      "ch9_shelter": [
+        {
+          "$vector": [
+            384,
+            672
+          ]
+        },
+        "ch9_shelter_site",
+        "REACH",
+        "대피소 확인",
+        "suretgul"
+      ],
+      "ch9_residents": [
+        {
+          "$vector": [
+            448,
+            672
+          ]
+        },
+        "ch9_residents_site",
+        "INTERACT",
+        "주민 명부",
+        "suretgul"
+      ],
+      "ch9_beacon_west": [
+        {
+          "$vector": [
+            256,
+            192
+          ]
+        },
+        "ch9_beacon_west_site",
+        "INTERACT",
+        "서쪽 봉화",
+        "suretgul"
+      ],
+      "ch9_beacon_east": [
+        {
+          "$vector": [
+            1312,
+            192
+          ]
+        },
+        "ch9_beacon_east_site",
+        "INTERACT",
+        "동쪽 봉화",
+        "suretgul"
+      ],
+      "ch9_bolt_west": [
+        {
+          "$vector": [
+            256,
+            704
+          ]
+        },
+        "ch9_bolt_west_site",
+        "INTERACT",
+        "서문 고정쇠",
+        "valkren"
+      ],
+      "ch9_bolt_north": [
+        {
+          "$vector": [
+            864,
+            224
+          ]
+        },
+        "ch9_bolt_north_site",
+        "INTERACT",
+        "북문 고정쇠",
+        "valkren"
+      ],
+      "ch9_infirmary": [
+        {
+          "$vector": [
+            1200,
+            736
+          ]
+        },
+        "ch9_infirmary_site",
+        "REACH",
+        "의무소 확인",
+        "valkren"
+      ],
+      "ch9_medicine": [
+        {
+          "$vector": [
+            1264,
+            736
+          ]
+        },
+        "ch9_medicine_site",
+        "INTERACT",
+        "의무소 보급 확인",
+        "valkren"
+      ],
+      "ch9_record_west": [
+        {
+          "$vector": [
+            320,
+            544
+          ]
+        },
+        "ch9_record_west_site",
+        "INTERACT",
+        "서쪽 전선 기록",
+        "old_front"
+      ],
+      "ch9_record_east": [
+        {
+          "$vector": [
+            1312,
+            832
+          ]
+        },
+        "ch9_record_east_site",
+        "INTERACT",
+        "동쪽 전선 기록",
+        "old_front"
+      ],
+      "ch9_return_west": [
+        {
+          "$vector": [
+            256,
+            736
+          ]
+        },
+        "ch9_return_west_site",
+        "REACH",
+        "서쪽 귀환로",
+        "suretgul"
+      ],
+      "ch9_return_east": [
+        {
+          "$vector": [
+            1344,
+            512
+          ]
+        },
+        "ch9_return_east_site",
+        "REACH",
+        "동쪽 귀환로",
+        "suretgul"
+      ],
+      "ch9_fragment_west": [
+        {
+          "$vector": [
+            512,
+            704
+          ]
+        },
+        "ch9_fragment_west_site",
+        "INTERACT",
+        "서쪽 물증",
+        "valkren_rift"
+      ],
+      "ch9_fragment_east": [
+        {
+          "$vector": [
+            832,
+            704
+          ]
+        },
+        "ch9_fragment_east_site",
+        "INTERACT",
+        "동쪽 물증",
+        "valkren_rift"
+      ],
+      "ch9_zahel_badge": [
+        {
+          "$vector": [
+            1008,
+            736
+          ]
+        },
+        "ch9_zahel_badge_site",
+        "INTERACT",
+        "자헬의 패 확인",
+        "valkren"
+      ],
+      "ch9_guild_record": [
+        {
+          "$vector": [
+            944,
+            832
+          ]
+        },
+        "ch9_guild_record_site",
+        "INTERACT",
+        "조합 기록",
+        "valkren"
+      ],
+      "ch9_civilian_ledger": [
+        {
+          "$vector": [
+            576,
+            800
+          ]
+        },
+        "ch9_civilian_ledger_site",
+        "INTERACT",
+        "민간 기록 대조",
+        "valkren"
+      ],
+      "ch9_army_ledger": [
+        {
+          "$vector": [
+            704,
+            800
+          ]
+        },
+        "ch9_army_ledger_site",
+        "INTERACT",
+        "군 기록 대조",
+        "valkren"
+      ]
+    },
+    "SITE_NOTICES": {
+      "durim_barricade": "두림이 장치 뒤 안전 통로를 가리킨다. 안내 그림은 피해를 차단하는 물리 방벽이 아니다.",
+      "ilien_resonance": "일리엔의 감응이 군후 돌진의 예고를 0.25초 앞서 전한다.",
+      "zahel_testimony": "동료들의 보증으로 자헬에게 패가 발급됐다. 자헬은 자신이 본 침공 경로를 기록한다.",
+      "valkren_evidence": "침공은 자연 발생이 아니었다. 남은 물증을 봉인한다. 가레스는 대열에서 이탈했다."
+    },
+    "LAYOUTS": {
+      "suretgul": {
+        "spawn": {
+          "$vector": [
+            160,
+            704
+          ]
+        },
+        "floor": {
+          "$vectori": [
+            0,
+            0
+          ]
+        },
+        "patches": [
+          {
+            "rect": {
+              "$rect": [
+                6,
+                26,
+                84,
+                6
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                0
+              ]
+            }
+          }
+        ]
+      },
+      "valkren": {
+        "spawn": {
+          "$vector": [
+            160,
+            640
+          ]
+        },
+        "floor": {
+          "$vectori": [
+            0,
+            0
+          ]
+        },
+        "patches": [
+          {
+            "rect": {
+              "$rect": [
+                6,
+                26,
+                84,
+                6
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                0
+              ]
+            }
+          }
+        ]
+      },
+      "old_front": {
+        "spawn": {
+          "$vector": [
+            896,
+            864
+          ]
+        },
+        "floor": {
+          "$vectori": [
+            0,
+            0
+          ]
+        },
+        "patches": [
+          {
+            "rect": {
+              "$rect": [
+                6,
+                26,
+                100,
+                6
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                0
+              ]
+            }
+          }
+        ]
+      },
+      "valkren_rift": {
+        "spawn": {
+          "$vector": [
+            160,
+            448
+          ]
+        },
+        "floor": {
+          "$vectori": [
+            0,
+            0
+          ]
+        },
+        "patches": [
+          {
+            "rect": {
+              "$rect": [
+                6,
+                26,
+                60,
+                6
+              ]
+            },
+            "tile": {
+              "$vectori": [
+                2,
+                0
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "HABITATS": {
+      "suretgul_ogres": [
+        "suretgul",
+        [
+          {
+            "$vector": [
+              800,
+              256
+            ]
+          },
+          {
+            "$vector": [
+              1088,
+              256
+            ]
+          },
+          {
+            "$vector": [
+              1248,
+              672
+            ]
+          }
+        ],
+        "wolf",
+        "ogre"
+      ],
+      "old_front_scouts": [
+        "old_front",
+        [
+          {
+            "$vector": [
+              480,
+              288
+            ]
+          },
+          {
+            "$vector": [
+              640,
+              288
+            ]
+          },
+          {
+            "$vector": [
+              480,
+              672
+            ]
+          }
+        ],
+        "poacher",
+        "demon_scout"
+      ],
+      "old_front_wraiths": [
+        "old_front",
+        [
+          {
+            "$vector": [
+              1280,
+              256
+            ]
+          },
+          {
+            "$vector": [
+              1440,
+              256
+            ]
+          },
+          {
+            "$vector": [
+              1408,
+              704
+            ]
+          }
+        ],
+        "ruin_wraith",
+        "ruin_wraith"
+      ]
+    },
+    "MONSTER_VARIANTS": {
+      "demon_scout": {
+        "title": "악마 척후",
+        "scene": "poacher",
+        "stats": "res://data/monsters/chapter_nine/demon_scout.tres",
+        "level": 62
+      },
+      "ogre": {
+        "title": "오우거",
+        "scene": "wolf",
+        "stats": "res://data/monsters/chapter_nine/ogre.tres",
+        "level": 65
+      },
+      "ruin_wraith": {
+        "title": "폐허 망령",
+        "scene": "ruin_wraith",
+        "stats": "res://data/monsters/chapter_nine/ruin_wraith.tres",
+        "level": 66
+      },
+      "warlord": {
+        "title": "군후",
+        "scene": "warlord",
+        "stats": "res://data/monsters/warlord_stats.tres",
+        "level": 68
+      }
+    },
+    "WARP_ARRIVALS": {
+      "valkren": {
+        "$vector": [
+          320,
+          640
+        ]
+      }
+    },
+    "FIELD_REPORTS": {
+      "MQ-09-01": true,
+      "MQ-09-02": true,
+      "MQ-09-03": true,
+      "MQ-09-04": true,
+      "SQ-09-001": true,
+      "SQ-09-002": true,
+      "SQ-09-003": true,
+      "SQ-09-004": true,
+      "SQ-09-005": true,
+      "SQ-09-006": true,
+      "SQ-09-007": true,
+      "SQ-09-008": true,
+      "SQ-09-009": true,
+      "SQ-09-010": true,
+      "SQ-09-011": true,
+      "SQ-09-012": true,
+      "SQ-09-013": true
+    },
+    "ENCOUNTERS": {
+      "valkren_evac_west": {
+        "kind": "evacuation",
+        "region": "valkren",
+        "quest_id": "MQ-09-02",
+        "index": 0,
+        "target": "valkren_evac_west",
+        "position": {
+          "$vector": [
+            448,
+            448
+          ]
+        },
+        "points": [
+          {
+            "$vector": [
+              320,
+              320
+            ]
+          },
+          {
+            "$vector": [
+              576,
+              320
+            ]
+          }
+        ],
+        "title": "서쪽 대피 구역 확보",
+        "scene": "poacher",
+        "stats": "res://data/monsters/chapter_nine/demon_scout.tres",
+        "content_id": "demon_scout",
+        "max_active": 4,
+        "duration": 8.0,
+        "radius": 48.0,
+        "outside_reset": 0.5,
+        "hit_pause": 0.5
+      },
+      "valkren_evac_east": {
+        "kind": "evacuation",
+        "region": "valkren",
+        "quest_id": "MQ-09-02",
+        "index": 1,
+        "target": "valkren_evac_east",
+        "position": {
+          "$vector": [
+            1088,
+            448
+          ]
+        },
+        "points": [
+          {
+            "$vector": [
+              960,
+              320
+            ]
+          },
+          {
+            "$vector": [
+              1216,
+              320
+            ]
+          }
+        ],
+        "title": "동쪽 대피 구역 확보",
+        "scene": "poacher",
+        "stats": "res://data/monsters/chapter_nine/demon_scout.tres",
+        "content_id": "demon_scout",
+        "max_active": 4,
+        "duration": 8.0,
+        "radius": 48.0,
+        "outside_reset": 0.5,
+        "hit_pause": 0.5
+      },
+      "old_front_organized_scouts": {
+        "kind": "wave",
+        "region": "old_front",
+        "quest_id": "MQ-09-03",
+        "index": 2,
+        "target": "demon_scout",
+        "position": {
+          "$vector": [
+            768,
+            512
+          ]
+        },
+        "points": [
+          {
+            "$vector": [
+              960,
+              400
+            ]
+          },
+          {
+            "$vector": [
+              1088,
+              512
+            ]
+          },
+          {
+            "$vector": [
+              960,
+              624
+            ]
+          }
+        ],
+        "title": "조직된 척후 저지",
+        "scene": "poacher",
+        "stats": "res://data/monsters/chapter_nine/demon_scout.tres",
+        "content_id": "demon_scout",
+        "max_active": 4
+      },
+      "valkren_warlord": {
+        "kind": "boss",
+        "region": "valkren_rift",
+        "quest_id": "MQ-09-04",
+        "index": 1,
+        "target": "warlord",
+        "position": {
+          "$vector": [
+            256,
+            448
+          ]
+        },
+        "points": [
+          {
+            "$vector": [
+              640,
+              448
+            ]
+          }
+        ],
+        "title": "군후 소집",
+        "scene": "warlord",
+        "stats": "res://data/monsters/warlord_stats.tres",
+        "content_id": "warlord",
+        "max_active": 4
+      }
+    },
+    "EXP_PROFILES": {
+      "9": {
+        "expected_kills": 150,
+        "objective_kills": 10,
+        "encounter_kills": 140,
+        "weighted_kills": 189,
+        "budget": 2764294,
+        "base_exp": 14626,
+        "overlevel_factors": [
+          1,
+          0.5,
+          0.25
+        ],
+        "respawn_seconds": 90
+      }
+    },
+    "MONSTER_EXP_PROFILES": {
+      "demon_scout": "9",
+      "ogre": "9",
+      "ruin_wraith": "9",
+      "warlord": "9"
+    },
+    "BOSS_PATTERNS": {
+      "warlord": {
+        "slash": {
+          "radius": 64.0,
+          "arc_degrees": 100.0,
+          "telegraph": 0.9,
+          "active": 0.12,
+          "recovery": 0.9,
+          "damage_multiplier": 1.0
+        },
+        "dash": {
+          "length": 160.0,
+          "width": 24.0,
+          "telegraph": 0.9,
+          "support_bonus": 0.25,
+          "speed": 160.0,
+          "recovery": 1.1,
+          "damage_multiplier": 1.2
+        },
+        "shockwave": {
+          "radius": 96.0,
+          "telegraph": 1.2,
+          "active": 0.12,
+          "recovery": 1.2,
+          "damage_multiplier": 1.25
+        },
+        "transition_recovery": 0.8
+      }
+    }
+  },
+  "quests": [
+    {
+      "quest_id": "MQ-09-01",
+      "path": "res://data/quests/chapter_nine/mq_09_01.tres",
+      "title": "전선에 닿은 보급",
+      "offer_text": "수렛골 운송 기록을 확인하고 발크렌 지휘소에 도착하세요. 현장 통신으로 보고할 수 있습니다.",
+      "prerequisite": "MQ-08-05",
+      "npc_id": "valkren_commander",
+      "accept_npc_id": "valkren_commander",
+      "reward_exp": 600000,
+      "reward_gold": 60000,
+      "reward_reputation": 100,
+      "objective_kinds": [
+        "INTERACT",
+        "REACH"
+      ],
+      "objective_targets": [
+        "suretgul_transport",
+        "valkren_command"
+      ],
+      "objective_sources": [
+        "suretgul_transport_site",
+        "valkren_command_site"
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "수렛골 운송 기록",
+        "발크렌 지휘소 도착"
+      ],
+      "objective_location_hints": [
+        "수렛골",
+        "발크렌"
+      ]
+    },
+    {
+      "quest_id": "MQ-09-02",
+      "path": "res://data/quests/chapter_nine/mq_09_02.tres",
+      "title": "성문 안의 사람들",
+      "offer_text": "대피 표식에서 F로 시작해 표시 원 안에서 8초를 확보하세요. 피격은 잠시 진행을 멈춥니다. 이탈·사망 시 미완료 구역은 다시 시작합니다.",
+      "prerequisite": "MQ-09-01",
+      "npc_id": "valkren_commander",
+      "accept_npc_id": "valkren_commander",
+      "reward_exp": 700000,
+      "reward_gold": 65000,
+      "reward_reputation": 150,
+      "objective_kinds": [
+        "INTERACT",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "valkren_evac_west",
+        "valkren_evac_east"
+      ],
+      "objective_sources": [
+        "valkren_evac_west",
+        "valkren_evac_east"
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "서쪽 대피 구역 확보",
+        "동쪽 대피 구역 확보"
+      ],
+      "objective_location_hints": [
+        "발크렌",
+        "발크렌"
+      ]
+    },
+    {
+      "quest_id": "MQ-09-03",
+      "path": "res://data/quests/chapter_nine/mq_09_03.tres",
+      "title": "함께 버티는 성벽",
+      "offer_text": "두림의 안전 통로와 일리엔의 감응 표식을 확인하고 소집 표식에서 척후를 저지하세요. 동료들은 현장 지원으로 함께합니다.",
+      "prerequisite": "MQ-09-02",
+      "npc_id": "valkren_commander",
+      "accept_npc_id": "valkren_commander",
+      "reward_exp": 800000,
+      "reward_gold": 65000,
+      "reward_reputation": 200,
+      "objective_kinds": [
+        "INTERACT",
+        "INTERACT",
+        "KILL"
+      ],
+      "objective_targets": [
+        "durim_barricade",
+        "ilien_resonance",
+        "demon_scout"
+      ],
+      "objective_sources": [
+        "durim_barricade_site",
+        "ilien_resonance_site",
+        "old_front_organized_scouts"
+      ],
+      "objective_counts": [
+        1,
+        1,
+        3
+      ],
+      "objective_labels": [
+        "두림의 방벽 장치",
+        "일리엔 감응 표식",
+        "조직된 척후 저지"
+      ],
+      "objective_location_hints": [
+        "옛 전선",
+        "옛 전선",
+        "옛 전선"
+      ]
+    },
+    {
+      "quest_id": "MQ-09-04",
+      "path": "res://data/quests/chapter_nine/mq_09_04.tres",
+      "title": "군인을 끊다",
+      "offer_text": "균열 전장의 소집 표식에서 군후전에 도전하세요. 이탈·사망 후에는 HP와 단계가 초기화되며 완료 처치는 보존됩니다.",
+      "prerequisite": "MQ-09-03",
+      "npc_id": "valkren_commander",
+      "accept_npc_id": "valkren_commander",
+      "reward_exp": 1000000,
+      "reward_gold": 70000,
+      "reward_reputation": 250,
+      "objective_kinds": [
+        "REACH",
+        "KILL"
+      ],
+      "objective_targets": [
+        "valkren_rift_arrival",
+        "warlord"
+      ],
+      "objective_sources": [
+        "valkren_rift_arrival_site",
+        "valkren_warlord"
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "균열 전장 도착",
+        "군후 소집"
+      ],
+      "objective_location_hints": [
+        "균열 전장",
+        "균열 전장"
+      ]
+    },
+    {
+      "quest_id": "MQ-09-05",
+      "path": "res://data/quests/chapter_nine/mq_09_05.tres",
+      "title": "남겨진 물증",
+      "offer_text": "자헬의 증언과 현장 물증을 확인하고 발크렌 지휘관에게 마지막 보고를 하세요.",
+      "prerequisite": "MQ-09-04",
+      "npc_id": "valkren_commander",
+      "accept_npc_id": "valkren_commander",
+      "reward_exp": 770011,
+      "reward_gold": 61600,
+      "reward_reputation": 200,
+      "objective_kinds": [
+        "INTERACT",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "zahel_testimony",
+        "valkren_evidence"
+      ],
+      "objective_sources": [
+        "zahel_testimony_site",
+        "valkren_evidence_site"
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "자헬 증언",
+        "현장 물증"
+      ],
+      "objective_location_hints": [
+        "발크렌",
+        "균열 전장"
+      ]
+    },
+    {
+      "quest_id": "SQ-09-001",
+      "path": "res://data/quests/chapter_nine/sq_09_001.tres",
+      "title": "차축의 흔적",
+      "offer_text": "차축의 흔적의 현장 목표를 확인하세요. 가방 물품이나 확률 드롭 없이 현장 통신으로 보고할 수 있습니다.",
+      "prerequisite": "MQ-09-01",
+      "npc_id": "valkren_commander",
+      "accept_npc_id": "valkren_commander",
+      "reward_exp": 198462,
+      "reward_gold": 32160,
+      "reward_reputation": 38,
+      "objective_kinds": [
+        "INTERACT",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "ch9_axle_west",
+        "ch9_axle_east"
+      ],
+      "objective_sources": [
+        "ch9_axle_west_site",
+        "ch9_axle_east_site"
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "운송 흔적 서쪽",
+        "운송 흔적 동쪽"
+      ],
+      "objective_location_hints": [
+        "수렛골",
+        "수렛골"
+      ]
+    },
+    {
+      "quest_id": "SQ-09-002",
+      "path": "res://data/quests/chapter_nine/sq_09_002.tres",
+      "title": "비어 있는 대피소",
+      "offer_text": "비어 있는 대피소의 현장 목표를 확인하세요. 가방 물품이나 확률 드롭 없이 현장 통신으로 보고할 수 있습니다.",
+      "prerequisite": "MQ-09-01",
+      "npc_id": "valkren_commander",
+      "accept_npc_id": "valkren_commander",
+      "reward_exp": 198462,
+      "reward_gold": 32160,
+      "reward_reputation": 38,
+      "objective_kinds": [
+        "REACH",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "ch9_shelter",
+        "ch9_residents"
+      ],
+      "objective_sources": [
+        "ch9_shelter_site",
+        "ch9_residents_site"
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "대피소 확인",
+        "주민 명부"
+      ],
+      "objective_location_hints": [
+        "수렛골",
+        "수렛골"
+      ]
+    },
+    {
+      "quest_id": "SQ-09-003",
+      "path": "res://data/quests/chapter_nine/sq_09_003.tres",
+      "title": "보급로의 거수",
+      "offer_text": "보급로의 거수의 현장 목표를 확인하세요. 가방 물품이나 확률 드롭 없이 현장 통신으로 보고할 수 있습니다.",
+      "prerequisite": "MQ-09-01",
+      "npc_id": "valkren_commander",
+      "accept_npc_id": "valkren_commander",
+      "reward_exp": 198462,
+      "reward_gold": 32160,
+      "reward_reputation": 38,
+      "objective_kinds": [
+        "KILL"
+      ],
+      "objective_targets": [
+        "ogre"
+      ],
+      "objective_sources": [
+        "suretgul_ogres"
+      ],
+      "objective_counts": [
+        2
+      ],
+      "objective_labels": [
+        "오우거 처치"
+      ],
+      "objective_location_hints": [
+        "수렛골"
+      ]
+    },
+    {
+      "quest_id": "SQ-09-004",
+      "path": "res://data/quests/chapter_nine/sq_09_004.tres",
+      "title": "끊어진 봉화",
+      "offer_text": "끊어진 봉화의 현장 목표를 확인하세요. 가방 물품이나 확률 드롭 없이 현장 통신으로 보고할 수 있습니다.",
+      "prerequisite": "MQ-09-01",
+      "npc_id": "valkren_commander",
+      "accept_npc_id": "valkren_commander",
+      "reward_exp": 198462,
+      "reward_gold": 32160,
+      "reward_reputation": 38,
+      "objective_kinds": [
+        "INTERACT",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "ch9_beacon_west",
+        "ch9_beacon_east"
+      ],
+      "objective_sources": [
+        "ch9_beacon_west_site",
+        "ch9_beacon_east_site"
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "서쪽 봉화",
+        "동쪽 봉화"
+      ],
+      "objective_location_hints": [
+        "수렛골",
+        "수렛골"
+      ]
+    },
+    {
+      "quest_id": "SQ-09-005",
+      "path": "res://data/quests/chapter_nine/sq_09_005.tres",
+      "title": "성문 고정쇠",
+      "offer_text": "성문 고정쇠의 현장 목표를 확인하세요. 가방 물품이나 확률 드롭 없이 현장 통신으로 보고할 수 있습니다.",
+      "prerequisite": "MQ-09-02",
+      "npc_id": "valkren_commander",
+      "accept_npc_id": "valkren_commander",
+      "reward_exp": 198462,
+      "reward_gold": 32160,
+      "reward_reputation": 38,
+      "objective_kinds": [
+        "INTERACT",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "ch9_bolt_west",
+        "ch9_bolt_north"
+      ],
+      "objective_sources": [
+        "ch9_bolt_west_site",
+        "ch9_bolt_north_site"
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "서문 고정쇠",
+        "북문 고정쇠"
+      ],
+      "objective_location_hints": [
+        "발크렌",
+        "발크렌"
+      ]
+    },
+    {
+      "quest_id": "SQ-09-006",
+      "path": "res://data/quests/chapter_nine/sq_09_006.tres",
+      "title": "야전 의무소",
+      "offer_text": "야전 의무소의 현장 목표를 확인하세요. 가방 물품이나 확률 드롭 없이 현장 통신으로 보고할 수 있습니다.",
+      "prerequisite": "MQ-09-02",
+      "npc_id": "valkren_commander",
+      "accept_npc_id": "valkren_commander",
+      "reward_exp": 198462,
+      "reward_gold": 32160,
+      "reward_reputation": 38,
+      "objective_kinds": [
+        "REACH",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "ch9_infirmary",
+        "ch9_medicine"
+      ],
+      "objective_sources": [
+        "ch9_infirmary_site",
+        "ch9_medicine_site"
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "의무소 확인",
+        "의무소 보급 확인"
+      ],
+      "objective_location_hints": [
+        "발크렌",
+        "발크렌"
+      ]
+    },
+    {
+      "quest_id": "SQ-09-007",
+      "path": "res://data/quests/chapter_nine/sq_09_007.tres",
+      "title": "지휘하는 척후",
+      "offer_text": "지휘하는 척후의 현장 목표를 확인하세요. 가방 물품이나 확률 드롭 없이 현장 통신으로 보고할 수 있습니다.",
+      "prerequisite": "MQ-09-02",
+      "npc_id": "valkren_commander",
+      "accept_npc_id": "valkren_commander",
+      "reward_exp": 198462,
+      "reward_gold": 32160,
+      "reward_reputation": 38,
+      "objective_kinds": [
+        "KILL"
+      ],
+      "objective_targets": [
+        "demon_scout"
+      ],
+      "objective_sources": [
+        "old_front_scouts"
+      ],
+      "objective_counts": [
+        2
+      ],
+      "objective_labels": [
+        "악마 척후 처치"
+      ],
+      "objective_location_hints": [
+        "옛 전선"
+      ]
+    },
+    {
+      "quest_id": "SQ-09-008",
+      "path": "res://data/quests/chapter_nine/sq_09_008.tres",
+      "title": "이름 없는 기록",
+      "offer_text": "이름 없는 기록의 현장 목표를 확인하세요. 가방 물품이나 확률 드롭 없이 현장 통신으로 보고할 수 있습니다.",
+      "prerequisite": "MQ-09-02",
+      "npc_id": "valkren_commander",
+      "accept_npc_id": "valkren_commander",
+      "reward_exp": 198462,
+      "reward_gold": 32160,
+      "reward_reputation": 38,
+      "objective_kinds": [
+        "INTERACT",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "ch9_record_west",
+        "ch9_record_east"
+      ],
+      "objective_sources": [
+        "ch9_record_west_site",
+        "ch9_record_east_site"
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "서쪽 전선 기록",
+        "동쪽 전선 기록"
+      ],
+      "objective_location_hints": [
+        "옛 전선",
+        "옛 전선"
+      ]
+    },
+    {
+      "quest_id": "SQ-09-009",
+      "path": "res://data/quests/chapter_nine/sq_09_009.tres",
+      "title": "폐허의 울림",
+      "offer_text": "폐허의 울림의 현장 목표를 확인하세요. 가방 물품이나 확률 드롭 없이 현장 통신으로 보고할 수 있습니다.",
+      "prerequisite": "MQ-09-02",
+      "npc_id": "valkren_commander",
+      "accept_npc_id": "valkren_commander",
+      "reward_exp": 198462,
+      "reward_gold": 32160,
+      "reward_reputation": 38,
+      "objective_kinds": [
+        "KILL"
+      ],
+      "objective_targets": [
+        "ruin_wraith"
+      ],
+      "objective_sources": [
+        "old_front_wraiths"
+      ],
+      "objective_counts": [
+        2
+      ],
+      "objective_labels": [
+        "폐허 망령 처치"
+      ],
+      "objective_location_hints": [
+        "옛 전선"
+      ]
+    },
+    {
+      "quest_id": "SQ-09-010",
+      "path": "res://data/quests/chapter_nine/sq_09_010.tres",
+      "title": "돌아갈 길",
+      "offer_text": "돌아갈 길의 현장 목표를 확인하세요. 가방 물품이나 확률 드롭 없이 현장 통신으로 보고할 수 있습니다.",
+      "prerequisite": "MQ-09-04",
+      "npc_id": "valkren_commander",
+      "accept_npc_id": "valkren_commander",
+      "reward_exp": 198462,
+      "reward_gold": 32160,
+      "reward_reputation": 38,
+      "objective_kinds": [
+        "REACH",
+        "REACH"
+      ],
+      "objective_targets": [
+        "ch9_return_west",
+        "ch9_return_east"
+      ],
+      "objective_sources": [
+        "ch9_return_west_site",
+        "ch9_return_east_site"
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "서쪽 귀환로",
+        "동쪽 귀환로"
+      ],
+      "objective_location_hints": [
+        "수렛골",
+        "수렛골"
+      ]
+    },
+    {
+      "quest_id": "SQ-09-011",
+      "path": "res://data/quests/chapter_nine/sq_09_011.tres",
+      "title": "군인의 파편",
+      "offer_text": "군인의 파편의 현장 목표를 확인하세요. 가방 물품이나 확률 드롭 없이 현장 통신으로 보고할 수 있습니다.",
+      "prerequisite": "MQ-09-04",
+      "npc_id": "valkren_commander",
+      "accept_npc_id": "valkren_commander",
+      "reward_exp": 198462,
+      "reward_gold": 32160,
+      "reward_reputation": 38,
+      "objective_kinds": [
+        "INTERACT",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "ch9_fragment_west",
+        "ch9_fragment_east"
+      ],
+      "objective_sources": [
+        "ch9_fragment_west_site",
+        "ch9_fragment_east_site"
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "서쪽 물증",
+        "동쪽 물증"
+      ],
+      "objective_location_hints": [
+        "균열 전장",
+        "균열 전장"
+      ]
+    },
+    {
+      "quest_id": "SQ-09-012",
+      "path": "res://data/quests/chapter_nine/sq_09_012.tres",
+      "title": "패를 받은 사람",
+      "offer_text": "패를 받은 사람의 현장 목표를 확인하세요. 가방 물품이나 확률 드롭 없이 현장 통신으로 보고할 수 있습니다.",
+      "prerequisite": "MQ-09-04",
+      "npc_id": "valkren_commander",
+      "accept_npc_id": "valkren_commander",
+      "reward_exp": 198462,
+      "reward_gold": 32160,
+      "reward_reputation": 38,
+      "objective_kinds": [
+        "INTERACT",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "ch9_zahel_badge",
+        "ch9_guild_record"
+      ],
+      "objective_sources": [
+        "ch9_zahel_badge_site",
+        "ch9_guild_record_site"
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "자헬의 패 확인",
+        "조합 기록"
+      ],
+      "objective_location_hints": [
+        "발크렌",
+        "발크렌"
+      ]
+    },
+    {
+      "quest_id": "SQ-09-013",
+      "path": "res://data/quests/chapter_nine/sq_09_013.tres",
+      "title": "방어전 장부",
+      "offer_text": "방어전 장부의 현장 목표를 확인하세요. 가방 물품이나 확률 드롭 없이 현장 통신으로 보고할 수 있습니다.",
+      "prerequisite": "MQ-09-04",
+      "npc_id": "valkren_commander",
+      "accept_npc_id": "valkren_commander",
+      "reward_exp": 198464,
+      "reward_gold": 32160,
+      "reward_reputation": 44,
+      "objective_kinds": [
+        "INTERACT",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "ch9_civilian_ledger",
+        "ch9_army_ledger"
+      ],
+      "objective_sources": [
+        "ch9_civilian_ledger_site",
+        "ch9_army_ledger_site"
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "민간 기록 대조",
+        "군 기록 대조"
+      ],
+      "objective_location_hints": [
+        "발크렌",
+        "발크렌"
+      ]
+    }
+  ]
+}

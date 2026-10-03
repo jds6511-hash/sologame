@@ -22,11 +22,11 @@ func check(value: bool, label: String) -> void:
 
 func _run() -> void:
 	var args := OS.get_cmdline_user_args()
-	if args.size() not in [1, 2] or args[0] not in ["cleanup", "seed", "reload", "reload_mid"]:
+	if args.size() not in [1, 2] or args[0] not in ["cleanup", "seed", "reload", "reload_mid", "reload_boss"]:
 		quit(2)
 		return
 	if args.size() == 2:
-		if args[1] not in ["5", "6", "7", "8"]:
+		if args[1] not in ["5", "6", "7", "8", "9"]:
 			quit(2)
 			return
 		chapter = int(args[1])
@@ -44,16 +44,16 @@ func _run() -> void:
 		world.get_node("Player").set_physics_process(false)
 		await process_frame
 		await process_frame
-		if args[0] in ["reload", "reload_mid"]:
+		if args[0] in ["reload", "reload_mid", "reload_boss"]:
 			check(
-				world.get_node("SaveSession").load_slot(2 if args[0] == "reload_mid" else 1).ok,
+				world.get_node("SaveSession").load_slot({"reload": 1, "reload_mid": 2, "reload_boss": 3}[args[0]]).ok,
 				"별도 프로세스 제품 V7 로드"
 			)
 			await refresh()
 			var expected = JSON.parse_string(
 				FileAccess.get_file_as_string(
 					DIRECTORY.path_join(
-						"middle.json" if args[0] == "reload_mid" else "expected.json"
+						{"reload": "expected.json", "reload_mid": "middle.json", "reload_boss": "boss.json"}[args[0]]
 					)
 				)
 			)
@@ -68,6 +68,12 @@ func _run() -> void:
 				var quests: Dictionary = world.get_node("QuestController").journal.export_state()
 				check(quests["MQ-08-04"].state == "completed", "의식 완료 복원")
 				check(quests.has("MQ-08-05") == (args[0] == "reload"), "중간과 완료 저장 경계")
+			if chapter == 9:
+				check_barony()
+				var quests: Dictionary = world.get_node("QuestController").journal.export_state()
+				check(quests["MQ-09-02"].state == "completed", "대피 완료 복원")
+				check(quests.has("MQ-09-04") == (args[0] != "reload_mid"), "보스 전후 저장 경계")
+				check(quests.has("MQ-09-05") == (args[0] == "reload"), "2막 완료 저장 경계")
 			finished = true
 		else:
 			await seed_session()
@@ -152,7 +158,7 @@ func seed_session() -> void:
 			}
 	check(journal.restore_state(states) == "", "이전 장 완료 준비 fixture")
 	world.get_node("Player/PlayerProgression").add_exp(
-		{4: 79291, 5: 283297, 6: 704457, 7: 1806766, 8: 4587988}[chapter]
+		{4: 79291, 5: 283297, 6: 704457, 7: 1806766, 8: 4587988, 9: 8086684}[chapter]
 	)
 	world.get_node("Player/Inventory").add_gold(40000)
 	var ids := []
@@ -169,7 +175,9 @@ func seed_session() -> void:
 			var target: String = definition.objective_targets[index]
 			var source: String = definition.objective_sources[index]
 			var kind: String = definition.objective_kinds[index]
-			if kind == "KILL":
+			if RegionsM7.ENCOUNTERS.has(source):
+				await encounter_fixture(source)
+			elif kind == "KILL":
 				await go_region(RegionsM7.HABITATS[source][0])
 				var victims := world.get_node("MonsterSpawner").get_children()
 				var killed := 0
@@ -224,28 +232,67 @@ func seed_session() -> void:
 			)
 			if id in ["MQ-04-02", "MQ-05-03", "MQ-06-03", "MQ-07-02"] and index == 0:
 				await save_snapshot(2, "middle.json")
-		await go_npc(definition.npc_id)
+		if not journal.catalog.allows_field_report(id):
+			await go_npc(definition.npc_id)
 		var controller = world.get_node("QuestController")
 		var gold: int = world.get_node("Player/Inventory").gold
-		check(controller.report(id, definition.npc_id) == "", "보고 " + id)
+		var reported: String = controller.report_from_journal(id) if journal.catalog.allows_field_report(id) else controller.report(id, definition.npc_id)
+		check(reported == "", "보고 " + id)
 		check(controller.report(id, definition.npc_id) != "", "중복 보고 거부")
 		check(world.get_node("Player/Inventory").gold == gold + definition.reward_gold, "보상 단회 지급")
 		if id == "MQ-08-04":
 			check_barony()
 			await save_snapshot(2, "middle.json")
+		if id == "MQ-09-02":
+			await save_snapshot(2, "middle.json")
+		if id == "MQ-09-04":
+			await save_snapshot(3, "boss.json")
 	check(
 		(
 			world.get_node("QuestController").journal.reputation()
-			== {4: 1950, 5: 3100, 6: 4600, 7: 6700, 8: 7800}[chapter]
+			== {4: 1950, 5: 3100, 6: 4600, 7: 6700, 8: 7800, 9: 9200}[chapter]
 		),
 		"장 기준 공훈 합계"
 	)
-	if chapter == 8:
+	if chapter >= 8:
 		await barony_session()
 	else:
 		await territory_session()
 	await save_snapshot(1, "expected.json")
 	finished = true
+
+
+func encounter_fixture(source: String) -> void:
+	var data: Dictionary = RegionsM7.ENCOUNTERS[source]
+	await go_region(data.region)
+	# API 전용 준비: 자연 몬스터 처치로 전장 정원을 확보한다. 정상 입력 증거가 아니다.
+	for monster in world.get_node("MonsterSpawner").get_children():
+		if monster.has_method("is_dead") and not monster.is_dead():
+			monster.take_damage(100000.0, "강", world.get_node("Player"))
+	await process_frame
+	await process_frame
+	var player = world.get_node("Player")
+	player.position = data.position
+	var encounter = world.get_node("EncounterController")
+	check(encounter.resume(source), "전장 정상 재개 " + source)
+	check(world.get_node("SaveSession").save_slot(1).code == "encounter_active", "진행 중 전장 저장 차단")
+	if DisplayServer.get_name() != "headless":
+		if data.kind == "boss":
+			# 예고 화면 기록용 위치/패턴 fixture. 실제 공격 검증은 GUT에 별도 존재한다.
+			player.position = data.points[0] + Vector2(0, 80)
+			for monster in encounter.targets():
+				if monster.has_method("begin_pattern"):
+					monster.begin_pattern("cone")
+		await capture(source + "-active")
+	for monster in world.get_node("MonsterSpawner").get_children():
+		if monster.has_method("is_dead") and not monster.is_dead():
+			monster.take_damage(100000.0, "강", player)
+	await process_frame
+	await process_frame
+	if data.kind == "evacuation":
+		encounter.advance(8.1) # 대피 경과 시간 fixture.
+	check(not encounter.active, "전장 목표 완료 " + source)
+	await capture(source)
 
 
 func capture(label: String) -> void:
@@ -345,7 +392,7 @@ func check_barony() -> void:
 	check(data.representative == "jaetgol", "대표 영지 잿골")
 	check(data.holdings.keys().size() == 2, "두 소유 영지 보존")
 	check(data.holdings.has("yeoulmok") and data.holdings.has("jaetgol"), "여울목과 잿골 보존")
-	check(snapshot().content_revision == 7, "제품 콘텐츠 개정7")
+	check(snapshot().content_revision == RegionsM7.CURRENT_REVISION, "제품 콘텐츠 개정")
 
 
 func barony_session() -> void:

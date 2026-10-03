@@ -6,13 +6,28 @@ var slots: Array[Dictionary] = []
 
 func start(owner_world: Node2D) -> void:
 	world = owner_world
+	var encounter := world.get_node_or_null("EncounterController")
+	var groups := []
+	var longest := 0
 	for source in Content.HABITATS:
 		if Content.HABITATS[source][0] != world.map_id:
 			continue
+		var group := []
 		for point in Content.HABITATS[source][1]:
 			var slot := {"point": point, "source": source, "monster": null, "wait": 0.0}
-			slots.append(slot)
-			_spawn(slot)
+			if encounter == null:
+				slots.append(slot)
+				_spawn(slot)
+			else:
+				group.append(slot)
+		groups.append(group)
+		longest = maxi(longest, group.size())
+	# 공유 정원이 있는 전장은 한 서식지가 초기 정원을 독점하지 않는다.
+	for index in longest:
+		for group in groups:
+			if index < group.size():
+				slots.append(group[index])
+				_spawn(group[index])
 
 
 func _process(delta: float) -> void:
@@ -34,6 +49,9 @@ func _process(delta: float) -> void:
 
 
 func _spawn(slot: Dictionary) -> void:
+	var encounter := world.get_node_or_null("EncounterController")
+	if encounter != null and (encounter.active or encounter._capacity() <= 0):
+		return
 	var dog: bool = Content.HABITATS[slot.source][3] == "feral_dog"
 	var scene: String = Content.HABITATS[slot.source][2]
 	var monster: MonsterBase = load("res://scenes/monsters/%s.tscn" % scene).instantiate()

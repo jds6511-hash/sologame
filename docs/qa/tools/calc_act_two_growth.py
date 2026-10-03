@@ -54,7 +54,7 @@ def reached(total):
     return sum(total >= threshold for threshold in THRESHOLDS)
 
 
-def kill_exp(mob_level, total, profile=None, night=1.0):
+def kill_exp(mob_level, total, profile=None, night=1.0, grade=1.0):
     delta = mob_level - reached(total)
     if delta >= scalar(diff, "up_cap_diff"):
         mult = scalar(diff, "up_cap_mult")
@@ -69,12 +69,12 @@ def kill_exp(mob_level, total, profile=None, night=1.0):
         if over >= len(profile['overlevel_factors']):
             return 1
         base = profile['base_exp'] * profile['overlevel_factors'][over]
-    return max(1, half_up(base * mult * night))
+    return max(1, half_up(base * mult * night * grade))
 
 
 chapters = {
     number: json.loads(read(f"godot/data/content/chapter_{name}.json"))
-    for number, name in [(4, "four"), (5, "five"), (6, "six"), (7, "seven"), (8, "eight")]
+    for number, name in [(4, "four"), (5, "five"), (6, "six"), (7, "seven"), (8, "eight"), (9, "nine")]
 }
 
 
@@ -86,7 +86,7 @@ def model(main_only=False, profiles=False, encounters=False):
         kills = report = count = 0
         profile = data['constants']['EXP_PROFILES'][str(chapter)] if profiles else None
         extra = profile['encounter_kills'] if encounters else 0
-        levels = [v['level'] for v in data['constants']['MONSTER_VARIANTS'].values()]
+        levels = [v['level'] for key, v in data['constants']['MONSTER_VARIANTS'].items() if key != 'warlord']
         extra_index = 0
         for qi, quest in enumerate(data["quests"]):
             if main_only and not quest["quest_id"].startswith("MQ-"):
@@ -99,11 +99,10 @@ def model(main_only=False, profiles=False, encounters=False):
                 level = data["constants"]["MONSTER_VARIANTS"][target]["level"]
                 drop = read(f"godot/data/drops/{target}_drop_table.tres")
                 assert int(scalar(drop, "monster_level")) == level
-                # 대상은 일반 등급이다. 정예/보스는 이 산술에 포함하지 않는다.
                 tier = re.search(r"^tier = (\d+)$", drop, re.M)
-                assert tier is None or int(tier[1]) == 0
+                grade = [1.0, scalar(curve, 'elite_multiplier'), scalar(curve, 'boss_multiplier')][int(tier[1]) if tier else 0]
                 for _ in range(amount):
-                    gained = kill_exp(level, total, profile)
+                    gained = kill_exp(level, total, profile, grade=grade)
                     total += gained
                     kills += gained
                     count += 1
@@ -152,10 +151,10 @@ for row in expected:
         slots[region] = slots.get(region, 0) + len(points)
     max_kills = max(slots.values()) * (1 + 3600 // profile['respawn_seconds'])
     total = row['total']
-    mob_level = max(v['level'] for v in data['MONSTER_VARIANTS'].values())
+    mob_level = max(v['level'] for key, v in data['MONSTER_VARIANTS'].items() if key != 'warlord')
     for _ in range(max_kills):
         total += kill_exp(mob_level, total, profile, night=scalar(curve, 'night_exp_multiplier'))
-    next_entry = {4:22, 5:30, 6:39, 7:50, 8:60}[number]
+    next_entry = {4:22, 5:30, 6:39, 7:50, 8:60, 9:72}[number]
     farms.append(dict(chapter=number, max_kills=max_kills, total=total, level=reached(total),
                       next_entry=next_entry, within_two_levels=reached(total)<=next_entry+2))
 gate_rows = []

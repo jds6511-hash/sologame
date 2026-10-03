@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "SQ-09-011"
+title = "군인의 파편"
+offer_text = "군인의 파편의 현장 목표를 확인하세요. 가방 물품이나 확률 드롭 없이 현장 통신으로 보고할 수 있습니다."
+prerequisite = "MQ-09-04"
+npc_id = "valkren_commander"
+accept_npc_id = "valkren_commander"
+reward_exp = 198462
+reward_gold = 32160
+reward_reputation = 38
+objective_kinds = Array[String](["INTERACT", "INTERACT"])
+objective_targets = Array[String](["ch9_fragment_west", "ch9_fragment_east"])
+objective_sources = Array[String](["ch9_fragment_west_site", "ch9_fragment_east_site"])
+objective_counts = Array[int]([1, 1])
+objective_labels = Array[String](["서쪽 물증", "동쪽 물증"])
+objective_location_hints = Array[String](["균열 전장", "균열 전장"])

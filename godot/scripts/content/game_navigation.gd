@@ -12,6 +12,8 @@ static func targets(world: Node) -> Array:
 		ids.erase(selected_id)
 		ids.push_front(selected_id)
 	if ids.is_empty():
+		if states.get("MQ-09-05", {}).get("state", "") == "completed":
+			return []
 		return _project(
 			world, "novera_commons", [Content.NPCS["novera_examiner"][1]], "1막 완료 · 여울목 복구권"
 		)
@@ -29,6 +31,9 @@ static func targets(world: Node) -> Array:
 		var target: String = definition.objective_targets[index]
 		var source: String = definition.objective_sources[index]
 		var label: String = definition.objective_labels[index]
+		if Content.ENCOUNTERS.has(source):
+			var encounter: Dictionary = Content.ENCOUNTERS[source]
+			return _project(world, encounter.region, [encounter.position], "방어 시작 / 재개 [F] · " + label)
 		if Content.TRIAL_TARGETS.has(source):
 			var points := []
 			if world.has_node("JobTrialManager"):

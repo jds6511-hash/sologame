@@ -80,6 +80,21 @@ func test_revision_one_keeps_progress_and_defense_remains_locked() -> void:
 	assert_eq(conversion.validate(data, account), "quest_prerequisite")
 
 
+func test_previous_revisions_reject_chapter_nine_ids_and_regions() -> void:
+	var conversion = load(CONVERSION_PATH).new()
+	for revision in range(1, 8):
+		var data: Dictionary = conversion.upgrade(_old(), account).data
+		data.content_revision = revision
+		data.world.map_id = "valkren"
+		assert_eq(conversion.validate(data, account), "unknown_map", "개정%d 지역 동결" % revision)
+		data.world.map_id = "eastern_frontier_start"
+		data.progress.quests["MQ-09-01"] = {"state": "active", "counts": [0, 0]}
+		assert_eq(conversion.validate(data, account), "unknown_quest", "개정%d 의뢰 동결" % revision)
+	var current: Dictionary = conversion.upgrade(_old(), account).data
+	current.world.map_id = "valkren_rift"
+	assert_eq(conversion.validate(current, account), "region_locked", "현재 개정도 군후 전장 잠금 유지")
+
+
 func _complete(data: Dictionary, catalog: QuestCatalog, ids: Array) -> void:
 	for id in ids:
 		data.progress.quests[id] = {

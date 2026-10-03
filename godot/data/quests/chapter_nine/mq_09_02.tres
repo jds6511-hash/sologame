@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "MQ-09-02"
+title = "성문 안의 사람들"
+offer_text = "대피 표식에서 F로 시작해 표시 원 안에서 8초를 확보하세요. 피격은 잠시 진행을 멈춥니다. 이탈·사망 시 미완료 구역은 다시 시작합니다."
+prerequisite = "MQ-09-01"
+npc_id = "valkren_commander"
+accept_npc_id = "valkren_commander"
+reward_exp = 700000
+reward_gold = 65000
+reward_reputation = 150
+objective_kinds = Array[String](["INTERACT", "INTERACT"])
+objective_targets = Array[String](["valkren_evac_west", "valkren_evac_east"])
+objective_sources = Array[String](["valkren_evac_west", "valkren_evac_east"])
+objective_counts = Array[int]([1, 1])
+objective_labels = Array[String](["서쪽 대피 구역 확보", "동쪽 대피 구역 확보"])
+objective_location_hints = Array[String](["발크렌", "발크렌"])

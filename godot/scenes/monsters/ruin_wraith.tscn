@@ -1,0 +1,10 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/monsters/imp.tscn" id="1"]
+[ext_resource type="Script" path="res://scripts/ai/ruin_wraith_monster.gd" id="2"]
+[ext_resource type="Resource" path="res://data/monsters/chapter_nine/ruin_wraith.tres" id="3"]
+
+[node name="RuinWraith" instance=ExtResource("1")]
+script = ExtResource("2")
+stats = ExtResource("3")
+modulate = Color(0.65, 0.7, 1, 0.85)

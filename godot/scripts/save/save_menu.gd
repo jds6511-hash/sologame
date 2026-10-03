@@ -225,6 +225,7 @@ func _show_status(message: String) -> void:
 		var short: String = (
 			{
 				"enemy_nearby": "주변 개체",
+				"encounter_active": "방어전 진행 중",
 				"boss_encounter": "보스전",
 				"moving": "이동 중",
 				"recent_combat": "전투 직후",
@@ -293,6 +294,7 @@ static func error_text(code: String) -> String:
 			"unsupported_transfer_history": "지원하지 않는 거래 기록입니다.",
 			"quest_content_error": "의뢰 콘텐츠 오류로 저장·불러오기를 중단했습니다. 게임 데이터 확인이 필요합니다.",
 			"reward_busy": "의뢰 보상을 지급 중입니다. 잠시 후 다시 시도하세요.",
+			"encounter_active": "방어전 진행 중에는 저장할 수 없습니다. 구역을 완료하거나 현장에서 나온 뒤 저장하세요.",
 			"position_outside_map": "저장 위치가 현재 지도 밖입니다.",
 			"unsupported_world": "이 지역의 저장 연결을 확인할 수 없습니다.",
 			"session_blocked": "현재 상태에서는 캐릭터를 바꿀 수 없습니다."

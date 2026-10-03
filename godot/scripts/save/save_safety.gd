@@ -9,6 +9,9 @@ static func blocked_reason(world: Node) -> String:
 	var quests := world.get_node_or_null("QuestController") as QuestController
 	if quests != null and quests.is_reward_busy():
 		return "reward_busy"
+	var encounter := world.get_node_or_null("EncounterController")
+	if encounter != null and bool(encounter.get("active")):
+		return "encounter_active"
 	var player := world.get_node_or_null("Player") as PlayerController
 	var spawner := world.get_node_or_null("MonsterSpawner")
 	if player == null or spawner == null:

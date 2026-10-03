@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "MQ-09-01"
+title = "전선에 닿은 보급"
+offer_text = "수렛골 운송 기록을 확인하고 발크렌 지휘소에 도착하세요. 현장 통신으로 보고할 수 있습니다."
+prerequisite = "MQ-08-05"
+npc_id = "valkren_commander"
+accept_npc_id = "valkren_commander"
+reward_exp = 600000
+reward_gold = 60000
+reward_reputation = 100
+objective_kinds = Array[String](["INTERACT", "REACH"])
+objective_targets = Array[String](["suretgul_transport", "valkren_command"])
+objective_sources = Array[String](["suretgul_transport_site", "valkren_command_site"])
+objective_counts = Array[int]([1, 1])
+objective_labels = Array[String](["수렛골 운송 기록", "발크렌 지휘소 도착"])
+objective_location_hints = Array[String](["수렛골", "발크렌"])

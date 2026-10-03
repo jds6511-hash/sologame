@@ -1,7 +1,7 @@
 extends RefCounted
 # gdlint: disable=max-file-lines
 ## 자동 생성: tools/generate_chapter_content.py · 원본 godot/data/content/*.json
-const CURRENT_REVISION := 7
+const CURRENT_REVISION := 8
 const BGM_CONTEXTS := {
 	"eastern_frontier_start": "res://scenes/world/eastern_frontier_starting_area.tscn",
 	"novera_gate": "res://scenes/world/novera_gate.tscn",
@@ -30,6 +30,10 @@ const BGM_CONTEXTS := {
 	"oranse": "res://scenes/world/novera_gate.tscn",
 	"jaetgol_approach": "res://scenes/world/novera_gate.tscn",
 	"jaetgol": "res://scenes/world/novera_gate.tscn",
+	"suretgul": "res://scenes/world/novera_gate.tscn",
+	"valkren": "res://scenes/world/novera_gate.tscn",
+	"old_front": "res://scenes/world/novera_gate.tscn",
+	"valkren_rift": "res://scenes/world/novera_gate.tscn",
 }
 const SCENES := {
 	"eastern_frontier_start": "res://scenes/world/product_world.tscn",
@@ -59,6 +63,10 @@ const SCENES := {
 	"oranse": "res://scenes/world/product_world.tscn",
 	"jaetgol_approach": "res://scenes/world/product_world.tscn",
 	"jaetgol": "res://scenes/world/product_world.tscn",
+	"suretgul": "res://scenes/world/product_world.tscn",
+	"valkren": "res://scenes/world/product_world.tscn",
+	"old_front": "res://scenes/world/product_world.tscn",
+	"valkren_rift": "res://scenes/world/product_world.tscn",
 }
 const NAMES := {
 	"eastern_frontier_start": "여울목",
@@ -88,6 +96,10 @@ const NAMES := {
 	"oranse": "오란세 성역",
 	"jaetgol_approach": "잿골 접근로",
 	"jaetgol": "잿골 마을",
+	"suretgul": "수렛골",
+	"valkren": "발크렌",
+	"old_front": "옛 전선",
+	"valkren_rift": "균열 전장",
 }
 const BOUNDS := {
 	"eastern_frontier_start": Rect2(0, 0, 768, 576),
@@ -117,6 +129,10 @@ const BOUNDS := {
 	"oranse": Rect2(0, 0, 1280, 1024),
 	"jaetgol_approach": Rect2(0, 0, 1664, 896),
 	"jaetgol": Rect2(0, 0, 1408, 1152),
+	"suretgul": Rect2(0, 0, 1536, 896),
+	"valkren": Rect2(0, 0, 1536, 1024),
+	"old_front": Rect2(0, 0, 1792, 1024),
+	"valkren_rift": Rect2(0, 0, 1152, 896),
 }
 const EDGES := {
 	"yeoulmok_gatewarden":
@@ -451,6 +467,40 @@ const EDGES := {
 		Vector2(1472, 480),
 		"jaetgol_approach_to_jaetgol",
 	],
+	"jaetgol_to_suretgul":
+	["jaetgol", "suretgul", Vector2(1328, 768), Vector2(160, 704), "suretgul_to_jaetgol"],
+	"suretgul_to_jaetgol":
+	["suretgul", "jaetgol", Vector2(96, 704), Vector2(1264, 768), "jaetgol_to_suretgul"],
+	"suretgul_to_valkren":
+	["suretgul", "valkren", Vector2(1440, 448), Vector2(160, 640), "valkren_to_suretgul"],
+	"valkren_to_suretgul":
+	["valkren", "suretgul", Vector2(96, 640), Vector2(1376, 448), "suretgul_to_valkren"],
+	"valkren_to_old_front":
+	["valkren", "old_front", Vector2(768, 96), Vector2(896, 864), "old_front_to_valkren"],
+	"old_front_to_valkren":
+	[
+		"old_front",
+		"valkren",
+		Vector2(896, 928),
+		Vector2(768, 160),
+		"valkren_to_old_front",
+	],
+	"old_front_to_valkren_rift":
+	[
+		"old_front",
+		"valkren_rift",
+		Vector2(1696, 448),
+		Vector2(160, 448),
+		"valkren_rift_to_old_front",
+	],
+	"valkren_rift_to_old_front":
+	[
+		"valkren_rift",
+		"old_front",
+		Vector2(96, 448),
+		Vector2(1632, 448),
+		"old_front_to_valkren_rift",
+	],
 }
 const QUESTS := {
 	"MQ-01-01": "res://data/quests/mq_01_01.tres",
@@ -548,6 +598,24 @@ const QUESTS := {
 	"SQ-08-010": "res://data/quests/chapter_eight/sq_08_010.tres",
 	"SQ-08-011": "res://data/quests/chapter_eight/sq_08_011.tres",
 	"SQ-08-012": "res://data/quests/chapter_eight/sq_08_012.tres",
+	"MQ-09-01": "res://data/quests/chapter_nine/mq_09_01.tres",
+	"MQ-09-02": "res://data/quests/chapter_nine/mq_09_02.tres",
+	"MQ-09-03": "res://data/quests/chapter_nine/mq_09_03.tres",
+	"MQ-09-04": "res://data/quests/chapter_nine/mq_09_04.tres",
+	"MQ-09-05": "res://data/quests/chapter_nine/mq_09_05.tres",
+	"SQ-09-001": "res://data/quests/chapter_nine/sq_09_001.tres",
+	"SQ-09-002": "res://data/quests/chapter_nine/sq_09_002.tres",
+	"SQ-09-003": "res://data/quests/chapter_nine/sq_09_003.tres",
+	"SQ-09-004": "res://data/quests/chapter_nine/sq_09_004.tres",
+	"SQ-09-005": "res://data/quests/chapter_nine/sq_09_005.tres",
+	"SQ-09-006": "res://data/quests/chapter_nine/sq_09_006.tres",
+	"SQ-09-007": "res://data/quests/chapter_nine/sq_09_007.tres",
+	"SQ-09-008": "res://data/quests/chapter_nine/sq_09_008.tres",
+	"SQ-09-009": "res://data/quests/chapter_nine/sq_09_009.tres",
+	"SQ-09-010": "res://data/quests/chapter_nine/sq_09_010.tres",
+	"SQ-09-011": "res://data/quests/chapter_nine/sq_09_011.tres",
+	"SQ-09-012": "res://data/quests/chapter_nine/sq_09_012.tres",
+	"SQ-09-013": "res://data/quests/chapter_nine/sq_09_013.tres",
 }
 const NPCS := {
 	"yeoulmok_receptionist": ["eastern_frontier_start", Vector2(152, 440), "접수원"],
@@ -587,6 +655,7 @@ const NPCS := {
 	"oranse_healer": ["oranse", Vector2(448, 432), "오란세 치유사"],
 	"oranse_pilgrim": ["oranse", Vector2(832, 624), "성역 순례자"],
 	"jaetgol_steward": ["jaetgol", Vector2(576, 432), "잿골 인계 담당관"],
+	"valkren_commander": ["valkren", Vector2(768, 640), "발크렌 지휘관"],
 }
 const MERCHANTS := {
 	"novera_gate": [Vector2(216, 440)],
@@ -626,6 +695,10 @@ const REGION_REQUIREMENTS := {
 	"oranse": "MQ-08-01",
 	"jaetgol_approach": "MQ-08-04",
 	"jaetgol": "MQ-08-04",
+	"suretgul": "MQ-08-05",
+	"valkren": "MQ-08-05",
+	"old_front": "MQ-09-01",
+	"valkren_rift": "MQ-09-03",
 }
 const SITES := {
 	"yeoulmok_old_rift_entrance":
@@ -989,6 +1062,48 @@ const SITES := {
 		"성벽 아래 오래된 강하 흔적 조사",
 		"pilgrimage_path",
 	],
+	"suretgul_transport":
+	[Vector2(512, 576), "suretgul_transport_site", "INTERACT", "수렛골 운송 기록", "suretgul"],
+	"valkren_command":
+	[Vector2(768, 736), "valkren_command_site", "REACH", "발크렌 지휘소 도착", "valkren"],
+	"durim_barricade":
+	[Vector2(768, 736), "durim_barricade_site", "INTERACT", "두림의 방벽 장치", "old_front"],
+	"ilien_resonance":
+	[Vector2(768, 640), "ilien_resonance_site", "INTERACT", "일리엔 감응 표식", "old_front"],
+	"valkren_rift_arrival":
+	[Vector2(192, 448), "valkren_rift_arrival_site", "REACH", "균열 전장 도착", "valkren_rift"],
+	"zahel_testimony": [Vector2(944, 736), "zahel_testimony_site", "INTERACT", "자헬 증언", "valkren"],
+	"valkren_evidence":
+	[Vector2(832, 576), "valkren_evidence_site", "INTERACT", "현장 물증", "valkren_rift"],
+	"ch9_axle_west": [Vector2(384, 320), "ch9_axle_west_site", "INTERACT", "운송 흔적 서쪽", "suretgul"],
+	"ch9_axle_east": [Vector2(640, 320), "ch9_axle_east_site", "INTERACT", "운송 흔적 동쪽", "suretgul"],
+	"ch9_shelter": [Vector2(384, 672), "ch9_shelter_site", "REACH", "대피소 확인", "suretgul"],
+	"ch9_residents": [Vector2(448, 672), "ch9_residents_site", "INTERACT", "주민 명부", "suretgul"],
+	"ch9_beacon_west": [Vector2(256, 192), "ch9_beacon_west_site", "INTERACT", "서쪽 봉화", "suretgul"],
+	"ch9_beacon_east":
+	[Vector2(1312, 192), "ch9_beacon_east_site", "INTERACT", "동쪽 봉화", "suretgul"],
+	"ch9_bolt_west": [Vector2(256, 704), "ch9_bolt_west_site", "INTERACT", "서문 고정쇠", "valkren"],
+	"ch9_bolt_north": [Vector2(864, 224), "ch9_bolt_north_site", "INTERACT", "북문 고정쇠", "valkren"],
+	"ch9_infirmary": [Vector2(1200, 736), "ch9_infirmary_site", "REACH", "의무소 확인", "valkren"],
+	"ch9_medicine": [Vector2(1264, 736), "ch9_medicine_site", "INTERACT", "의무소 보급 확인", "valkren"],
+	"ch9_record_west":
+	[Vector2(320, 544), "ch9_record_west_site", "INTERACT", "서쪽 전선 기록", "old_front"],
+	"ch9_record_east":
+	[Vector2(1312, 832), "ch9_record_east_site", "INTERACT", "동쪽 전선 기록", "old_front"],
+	"ch9_return_west": [Vector2(256, 736), "ch9_return_west_site", "REACH", "서쪽 귀환로", "suretgul"],
+	"ch9_return_east": [Vector2(1344, 512), "ch9_return_east_site", "REACH", "동쪽 귀환로", "suretgul"],
+	"ch9_fragment_west":
+	[Vector2(512, 704), "ch9_fragment_west_site", "INTERACT", "서쪽 물증", "valkren_rift"],
+	"ch9_fragment_east":
+	[Vector2(832, 704), "ch9_fragment_east_site", "INTERACT", "동쪽 물증", "valkren_rift"],
+	"ch9_zahel_badge":
+	[Vector2(1008, 736), "ch9_zahel_badge_site", "INTERACT", "자헬의 패 확인", "valkren"],
+	"ch9_guild_record":
+	[Vector2(944, 832), "ch9_guild_record_site", "INTERACT", "조합 기록", "valkren"],
+	"ch9_civilian_ledger":
+	[Vector2(576, 800), "ch9_civilian_ledger_site", "INTERACT", "민간 기록 대조", "valkren"],
+	"ch9_army_ledger":
+	[Vector2(704, 800), "ch9_army_ledger_site", "INTERACT", "군 기록 대조", "valkren"],
 }
 const MARKER_HABITATS := {
 	"yeoulmok_rabbit_habitat": ["eastern_frontier_start", "Markers/MonsterSpawns_뿔토끼"],
@@ -1144,6 +1259,27 @@ const HABITATS := {
 		"forest_spider",
 		"stone_gargoyle",
 	],
+	"suretgul_ogres":
+	[
+		"suretgul",
+		[Vector2(800, 256), Vector2(1088, 256), Vector2(1248, 672)],
+		"wolf",
+		"ogre",
+	],
+	"old_front_scouts":
+	[
+		"old_front",
+		[Vector2(480, 288), Vector2(640, 288), Vector2(480, 672)],
+		"poacher",
+		"demon_scout",
+	],
+	"old_front_wraiths":
+	[
+		"old_front",
+		[Vector2(1280, 256), Vector2(1440, 256), Vector2(1408, 704)],
+		"ruin_wraith",
+		"ruin_wraith",
+	],
 }
 const MARKER_CONTENT_IDS := {
 	"yeoulmok_rabbit_habitat": "horned_rabbit",
@@ -1185,6 +1321,23 @@ const FIELD_REPORTS := {
 	"SQ-06-008": true,
 	"SQ-06-009": true,
 	"SQ-06-010": true,
+	"MQ-09-01": true,
+	"MQ-09-02": true,
+	"MQ-09-03": true,
+	"MQ-09-04": true,
+	"SQ-09-001": true,
+	"SQ-09-002": true,
+	"SQ-09-003": true,
+	"SQ-09-004": true,
+	"SQ-09-005": true,
+	"SQ-09-006": true,
+	"SQ-09-007": true,
+	"SQ-09-008": true,
+	"SQ-09-009": true,
+	"SQ-09-010": true,
+	"SQ-09-011": true,
+	"SQ-09-012": true,
+	"SQ-09-013": true,
 }
 const DEFENSE_WAVES := {
 	"yeoulmok_defense_wave_1":
@@ -1257,6 +1410,10 @@ const SITE_NOTICES := {
 	"jaetgol_workshop_plan": "공방 예정지와 주민 우물을 구분했다. 점검은 유료 공방 건설을 요구하지 않는다.",
 	"jaetgol_repair": "무너진 길의 잔해와 복구 표식을 비교했다. 주민의 일상 동선이 이어진다.",
 	"pilgrimage_gargoyle_trace": "순례길에는 전투가 없다. 비어 있는 석상 받침과 오래된 강하 자국을 조사해 안전한 통행 구간을 기록한다.",
+	"durim_barricade": "두림이 장치 뒤 안전 통로를 가리킨다. 안내 그림은 피해를 차단하는 물리 방벽이 아니다.",
+	"ilien_resonance": "일리엔의 감응이 군후 돌진의 예고를 0.25초 앞서 전한다.",
+	"zahel_testimony": "동료들의 보증으로 자헬에게 패가 발급됐다. 자헬은 자신이 본 침공 경로를 기록한다.",
+	"valkren_evidence": "침공은 자연 발생이 아니었다. 남은 물증을 봉인한다. 가레스는 대열에서 이탈했다.",
 }
 const LAYOUTS := {
 	"yeoulmok_defense":
@@ -1695,6 +1852,54 @@ const LAYOUTS := {
 			},
 		],
 	},
+	"suretgul":
+	{
+		"spawn": Vector2(160, 704),
+		"floor": Vector2i(0, 0),
+		"patches":
+		[
+			{
+				"rect": Rect2(6, 26, 84, 6),
+				"tile": Vector2i(2, 0),
+			},
+		],
+	},
+	"valkren":
+	{
+		"spawn": Vector2(160, 640),
+		"floor": Vector2i(0, 0),
+		"patches":
+		[
+			{
+				"rect": Rect2(6, 26, 84, 6),
+				"tile": Vector2i(2, 0),
+			},
+		],
+	},
+	"old_front":
+	{
+		"spawn": Vector2(896, 864),
+		"floor": Vector2i(0, 0),
+		"patches":
+		[
+			{
+				"rect": Rect2(6, 26, 100, 6),
+				"tile": Vector2i(2, 0),
+			},
+		],
+	},
+	"valkren_rift":
+	{
+		"spawn": Vector2(160, 448),
+		"floor": Vector2i(0, 0),
+		"patches":
+		[
+			{
+				"rect": Rect2(6, 26, 60, 6),
+				"tile": Vector2i(2, 0),
+			},
+		],
+	},
 }
 const QUEST_REQUIREMENTS := {
 	"MQ-03-01":
@@ -1842,6 +2047,34 @@ const MONSTER_VARIANTS := {
 		"stats": "res://data/monsters/chapter_eight/rift_hound.tres",
 		"level": 56,
 	},
+	"demon_scout":
+	{
+		"title": "악마 척후",
+		"scene": "poacher",
+		"stats": "res://data/monsters/chapter_nine/demon_scout.tres",
+		"level": 62,
+	},
+	"ogre":
+	{
+		"title": "오우거",
+		"scene": "wolf",
+		"stats": "res://data/monsters/chapter_nine/ogre.tres",
+		"level": 65,
+	},
+	"ruin_wraith":
+	{
+		"title": "폐허 망령",
+		"scene": "ruin_wraith",
+		"stats": "res://data/monsters/chapter_nine/ruin_wraith.tres",
+		"level": 66,
+	},
+	"warlord":
+	{
+		"title": "군후",
+		"scene": "warlord",
+		"stats": "res://data/monsters/warlord_stats.tres",
+		"level": 68,
+	},
 }
 const WARP_ARRIVALS := {
 	"novera_commons": Vector2(128, 384),
@@ -1853,6 +2086,7 @@ const WARP_ARRIVALS := {
 	"misran": Vector2(176, 512),
 	"durgan": Vector2(176, 640),
 	"jaetgol": Vector2(320, 536),
+	"valkren": Vector2(320, 640),
 }
 const EXP_PROFILES := {
 	"4":
@@ -1905,6 +2139,17 @@ const EXP_PROFILES := {
 		"overlevel_factors": [1, 0.5, 0.25],
 		"respawn_seconds": 90,
 	},
+	"9":
+	{
+		"expected_kills": 150,
+		"objective_kills": 10,
+		"encounter_kills": 140,
+		"weighted_kills": 189,
+		"budget": 2764294,
+		"base_exp": 14626,
+		"overlevel_factors": [1, 0.5, 0.25],
+		"respawn_seconds": 90,
+	},
 }
 const MONSTER_EXP_PROFILES := {
 	"wild_boar": "4",
@@ -1924,6 +2169,10 @@ const MONSTER_EXP_PROFILES := {
 	"ice_spirit": "7",
 	"stone_gargoyle": "8",
 	"rift_hound": "8",
+	"demon_scout": "9",
+	"ogre": "9",
+	"ruin_wraith": "9",
+	"warlord": "9",
 }
 const TRIAL_TARGETS := {
 	"trial_war_heavy":
@@ -1960,6 +2209,109 @@ const TRIAL_TARGETS := {
 		"index": 2,
 		"target": "trial_target",
 		"region": "durgan_training",
+	},
+}
+const ENCOUNTERS := {
+	"valkren_evac_west":
+	{
+		"kind": "evacuation",
+		"region": "valkren",
+		"quest_id": "MQ-09-02",
+		"index": 0,
+		"target": "valkren_evac_west",
+		"position": Vector2(448, 448),
+		"points": [Vector2(320, 320), Vector2(576, 320)],
+		"title": "서쪽 대피 구역 확보",
+		"scene": "poacher",
+		"stats": "res://data/monsters/chapter_nine/demon_scout.tres",
+		"content_id": "demon_scout",
+		"max_active": 4,
+		"duration": 8.0,
+		"radius": 48.0,
+		"outside_reset": 0.5,
+		"hit_pause": 0.5,
+	},
+	"valkren_evac_east":
+	{
+		"kind": "evacuation",
+		"region": "valkren",
+		"quest_id": "MQ-09-02",
+		"index": 1,
+		"target": "valkren_evac_east",
+		"position": Vector2(1088, 448),
+		"points": [Vector2(960, 320), Vector2(1216, 320)],
+		"title": "동쪽 대피 구역 확보",
+		"scene": "poacher",
+		"stats": "res://data/monsters/chapter_nine/demon_scout.tres",
+		"content_id": "demon_scout",
+		"max_active": 4,
+		"duration": 8.0,
+		"radius": 48.0,
+		"outside_reset": 0.5,
+		"hit_pause": 0.5,
+	},
+	"old_front_organized_scouts":
+	{
+		"kind": "wave",
+		"region": "old_front",
+		"quest_id": "MQ-09-03",
+		"index": 2,
+		"target": "demon_scout",
+		"position": Vector2(768, 512),
+		"points": [Vector2(960, 400), Vector2(1088, 512), Vector2(960, 624)],
+		"title": "조직된 척후 저지",
+		"scene": "poacher",
+		"stats": "res://data/monsters/chapter_nine/demon_scout.tres",
+		"content_id": "demon_scout",
+		"max_active": 4,
+	},
+	"valkren_warlord":
+	{
+		"kind": "boss",
+		"region": "valkren_rift",
+		"quest_id": "MQ-09-04",
+		"index": 1,
+		"target": "warlord",
+		"position": Vector2(256, 448),
+		"points": [Vector2(640, 448)],
+		"title": "군후 소집",
+		"scene": "warlord",
+		"stats": "res://data/monsters/warlord_stats.tres",
+		"content_id": "warlord",
+		"max_active": 4,
+	},
+}
+const BOSS_PATTERNS := {
+	"warlord":
+	{
+		"slash":
+		{
+			"radius": 64.0,
+			"arc_degrees": 100.0,
+			"telegraph": 0.9,
+			"active": 0.12,
+			"recovery": 0.9,
+			"damage_multiplier": 1.0,
+		},
+		"dash":
+		{
+			"length": 160.0,
+			"width": 24.0,
+			"telegraph": 0.9,
+			"support_bonus": 0.25,
+			"speed": 160.0,
+			"recovery": 1.1,
+			"damage_multiplier": 1.2,
+		},
+		"shockwave":
+		{
+			"radius": 96.0,
+			"telegraph": 1.2,
+			"active": 0.12,
+			"recovery": 1.2,
+			"damage_multiplier": 1.25,
+		},
+		"transition_recovery": 0.8,
 	},
 }
 const QUEST_REVISIONS := {
@@ -2058,6 +2410,24 @@ const QUEST_REVISIONS := {
 	"SQ-08-010": 7,
 	"SQ-08-011": 7,
 	"SQ-08-012": 7,
+	"MQ-09-01": 8,
+	"MQ-09-02": 8,
+	"MQ-09-03": 8,
+	"MQ-09-04": 8,
+	"MQ-09-05": 8,
+	"SQ-09-001": 8,
+	"SQ-09-002": 8,
+	"SQ-09-003": 8,
+	"SQ-09-004": 8,
+	"SQ-09-005": 8,
+	"SQ-09-006": 8,
+	"SQ-09-007": 8,
+	"SQ-09-008": 8,
+	"SQ-09-009": 8,
+	"SQ-09-010": 8,
+	"SQ-09-011": 8,
+	"SQ-09-012": 8,
+	"SQ-09-013": 8,
 }
 const REGION_REVISIONS := {
 	"eastern_frontier_start": 1,
@@ -2087,6 +2457,10 @@ const REGION_REVISIONS := {
 	"oranse": 7,
 	"jaetgol_approach": 7,
 	"jaetgol": 7,
+	"suretgul": 8,
+	"valkren": 8,
+	"old_front": 8,
+	"valkren_rift": 8,
 }
 
 
