@@ -18,6 +18,8 @@ static func targets(world: Node) -> Array:
 	var id: String = ids[0]
 	var definition: QuestData = catalog.definitions[id]
 	var state: Dictionary = states.get(id, {})
+	if state.get("state") == "ready" and catalog.allows_field_report(id):
+		return []
 	if state.is_empty() or state.state == "ready":
 		var npc := definition.giver_id() if state.is_empty() else definition.npc_id
 		return _npc(world, npc, ("수락: " if state.is_empty() else "보고: ") + definition.title)

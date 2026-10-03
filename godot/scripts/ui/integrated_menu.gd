@@ -314,7 +314,7 @@ func get_inventory_content_root() -> Control:
 
 
 func bind_quests(journal: QuestJournal) -> void:
-	_journal_tab.bind_journal(journal)
+	_journal_tab.bind_journal(journal, get_parent().get_node_or_null("QuestController"))
 	_character_tab.bind_journal(journal)
 
 

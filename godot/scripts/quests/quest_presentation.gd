@@ -70,6 +70,8 @@ static func _view(
 		action = "report" if npc_id == definition.npc_id else ""
 		button = "모험가 패 받기" if definition.grants_adventurer_pass else "보고하고 보상 받기"
 		tracker = catalog.npc_names[definition.npc_id] + "에게 보고 [F]"
+		if catalog.has_method("allows_field_report") and catalog.allows_field_report(definition.quest_id):
+			tracker = "[J] 현장 기록 제출 · 보상 받기"
 		if not definition.grants_adventurer_pass:
 			message = tracker + "\n보고하면 보상을 받습니다."
 	elif not definition.grants_adventurer_pass:

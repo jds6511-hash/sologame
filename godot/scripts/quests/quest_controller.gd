@@ -21,6 +21,17 @@ func is_reward_busy() -> bool:
 	return _reward_busy
 
 
+func report_from_journal(quest_id: String) -> String:
+	if not journal.catalog.has_method("allows_field_report"):
+		return "field_report_unavailable"
+	if not journal.catalog.allows_field_report(quest_id):
+		return "field_report_unavailable"
+	var stats = _player.get_node_or_null("PlayerStats")
+	if stats != null and stats.is_dead():
+		return "player_dead"
+	return report(quest_id, journal.catalog.definitions[quest_id].npc_id)
+
+
 func report(quest_id: String, npc_id: String) -> String:
 	if _reward_busy:
 		return "reward_busy"

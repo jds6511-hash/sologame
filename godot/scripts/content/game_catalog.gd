@@ -19,6 +19,10 @@ func ordered_ids() -> Array:
 	return Content.QUESTS.keys()
 
 
+func allows_field_report(id: String) -> bool:
+	return id.begins_with("SQ-") and Content.QUEST_REVISIONS.get(id, 0) in [3, 4, 5]
+
+
 func eligibility_error(quest_id: String, states: Dictionary) -> String:
 	var required: int = Content.QUEST_REQUIREMENTS.get(quest_id, {}).get("reputation", 0)
 	var reputation := 0

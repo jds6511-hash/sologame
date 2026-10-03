@@ -59,6 +59,11 @@ static func detail(catalog: QuestCatalog, states: Dictionary, id: String) -> Dic
 		next_action = "목표 완료 · %s에게 보고하고 보상을 받으세요. [F]" % catalog.npc_names[definition.npc_id]
 	elif state.state == "completed":
 		next_action = "보고 및 보상 수령 완료"
+	if catalog.has_method("allows_field_report") and catalog.allows_field_report(id):
+		if state.state == "ready":
+			next_action = "목표 완료 · 아래에서 현장 기록을 제출하세요. NPC에게 돌아가지 않아도 됩니다."
+		elif state.state == "active":
+			next_action = "목표를 모두 마치면 J에서 현장 기록을 제출하고 보상을 받을 수 있습니다."
 	return {
 		"quest_id": id,
 		"title": definition.title,

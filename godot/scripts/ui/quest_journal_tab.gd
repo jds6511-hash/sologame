@@ -1,5 +1,5 @@
 extends MarginContainer
-## J 저널: 열람 전용. UI 선택과 메인 의뢰 자동 추적은 별개다.
+## J 저널: 열람과 허용된 서브 현장 보고. 보상 확정은 QuestController 소관.
 
 const View = preload("res://scripts/quests/quest_journal_view.gd")
 const Presentation = preload("res://scripts/quests/quest_presentation.gd")
@@ -20,6 +20,10 @@ var _body: Label
 var _lead: Label
 var _count: Label
 var _buttons: Dictionary = {}
+var _controller: QuestController
+var _report_button: Button
+var _report_notice: Label
+var _report_debounce_until := 0
 
 
 func _ready() -> void:
@@ -74,13 +78,20 @@ func _ready() -> void:
 	_title = _label(detail_box, "의뢰를 선택하세요")
 	_title.add_theme_font_size_override("font_size", 34)
 	_body = _label(detail_box, "")
+	_report_button = Button.new()
+	_report_button.text = "현장 기록 제출 · 보상 받기"
+	_report_button.custom_minimum_size.y = 52
+	_report_button.pressed.connect(_report_selected)
+	detail_box.add_child(_report_button)
+	_report_notice = _label(detail_box, "")
 	_label(box, "메인 의뢰는 HUD에 자동 추적됩니다. 목록 선택은 열람만 합니다.  ·  J / Esc 닫기")
 
 
-func bind_journal(journal: QuestJournal) -> void:
+func bind_journal(journal: QuestJournal, controller: QuestController = null) -> void:
 	if _journal != null and _journal.changed.is_connected(refresh):
 		_journal.changed.disconnect(refresh)
 	_journal = journal
+	_controller = controller
 	_filter = "active"
 	_query = ""
 	selected_quest_id = ""
@@ -173,6 +184,8 @@ func focus_current() -> void:
 
 
 func _refresh_detail() -> void:
+	_report_button.visible = false
+	_report_notice.text = ""
 	for id in _buttons:
 		_buttons[id].set_pressed_no_signal(id == selected_quest_id)
 	var detail := selected_detail()
@@ -198,6 +211,22 @@ func _refresh_detail() -> void:
 			lines.append("    위치 · " + objective.location)
 	lines.append_array(["", detail.next_action, "", "보상 · " + detail.reward])
 	_body.text = "\n".join(lines)
+	_report_button.visible = (
+		_controller != null
+		and detail.state == "ready"
+		and _journal.catalog.has_method("allows_field_report")
+		and _journal.catalog.allows_field_report(selected_quest_id)
+	)
+
+
+func _report_selected() -> void:
+	if _controller == null or not _report_button.visible or Time.get_ticks_msec() < _report_debounce_until:
+		return
+	_report_debounce_until = Time.get_ticks_msec() + 300
+	var id := selected_quest_id
+	var error := _controller.report_from_journal(id)
+	refresh()
+	_report_notice.text = "보상을 받았습니다." if error.is_empty() else "보상을 받을 수 없습니다. 가방과 캐릭터 상태를 확인하세요."
 
 
 func _label(parent: Node, text: String) -> Label:
