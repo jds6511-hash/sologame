@@ -679,6 +679,26 @@
           480
         ]
       }
+    },
+    "EXP_PROFILES": {
+      "4": {
+        "expected_kills": 45,
+        "objective_kills": 15,
+        "encounter_kills": 30,
+        "budget": 85008,
+        "base_exp": 1889,
+        "overlevel_factors": [
+          1.0,
+          0.5,
+          0.25
+        ],
+        "respawn_seconds": 90
+      }
+    },
+    "MONSTER_EXP_PROFILES": {
+      "wild_boar": "4",
+      "cursed_scarecrow": "4",
+      "cliff_harpy": "4"
     }
   },
   "quests": [

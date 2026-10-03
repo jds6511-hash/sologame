@@ -1126,6 +1126,26 @@
           480
         ]
       }
+    },
+    "EXP_PROFILES": {
+      "5": {
+        "expected_kills": 60,
+        "objective_kills": 15,
+        "encounter_kills": 45,
+        "budget": 175998,
+        "base_exp": 2933,
+        "overlevel_factors": [
+          1.0,
+          0.5,
+          0.25
+        ],
+        "respawn_seconds": 90
+      }
+    },
+    "MONSTER_EXP_PROFILES": {
+      "tidal_crab": "5",
+      "marsh_lizard": "5",
+      "water_mist": "5"
     }
   },
   "quests": [

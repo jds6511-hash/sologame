@@ -11,6 +11,16 @@ func after_each() -> void:
 	get_tree().paused = false
 
 
+func await_frame_bounded(frame_signal: Signal, label: String) -> void:
+	# GUT 전역 신호 watcher를 쓰면 테스트 종료 뒤 SceneTree 신호가 남는다.
+	var state := {"seen": false}
+	var arrived := func(): state.seen = true
+	frame_signal.connect(arrived, CONNECT_ONE_SHOT)
+	await wait_until(func(): return state.seen, 2.0, label)
+	if frame_signal.is_connected(arrived):
+		frame_signal.disconnect(arrived)
+
+
 func previous_chapters(catalog: QuestCatalog) -> Dictionary:
 	var states := {}
 	for id in catalog.ordered_ids():
@@ -59,12 +69,15 @@ func test_twelve_quests_restore_mid_objective_and_report_exact_budget() -> void:
 
 func test_each_region_has_sources_npcs_and_spawned_enemy_stats() -> void:
 	for region in ["saleno", "saleno_coast", "reed_marsh", "arsel", "arsel_library"]:
+		print("CH5_STAGE instantiate ", region)
 		var world: Node = Product.instantiate_world(region)
 		assert_not_null(world, region)
 		if world == null:
 			continue
 		world.set_meta("save_directory", "user://product_verify")
+		print("CH5_STAGE add_child ", region)
 		add_child(world)
+		print("CH5_STAGE ready ", region)
 		world.process_mode = Node.PROCESS_MODE_DISABLED
 		var ids := []
 		for candidate in world.get_node("WorldInteraction").candidates:
@@ -87,6 +100,7 @@ func test_each_region_has_sources_npcs_and_spawned_enemy_stats() -> void:
 			var id: String = monster.get_meta("content_id", "")
 			assert_true(Content.MONSTER_VARIANTS.has(id))
 			if Content.MONSTER_VARIANTS.has(id):
+				assert_eq(monster.get_meta("kill_exp_profile"), Content.EXP_PROFILES["5"])
 				assert_eq(monster.stats.display_name, Content.MONSTER_VARIANTS[id].title)
 				assert_eq(
 					MonsterDropRegistry.table_for(monster).monster_level,
@@ -101,8 +115,12 @@ func test_each_region_has_sources_npcs_and_spawned_enemy_stats() -> void:
 				var count: int = get_signal_emit_count(progression, "exp_changed")
 				monster.died.emit()
 				assert_signal_emit_count(progression, "exp_changed", count + 1)
+		print("CH5_STAGE free ", region)
 		world.free()
-		await get_tree().process_frame
+		print("CH5_STAGE process_frame ", region)
+		await await_frame_bounded(get_tree().process_frame, region + " 해제 뒤 프레임")
+		assert_false(did_wait_timeout(), region + " 해제 뒤 프레임 시간 초과")
+		print("CH5_STAGE done ", region)
 
 
 func test_new_enemy_telegraphs_and_approaches_are_distinct() -> void:
@@ -127,13 +145,21 @@ func freeze_processes(node: Node) -> void:
 
 func test_routes_to_all_sites_and_gates_use_actual_player_shape() -> void:
 	for region in ["saleno", "saleno_coast", "reed_marsh", "arsel", "arsel_library"]:
+		print("CH5_ROUTE instantiate ", region)
 		var world: Node = Product.instantiate_world(region)
 		world.set_meta("save_directory", "user://product_verify")
+		print("CH5_ROUTE add_child ", region)
 		add_child(world)
 		freeze_processes(world)
-		await get_tree().physics_frame
-		await get_tree().physics_frame
+		print("CH5_ROUTE physics_frame ", region)
+		for frame in 2:
+			await await_frame_bounded(get_tree().physics_frame, region + " 물리 동기화")
+			assert_false(did_wait_timeout(), region + " 물리 동기화 시간 초과")
+			if did_wait_timeout():
+				world.free()
+				return
 		var player: CharacterBody2D = world.get_node("Player")
+		print("CH5_ROUTE path_query ", region)
 		var reachable := reachable_points(player)
 		var points := []
 		for id in Content.NPCS:
@@ -157,7 +183,8 @@ func test_routes_to_all_sites_and_gates_use_actual_player_shape() -> void:
 					break
 			assert_true(reached, region + " 실제 플레이어 충돌 경로: " + str(point))
 		world.free()
-		await get_tree().process_frame
+		await await_frame_bounded(get_tree().process_frame, region + " 경로 검사 뒤 프레임")
+		assert_false(did_wait_timeout(), region + " 경로 검사 뒤 프레임 시간 초과")
 
 
 func reachable_points(player: CharacterBody2D) -> Array[Vector2]:

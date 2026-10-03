@@ -102,6 +102,7 @@ try {
         @{name='chapter-six-tests';script='docs/qa/tools/test_chapter_six_content.py';arguments=@()},
         @{name='chapter-seven-tests';script='docs/qa/tools/test_chapter_seven_content.py';arguments=@()},
         @{name='chapter-five-tests';script='docs/qa/tools/test_chapter_five_content.py';arguments=@()},
+        @{name='content-kill-exp-tests';script='docs/qa/tools/test_content_kill_exp.py';arguments=@()},
         @{name='content-generated';script='tools/generate_chapter_content.py';arguments=@('--check')}
     )) {
         $log = Join-Path $out ($check.name + '.log')

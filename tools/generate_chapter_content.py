@@ -151,6 +151,7 @@ def validate(data, root):
             seen.add(current)
             current = quests[current].get('prerequisite', '')
     for ch in data['chapters']:
+        validate_exp_profile(ch, root)
         reference = budget_reference(root, ch['chapter'])
         if any(ch['budget'][key] != value for key, value in reference.items() if not key.endswith('_count')):
             raise ValueError('현행 설계 예산과 표 불일치')
@@ -205,6 +206,34 @@ def validate(data, root):
     for site in c.get('SITE_NOTICES', {}):
         if site not in c['SITES']:
             raise ValueError('없는 안내 표식')
+
+
+def validate_exp_profile(ch, root):
+    profiles = ch['constants'].get('EXP_PROFILES', {})
+    mapping = ch['constants'].get('MONSTER_EXP_PROFILES', {})
+    if ch['chapter'] < 4:
+        if profiles or mapping:
+            raise ValueError('1막 처치 EXP 변경 금지')
+        return
+    key = str(ch['chapter'])
+    if set(profiles) != {key} or set(mapping) != set(ch['constants']['MONSTER_VARIANTS']):
+        raise ValueError('장별 처치 EXP 연결 누락')
+    if any(value != key for value in mapping.values()):
+        raise ValueError('다른 장 처치 EXP 연결')
+    profile = profiles[key]
+    source = (root / 'docs/design/100-hour-progression-budget.md').read_text(encoding='utf-8')
+    row = re.search(r'^\| ' + key + r' \| [\d,]+ \| [\d,]+ \| ([\d,]+) \|', source, re.M)
+    budget = int(row[1].replace(',', ''))
+    objectives = sum(n for q in ch['quests'] for kind, n in zip(q['objective_kinds'], q['objective_counts']) if kind == 'KILL')
+    for name in ['expected_kills', 'objective_kills', 'encounter_kills', 'budget', 'base_exp', 'respawn_seconds']:
+        if type(profile[name]) is not int or profile[name] <= 0:
+            raise ValueError('처치 EXP 양의 정수 필요')
+    if profile['objective_kills'] != objectives or profile['expected_kills'] != objectives + profile['encounter_kills']:
+        raise ValueError('처치 수 계획 불일치')
+    if profile['budget'] != budget or abs(profile['expected_kills'] * profile['base_exp'] - budget) > profile['expected_kills'] / 2:
+        raise ValueError('처치 EXP 예산 불일치')
+    if profile['overlevel_factors'] != [1.0, 0.5, 0.25] or profile['respawn_seconds'] != 90:
+        raise ValueError('반복 사냥 제한 계약 불일치')
 
 
 def gd(value, indent=0):

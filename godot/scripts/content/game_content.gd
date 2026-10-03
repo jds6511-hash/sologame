@@ -1513,6 +1513,65 @@ const WARP_ARRIVALS := {
 	"misran": Vector2(176, 512),
 	"durgan": Vector2(176, 640),
 }
+const EXP_PROFILES := {
+	"4":
+	{
+		"expected_kills": 45,
+		"objective_kills": 15,
+		"encounter_kills": 30,
+		"budget": 85008,
+		"base_exp": 1889,
+		"overlevel_factors": [1.0, 0.5, 0.25],
+		"respawn_seconds": 90,
+	},
+	"5":
+	{
+		"expected_kills": 60,
+		"objective_kills": 15,
+		"encounter_kills": 45,
+		"budget": 175998,
+		"base_exp": 2933,
+		"overlevel_factors": [1.0, 0.5, 0.25],
+		"respawn_seconds": 90,
+	},
+	"6":
+	{
+		"expected_kills": 80,
+		"objective_kills": 24,
+		"encounter_kills": 56,
+		"budget": 404719,
+		"base_exp": 5059,
+		"overlevel_factors": [1.0, 0.5, 0.25],
+		"respawn_seconds": 90,
+	},
+	"7":
+	{
+		"expected_kills": 100,
+		"objective_kills": 12,
+		"encounter_kills": 88,
+		"budget": 941354,
+		"base_exp": 9414,
+		"overlevel_factors": [1.0, 0.5, 0.25],
+		"respawn_seconds": 90,
+	},
+}
+const MONSTER_EXP_PROFILES := {
+	"wild_boar": "4",
+	"cursed_scarecrow": "4",
+	"cliff_harpy": "4",
+	"tidal_crab": "5",
+	"marsh_lizard": "5",
+	"water_mist": "5",
+	"thorn_vine": "6",
+	"poison_mushroom": "6",
+	"forest_panther": "6",
+	"corrupted_treant": "6",
+	"cave_bat": "7",
+	"kobold_miner": "7",
+	"rock_golem": "7",
+	"frost_wolf": "7",
+	"ice_spirit": "7",
+}
 const TRIAL_TARGETS := {
 	"trial_war_heavy":
 	{

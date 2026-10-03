@@ -78,17 +78,31 @@ func add_exp(amount: int) -> void:
 
 ## 몬스터 스폰 시 호출 — died 시그널을 처치 경험치 지급에 연결한다(DropSystem과 동일 패턴).
 func register_monster(monster: Node, drop_table: DropTableData) -> void:
-	monster.died.connect(grant_kill_exp.bind(drop_table.monster_level, drop_table.tier))
+	var profile: Dictionary = monster.get_meta("kill_exp_profile", {}).duplicate(true)
+	monster.died.connect(grant_kill_exp.bind(drop_table.monster_level, drop_table.tier, profile))
 
 
 ## 몬스터 1마리 처치분 경험치를 계산해 지급한다. 야간 배율은 GameClock의 낮/밤 판정을
 ## 따르고 보스는 제외한다(combat.md 2-3장). 레벨 차 배율은 몬스터-플레이어 레벨 차로 조회.
-func grant_kill_exp(mob_level: int, tier: DropTableData.MonsterTier) -> void:
+func grant_kill_exp(
+	mob_level: int, tier: DropTableData.MonsterTier, profile: Dictionary = {}
+) -> void:
 	var is_boss := tier == DropTableData.MonsterTier.BOSS
 	var night_mult := 1.0
 	if not is_boss and not GameClock.is_day:
 		night_mult = level_curve.night_exp_multiplier
 	var leveldiff_mult := level_diff_curve.multiplier(mob_level - current_level)
+	if not profile.is_empty():
+		add_exp(
+			preload("res://scripts/progression/content_kill_exp.gd").gain(
+				profile,
+				current_level - mob_level,
+				grade_multiplier(tier),
+				leveldiff_mult,
+				night_mult
+			)
+		)
+		return
 	var gain := calc_exp_gain(
 		level_curve.mob_exp(mob_level), grade_multiplier(tier), leveldiff_mult, night_mult
 	)

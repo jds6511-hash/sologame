@@ -22,8 +22,12 @@ func _process(delta: float) -> void:
 		if is_instance_valid(slot.monster):
 			continue
 		slot.wait += delta
+		var content_id: String = Content.HABITATS[slot.source][3]
+		var respawn := 30.0
+		if Content.MONSTER_EXP_PROFILES.has(content_id):
+			respawn = Content.EXP_PROFILES[Content.MONSTER_EXP_PROFILES[content_id]].respawn_seconds
 		if (
-			slot.wait >= 30
+			slot.wait >= respawn
 			and world.get_node("Player").global_position.distance_to(slot.point) > 160
 		):
 			_spawn(slot)
@@ -49,6 +53,10 @@ func _spawn(slot: Dictionary) -> void:
 		monster.set("pack_id", "m7_solo_%s" % str(slot.point))
 	monster.set_meta("content_id", Content.HABITATS[slot.source][3])
 	monster.set_meta("spawn_source_id", slot.source)
+	if Content.MONSTER_EXP_PROFILES.has(content_id):
+		monster.set_meta(
+			"kill_exp_profile", Content.EXP_PROFILES[Content.MONSTER_EXP_PROFILES[content_id]]
+		)
 	# 저장 안전 판정·전투 소비자는 기존 MonsterSpawner의 자식을 읽는다.
 	world.get_node("MonsterSpawner").add_child(monster)
 	world._on_monster_spawned(monster)

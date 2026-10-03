@@ -1,4 +1,4 @@
-"""제품 JSON의 낮/C1 목표 처치 산술과 정식 A/B 민감도 손실을 재현한다.
+"""제품 JSON의 낮/C1 목표·예상 조우 산술과 정식 A/B 민감도 손실을 재현한다.
 
 실제 플레이·의뢰 건수 20% 생략·경로별 레벨차 재시뮬레이션이 아니다.
 제품 데이터는 읽기만 한다. 출력: python docs/qa/tools/calc_act_two_growth.py
@@ -54,7 +54,7 @@ def reached(total):
     return sum(total >= threshold for threshold in THRESHOLDS)
 
 
-def kill_exp(mob_level, total):
+def kill_exp(mob_level, total, profile=None, night=1.0):
     delta = mob_level - reached(total)
     if delta >= scalar(diff, "up_cap_diff"):
         mult = scalar(diff, "up_cap_mult")
@@ -64,7 +64,12 @@ def kill_exp(mob_level, total):
         index = int(scalar(diff, "neutral_min") - 1 - delta)
         mult = down[index] if index < len(down) else scalar(diff, "floor_mult")
     base = half_up(scalar(curve, "mob_exp_coefficient") * mob_level ** scalar(curve, "mob_exp_exponent"))
-    return max(1, half_up(base * mult))
+    if profile:
+        over = max(0, -delta)
+        if over >= len(profile['overlevel_factors']):
+            return 1
+        base = profile['base_exp'] * profile['overlevel_factors'][over]
+    return max(1, half_up(base * mult * night))
 
 
 chapters = {
@@ -73,13 +78,17 @@ chapters = {
 }
 
 
-def model(main_only=False):
+def model(main_only=False, profiles=False, encounters=False):
     total = 79291
     rows = []
     for chapter, data in chapters.items():
         start = total
         kills = report = count = 0
-        for quest in data["quests"]:
+        profile = data['constants']['EXP_PROFILES'][str(chapter)] if profiles else None
+        extra = profile['encounter_kills'] if encounters else 0
+        levels = [v['level'] for v in data['constants']['MONSTER_VARIANTS'].values()]
+        extra_index = 0
+        for qi, quest in enumerate(data["quests"]):
             if main_only and not quest["quest_id"].startswith("MQ-"):
                 continue
             for kind, target, amount in zip(
@@ -94,10 +103,17 @@ def model(main_only=False):
                 tier = re.search(r"^tier = (\d+)$", drop, re.M)
                 assert tier is None or int(tier[1]) == 0
                 for _ in range(amount):
-                    gained = kill_exp(level, total)
+                    gained = kill_exp(level, total, profile)
                     total += gained
                     kills += gained
                     count += 1
+            planned = ((qi + 1) * extra // len(data['quests'])) - (qi * extra // len(data['quests']))
+            for _ in range(planned):
+                gained = kill_exp(levels[extra_index % len(levels)], total, profile)
+                total += gained
+                kills += gained
+                count += 1
+                extra_index += 1
             total += quest["reward_exp"]
             report += quest["reward_exp"]
         rows.append(dict(chapter=chapter, start=start, kills=kills, kill_count=count,
@@ -124,12 +140,32 @@ assert "KILL" not in first["objective_kinds"]
 assert chapters[7]["budget"]["main_exp"] == 1317896 + 500000
 assert sum(q["reward_exp"] for q in chapters[7]["quests"] if q["quest_id"].startswith("MQ-")) == 1817896
 g40 = THRESHOLDS[39]
+expected = model(profiles=True, encounters=True)
+objectives = model(profiles=True)
+farms = []
+for row in expected:
+    number = row['chapter']
+    data = chapters[number]['constants']
+    profile = data['EXP_PROFILES'][str(number)]
+    slots = {}
+    for region, points, _, _ in data['HABITATS'].values():
+        slots[region] = slots.get(region, 0) + len(points)
+    max_kills = max(slots.values()) * (1 + 3600 // profile['respawn_seconds'])
+    total = row['total']
+    mob_level = max(v['level'] for v in data['MONSTER_VARIANTS'].values())
+    for _ in range(max_kills):
+        total += kill_exp(mob_level, total, profile, night=scalar(curve, 'night_exp_multiplier'))
+    next_entry = {4:22, 5:30, 6:39, 7:50}[number]
+    farms.append(dict(chapter=number, max_kills=max_kills, total=total, level=reached(total),
+                      next_entry=next_entry, within_two_levels=reached(total)<=next_entry+2))
 gate_rows = []
 for name, loss in [("baseline", 0), ("A", sum(r["loss_a"] for r in loss_rows)),
                    ("B", sum(r["loss_b"] for r in loss_rows))]:
-    supply = baseline[2]["total"] + first["reward_exp"] - loss
+    supply = expected[2]["total"] + first["reward_exp"] - loss
     gate_rows.append(dict(route=name, loss=loss, supply=supply, level=reached(supply),
                           margin=supply-g40, one_percent_shortfall=max(0, math.ceil(g40*1.01)-supply)))
-print(json.dumps(dict(baseline=baseline, main_only=main, official_loss_rows=loss_rows,
+print(json.dumps(dict(legacy_baseline=baseline, legacy_main_only=main,
+                     expected=expected, objectives_only=objectives, farm_hour_upper_bound=farms,
+                     official_loss_rows=loss_rows,
                      first_report_required_kills=0, G40=g40, acceptance=math.ceil(g40*1.01),
                      first_report_gate=gate_rows), ensure_ascii=False, indent=2))

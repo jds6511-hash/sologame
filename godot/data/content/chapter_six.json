@@ -1315,6 +1315,27 @@
           512
         ]
       }
+    },
+    "EXP_PROFILES": {
+      "6": {
+        "expected_kills": 80,
+        "objective_kills": 24,
+        "encounter_kills": 56,
+        "budget": 404719,
+        "base_exp": 5059,
+        "overlevel_factors": [
+          1.0,
+          0.5,
+          0.25
+        ],
+        "respawn_seconds": 90
+      }
+    },
+    "MONSTER_EXP_PROFILES": {
+      "thorn_vine": "6",
+      "poison_mushroom": "6",
+      "forest_panther": "6",
+      "corrupted_treant": "6"
     }
   },
   "quests": [

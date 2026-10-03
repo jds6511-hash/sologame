@@ -677,6 +677,28 @@
           640
         ]
       }
+    },
+    "EXP_PROFILES": {
+      "7": {
+        "expected_kills": 100,
+        "objective_kills": 12,
+        "encounter_kills": 88,
+        "budget": 941354,
+        "base_exp": 9414,
+        "overlevel_factors": [
+          1.0,
+          0.5,
+          0.25
+        ],
+        "respawn_seconds": 90
+      }
+    },
+    "MONSTER_EXP_PROFILES": {
+      "cave_bat": "7",
+      "kobold_miner": "7",
+      "rock_golem": "7",
+      "frost_wolf": "7",
+      "ice_spirit": "7"
     }
   },
   "quests": [
