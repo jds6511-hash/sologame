@@ -45,9 +45,7 @@ func _on_leveled_up(new_level: int) -> void:
 	var old_max_hp := combat_stats.max_hp
 	recompute_stats(new_level)
 	if _stats_component:
-		_stats_component.grow_max_stats(
-			combat_stats.max_hp - old_max_hp, 0.0
-		)
+		_stats_component.grow_max_stats(combat_stats.max_hp - old_max_hp, 0.0)
 		if not _stats_component.is_dead():
 			_stats_component.current_mp = combat_stats.max_mp
 			_stats_component.mp_changed.emit(combat_stats.max_mp, combat_stats.max_mp)
