@@ -191,6 +191,15 @@ func seed_session() -> void:
 							node.update_target()
 						else:
 							check(node.interact(), "표식 상호작용 " + target)
+							if "investigation" in node and node.investigation != null:
+								# API 결합 검사: 안내 확인 후 실제 단서 상호작용을 거친다.
+								# 위치 준비는 fixture이며 사람의 길찾기 검증은 아니다.
+								world.get_node("QuestDialog").close_dialog()
+								var field = node.investigation
+								var clue = field.clues[field.correct_index]
+								world.get_node("Player").global_position = clue.global_position
+								check(clue.interact(), "현장 단서 대조 " + target)
+								world.get_node("QuestDialog").close_dialog()
 				check(found, "실제 표식 존재 " + target)
 				if RegionsM7.SITE_NOTICES.has(target):
 					check(world.get_node("QuestDialog").panel.visible, "공개 장면 안내")
