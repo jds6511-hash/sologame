@@ -181,8 +181,6 @@ func seed_session() -> void:
 				check(killed == definition.objective_counts[index], "생성 수와 실제 사망 신호")
 				await process_frame
 				await process_frame
-				if id in ["MQ-04-02", "MQ-05-03", "MQ-06-03", "MQ-07-02"] and index == 0:
-					await save_snapshot(2, "middle.json")
 			elif RegionsM7.SITES.has(target):
 				var site: Array = RegionsM7.SITES[target]
 				await go_region(site[4])
@@ -218,6 +216,8 @@ func seed_session() -> void:
 				journal.export_state()[id].counts[index] == definition.objective_counts[index],
 				"목표 진행 " + id + "/" + str(index)
 			)
+			if id in ["MQ-04-02", "MQ-05-03", "MQ-06-03", "MQ-07-02"] and index == 0:
+				await save_snapshot(2, "middle.json")
 		await go_npc(definition.npc_id)
 		var controller = world.get_node("QuestController")
 		var gold: int = world.get_node("Player/Inventory").gold

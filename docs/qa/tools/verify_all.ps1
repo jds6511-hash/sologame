@@ -144,6 +144,7 @@ try {
     Probe-Series 'product-migration' '../docs/qa/tools/m6_product_process_probe.gd' @('cleanup','seed','migrate','verify','cleanup') 'M6_PRODUCT_PROCESS_PASS'
     Probe-Series 'product-content' '../docs/qa/tools/product_content_probe.gd' @('cleanup','seed','reload_mid','reload','cleanup') 'PRODUCT_CONTENT_PASS'
     Probe-Series 'product-defense' '../docs/qa/tools/product_defense_probe.gd' @('cleanup','seed','reload_mid','reload','cleanup') 'PRODUCT_DEFENSE_PASS'
+    Probe-Series 'second-job' '../docs/qa/tools/second_job_process_probe.gd' @('cleanup','seed','reload','cleanup') 'SECOND_JOB_PROCESS_PASS'
     Probe-Series 'product-territory' '../docs/qa/tools/product_territory_probe.gd' @('cleanup','seed','reload_mid','reload','cleanup') 'PRODUCT_TERRITORY_PASS'
     foreach ($phase in @('cleanup','seed','reload_mid','reload','cleanup')) {
         $null = Run-Engine "product-chapter-five-$phase" ('-s ../docs/qa/tools/product_territory_probe.gd -- ' + $phase + ' 5') 'PRODUCT_TERRITORY_PASS' 180

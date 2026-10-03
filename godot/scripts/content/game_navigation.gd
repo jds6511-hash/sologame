@@ -33,9 +33,18 @@ static func targets(world: Node) -> Array:
 			var points := []
 			if world.has_node("JobTrialManager"):
 				for monster in world.get_node("JobTrialManager").targets():
-					if not monster.is_dead() and not monster.is_queued_for_deletion() and monster.trial_source == source:
+					if (
+						not monster.is_dead()
+						and not monster.is_queued_for_deletion()
+						and monster.trial_source == source
+					):
 						points.append(monster.global_position)
-			return _project(world, "durgan_training", points if not points.is_empty() else [Vector2(224, 352)], label if not points.is_empty() else "훈련 시작 / 재개 [F] · " + label)
+			return _project(
+				world,
+				"durgan_training",
+				points if not points.is_empty() else [Vector2(224, 352)],
+				label if not points.is_empty() else "훈련 시작 / 재개 [F] · " + label
+			)
 		if Content.MARKER_HABITATS.has(source):
 			var habitat: Array = Content.MARKER_HABITATS[source]
 			var markers := world.get_node_or_null(habitat[1])

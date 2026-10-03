@@ -11,8 +11,8 @@ static func install(world: Node2D) -> void:
 	var rally := preload("res://scripts/content/job_trial_rally.gd").new()
 	rally.npc_id = "job_trial_rally"
 	rally.position = Vector2(224, 352)
-	world.add_child(rally)
 	world._name_label(rally, "훈련 시작 / 재개")
+	world.add_child(rally)
 	rally.setup(
 		world.get_node("Player"),
 		world.get_node("QuestController"),

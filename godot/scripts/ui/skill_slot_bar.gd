@@ -27,6 +27,13 @@ const KEY_LABELS := {
 }
 
 const JOB_ICONS := {
+	"sharpshooter":
+	{
+		"slot4": "rapid_shot",
+		"slot_q": "acrobatic_shot",
+		"slot_e": "hawk_eye",
+		"ultimate": "ultimate_piercing_burst"
+	},
 	"archer":
 	{
 		"slot4": "rapid_shot",
