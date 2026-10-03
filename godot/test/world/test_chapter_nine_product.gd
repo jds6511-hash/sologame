@@ -159,6 +159,7 @@ func reachable_points(player: CharacterBody2D, bounds: Rect2) -> Array[Vector2]:
 			queue.append(next)
 	return queue
 
+
 func test_active_evacuation_blocks_save_and_successful_travel_suspends() -> void:
 	var world: Node = Product.instantiate_world("valkren")
 	world.set_meta("save_directory", "user://product_verify")
@@ -168,7 +169,10 @@ func test_active_evacuation_blocks_save_and_successful_travel_suspends() -> void
 	var prepared := {}
 	for id in journal.catalog.ordered_ids():
 		if Content.QUEST_REVISIONS[id] < 8 or id == "MQ-09-01":
-			prepared[id] = {"state": "completed", "counts": Array(journal.catalog.definitions[id].objective_counts)}
+			prepared[id] = {
+				"state": "completed",
+				"counts": Array(journal.catalog.definitions[id].objective_counts)
+			}
 	assert_eq(journal.restore_state(prepared), "")
 	assert_eq(world.get_node("QuestController").accept("MQ-09-02"), "")
 	var manager = world.get_node("EncounterController")
@@ -199,6 +203,7 @@ func test_active_evacuation_blocks_save_and_successful_travel_suspends() -> void
 	else:
 		world.free()
 	await frame_bounded(get_tree().process_frame, "전장 이동 후 정리")
+
 
 func test_natural_respawn_shares_encounter_capacity_and_waits_during_active_session() -> void:
 	var world: Node = Product.instantiate_world("old_front")

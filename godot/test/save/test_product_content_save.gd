@@ -86,10 +86,14 @@ func test_previous_revisions_reject_chapter_nine_ids_and_regions() -> void:
 		var data: Dictionary = conversion.upgrade(_old(), account).data
 		data.content_revision = revision
 		data.world.map_id = "valkren"
-		assert_eq(conversion.validate(data, account), "unknown_map", "개정%d 지역 동결" % revision)
+		assert_eq(
+			conversion.validate(data, account), "unsupported_content", "개정%d 지역 동결" % revision
+		)
 		data.world.map_id = "eastern_frontier_start"
 		data.progress.quests["MQ-09-01"] = {"state": "active", "counts": [0, 0]}
-		assert_eq(conversion.validate(data, account), "unknown_quest", "개정%d 의뢰 동결" % revision)
+		assert_eq(
+			conversion.validate(data, account), "unsupported_content", "개정%d 의뢰 동결" % revision
+		)
 	var current: Dictionary = conversion.upgrade(_old(), account).data
 	current.world.map_id = "valkren_rift"
 	assert_eq(conversion.validate(current, account), "region_locked", "현재 개정도 군후 전장 잠금 유지")

@@ -1,6 +1,8 @@
 extends GutTest
+const WOLF = preload("res://scenes/monsters/wolf.tscn")
 ## 대피 시간은 명시적 delta fixture, 적 피해는 API 검사다.
 const SOURCE := "대피검사"
+
 
 class Field:
 	extends Node2D
@@ -9,8 +11,13 @@ class Field:
 
 	func _on_monster_spawned(monster: MonsterBase) -> void:
 		registered += 1
-		monster.died.connect(func(): get_node("QuestController").journal.record_event(
-			"KILL", "feral_dog", SOURCE, monster.get_instance_id()))
+		monster.died.connect(
+			func():
+				get_node("QuestController").journal.record_event(
+					"KILL", "feral_dog", SOURCE, monster.get_instance_id()
+				)
+		)
+
 
 func fixture(kind: String = "evacuation", count: int = 0) -> Node2D:
 	var world := Field.new()
@@ -43,6 +50,7 @@ func fixture(kind: String = "evacuation", count: int = 0) -> Node2D:
 	player.position = Vector2(320, 320)
 	return world
 
+
 func manager(world: Node2D, kind: String = "evacuation") -> Node:
 	var path := "res://scripts/content/encounter_controller.gd"
 	assert_true(ResourceLoader.exists(path), "대피·전장 런타임 필요")
@@ -50,13 +58,28 @@ func manager(world: Node2D, kind: String = "evacuation") -> Node:
 		return null
 	var value: Node = load(path).new()
 	world.add_child(value)
-	value.setup(world, {SOURCE: {
-		"kind": kind, "region": world.map_id, "quest_id": "검사", "index": 0,
-		"target": SOURCE if kind == "evacuation" else "feral_dog",
-		"position": Vector2(320, 320), "title": "대피 구역", "points": [Vector2(600, 320), Vector2(680, 320), Vector2(760, 320)],
-		"scene": "wolf", "stats": "res://data/monsters/wolf_stats.tres",
-		"content_id": "feral_dog", "max_active": 4}})
+	value.setup(
+		world,
+		{
+			SOURCE:
+			{
+				"kind": kind,
+				"region": world.map_id,
+				"quest_id": "검사",
+				"index": 0,
+				"target": SOURCE if kind == "evacuation" else "feral_dog",
+				"position": Vector2(320, 320),
+				"title": "대피 구역",
+				"points": [Vector2(600, 320), Vector2(680, 320), Vector2(760, 320)],
+				"scene": "wolf",
+				"stats": "res://data/monsters/wolf_stats.tres",
+				"content_id": "feral_dog",
+				"max_active": 4
+			}
+		}
+	)
 	return value
+
 
 func test_evacuation_eight_seconds_and_no_rewards_or_repeat_start() -> void:
 	var world := fixture()
@@ -74,6 +97,7 @@ func test_evacuation_eight_seconds_and_no_rewards_or_repeat_start() -> void:
 	assert_eq(world.get_node("QuestController").journal.export_state()["검사"].counts, [1])
 	assert_false(value.active)
 	assert_false(value.resume(SOURCE))
+
 
 func test_damage_pause_leave_reset_and_suspend() -> void:
 	var world := fixture()
@@ -100,6 +124,7 @@ func test_damage_pause_leave_reset_and_suspend() -> void:
 	value.advance(20.0)
 	assert_eq(world.get_node("QuestController").journal.export_state()["검사"].counts, [0])
 
+
 func test_wave_uses_remaining_counts_and_deleting_bodies_occupy_capacity() -> void:
 	var world := fixture("wave", 1)
 	var value := manager(world, "wave")
@@ -110,6 +135,7 @@ func test_wave_uses_remaining_counts_and_deleting_bodies_occupy_capacity() -> vo
 	assert_false(value.resume(SOURCE))
 	value.suspend()
 	assert_false(value.resume(SOURCE), "삭제 대기가 끝나기 전 재생성하지 않는다")
+
 
 func test_player_death_cancels_evacuation_and_revive_can_restart_after_cleanup() -> void:
 	var world := fixture()
@@ -135,6 +161,7 @@ func test_player_death_cancels_evacuation_and_revive_can_restart_after_cleanup()
 	assert_true(value.resume(SOURCE))
 	assert_eq(value.elapsed, 0.0)
 
+
 func test_wave_completes_once_with_normal_registration() -> void:
 	var world := fixture("wave", 1)
 	var value := manager(world, "wave")
@@ -149,17 +176,19 @@ func test_wave_completes_once_with_normal_registration() -> void:
 	assert_false(value.resume(SOURCE))
 	assert_eq(world.registered, 2)
 
+
 func test_global_capacity_counts_other_sources_and_queued_living_enemies() -> void:
 	var world := fixture("wave")
 	var value := manager(world, "wave")
 	if value == null:
 		return
 	for index in 4:
-		var blocker: MonsterBase = load("res://scenes/monsters/wolf.tscn").instantiate()
+		var blocker: MonsterBase = WOLF.instantiate()
 		world.get_node("MonsterSpawner").add_child(blocker)
 		blocker.queue_free()
 	assert_false(value.resume(SOURCE))
 	assert_eq(world.registered, 0)
+
 
 func test_partial_capacity_wave_allows_next_explicit_resume() -> void:
 	var world := fixture("wave")
@@ -167,7 +196,7 @@ func test_partial_capacity_wave_allows_next_explicit_resume() -> void:
 	if value == null:
 		return
 	for index in 3:
-		var blocker: MonsterBase = load("res://scenes/monsters/wolf.tscn").instantiate()
+		var blocker: MonsterBase = WOLF.instantiate()
 		world.get_node("MonsterSpawner").add_child(blocker)
 	assert_true(value.resume(SOURCE))
 	assert_eq(value.targets().size(), 1)
@@ -178,6 +207,7 @@ func test_partial_capacity_wave_allows_next_explicit_resume() -> void:
 		child.free()
 	assert_true(value.resume(SOURCE))
 	assert_eq(world.registered, 2)
+
 
 func test_summons_never_register_rewards_or_quest_events() -> void:
 	var world := fixture()
@@ -192,6 +222,7 @@ func test_summons_never_register_rewards_or_quest_events() -> void:
 		assert_false(monster.has_meta("kill_exp_profile"))
 		monster.take_damage(100000.0)
 	assert_eq(world.get_node("QuestController").journal.export_state()["검사"].counts, [0])
+
 
 func test_deferred_summon_is_cancelled_by_suspend_generation() -> void:
 	var world := fixture()

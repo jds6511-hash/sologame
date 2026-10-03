@@ -33,7 +33,9 @@ static func targets(world: Node) -> Array:
 		var label: String = definition.objective_labels[index]
 		if Content.ENCOUNTERS.has(source):
 			var encounter: Dictionary = Content.ENCOUNTERS[source]
-			return _project(world, encounter.region, [encounter.position], "방어 시작 / 재개 [F] · " + label)
+			return _project(
+				world, encounter.region, [encounter.position], "방어 시작 / 재개 [F] · " + label
+			)
 		if Content.TRIAL_TARGETS.has(source):
 			var points := []
 			if world.has_node("JobTrialManager"):

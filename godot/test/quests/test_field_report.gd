@@ -45,12 +45,22 @@ func make_ready(id: String) -> void:
 			)
 
 
-func test_all_22_side_rewards_use_normal_completion_once() -> void:
+func test_all_field_rewards_use_normal_completion_once() -> void:
 	var count := 0
 	var inventory = world.get_node("Player/Inventory")
 	for id in journal.catalog.ordered_ids():
 		if not journal.catalog.allows_field_report(id):
 			continue
+		# 현장 보고 메인도 미수락부터 검사한다. 뒤 의뢰가 이미 완료된 fixture를 쓰지 않는다.
+		var prepared := {}
+		for previous in journal.catalog.ordered_ids():
+			if previous == id:
+				break
+			prepared[previous] = {
+				"state": "completed",
+				"counts": Array(journal.catalog.definitions[previous].objective_counts)
+			}
+		assert_eq(journal.restore_state(prepared), "")
 		count += 1
 		assert_eq(controller.report_from_journal(id), "quest_not_ready")
 		make_ready(id)
@@ -62,7 +72,7 @@ func test_all_22_side_rewards_use_normal_completion_once() -> void:
 		assert_eq(inventory.gold, before + journal.catalog.definitions[id].reward_gold)
 		var restored := QuestJournal.new(journal.catalog)
 		assert_eq(restored.restore_state(journal.export_state()), "")
-	assert_eq(count, 35)
+	assert_eq(count, 52)
 
 
 func test_main_unknown_and_death_cannot_claim() -> void:

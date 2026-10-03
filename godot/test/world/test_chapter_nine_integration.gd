@@ -1,9 +1,11 @@
-﻿extends GutTest
+extends GutTest
 const Safety = preload("res://scripts/save/save_safety.gd")
+
 
 class EncounterStub:
 	extends Node
 	var active := true
+
 
 func test_active_encounter_blocks_save_even_without_nearby_enemies() -> void:
 	var world := Node.new()
@@ -14,6 +16,7 @@ func test_active_encounter_blocks_save_even_without_nearby_enemies() -> void:
 	encounter.active = false
 	assert_eq(Safety.blocked_reason(world), "unsupported_world")
 	world.free()
+
 
 func test_ninth_preparation_is_available_and_separate() -> void:
 	var bootstrap = load("res://scripts/world/game_bootstrap.gd").new()

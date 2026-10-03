@@ -3,6 +3,7 @@ const Content = preload("res://scripts/content/game_content.gd")
 const Controller = preload("res://scripts/content/encounter_controller.gd")
 const Rally = preload("res://scripts/content/encounter_rally.gd")
 
+
 static func install(world: Node2D) -> Node:
 	var config := {}
 	for id in Content.ENCOUNTERS:
@@ -28,8 +29,12 @@ static func install(world: Node2D) -> Node:
 		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		rally.add_child(label)
 		world.add_child(rally)
-		rally.setup(world.get_node("Player"), world.get_node("QuestController"),
-			world.get_node("QuestDialog"), world.get_node("Hud"))
+		rally.setup(
+			world.get_node("Player"),
+			world.get_node("QuestController"),
+			world.get_node("QuestDialog"),
+			world.get_node("Hud")
+		)
 		rally.configure(manager, id, config[id])
 		world.get_node("WorldInteraction").candidates.append(rally)
 	return manager

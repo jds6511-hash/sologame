@@ -14,6 +14,7 @@ var _generation := 0
 var _last_hp := 0.0
 var _projectiles: Array[Node] = []
 
+
 func setup(owner_world: Node2D, config: Dictionary = {}) -> void:
 	world = owner_world
 	definitions = config if not config.is_empty() else Content.ENCOUNTERS
@@ -23,22 +24,32 @@ func setup(owner_world: Node2D, config: Dictionary = {}) -> void:
 	stats.hp_changed.connect(_hp_changed)
 	world.get_node("MonsterSpawner").child_entered_tree.connect(_track_projectile)
 
+
 func _hp_changed(hp: float, _maximum: float) -> void:
 	if hp < _last_hp:
 		pause_for_damage()
 	_last_hp = hp
 
+
 func pause_for_damage() -> void:
 	damage_pause = float(definitions.get(source, {}).get("hit_pause", 0.5))
+
 
 func _process(delta: float) -> void:
 	advance(delta)
 
+
 func _available() -> bool:
-	return (is_instance_valid(world) and world.is_inside_tree()
-		and not world.is_queued_for_deletion() and not is_queued_for_deletion()
-		and not get_tree().paused and not world.get_node("Player").is_queued_for_deletion()
-		and not world.get_node("Player/PlayerStats").is_dead())
+	return (
+		is_instance_valid(world)
+		and world.is_inside_tree()
+		and not world.is_queued_for_deletion()
+		and not is_queued_for_deletion()
+		and not get_tree().paused
+		and not world.get_node("Player").is_queued_for_deletion()
+		and not world.get_node("Player/PlayerStats").is_dead()
+	)
+
 
 func targets() -> Array:
 	var result := []
@@ -48,6 +59,7 @@ func targets() -> Array:
 		if child.get_meta("encounter_owner", 0) == get_instance_id():
 			result.append(child)
 	return result
+
 
 func _remaining(id: String) -> int:
 	if not definitions.has(id):
@@ -59,8 +71,11 @@ func _remaining(id: String) -> int:
 	var kind := "INTERACT" if data.kind == "evacuation" else "KILL"
 	if not journal.expects_event(data.quest_id, kind, data.target, id):
 		return 0
-	return (journal.catalog.definitions[data.quest_id].objective_counts[data.index]
-		- journal.export_state()[data.quest_id].counts[data.index])
+	return (
+		journal.catalog.definitions[data.quest_id].objective_counts[data.index]
+		- journal.export_state()[data.quest_id].counts[data.index]
+	)
+
 
 func can_resume(id: String) -> bool:
 	if not _available() or _busy or active or _remaining(id) <= 0:
@@ -72,12 +87,14 @@ func can_resume(id: String) -> bool:
 			return false
 	return _capacity() > 0
 
+
 func _capacity() -> int:
 	var occupied := 0
 	for child in world.get_node("MonsterSpawner").get_children():
 		if child is MonsterBase and (not child.is_dead() or child.is_queued_for_deletion()):
 			occupied += 1
 	return maxi(0, MAX_ACTIVE - occupied)
+
 
 func resume(id: String) -> bool:
 	if not can_resume(id):
@@ -97,9 +114,12 @@ func resume(id: String) -> bool:
 	var desired := 2 if data.kind == "evacuation" else _remaining(id)
 	var count := mini(maxi(0, desired - living), _capacity())
 	for index in count:
-		_spawn(data, id, data.points[(living + index) % data.points.size()], data.kind != "evacuation")
+		_spawn(
+			data, id, data.points[(living + index) % data.points.size()], data.kind != "evacuation"
+		)
 	_busy = false
 	return true
+
 
 func _spawn(data: Dictionary, id: String, point: Vector2, rewarded: bool) -> MonsterBase:
 	var monster: MonsterBase = load("res://scenes/monsters/%s.tscn" % data.scene).instantiate()
@@ -110,7 +130,9 @@ func _spawn(data: Dictionary, id: String, point: Vector2, rewarded: bool) -> Mon
 	monster.set_meta("spawn_source_id", id)
 	monster.set_meta("content_id", data.content_id)
 	if rewarded and Content.MONSTER_EXP_PROFILES.has(data.content_id):
-		monster.set_meta("kill_exp_profile", Content.EXP_PROFILES[Content.MONSTER_EXP_PROFILES[data.content_id]])
+		monster.set_meta(
+			"kill_exp_profile", Content.EXP_PROFILES[Content.MONSTER_EXP_PROFILES[data.content_id]]
+		)
 	if data.kind == "boss":
 		var states: Dictionary = world.get_node("QuestController").journal.export_state()
 		monster.support_enabled = states.get("MQ-09-03", {}).get("counts", [0, 0, 0])[1] > 0
@@ -130,19 +152,24 @@ func _spawn(data: Dictionary, id: String, point: Vector2, rewarded: bool) -> Mon
 	monster.died.connect(_enemy_died)
 	return monster
 
+
 func _summon(count: int) -> void:
 	# 피격 물리 질의 중에는 노드를 추가하지 않는다.
 	_spawn_summons.call_deferred(count, _generation)
+
 
 func _spawn_summons(count: int, generation: int) -> void:
 	if generation != _generation or not active or _busy or not _available():
 		return
 	_busy = true
 	var variant: Dictionary = Content.MONSTER_VARIANTS.demon_scout
-	var data := {"kind": "summon", "scene": "poacher", "stats": variant.stats, "content_id": "demon_scout"}
+	var data := {
+		"kind": "summon", "scene": "poacher", "stats": variant.stats, "content_id": "demon_scout"
+	}
 	for index in mini(count, _capacity()):
 		_spawn(data, source + "_summon", Vector2(560 + index * 160, 576), false)
 	_busy = false
+
 
 func _enemy_died() -> void:
 	if not active or definitions[source].kind == "evacuation":
@@ -155,6 +182,7 @@ func _enemy_died() -> void:
 		active = false
 		_cleanup()
 
+
 func advance(delta: float) -> void:
 	if not active or delta <= 0.0 or not _available():
 		return
@@ -163,7 +191,10 @@ func advance(delta: float) -> void:
 	var paused := minf(delta, damage_pause)
 	damage_pause = maxf(0.0, damage_pause - delta)
 	var player = world.get_node("Player")
-	if player.position.distance_to(definitions[source].position) > float(definitions[source].get("radius", 48.0)):
+	if (
+		player.position.distance_to(definitions[source].position)
+		> float(definitions[source].get("radius", 48.0))
+	):
 		outside += delta
 		if outside > float(definitions[source].get("outside_reset", 0.5)):
 			elapsed = 0.0
@@ -179,9 +210,11 @@ func advance(delta: float) -> void:
 		active = false
 		_cleanup()
 
+
 func _track_projectile(child: Node) -> void:
 	if active and not child is MonsterBase and child.has_method("launch"):
 		_projectiles.append(child)
+
 
 func _cleanup() -> void:
 	for projectile in _projectiles:
@@ -197,6 +230,7 @@ func _cleanup() -> void:
 		for connection in child.attack_landed.get_connections():
 			child.attack_landed.disconnect(connection.callable)
 		child.queue_free()
+
 
 func suspend() -> void:
 	_generation += 1

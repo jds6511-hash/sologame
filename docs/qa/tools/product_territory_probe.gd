@@ -22,7 +22,10 @@ func check(value: bool, label: String) -> void:
 
 func _run() -> void:
 	var args := OS.get_cmdline_user_args()
-	if args.size() not in [1, 2] or args[0] not in ["cleanup", "seed", "reload", "reload_mid", "reload_boss"]:
+	if (
+		args.size() not in [1, 2]
+		or args[0] not in ["cleanup", "seed", "reload", "reload_mid", "reload_boss"]
+	):
 		quit(2)
 		return
 	if args.size() == 2:
@@ -46,14 +49,23 @@ func _run() -> void:
 		await process_frame
 		if args[0] in ["reload", "reload_mid", "reload_boss"]:
 			check(
-				world.get_node("SaveSession").load_slot({"reload": 1, "reload_mid": 2, "reload_boss": 3}[args[0]]).ok,
+				(
+					world
+					. get_node("SaveSession")
+					. load_slot({"reload": 1, "reload_mid": 2, "reload_boss": 3}[args[0]])
+					. ok
+				),
 				"별도 프로세스 제품 V7 로드"
 			)
 			await refresh()
 			var expected = JSON.parse_string(
 				FileAccess.get_file_as_string(
 					DIRECTORY.path_join(
-						{"reload": "expected.json", "reload_mid": "middle.json", "reload_boss": "boss.json"}[args[0]]
+						{
+							"reload": "expected.json",
+							"reload_mid": "middle.json",
+							"reload_boss": "boss.json"
+						}[args[0]]
 					)
 				)
 			)
@@ -236,7 +248,11 @@ func seed_session() -> void:
 			await go_npc(definition.npc_id)
 		var controller = world.get_node("QuestController")
 		var gold: int = world.get_node("Player/Inventory").gold
-		var reported: String = controller.report_from_journal(id) if journal.catalog.allows_field_report(id) else controller.report(id, definition.npc_id)
+		var reported: String = (
+			controller.report_from_journal(id)
+			if journal.catalog.allows_field_report(id)
+			else controller.report(id, definition.npc_id)
+		)
 		check(reported == "", "보고 " + id)
 		check(controller.report(id, definition.npc_id) != "", "중복 보고 거부")
 		check(world.get_node("Player/Inventory").gold == gold + definition.reward_gold, "보상 단회 지급")
@@ -290,7 +306,7 @@ func encounter_fixture(source: String) -> void:
 	await process_frame
 	await process_frame
 	if data.kind == "evacuation":
-		encounter.advance(8.1) # 대피 경과 시간 fixture.
+		encounter.advance(8.1)  # 대피 경과 시간 fixture.
 	check(not encounter.active, "전장 목표 완료 " + source)
 	await capture(source)
 
