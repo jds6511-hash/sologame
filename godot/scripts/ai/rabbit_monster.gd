@@ -18,7 +18,7 @@
 class_name RabbitMonster
 extends MonsterBase
 
-enum State { WANDER, FLEE, MELEE_SWING, REST }
+enum State { WANDER, FLEE, MELEE_SWING, REST, CHASE, RETURN }
 
 var state: State = State.WANDER
 
@@ -26,6 +26,21 @@ var _wander_dir := Vector2.ZERO
 var _wander_timer: float = 0.0
 var _flee_timer: float = 0.0
 var _rest_timer: float = 0.0
+var _retaliating := false
+
+
+func take_damage(amount: float, hit_grade: String = "약", attacker: Node2D = null) -> void:
+	var before := hp
+	super.take_damage(amount, hit_grade, attacker)
+	if is_dead() or hp >= before or not is_instance_valid(attacker):
+		return
+	if attacker.is_queued_for_deletion() or attacker == self:
+		return
+	target = attacker
+	_retaliating = true
+	# 진행 중인 박치기의 예고·판정·후딜은 다시 시작하지 않는다.
+	if state != State.MELEE_SWING:
+		state = State.CHASE
 
 
 func blocks_save_from(position: Vector2, radius: float) -> bool:
@@ -54,6 +69,11 @@ func _physics_process(delta: float) -> void:
 			move_and_slide()
 		return
 	match state:
+		State.CHASE:
+			_process_chase()
+		State.RETURN:
+			if _return_to_home():
+				state = State.WANDER
 		State.WANDER:
 			_process_wander(delta)
 			if is_target_in_range_tiles(stats.perception_range_tiles):
@@ -75,6 +95,19 @@ func _process_wander(delta: float) -> void:
 		_wander_dir = random_wander_direction()
 		_wander_timer = randf_range(1.0, 2.5)
 	velocity = _wander_dir * stats.tiles_to_px(stats.wander_speed_tiles)
+	_play_animation("walk", velocity)
+
+
+func _process_chase() -> void:
+	if not _can_continue_retaliation():
+		_retaliating = false
+		state = State.RETURN
+		velocity = Vector2.ZERO
+		return
+	if is_target_in_range_tiles(stats.melee_range_tiles):
+		_start_melee_swing()
+		return
+	velocity = move_toward_point(target.global_position, stats.combat_move_speed_tiles)
 	_play_animation("walk", velocity)
 
 
@@ -120,5 +153,8 @@ func _start_melee_swing() -> void:
 
 func _on_swing_ended() -> void:
 	if is_dead():
+		return
+	if _retaliating:
+		state = State.CHASE
 		return
 	_start_flee()  ## spec: 근접 스윙 종료 후 도주 재시도

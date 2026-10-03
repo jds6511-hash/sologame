@@ -346,9 +346,21 @@ func distance_tiles_to(pos: Vector2) -> float:
 
 
 func is_target_in_range_tiles(range_tiles: float) -> bool:
-	if target == null:
+	if not is_instance_valid(target) or target.is_queued_for_deletion():
 		return false
 	return distance_tiles_to(target.global_position) <= range_tiles
+
+
+## 기존 추격이 없는 토끼·점액의 피격 반격은 스폰 반경 16타일 안에서만 지속한다.
+func _can_continue_retaliation() -> bool:
+	if not is_instance_valid(target) or target.is_queued_for_deletion():
+		return false
+	if target.has_method("is_dead") and target.call("is_dead"):
+		return false
+	return (
+		distance_tiles_to(home_position) < 16.0
+		and home_position.distance_to(target.global_position) <= stats.tiles_to_px(16.0)
+	)
 
 
 func random_wander_direction() -> Vector2:

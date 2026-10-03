@@ -29,7 +29,7 @@ signal projectile_fired(aim_position: Vector2)
 signal core_broken  ## 강 등급 마무리 — 자폭 없음, 재료 100% (economy 연동은 IT-2 후속)
 signal self_destructed(acid_pool_position: Vector2)  ## 약/중 등급 마무리 — 산성 웅덩이 스텁
 
-enum State { WANDER, AIM, COOLDOWN }
+enum State { WANDER, AIM, COOLDOWN, CHASE, RETURN }
 
 ## 투사체 씬 — 미할당(null)이면 판정 대신 projectile_fired 시그널만 발생(테스트/미배선 상황 대응)
 @export var projectile_scene: PackedScene
@@ -47,6 +47,20 @@ var _wander_dir := Vector2.ZERO
 var _wander_timer: float = 0.0
 var _aim: AimFireBlock
 var _aim_point := Vector2.ZERO
+var _retaliating := false
+
+
+func take_damage(amount: float, hit_grade: String = "약", attacker: Node2D = null) -> void:
+	var before := hp
+	super.take_damage(amount, hit_grade, attacker)
+	if is_dead() or hp >= before or not is_instance_valid(attacker):
+		return
+	if attacker.is_queued_for_deletion() or attacker == self:
+		return
+	target = attacker
+	_retaliating = true
+	if state != State.AIM and state != State.COOLDOWN:
+		state = State.CHASE
 
 
 func _ready() -> void:
@@ -70,19 +84,54 @@ func _physics_process(delta: float) -> void:
 			move_and_slide()
 		return
 	match state:
+		State.CHASE:
+			_process_chase(delta)
+		State.RETURN:
+			if _return_to_home():
+				state = State.WANDER
 		State.WANDER:
 			_process_wander(delta)
 			if is_target_in_range_tiles(stats.perception_range_tiles):
 				_start_aim()
 		State.AIM, State.COOLDOWN:
 			velocity = Vector2.ZERO
+			if _retaliating and not _can_continue_retaliation():
+				_retaliating = false
+				_aim.reset()
+				state = State.RETURN
+				return
 			_aim.update(delta)
-			if target == null or not is_target_in_range_tiles(stats.projectile_range_tiles):
+			if not is_target_in_range_tiles(stats.projectile_range_tiles):
+				if _retaliating:
+					# 발사 후 쿨다운은 이동 중에도 유지한다.
+					state = State.CHASE
+					return
 				_aim.reset()
 				state = State.WANDER
 				_play_animation("idle")
 	if _guard_finite_before_move():
 		move_and_slide()
+
+
+func _process_chase(delta: float) -> void:
+	if not _can_continue_retaliation():
+		_retaliating = false
+		_aim.reset()
+		state = State.RETURN
+		velocity = Vector2.ZERO
+		return
+	# 이미 시작한 공격과 쿨다운을 끝낸 다음 새 조준을 시작한다.
+	if _aim.phase != AimFireBlock.Phase.IDLE:
+		_aim.update(delta)
+		if state != State.CHASE:
+			return
+	if is_target_in_range_tiles(stats.projectile_range_tiles):
+		velocity = Vector2.ZERO
+		if _aim.phase == AimFireBlock.Phase.IDLE:
+			_start_aim()
+		return
+	velocity = move_toward_point(target.global_position, stats.combat_move_speed_tiles)
+	_play_animation("walk", velocity)
 
 
 func _process_wander(delta: float) -> void:
