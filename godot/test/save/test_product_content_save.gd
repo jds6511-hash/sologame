@@ -69,6 +69,8 @@ func test_revision_one_keeps_progress_and_defense_remains_locked() -> void:
 	assert_eq(data, original)
 	assert_eq(conversion.upgrade(data, account).data.progress.quests, {})
 	data.world.map_id = "yeoulmok_defense"
+	assert_eq(conversion.validate(data, account), "unsupported_content")
+	data.content_revision = 2
 	assert_eq(conversion.validate(data, account), "region_locked")
 	data.world.map_id = "eastern_frontier_start"
 	data.progress.quests["MQ-03-05"] = {"state": "completed", "counts": [1, 1]}

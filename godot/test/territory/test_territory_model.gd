@@ -137,6 +137,7 @@ func test_return_cooldown_and_discount_thresholds() -> void:
 	Travel.advance(travel, 1)
 	assert_eq(travel.return_ms, 0)
 
+
 func test_chapter_five_visits_and_field_return_use_registered_cities() -> void:
 	var travel = Travel.initial(owned(), "novera_commons")
 	assert_false("saleno" in travel.unlocked)

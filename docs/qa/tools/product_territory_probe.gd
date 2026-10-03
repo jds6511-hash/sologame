@@ -131,7 +131,7 @@ func travel(destination: String) -> void:
 	if DisplayServer.get_name() != "headless":
 		await RenderingServer.frame_post_draw
 		root.get_texture().get_image().save_png(
-			"res://../docs/qa/screenshots/chapter4-" + destination + ".png"
+			"res://../docs/qa/screenshots/chapter" + str(chapter) + "-" + destination + ".png"
 		)
 
 
@@ -228,7 +228,7 @@ func capture(label: String) -> void:
 	check(
 		(
 			root.get_texture().get_image().save_png(
-				"res://../docs/qa/screenshots/chapter4-" + label + ".png"
+				"res://../docs/qa/screenshots/chapter" + str(chapter) + "-" + label + ".png"
 			)
 			== OK
 		),

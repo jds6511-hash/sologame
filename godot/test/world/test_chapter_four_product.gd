@@ -13,7 +13,7 @@ func after_each() -> void:
 func first_act(catalog: QuestCatalog) -> Dictionary:
 	var states := {}
 	for id in catalog.ordered_ids():
-		if load("res://scripts/content/game_content.gd").QUEST_REVISIONS[id] > 2:
+		if Content.QUEST_REVISIONS[id] > 2:
 			continue
 		states[id] = {
 			"state": "completed", "counts": Array(catalog.definitions[id].objective_counts)

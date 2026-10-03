@@ -205,8 +205,7 @@ func _ask_warp(city: String) -> void:
 		runtime.world.get_node("QuestController").journal.reputation()
 	)
 	confirmation.dialog_text = (
-		"%s로 이동 · %dG를 지불합니다. 저장은 별도입니다."
-		% [Content.NAMES[Travel.CITIES[city].map_id], offer.cost]
+		"%s로 이동 · %dG를 지불합니다. 저장은 별도입니다." % [Content.NAMES[Travel.CITIES[city].map_id], offer.cost]
 	)
 	confirmation.popup_centered(Vector2i(640, 220))
 

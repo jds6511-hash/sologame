@@ -237,7 +237,7 @@ static func next_gate(source: String, destination: String) -> String:
 
 def render(data):
     constants = merged(data)
-    content = 'extends RefCounted\n## 자동 생성: tools/generate_chapter_content.py · 원본 godot/data/content/*.json\n'
+    content = 'extends RefCounted\n# gdlint: disable=max-file-lines\n## 자동 생성: tools/generate_chapter_content.py · 원본 godot/data/content/*.json\n'
     content += '\n'.join('const ' + key + ' := ' + gd(value) for key, value in constants.items()) + '\n' + FUNCTIONS
     output = {'godot/scripts/content/game_content.gd': format_code(content, max_line_length=100)}
     for ch in data['chapters']:

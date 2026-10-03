@@ -1,4 +1,5 @@
 extends RefCounted
+# gdlint: disable=max-file-lines
 ## 자동 생성: tools/generate_chapter_content.py · 원본 godot/data/content/*.json
 const CURRENT_REVISION := 4
 const BGM_CONTEXTS := {
