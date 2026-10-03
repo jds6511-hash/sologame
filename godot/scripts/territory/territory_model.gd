@@ -5,6 +5,7 @@ const DAY_MS := 1800000
 const LIMIT := 2147483647
 const TIME_LIMIT := 9007199254740991
 const COSTS := {"market": 12600, "workshop": 18900, "develop": 25200}
+const VILLAGE_COSTS := {"market": 141400, "workshop": 212100, "develop": 282800}
 
 
 static func completed(quests: Dictionary, id: String) -> bool:
@@ -33,6 +34,17 @@ static func sync_ownership(data: Dictionary, quests: Dictionary) -> void:
 		data.holdings.yeoulmok = {"facilities": [], "development": 0, "order_prosperity": 0}
 		data.frozen_rate = daily_rate(data)
 		data.order = make_order(1, int(data.elapsed_ms) + DAY_MS * 7)
+	if (
+		completed(quests, "MQ-03-05")
+		and completed(quests, "MQ-08-04")
+		and data.representative == "yeoulmok"
+	):
+		data.holdings.jaetgol = {"facilities": [], "development": 0, "order_prosperity": 0}
+		data.representative = "jaetgol"
+		data.revision = 2
+		# 진행 중인 부분일은 기존 고정 요율을 보존한다.
+		if data.day_ms == 0:
+			data.frozen_rate = daily_rate(data)
 
 
 static func prosperity(data: Dictionary) -> int:
@@ -52,15 +64,19 @@ static func prosperity(data: Dictionary) -> int:
 static func daily_rate(data: Dictionary) -> int:
 	if data.representative == "":
 		return 0
+	if data.representative == "jaetgol":
+		return int(floor(707.0 * (6.0 + prosperity(data) / 25.0)))
 	return int(floor(63.0 * (3.0 + prosperity(data) / 50.0)))
 
 
-static func make_order(serial: int, deadline: int) -> Dictionary:
+static func make_order(
+	serial: int, deadline: int, representative: String = "yeoulmok"
+) -> Dictionary:
 	return {
 		"serial": serial,
 		"item_id": "MAT-DOG-FANG",
 		"quantity": 3,
-		"reward": 1260,
+		"reward": 14140 if representative == "jaetgol" else 1260,
 		"deadline_ms": deadline,
 		"completed": false
 	}
@@ -88,7 +104,9 @@ static func advance(data: Dictionary, elapsed_ms: int) -> void:
 			period = int(period / 2)
 		var count := 1 + int((int(data.elapsed_ms) - int(data.order.deadline_ms)) / period)
 		data.order = make_order(
-			int(data.order.serial) + count, int(data.order.deadline_ms) + count * period
+			int(data.order.serial) + count,
+			int(data.order.deadline_ms) + count * period,
+			data.representative
 		)
 
 
@@ -96,6 +114,7 @@ static func act(data: Dictionary, economy: Dictionary, action: String, onsite_id
 	if data.representative == "" or not data.holdings.has(onsite_id):
 		return "onsite"
 	var holding: Dictionary = data.holdings[onsite_id]
+	var costs: Dictionary = VILLAGE_COSTS if onsite_id == "jaetgol" else COSTS
 	match action:
 		"collect", "claim":
 			if economy.gold > LIMIT - data.treasury:
@@ -110,9 +129,9 @@ static func act(data: Dictionary, economy: Dictionary, action: String, onsite_id
 				and (action in holding.facilities or holding.facilities.size() >= 2)
 			):
 				return "facility_limit"
-			if economy.gold < COSTS[action]:
+			if economy.gold < costs[action]:
 				return "gold"
-			economy.gold -= COSTS[action]
+			economy.gold -= costs[action]
 			if action == "develop":
 				holding.development += 1
 			else:
@@ -135,7 +154,8 @@ static func act(data: Dictionary, economy: Dictionary, action: String, onsite_id
 			if economy.bag[found].quantity == 0:
 				economy.bag.remove_at(found)
 			economy.gold += data.order.reward
-			holding.order_prosperity = mini(25, int(holding.order_prosperity) + 2)
+			var beneficiary: Dictionary = data.holdings[data.representative]
+			beneficiary.order_prosperity = mini(25, int(beneficiary.order_prosperity) + 2)
 			data.order.completed = true
 		_:
 			return "action"
@@ -174,7 +194,7 @@ static func validate(data: Variant, quests: Dictionary) -> String:
 		)
 	):
 		return "territory_structure"
-	if not integer(data.revision, 1) or data.revision != 1:
+	if not integer(data.revision, 2) or data.revision < 1:
 		return "territory_revision"
 	if not data.holdings is Dictionary or not data.order is Dictionary:
 		return "territory_structure"
@@ -184,15 +204,37 @@ static func validate(data: Variant, quests: Dictionary) -> String:
 	if data.day_ms >= DAY_MS:
 		return "territory_day"
 	if not completed(quests, "MQ-03-05"):
+		if data.revision != 1:
+			return "territory_revision"
 		if data.representative != "" or not data.holdings.is_empty() or not data.order.is_empty():
 			return "territory_ownership"
 		for field in ["treasury", "day_ms", "frozen_rate", "elapsed_ms"]:
 			if data[field] != 0:
 				return "territory_ownership"
 		return ""
-	if data.representative != "yeoulmok" or not keys(data.holdings, ["yeoulmok"]):
+	var baron := completed(quests, "MQ-08-04")
+	var expected := ["yeoulmok", "jaetgol"] if baron else ["yeoulmok"]
+	if data.revision != (2 if baron else 1):
+		return "territory_revision"
+	if (
+		data.representative != ("jaetgol" if baron else "yeoulmok")
+		or not keys(data.holdings, expected)
+	):
 		return "territory_ownership"
-	var holding: Variant = data.holdings.yeoulmok
+	for holding in data.holdings.values():
+		var holding_error := validate_holding(holding)
+		if holding_error != "":
+			return holding_error
+	if int(data.elapsed_ms) % DAY_MS != int(data.day_ms):
+		return "territory_day"
+	if data.treasury > daily_rate(data) * 7:
+		return "territory_treasury"
+	if data.frozen_rate < 189 or data.frozen_rate > daily_rate(data):
+		return "territory_rate"
+	return validate_order(data, baron)
+
+
+static func validate_holding(holding: Variant) -> String:
 	if (
 		not holding is Dictionary
 		or not keys(holding, ["facilities", "development", "order_prosperity"])
@@ -209,12 +251,10 @@ static func validate(data: Variant, quests: Dictionary) -> String:
 		return "territory_prosperity"
 	if holding.order_prosperity != 25 and int(holding.order_prosperity) % 2 != 0:
 		return "territory_prosperity"
-	if int(data.elapsed_ms) % DAY_MS != int(data.day_ms):
-		return "territory_day"
-	if data.treasury > daily_rate(data) * 7:
-		return "territory_treasury"
-	if data.frozen_rate < 189 or data.frozen_rate > daily_rate(data):
-		return "territory_rate"
+	return ""
+
+
+static func validate_order(data: Dictionary, baron: bool) -> String:
 	var order: Dictionary = data.order
 	if not keys(order, ["serial", "item_id", "quantity", "reward", "deadline_ms", "completed"]):
 		return "territory_order"
@@ -227,7 +267,7 @@ static func validate(data: Variant, quests: Dictionary) -> String:
 	if (
 		order.item_id != "MAT-DOG-FANG"
 		or order.quantity != 3
-		or order.reward != 1260
+		or (order.reward != 1260 and (not baron or order.reward != 14140))
 		or not order.completed is bool
 	):
 		return "territory_order"
