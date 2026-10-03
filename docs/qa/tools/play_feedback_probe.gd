@@ -64,6 +64,19 @@ func run() -> void:
 	root.get_texture().get_image().save_png("res://../docs/qa/screenshots/play-feedback-toast.png")
 	menu._process(4.1)
 	check(not menu.toast.visible, "자동 저장 알림 종료")
+	integrated.open_settings()
+	integrated._show_settings()
+	await process_frame
+	await process_frame
+	var run_toggle = integrated.get_node("Tabs/SettingsTab/RunToggle")
+	await click(run_toggle.global_position + run_toggle.size * 0.5)
+	check(run_toggle.button_pressed, "달리기 토글 설정 클릭")
+	check(world.get_node("Player").run_toggle_mode, "달리기 설정 제품 연결")
+	await RenderingServer.frame_post_draw
+	root.get_texture().get_image().save_png("res://../docs/qa/screenshots/play-feedback-run.png")
+	await click(run_toggle.global_position + run_toggle.size * 0.5)
+	check(not world.get_node("Player").run_toggle_mode, "달리기 누르기 복귀")
+	integrated.close_menu()
 	world.free()
 	root.get_node("BgmManager").reset()
 	await process_frame

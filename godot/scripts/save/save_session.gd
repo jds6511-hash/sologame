@@ -229,6 +229,8 @@ func _change_blocked() -> bool:
 	)
 
 
+## 성공 시 이전 월드는 즉시 트리에서 분리된다. 호출부는 성공 후 이전 월드의
+## get_tree()/노드 경로에 접근하지 말고 반환해야 한다(load/travel/new_character 공통).
 func _replace_world(
 	saved_account: Dictionary,
 	data: Dictionary,

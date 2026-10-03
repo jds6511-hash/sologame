@@ -88,7 +88,8 @@ func test_one_pickup_collects_neighbors_without_duplicate_or_full_bag_loss() -> 
 
 
 func test_pickup_area_is_wider() -> void:
-	assert_eq(_item.get_node("CollisionShape2D").shape.radius, 24.0)
+	# 센서는 위로 치우친 플레이어 캡슐까지 포괄한다. 실제 수집은 발 기준32px.
+	assert_eq(_item.get_node("CollisionShape2D").shape.radius, 40.0)
 
 
 func test_wall_prevents_remote_pickup_and_prompt() -> void:
@@ -133,3 +134,27 @@ func test_only_nearest_prompt_and_no_pickup_outside_distance_or_other_world() ->
 	assert_eq(_inventory.get_bag_quantity("PICKUP-TEST"), 1)
 	assert_false(far.is_queued_for_deletion())
 	assert_false(foreign.is_queued_for_deletion())
+
+
+func test_real_capsule_collects_below_feet_within_two_tiles() -> void:
+	var body := CharacterBody2D.new()
+	body.collision_layer = 2
+	body.collision_mask = 0
+	var inv := InventoryComponent.new()
+	inv.name = "Inventory"
+	body.add_child(inv)
+	var collision := CollisionShape2D.new()
+	var capsule := CapsuleShape2D.new()
+	capsule.radius = 6
+	capsule.height = 18
+	collision.shape = capsule
+	collision.position.y = -9
+	body.add_child(collision)
+	add_child_autofree(body)
+	_item.position = Vector2(0, 28)
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	await get_tree().process_frame
+	Input.action_press("interact")
+	_item._process(0.0)
+	assert_eq(inv.get_bag_quantity("PICKUP-TEST"), 1)

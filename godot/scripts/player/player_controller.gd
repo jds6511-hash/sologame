@@ -1,20 +1,12 @@
-## 전사 캐릭터 컨트롤러 (CB-1/CB-2) — 이동, 기본 공격(대검 2타 콤보), 회피 대시, 스킬 슬롯.
-## 참조: docs/design/systems/combat.md 2~5장, docs/design/systems/m2-warrior-skills.md.
-## 데미지 실적용(CB-3)·HP/MP 실체(PlayerStatsComponent)는 이 스크립트의 범위 밖이며,
-## 시그널과 공개 상태만 노출해 다른 컴포넌트가 연동한다.
-## 기본 공격과 스킬은 상호 배타적이며 Facing/AttackHitbox를 공유한다.
-## attack_hit에는 판정 주체 리소스(damage_coefficient/hitstop_preset)를 전달한다.
-## ArrowSpec을 가진 궁수 공격은 ArrowProjectile 명중에서 같은 신호를 발신한다.
-## 전직 로드아웃이 무기·회피·우클릭 차지/조준 동작을 결정한다.
+## 공통 이동·전직별 공격·회피·스킬. 피해/HP는 PlayerStatsComponent에서 처리한다.
+## 기본 공격과 스킬은 상호 배타적이며 궁수 투사체도 attack_hit 신호를 공유한다.
 class_name PlayerController
 extends CharacterBody2D
 
 signal dash_started
 signal dash_ended
 signal attack_step_started(step_index: int, hitstop_preset: String)
-## step: WarriorAttackStep(기본 콤보) 또는 WarriorSkillData(스킬) — 둘 다 damage_coefficient/
-## hitstop_preset 필드를 노출하는 duck-typing 계약. 타입을 명시하지 않은 이유는 두 클래스
-## 모두 받아야 하기 때문이다(스크립트 상단 주석 참조).
+## step은 damage_coefficient/hitstop_preset을 가진 기본 공격 또는 스킬 리소스다.
 signal attack_hit(step, target: Node)
 signal skill_used(skill_name: String)
 signal player_hit_taken(is_heavy: bool)  ## CB-4: 피격 성립(경직 시작) 알림
@@ -27,18 +19,15 @@ enum AttackState { NONE, STARTUP, ACTIVE, RECOVERY }
 const DODGE_SFX := preload("res://assets/audio/sfx/sfx_combat_dodge.wav")
 const PLAYER_HIT_SFX := preload("res://assets/audio/sfx/sfx_combat_player_hit.wav")
 
-## 공격 편의(QoL) 튜닝 상수 — 디렉터 지시 4종(홀드 연타/자동 조준/재조준/이동 허용).
-## 밸런스에 직접 영향을 주므로 하드코딩하지 않고 상수로 노출한다(combat.md 조작/QoL 절
-## 갱신 필요, systems-designer 재검토 대상).
+## 디렉터 조작 편의 지시의 수치. 변경 시 combat.md를 함께 갱신한다.
 const AUTO_AIM_CONE_HALF_DEG := 35.0  ## 마우스 방향 기준 ±35° 안의 적만 자동 조준 스냅 대상
 const AUTO_AIM_RANGE_TILES := 3.0  ## 자동 조준 스냅을 허용하는 최대 거리(타일)
-## 공격 중 이동 속도 배율(평소의 45%). combat.md "정지 스윙 전제" 설계와 상충 가능 —
-## 이 계수 조정으로 밸런스 재조율 가능하게 분리했다.
+## 공격 중 이동은 평소 걷기의 45%이며 달리기 배율을 받지 않는다.
 const ATTACK_MOVE_SPEED_MULTIPLIER := 0.45
 const RUN_SPEED_MULTIPLIER := 1.5
+const MONSTER_GROUP := "monsters"  ## 자동 조준 후보 우선 탐색 그룹
 ## 실행 세션 설정. 지역 교체에도 유지하며 캐릭터 저장에는 넣지 않는다.
 static var run_toggle_mode: bool = false
-const MONSTER_GROUP := "monsters"  ## 자동 조준 후보 우선 탐색 그룹
 
 @export var movement_data: PlayerMovementData
 @export var combo_data: WarriorComboData
@@ -67,13 +56,10 @@ var is_input_locked: bool = false
 
 var active_skill: WarriorSkillData = null
 
-## 검투사 분노 게이지(충전·격노·감쇠·처형 일격 소모) 담당 모듈 — 검투사 로드아웃이 적용된
-## 동안에만 활성이다(scripts/player/player_rage_module.gd). HUD가 게이지 시그널을 구독하므로
-## 공개 상태로 둔다.
+## 검투사 로드아웃에서만 활성. HUD가 시그널을 구독한다.
 var rage := PlayerRageModule.new()
 
-## 애니메이션 이름 결정·재생·직업 시트 교체 담당 모듈(scripts/player/player_visual_module.gd).
-## 전직(PlayerJobTransition)이 직업 시트를 직접 넣으므로 rage와 같이 공개 상태로 둔다.
+## 애니메이션·직업 시트. 전직이 사용하므로 공개한다.
 var visual := PlayerVisualModule.new()
 
 var _move_input := Vector2.ZERO
@@ -81,9 +67,7 @@ var _run_latched := false
 var _previous_run_mode := false
 var _last_move_direction := Vector2.DOWN  ## 대시 기본 방향(이동 입력 없을 시 마지막 방향 유지)
 var _attack_step_index: int = -1
-## 다음 _update_visual에서 공격 애니메이션을 프레임0부터 강제 재생하라는 1회성 요청.
-## 각 스윙(공격 스텝 진입) 시 켜서, 콤보 내내 anim_name이 "attack_*"로 고정돼도 스윙마다
-## 애니메이션이 프레임0부터 다시 재생되게 한다(재시작 가드 우회, 스윙 모션 표시 보장).
+## 같은 공격 애니메이션도 스윙마다 프레임0부터 재생하는 일회성 요청.
 var _attack_anim_restart_requested: bool = false
 var _attack_phase_timer: float = 0.0
 var _combo_window_timer: float = 0.0
@@ -94,24 +78,20 @@ var _dash_recharge_timers: Array[float] = []
 var _hit_stun_timer: float = 0.0
 var _hit_invincibility_timer: float = 0.0
 var _knockback_velocity := Vector2.ZERO
-## 위치 오염 복구용 마지막 유한 좌표 캐시(monster_base의 home_position 역할). 플레이어에는
-## 스폰/home 개념이 없어 매 프레임 유한할 때 갱신해 두고, 오염 시 이 값으로 되돌린다.
+## 매 프레임 마지막 유한 좌표를 보관해 위치 오염 시 복구한다.
 var _last_finite_position := Vector2.ZERO
 ## 현재 히트박스 판정을 낸 주체(WarriorAttackStep 또는 WarriorSkillData) — attack_hit emit용.
 var _current_action_step = null
 ## 자동 조준 후보 캐시(스윙 시작 시 1회 수집, 스윙 동안 재사용) — 스냅/재조준 공용.
 var _aim_candidates: Array = []
 
-## 스킬 슬롯 시전(입력·MP/쿨다운 게이트·선딜/판정/후딜 상태머신·쿨다운 장부) 담당 모듈
-## (scripts/player/player_skill_module.gd). 공개 상태인 skill_state·active_skill은 컨트롤러에
-## 남겨 두고 이 모듈이 갱신한다.
+## 스킬 입력·비용·상태·쿨다운. skill_state/active_skill은 이 모듈이 갱신한다.
 var _skills := PlayerSkillModule.new()
 
 var _is_charging_secondary: bool = false
 var _charge_hold_timer: float = 0.0
 
-## 궁수 원거리 사격(조준 스탠스·화살 발사·매의 눈 가산) 담당 모듈 — 원거리 전용 상태를
-## 이 컨트롤러에서 분리했다(scripts/player/archer_shot_module.gd).
+## 궁수 조준·화살 발사·매의 눈 담당 모듈.
 var _shots := ArcherShotModule.new()
 
 ## 이동 둔화 디버프(숲거미 거미줄 등) — 남은 지속시간과 감소 비율.
@@ -129,8 +109,7 @@ var _buff_superarmor_timer: float = 0.0
 @onready var _attack_collision: CollisionPolygon2D = $Facing/AttackHitbox/CollisionPolygon2D
 @onready var _sprite: AnimatedSprite2D = $Sprite
 @onready var _stats: PlayerStatsComponent = get_node_or_null("PlayerStats")
-## 스킬 강화 배율 반영용(M3 B-3) — 버프·힐 효과 수치에 +8%/레벨을 곱한다(spec 6-2).
-## 노드가 없는 씬/테스트에서는 null → 배율 1.0(하위 호환).
+## 버프·힐 강화(+8%/레벨). 노드가 없으면 배율 1.0.
 @onready var _skill_points: PlayerSkillPoints = get_node_or_null("PlayerSkillPoints")
 
 
@@ -237,6 +216,8 @@ func _resolve_move_speed_px(is_attacking: bool) -> float:
 		return speed * aim_multiplier
 	if is_attacking:
 		return speed * ATTACK_MOVE_SPEED_MULTIPLIER
+	if skill_state != AttackState.NONE or _is_charging_secondary:
+		return speed
 	if _run_latched if run_toggle_mode else Input.is_action_pressed("walk_toggle"):
 		return speed * RUN_SPEED_MULTIPLIER
 	return speed

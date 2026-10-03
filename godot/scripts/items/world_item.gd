@@ -13,12 +13,13 @@ extends Area2D
 
 signal picked_up(item_data: ItemData, quantity: int)
 
+const PICKUP_GROUP := "nearby_world_items"
+const PICKUP_DISTANCE := 32.0
+
 @export var item_data: ItemData
 @export var quantity: int = 1
 
 var _nearby_inventory: InventoryComponent = null
-const PICKUP_GROUP := "nearby_world_items"
-const PICKUP_DISTANCE := 32.0
 
 ## ui-dev가 만들 근접 프롬프트("[F] 줍기") 노드 — 있으면 표시만 토글하고, 없으면 무시한다
 ## (UI 구현 자체는 범위 밖).

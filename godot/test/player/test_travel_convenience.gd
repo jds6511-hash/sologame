@@ -24,7 +24,9 @@ func test_toggle_is_cleared_by_pause_and_death_without_accelerating_aim() -> voi
 	Input.action_release("walk_toggle")
 	var normal := player.movement_data.get_walk_speed_px_per_sec()
 	assert_almost_eq(player._resolve_move_speed_px(false), normal * 1.5, 0.001)
-	player._shots.refresh_stance(load("res://data/player/skills/archer/skill_secondary_aim_mode.tres"))
+	player._shots.refresh_stance(
+		load("res://data/player/skills/archer/skill_secondary_aim_mode.tres")
+	)
 	Input.action_press("skill_secondary")
 	player._shots.update_stance()
 	assert_almost_eq(player._resolve_move_speed_px(false), normal * 0.4, 0.001)
@@ -49,6 +51,16 @@ func test_run_keeps_slow_and_does_not_spend_dash_charge() -> void:
 		0.001
 	)
 	assert_eq(player.dash_charges, player.movement_data.dash_charge_max)
+
+
+func test_skill_or_charge_start_does_not_receive_running_multiplier() -> void:
+	Input.action_press("walk_toggle")
+	var normal := player.movement_data.get_walk_speed_px_per_sec()
+	player.skill_state = PlayerController.AttackState.STARTUP
+	assert_almost_eq(player._resolve_move_speed_px(false), normal, 0.001)
+	player.skill_state = PlayerController.AttackState.NONE
+	player._is_charging_secondary = true
+	assert_almost_eq(player._resolve_move_speed_px(false), normal, 0.001)
 
 
 func test_shift_increases_normal_movement_but_not_attack() -> void:

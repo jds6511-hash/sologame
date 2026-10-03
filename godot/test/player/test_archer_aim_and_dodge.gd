@@ -54,7 +54,7 @@ func test_basic_arrow_uses_basic_spec_values() -> void:
 	_player._start_attack_step(0)
 	_player._process_attack_state(0.2)
 	var arrow: ArrowProjectile = _spawned_arrows()[0]
-	## 16타일·초 x 16px = 256px/초, 사거리 8타일 x 16px = 128px, 비관통.
+	## 16타일·초 x 16px = 256px/초, 사거리 10타일 x 16px = 160px, 비관통.
 	assert_almost_eq(arrow._speed_px, 256.0, TOL)
 	assert_almost_eq(arrow._remaining_distance, 160.0, TOL)
 	assert_eq(arrow._pierce_remaining, 0)
