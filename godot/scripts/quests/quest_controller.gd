@@ -89,7 +89,7 @@ func report(quest_id: String, npc_id: String) -> String:
 
 func _barony_preview(definition: QuestData) -> Dictionary:
 	var world := _player.get_parent()
-	var content = preload("res://scripts/content/game_content.gd")
+	var content = load("res://scripts/content/game_content.gd")
 	if (
 		world.get("map_id") != "brantel"
 		or not content.NPCS.has(definition.npc_id)

@@ -105,6 +105,8 @@ func selected_view(states: Dictionary, npc: String, selected_quest_id: String) -
 		return load("res://scripts/quests/quest_presentation.gd")._view(
 			definitions[id], states.get(id, {}), self, npc
 		)
+	if states.get("MQ-08-05", {}).get("state") == "completed":
+		return _notice("잿골 인계 완료", honors(states) + "\n8장 완료 · 남은 주민 의뢰와 영지를 살펴보세요.")
 	if states.get("MQ-03-05", {}).get("state") == "completed":
 		if states.get("MQ-05-05", {}).get("state") == "completed":
 			return _notice("기록의 대조", "5장 메인 완료 · 항구와 호반의 남은 의뢰를 확인하세요.")

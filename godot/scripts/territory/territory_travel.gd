@@ -99,6 +99,10 @@ static func quote(
 		result.error = "source"
 		return result
 	if returning:
+		# 기존 호출의 빈 목적지는 여울목이다. 새 UI는 두 영지 ID를 명시한다.
+		if destination == "":
+			destination = "yeoulmok"
+			result.destination = destination
 		if not HOLDING_MAPS.has(destination) or not territory.get("holdings", {}).has(destination):
 			result.error = "ownership"
 		elif travel.return_ms > 0:

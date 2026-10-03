@@ -11,6 +11,16 @@ func after_each() -> void:
 	get_tree().paused = false
 
 
+func frame_bounded(frame_signal: Signal, label: String) -> void:
+	var state := {"seen": false}
+	var arrived := func(): state.seen = true
+	frame_signal.connect(arrived, CONNECT_ONE_SHOT)
+	await wait_until(func(): return state.seen, 2.0, label)
+	if frame_signal.is_connected(arrived):
+		frame_signal.disconnect(arrived)
+	assert_false(did_wait_timeout(), label)
+
+
 func previous_chapters(catalog: QuestCatalog) -> Dictionary:
 	var states := {}
 	for id in catalog.ordered_ids():
@@ -59,12 +69,14 @@ func test_fifteen_quests_restore_mid_objective_and_report_exact_budget() -> void
 
 func test_each_region_has_sources_npcs_and_spawned_enemy_stats() -> void:
 	for region in ["misran", "forest_edge", "mosswood", "sylvien"]:
+		print("CH6_LIFECYCLE instantiate ", region)
 		var world: Node = Product.instantiate_world(region)
 		assert_not_null(world, region)
 		if world == null:
 			continue
 		world.set_meta("save_directory", "user://product_verify")
 		add_child(world)
+		print("CH6_LIFECYCLE added ", region)
 		world.process_mode = Node.PROCESS_MODE_DISABLED
 		var ids := []
 		for candidate in world.get_node("WorldInteraction").candidates:
@@ -82,10 +94,13 @@ func test_each_region_has_sources_npcs_and_spawned_enemy_stats() -> void:
 				expected += habitat[1].size()
 		assert_eq(world.get_node("MonsterSpawner").get_child_count(), expected, region)
 		var progression: PlayerProgression = world.get_node("Player/PlayerProgression")
-		watch_signals(progression)
+		# GUT 전역 watcher에 해제된 월드 객체를 남기지 않고 실제 신호를 직접 센다.
+		var emissions := {"exp": 0, "gold": 0}
+		progression.exp_changed.connect(func(_current, _next): emissions.exp += 1)
 		var drops: DropSystem = world.get_node("DropSystem")
-		watch_signals(drops)
+		drops.gold_dropped.connect(func(_amount, _position): emissions.gold += 1)
 		for monster in world.get_node("MonsterSpawner").get_children():
+			print("CH6_LIFECYCLE monster ", region, " ", monster.name)
 			var id: String = monster.get_meta("content_id", "")
 			assert_true(Content.MONSTER_VARIANTS.has(id))
 			if Content.MONSTER_VARIANTS.has(id):
@@ -100,14 +115,19 @@ func test_each_region_has_sources_npcs_and_spawned_enemy_stats() -> void:
 					monster.stats.attack_power * GameClock.get_monster_stat_multiplier(false),
 					0.01
 				)
-				var count: int = get_signal_emit_count(progression, "exp_changed")
-				var gold_count: int = get_signal_emit_count(drops, "gold_dropped")
+				var count: int = emissions.exp
+				var gold_count: int = emissions.gold
+				print("CH6_LIFECYCLE damage_before ", monster.name)
 				monster.take_damage(monster.effective_max_hp() * 10.0)
+				print("CH6_LIFECYCLE damage_first_done ", monster.name)
 				monster.take_damage(monster.effective_max_hp() * 10.0)
-				assert_signal_emit_count(drops, "gold_dropped", gold_count + 1)
-				assert_signal_emit_count(progression, "exp_changed", count + 1)
+				print("CH6_LIFECYCLE damage_second_done ", monster.name)
+				assert_eq(emissions.gold, gold_count + 1)
+				assert_eq(emissions.exp, count + 1)
+		print("CH6_LIFECYCLE free_before ", region)
 		world.free()
-		await get_tree().process_frame
+		print("CH6_LIFECYCLE free_done ", region)
+		await frame_bounded(get_tree().process_frame, region + " 생성 검사 뒤 프레임")
 
 
 func test_new_enemy_telegraphs_and_approaches_are_distinct() -> void:
@@ -141,8 +161,11 @@ func test_routes_to_all_sites_and_gates_use_actual_player_shape() -> void:
 		world.set_meta("save_directory", "user://product_verify")
 		add_child(world)
 		freeze_processes(world)
-		await get_tree().physics_frame
-		await get_tree().physics_frame
+		for frame in 2:
+			await frame_bounded(get_tree().physics_frame, region + " 물리 동기화")
+			if did_wait_timeout():
+				world.free()
+				return
 		var player: CharacterBody2D = world.get_node("Player")
 		var reachable := reachable_points(player, Content.BOUNDS[region])
 		var points := []
@@ -174,7 +197,7 @@ func test_routes_to_all_sites_and_gates_use_actual_player_shape() -> void:
 					break
 			assert_true(reached, region + " 실제 플레이어 충돌 경로: " + str(point))
 		world.free()
-		await get_tree().process_frame
+		await frame_bounded(get_tree().process_frame, region + " 경로 검사 뒤 프레임")
 
 
 func reachable_points(player: CharacterBody2D, bounds: Rect2) -> Array[Vector2]:

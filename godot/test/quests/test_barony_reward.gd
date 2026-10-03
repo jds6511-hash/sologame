@@ -36,8 +36,10 @@ func before_each() -> void:
 		for count in quest.objective_counts[index]:
 			token += 1
 			controller.journal.record_event(
-				quest.objective_kinds[index], quest.objective_targets[index],
-				quest.objective_sources[index], token
+				quest.objective_kinds[index],
+				quest.objective_targets[index],
+				quest.objective_sources[index],
+				token
 			)
 	actor.position = Content.NPCS.brantel_herald[1] + Vector2(0, 20)
 	Territory.advance(world.get_meta("territory_state"), 1234)

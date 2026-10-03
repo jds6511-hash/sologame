@@ -3,6 +3,7 @@ extends SceneTree
 const ENV_PATH := "res://scripts/world/game_product.gd"
 const RegionsM7 = preload("res://scripts/content/game_content.gd")
 const DIRECTORY := "user://product_territory_probe"
+const TerritoryModel = preload("res://scripts/territory/territory_model.gd")
 var world: Node
 var failed := false
 var finished := false
@@ -313,7 +314,7 @@ func territory_session() -> void:
 	check(world.map_id == "eastern_frontier_start", "소유 영지 귀환 도착")
 	var runtime = world.get_node("TerritoryRuntime")
 	world.get_node("Player").position = runtime.DESK
-	var model = load("res://scripts/territory/territory_model.gd")
+	var model = TerritoryModel
 	model.advance(runtime.state(), model.DAY_MS)
 	var before: int = world.get_node("Player/Inventory").gold
 	check(runtime.act("collect") == "", "현장 금고 수령")
@@ -357,7 +358,7 @@ func barony_session() -> void:
 	var travel_model = load("res://scripts/territory/territory_travel.gd")
 	world.get_node("Player").position = travel_model.JAETGOL_GATE
 	check(runtime.onsite() == "jaetgol", "잿골 현장 판정")
-	var model = load("res://scripts/territory/territory_model.gd")
+	var model = TerritoryModel
 	model.advance(runtime.state(), model.DAY_MS)
 	var expected: int = runtime.state().treasury
 	var before: int = world.get_node("Player/Inventory").gold

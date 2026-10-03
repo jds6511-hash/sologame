@@ -47,9 +47,10 @@ func test_each_region_has_sources_npcs_and_spawned_enemy_stats() -> void:
 		if region in ["pilgrimage_path", "oranse"]:
 			assert_eq(expected, 0, "성역 경로에는 전투가 없다")
 		var progression: PlayerProgression = world.get_node("Player/PlayerProgression")
-		watch_signals(progression)
+		var emissions := {"exp": 0, "gold": 0}
+		progression.exp_changed.connect(func(_current, _next): emissions.exp += 1)
 		var drops: DropSystem = world.get_node("DropSystem")
-		watch_signals(drops)
+		drops.gold_dropped.connect(func(_amount, _position): emissions.gold += 1)
 		for monster in world.get_node("MonsterSpawner").get_children():
 			var id: String = monster.get_meta("content_id", "")
 			assert_true(Content.MONSTER_VARIANTS.has(id))
@@ -65,12 +66,12 @@ func test_each_region_has_sources_npcs_and_spawned_enemy_stats() -> void:
 					monster.stats.attack_power * GameClock.get_monster_stat_multiplier(false),
 					0.01
 				)
-				var count: int = get_signal_emit_count(progression, "exp_changed")
-				var gold_count: int = get_signal_emit_count(drops, "gold_dropped")
+				var count: int = emissions.exp
+				var gold_count: int = emissions.gold
 				monster.take_damage(monster.effective_max_hp() * 10.0)
 				monster.take_damage(monster.effective_max_hp() * 10.0)
-				assert_signal_emit_count(drops, "gold_dropped", gold_count + 1)
-				assert_signal_emit_count(progression, "exp_changed", count + 1)
+				assert_eq(emissions.gold, gold_count + 1)
+				assert_eq(emissions.exp, count + 1)
 		world.free()
 		await frame_bounded(get_tree().process_frame, region + " 생성 검사 뒤 프레임")
 

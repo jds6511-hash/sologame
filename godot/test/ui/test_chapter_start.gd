@@ -1,6 +1,7 @@
 extends GutTest
 
 const Bootstrap = preload("res://scripts/world/game_bootstrap.gd")
+const Catalog = preload("res://scripts/content/game_catalog.gd")
 
 
 func test_chapter_preparation_is_separate_from_real_saves() -> void:
@@ -18,7 +19,7 @@ func test_chapter_preparation_is_separate_from_real_saves() -> void:
 
 func test_eighth_preparation_stops_before_barony_ceremony() -> void:
 	var bootstrap = Bootstrap.new()
-	var catalog = load("res://scripts/content/game_catalog.gd").new()
+	var catalog = Catalog.new()
 	var prepared: Dictionary = bootstrap.preparation(catalog, 8)
 	assert_true(prepared.quests.has("MQ-07-06"))
 	assert_false(prepared.quests.has("MQ-08-01"))
@@ -32,7 +33,7 @@ func test_preparation_does_not_turn_third_chapter_into_completed_content() -> vo
 	var bootstrap = Bootstrap.new()
 	assert_true(bootstrap.has_method("preparation"))
 	if bootstrap.has_method("preparation"):
-		var catalog = load("res://scripts/content/game_catalog.gd").new()
+		var catalog = Catalog.new()
 		var data: Dictionary = bootstrap.preparation(catalog, 3)
 		assert_eq(data.quests.size(), 13)
 		assert_eq(data.exp, 42828)

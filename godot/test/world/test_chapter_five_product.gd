@@ -95,7 +95,8 @@ func test_each_region_has_sources_npcs_and_spawned_enemy_stats() -> void:
 				expected += habitat[1].size()
 		assert_eq(world.get_node("MonsterSpawner").get_child_count(), expected, region)
 		var progression: PlayerProgression = world.get_node("Player/PlayerProgression")
-		watch_signals(progression)
+		var emissions := {"exp": 0, "gold": 0}
+		progression.exp_changed.connect(func(_current, _next): emissions.exp += 1)
 		for monster in world.get_node("MonsterSpawner").get_children():
 			var id: String = monster.get_meta("content_id", "")
 			assert_true(Content.MONSTER_VARIANTS.has(id))
@@ -112,9 +113,9 @@ func test_each_region_has_sources_npcs_and_spawned_enemy_stats() -> void:
 					monster.stats.attack_power * GameClock.get_monster_stat_multiplier(false),
 					0.01
 				)
-				var count: int = get_signal_emit_count(progression, "exp_changed")
+				var count: int = emissions.exp
 				monster.died.emit()
-				assert_signal_emit_count(progression, "exp_changed", count + 1)
+				assert_eq(emissions.exp, count + 1)
 		print("CH5_STAGE free ", region)
 		world.free()
 		print("CH5_STAGE process_frame ", region)
