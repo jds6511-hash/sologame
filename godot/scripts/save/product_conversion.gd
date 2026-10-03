@@ -33,9 +33,7 @@ func validate(data: Dictionary, account: Dictionary) -> String:
 	if not data.progress.get("travel") is Dictionary:
 		return "travel_fields"
 	# 새 구조를 먼저 검증한다. 아래 공통 구조 검사는 이미 검증한 두 영역만 제외한다.
-	var error: String = Territory.validate(
-		data.progress.get("territory"), data.progress.quests
-	)
+	var error: String = Territory.validate(data.progress.get("territory"), data.progress.quests)
 	if error != "":
 		return error
 	error = Travel.validate(data.progress.get("travel"))
@@ -70,9 +68,7 @@ func upgrade(data: Dictionary, account: Dictionary) -> Dictionary:
 		return result
 	result.data.character_save_version = 7
 	result.data.content_revision = Content.CURRENT_REVISION
-	result.data.progress.territory = Territory.initial(
-		result.data.progress.quests
-	)
+	result.data.progress.territory = Territory.initial(result.data.progress.quests)
 	result.data.progress.travel = Travel.initial(
 		result.data.progress.quests, result.data.world.map_id
 	)

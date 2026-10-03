@@ -15,7 +15,9 @@ func first_act(catalog: QuestCatalog) -> Dictionary:
 	for id in catalog.ordered_ids():
 		if id.begins_with("MQ-04-") or id.begins_with("SQ-CH04-"):
 			continue
-		states[id] = {"state": "completed", "counts": Array(catalog.definitions[id].objective_counts)}
+		states[id] = {
+			"state": "completed", "counts": Array(catalog.definitions[id].objective_counts)
+		}
 	return states
 
 
@@ -39,8 +41,10 @@ func test_nine_quests_restore_mid_objective_and_report_exact_budget() -> void:
 			for count in quest.objective_counts[index]:
 				token += 1
 				journal.record_event(
-					quest.objective_kinds[index], quest.objective_targets[index],
-					quest.objective_sources[index], token
+					quest.objective_kinds[index],
+					quest.objective_targets[index],
+					quest.objective_sources[index],
+					token
 				)
 			var restored := QuestJournal.new(catalog)
 			assert_eq(restored.restore_state(journal.export_state()), "", id + " 중간 복원")

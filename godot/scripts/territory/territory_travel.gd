@@ -9,6 +9,7 @@ const CITIES := {
 }
 const SOURCES := {
 	"eastern_frontier_start": "novera",
+	"yeoulmok_defense": "novera",
 	"novera_gate": "novera",
 	"novera_outskirts": "novera",
 	"novera_rift": "novera",

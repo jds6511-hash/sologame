@@ -18,7 +18,6 @@ const TABLES := {
 	"사나운 멧돼지": preload("res://data/drops/wild_boar_drop_table.tres"),
 	"괴뢰 허수아비": preload("res://data/drops/cursed_scarecrow_drop_table.tres"),
 	"들매 하피": preload("res://data/drops/cliff_harpy_drop_table.tres"),
-
 	"전장 들개 마수": preload("res://data/drops/defense_wolf_drop_table.tres"),
 	"전장 균열 정예": preload("res://data/drops/defense_elite_drop_table.tres"),
 	"뿔토끼": preload("res://data/drops/rabbit_drop_table.tres"),

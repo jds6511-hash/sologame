@@ -138,10 +138,19 @@ func seed_session() -> void:
 				"counts": Array(journal.catalog.definitions[id].objective_counts)
 			}
 	check(journal.restore_state(states) == "", "1막 완료 준비 fixture")
-	world.get_node("Player/PlayerProgression").add_exp(80000)
+	world.get_node("Player/PlayerProgression").add_exp(79291)
 	world.get_node("Player/Inventory").add_gold(40000)
-	var ids := ["MQ-04-01", "MQ-04-02", "MQ-04-03", "MQ-04-04",
-		"SQ-CH04-001", "SQ-CH04-002", "SQ-CH04-003", "SQ-CH04-004", "SQ-CH04-005"]
+	var ids := [
+		"MQ-04-01",
+		"MQ-04-02",
+		"MQ-04-03",
+		"MQ-04-04",
+		"SQ-CH04-001",
+		"SQ-CH04-002",
+		"SQ-CH04-003",
+		"SQ-CH04-004",
+		"SQ-CH04-005"
+	]
 	for id in ids:
 		journal = world.get_node("QuestController").journal
 		var definition: QuestData = journal.catalog.definitions[id]

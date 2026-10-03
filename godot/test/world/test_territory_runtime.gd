@@ -14,7 +14,9 @@ func before_each() -> void:
 	for id in journal.catalog.ordered_ids():
 		if id.begins_with("MQ-04-") or id.begins_with("SQ-CH04-"):
 			continue
-		states[id] = {"state": "completed", "counts": Array(journal.catalog.definitions[id].objective_counts)}
+		states[id] = {
+			"state": "completed", "counts": Array(journal.catalog.definitions[id].objective_counts)
+		}
 	assert_eq(journal.restore_state(states), "")
 	world.get_node("TerritoryRuntime")._sync()
 	world.get_node("Player/Inventory").gold = 200000
@@ -46,7 +48,9 @@ func test_capture_restore_does_not_duplicate_claim_and_ui_owns_pause() -> void:
 	world.get_node("Player").position = runtime.DESK
 	Model.advance(runtime.state(), Model.DAY_MS)
 	var session: Node = world.get_node("SaveSession")
-	var saved: Dictionary = session.codec.capture(world.get_node("Player"), session.account.account_id)
+	var saved: Dictionary = session.codec.capture(
+		world.get_node("Player"), session.account.account_id
+	)
 	var total := int(saved.inventory.gold) + int(saved.progress.territory.treasury)
 	assert_eq(runtime.act("collect"), "")
 	assert_eq(world.get_node("Player/Inventory").gold + runtime.state().treasury, total)

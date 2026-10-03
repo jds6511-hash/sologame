@@ -156,7 +156,7 @@ func _verify() -> void:
 		JSON.parse_string(JSON.stringify(captured.inventory)) == session.character.inventory,
 		"장비·가방·overflow 복제 없음"
 	)
-	for version in [7, 8]:
+	for version in [8, 9]:
 		var forged: Dictionary = session.character.duplicate(true)
 		forged.character_save_version = version
 		_check(

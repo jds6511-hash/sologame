@@ -14,8 +14,11 @@ class RejectingSession:
 	var offered: Dictionary = {}
 
 	func _replace_world(
-		_saved_account: Dictionary, data: Dictionary, _slot: int,
-		_message: String, _session_carry: Dictionary = {}
+		_saved_account: Dictionary,
+		data: Dictionary,
+		_slot: int,
+		_message: String,
+		_session_carry: Dictionary = {}
 	) -> Dictionary:
 		offered = data.duplicate(true)
 		return {"ok": false, "code": "injected_world_failure"}

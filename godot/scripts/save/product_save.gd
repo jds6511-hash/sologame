@@ -38,16 +38,24 @@ class Codec:
 		data.content_revision = ProductContent.CURRENT_REVISION
 		data.inventory.overflow = player.get_meta("economy_candidate").overflow.duplicate(true)
 		var owner_world := player.get_parent()
-		data.progress.territory = owner_world.get_meta(
-			"territory_state",
-			load("res://scripts/territory/territory_model.gd").initial(data.progress.quests)
-		).duplicate(true)
-		data.progress.travel = owner_world.get_meta(
-			"travel_state",
-			load("res://scripts/territory/territory_travel.gd").initial(
-				data.progress.quests, data.world.map_id
+		data.progress.territory = (
+			owner_world
+			. get_meta(
+				"territory_state",
+				load("res://scripts/territory/territory_model.gd").initial(data.progress.quests)
 			)
-		).duplicate(true)
+			. duplicate(true)
+		)
+		data.progress.travel = (
+			owner_world
+			. get_meta(
+				"travel_state",
+				load("res://scripts/territory/territory_travel.gd").initial(
+					data.progress.quests, data.world.map_id
+				)
+			)
+			. duplicate(true)
+		)
 		data.player.hp = _json_vital(data.player.hp)
 		data.player.mp = _json_vital(data.player.mp)
 		return data
@@ -168,8 +176,12 @@ class Session:
 		var snapshot: Dictionary = codec.capture(actor, account.account_id, character)
 		var travel_model = load("res://scripts/territory/territory_travel.gd")
 		var offer: Dictionary = travel_model.quote(
-			snapshot.progress.travel, snapshot.progress.territory, world.map_id,
-			destination, int(snapshot.progress.reputation), returning
+			snapshot.progress.travel,
+			snapshot.progress.territory,
+			world.map_id,
+			destination,
+			int(snapshot.progress.reputation),
+			returning
 		)
 		if offer.error != "":
 			return _failure(offer.error)
@@ -200,9 +212,15 @@ class Session:
 			return _account_failure(disk)
 		_carrying_tracking = true
 		var result: Dictionary = _replace_world(
-			account, snapshot, active_slot, "워프 완료 · 저장은 별도입니다.",
-			{"migration_pending": migration_pending, "loaded_source_version": loaded_source_version,
-			"auto_elapsed": _auto_elapsed}
+			account,
+			snapshot,
+			active_slot,
+			"워프 완료 · 저장은 별도입니다.",
+			{
+				"migration_pending": migration_pending,
+				"loaded_source_version": loaded_source_version,
+				"auto_elapsed": _auto_elapsed
+			}
 		)
 		# 성공 뒤에는 이전 월드의 노드를 조회하지 않는다.
 		_carrying_tracking = false

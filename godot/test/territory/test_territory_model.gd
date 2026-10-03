@@ -119,6 +119,7 @@ func test_order_expiry_and_prosperity_cap() -> void:
 func test_return_cooldown_and_discount_thresholds() -> void:
 	var travel = Travel.initial(owned(), "gransia")
 	var territory = Model.initial(owned())
+	assert_eq(Travel.quote(travel, territory, "yeoulmok_defense", "", 0, true).error, "")
 	assert_eq(Travel.quote(travel, territory, "novera_commons", "gransia", 500).cost, 3443)
 	for pair in [
 		[0, 1575], [499, 1575], [500, 1418], [5499, 1418], [5500, 1103], [7499, 1103], [7500, 0]
