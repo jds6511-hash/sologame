@@ -1,6 +1,6 @@
 {
   "constants": {
-    "CURRENT_REVISION": 5,
+    "CURRENT_REVISION": 6,
     "BGM_CONTEXTS": {
       "eastern_frontier_start": "res://scenes/world/eastern_frontier_starting_area.tscn",
       "novera_gate": "res://scenes/world/novera_gate.tscn",

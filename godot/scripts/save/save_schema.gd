@@ -212,11 +212,11 @@ func player_error(data: Variant, rules: RefCounted) -> String:
 		return "exp_overflow"
 	if (
 		not data.job_id is String
-		or (data.job_id != "adventurer" and not Registry.JOBS.has(data.job_id))
+		or (data.job_id != "adventurer" and not registry.jobs.has(data.job_id))
 	):
 		return "unknown_job"
 	if data.job_id != "adventurer":
-		var gate: int = rules.transition_level(data.job_id)
+		var gate: int = registry.transition_level(data.job_id, rules)
 		if gate < 1:
 			return "unknown_job"
 		if data.level < gate:
@@ -242,7 +242,7 @@ func skills_error(data: Dictionary, rules: RefCounted) -> String:
 		if not skill in registry.loadout(data.job_id):
 			return "unavailable_skill"
 		var ultimate: bool = (
-			skill == Registry.JOBS[data.job_id].skill_ultimate
+			skill == registry.jobs[data.job_id].skill_ultimate
 			if data.job_id != "adventurer"
 			else false
 		)

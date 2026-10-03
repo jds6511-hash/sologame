@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "MQ-07-05"
+title = "눈보라 너머의 답신"
+offer_text = "서리 늑대를 밀어내고 하프나 연락 거점에서 보급로 재개 기록을 받으세요."
+prerequisite = "MQ-07-04"
+npc_id = "hafna_courier"
+accept_npc_id = "frost_quartermaster"
+reward_exp = 170000
+reward_gold = 35000
+reward_reputation = 250
+objective_kinds = Array[String](["KILL", "REACH", "INTERACT"])
+objective_targets = Array[String](["frost_wolf", "frost_arrival", "frost_dispatch"])
+objective_sources = Array[String](["pass_wolves", "frost_arrival_site", "frost_dispatch_site"])
+objective_counts = Array[int]([2, 1, 1])
+objective_labels = Array[String](["서리 늑대 처치", "하프나 연락 거점 도착", "보급로 재개 전령 기록 [F]"])
+objective_location_hints = Array[String](["서리재·하프나 보급로", "서리재·하프나 보급로", "서리재·하프나 보급로"])

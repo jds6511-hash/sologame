@@ -7,7 +7,7 @@
 ## (test_warrior_skill_slots.gd와 같은 방식 — 공유 CombatantStats를 건드리는 실제 레벨업/
 ## 스탯 재계산 경로는 다른 테스트를 오염시키므로 쓰지 않는다).
 ##
-## 화살은 씬 루트에 스폰되므로(플레이어를 따라가지 않게) after_each에서 직접 정리한다.
+## 화살은 플레이어와 같은 필드에 스폰되므로 after_each에서 직접 정리한다.
 extends GutTest
 
 const ARCHER_DEF: JobDefinition = preload("res://data/jobs/job_def_archer.tres")
@@ -31,10 +31,10 @@ func after_each() -> void:
 		arrow.free()
 
 
-## 씬 루트에 스폰된 화살 목록(발사 검증·정리 공용).
+## 플레이어와 같은 필드에 스폰된 화살 목록(발사 검증·정리 공용).
 func _spawned_arrows() -> Array:
 	var found: Array = []
-	for child in get_tree().root.get_children():
+	for child in _player.get_parent().get_children():
 		if child is ArrowProjectile:
 			found.append(child)
 	return found

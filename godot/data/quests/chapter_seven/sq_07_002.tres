@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "SQ-07-002"
+title = "광부에게 보낼 연장"
+offer_text = "현장의 기록을 확인하고 쇳골 광부에게 결과를 전하세요."
+prerequisite = "MQ-07-01"
+npc_id = "mine_worker"
+accept_npc_id = "durgan_clerk"
+reward_exp = 67585
+reward_gold = 15499
+reward_reputation = 54
+objective_kinds = Array[String](["INTERACT", "TALK"])
+objective_targets = Array[String](["durgan_tools", "mine_worker"])
+objective_sources = Array[String](["durgan_tools_site", ""])
+objective_counts = Array[int]([1, 1])
+objective_labels = Array[String](["광부 연장 묶음 인수 [F]", "쇳골 광부에게 전달 [F]"])
+objective_location_hints = Array[String](["두르간 공방가", "쇳골 갱도"])

@@ -180,6 +180,11 @@ func _make_card(index: int, job_def: JobDefinition) -> Control:
 	UiStyle.apply_label_font(button)
 	button.custom_minimum_size = Vector2(0, 60)
 	button.text = "%s 전직 (%d)" % [job_def.display_name, index + 1]
+	if _transition.has_method("trial_error"):
+		var reason: String = _transition.trial_error(job_def.job_id)
+		if not reason.is_empty():
+			button.disabled = true
+			box.add_child(_make_detail_label(reason))
 	button.pressed.connect(_select_job.bind(index))
 	box.add_child(button)
 	return card

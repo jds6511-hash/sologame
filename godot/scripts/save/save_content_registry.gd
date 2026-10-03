@@ -13,6 +13,7 @@ const RULE = preload("res://data/progression/skill_point_rule.tres")
 const TIME = preload("res://data/world/game_time_data.tres")
 const MAP_ID := "eastern_frontier_start"
 var items: Dictionary = {}
+var jobs: Dictionary = JOBS.duplicate()
 var skills: Dictionary = Manifest.SKILLS
 var slots := {
 	"weapon": ItemData.EquipSlot.WEAPON,
@@ -42,17 +43,21 @@ func skill_id(runtime_name: StringName) -> String:
 func loadout(job_id: String) -> Array:
 	if job_id == "adventurer":
 		return [skills.skill_slot1_strike, skills.skill_slot2_sprint, skills.skill_slot3_first_aid]
-	return JOBS[job_id].skill_loadout().values()
+	return jobs[job_id].skill_loadout().values()
 
 
 func tier(job_id: String) -> int:
 	if job_id == "adventurer":
 		return 0
-	return 2 if not JOBS[job_id].required_job_id.is_empty() else 1
+	return 2 if not jobs[job_id].required_job_id.is_empty() else 1
 
 
 func max_stats(level: int, job_id: String) -> CombatantStats:
 	var result := CombatantStats.new()
-	var growth: JobGrowthData = ADVENTURER if job_id == "adventurer" else JOBS[job_id].growth
+	var growth: JobGrowthData = ADVENTURER if job_id == "adventurer" else jobs[job_id].growth
 	StatGrowthCalculator.apply(result, level, growth, FORMULA)
 	return result
+
+
+func transition_level(job_id: String, rules: RefCounted) -> int:
+	return rules.transition_level(job_id)

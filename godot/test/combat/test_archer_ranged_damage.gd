@@ -28,14 +28,14 @@ func before_each() -> void:
 
 
 func after_each() -> void:
-	for child in get_tree().root.get_children():
+	for child in _player.get_parent().get_children():
 		if child is ArrowProjectile:
 			child.free()
 
 
 func _spawned_arrows() -> Array:
 	var found: Array = []
-	for child in get_tree().root.get_children():
+	for child in _player.get_parent().get_children():
 		if child is ArrowProjectile:
 			found.append(child)
 	return found

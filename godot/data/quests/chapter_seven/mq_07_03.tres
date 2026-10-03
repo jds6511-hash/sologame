@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "MQ-07-03"
+title = "돌과 룬의 협상"
+offer_text = "광석 표본과 공동 이용 조건을 대조하고 룬 기술자의 증언을 교섭관에게 전하세요."
+prerequisite = "MQ-07-02"
+npc_id = "karndurum_envoy"
+accept_npc_id = "mine_surveyor"
+reward_exp = 160000
+reward_gold = 34000
+reward_reputation = 230
+objective_kinds = Array[String](["INTERACT", "INTERACT", "TALK"])
+objective_targets = Array[String](["mine_ore", "karndurum_terms", "rune_artisan"])
+objective_sources = Array[String](["mine_ore_site", "karndurum_terms_site", ""])
+objective_counts = Array[int]([1, 1, 1])
+objective_labels = Array[String](["광맥 표본 대조 [F]", "광산 공동 이용 조건 대조 [F]", "룬 기술자에게 전달 [F]"])
+objective_location_hints = Array[String](["쇳골 갱도", "카른두름 교섭구역", "카른두름 교섭구역"])

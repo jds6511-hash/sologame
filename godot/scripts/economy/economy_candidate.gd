@@ -16,6 +16,7 @@ const PREFIX := {
 	"ring_2": "ACC-RING",
 	"necklace": "ACC-NECK"
 }
+var job_families: Dictionary = JOB_FAMILY.duplicate()
 var registry = Registry.new()
 var items: Dictionary = registry.items.duplicate()
 var catalog: Dictionary
@@ -41,7 +42,7 @@ func definition_errors() -> Array[String]:
 		var item: ItemData = items[id]
 		if (
 			item.item_type == ItemData.ItemType.WEAPON
-			and catalog.families.get(id, "") not in JOB_FAMILY.values()
+			and catalog.families.get(id, "") not in job_families.values()
 		):
 			errors.append("weapon_family:" + id)
 	for id in catalog.prices:
@@ -96,13 +97,13 @@ func starter(level: int, job: String) -> Dictionary:
 	for slot in PREFIX:
 		result[slot] = table[PREFIX[slot]]
 	var prefixes := {"sword": "WPN-SW", "greatsword": "WPN-GS", "bow": "WPN-BW"}
-	var weapon_prefix: String = prefixes[JOB_FAMILY[job]]
+	var weapon_prefix: String = prefixes[job_families[job]]
 	result.weapon = table[weapon_prefix]
 	return result
 
 
 func equip_error(id: String, slot: String, level: int, job: String) -> String:
-	if not JOB_FAMILY.has(job) or level < job_gate(job):
+	if not job_families.has(job) or level < job_gate(job):
 		return "job"
 	if not items.has(id) or not registry.slots.has(slot):
 		return "item"
@@ -114,7 +115,7 @@ func equip_error(id: String, slot: String, level: int, job: String) -> String:
 		return "slot"
 	if item.level_limit > level:
 		return "level"
-	if slot == "weapon" and catalog.families.get(id, "") != JOB_FAMILY[job]:
+	if slot == "weapon" and catalog.families.get(id, "") != job_families[job]:
 		return "weapon_family"
 	return ""
 

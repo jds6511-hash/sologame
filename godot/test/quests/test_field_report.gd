@@ -62,7 +62,7 @@ func test_all_22_side_rewards_use_normal_completion_once() -> void:
 		assert_eq(inventory.gold, before + journal.catalog.definitions[id].reward_gold)
 		var restored := QuestJournal.new(journal.catalog)
 		assert_eq(restored.restore_state(journal.export_state()), "")
-	assert_eq(count, 22)
+	assert_eq(count, 35)
 
 
 func test_main_unknown_and_death_cannot_claim() -> void:

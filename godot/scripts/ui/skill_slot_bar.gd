@@ -122,6 +122,8 @@ func _process(_delta: float) -> void:
 		_slots[key].set_cooldown(remaining, skill.cooldown_sec)
 		if _stats and _stats.stats:
 			var mp_cost: float = _stats.stats.max_mp * skill.mp_cost_percent
+			if skill is SharpshooterSkillData and skill.fixed_mp_cost >= 0.0:
+				mp_cost = skill.fixed_mp_cost
 			_slots[key].set_mp_insufficient(not _stats.has_mp(mp_cost))
 	if _stats and _stats.recovery_rules:
 		_quickslot_5.set_cooldown(

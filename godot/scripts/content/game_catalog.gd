@@ -20,7 +20,7 @@ func ordered_ids() -> Array:
 
 
 func allows_field_report(id: String) -> bool:
-	return id.begins_with("SQ-") and Content.QUEST_REVISIONS.get(id, 0) in [3, 4, 5]
+	return id.begins_with("SQ-") and Content.QUEST_REVISIONS.get(id, 0) in [3, 4, 5, 6]
 
 
 func eligibility_error(quest_id: String, states: Dictionary) -> String:

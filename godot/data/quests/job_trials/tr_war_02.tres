@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "TR-WAR-02"
+title = "검투사의 자격"
+offer_text = "훈련 시작 표식에서 재개하세요. 예고를 피하며 두 훈련병을 우클릭 차지 강타 등 강 등급 타격으로 마무리한 뒤 돌진 훈련병을 처치하세요. 실패해도 완료한 수는 남습니다. 보고 뒤 Lv40 전사는 V에서 승급할 수 있습니다."
+prerequisite = "MQ-07-01"
+npc_id = "durgan_trainer"
+objective_kinds = Array[String](["INTERACT", "INTERACT"])
+objective_targets = Array[String](["trial_target", "trial_target"])
+objective_sources = Array[String](["trial_war_heavy", "trial_war_guard"])
+objective_counts = Array[int]([2, 1])
+objective_labels = Array[String](["강 등급 마무리 2회", "돌진 훈련병 처치"])
+objective_location_hints = Array[String](["두르간 훈련장", "두르간 훈련장"])
+reward_exp = 0
+reward_gold = 0
+reward_reputation = 0

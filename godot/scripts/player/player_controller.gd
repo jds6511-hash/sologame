@@ -508,8 +508,12 @@ func _try_fire_arrows(action: Resource) -> bool:
 	_current_action_step = action
 	## 발사 직전에 커서 방향을 확정한다.
 	_apply_attack_aim(_shots.effective_range_tiles(spec))
-	_shots.fire(action, spec, Vector2.RIGHT.rotated(_facing.rotation))
-	return true
+	return _shots.fire(action, spec, Vector2.RIGHT.rotated(_facing.rotation))
+
+
+func _can_fire_arrows(action: Resource) -> bool:
+	var spec := _shots.arrow_spec_for(action)
+	return _shots.can_fire(action, spec, Vector2.RIGHT.rotated(_facing.rotation))
 
 
 ## 화살 명중도 근접과 같은 attack_hit 계약으로 리졸버에 전달한다.
@@ -539,6 +543,7 @@ func apply_transition_loadout(slots: Dictionary, combo: WarriorComboData = null)
 		combo_data = combo
 	_shots.refresh_stance(skill_charge)
 	## 우클릭 격노 파생 슬롯(검투사 처형 일격) — 있으면 분노 게이지가 켜진다(2차 전직).
+	_shots.set_focus_enabled(skill_slot_4 is SharpshooterSkillData)
 	rage.refresh_job(slots.get("rage_finisher") as WarriorSkillData)
 	_reset_action_state()
 
@@ -734,7 +739,10 @@ func take_hit(is_heavy: bool, knockback_direction: Vector2 = Vector2.ZERO) -> vo
 func take_damage(amount: float, hit_grade: String = "약", attacker: Node2D = null) -> void:
 	rage.add_from_hit_taken()  ## 피격 +12 — 분노의 최대 단일 충전원(2-2장)
 	if _stats:
+		var before := _stats.current_hp
 		_stats.take_damage(amount, hit_grade, attacker)
+		if _stats.current_hp < before:
+			_shots.focus.take_hit()
 
 
 ## PlayerAttackResolver 등 공격자 쪽이 조회하는 방어력 duck-typing 계약.
@@ -753,6 +761,7 @@ func is_dead() -> bool:
 ## move_and_slide()는 부르지 않는다 — 속도를 0으로 눌러 두므로 이동이 없고, 시체가 지형에
 ## 밀려 미끄러지는 잔여 이동도 생기지 않는다.
 func _process_death_lock() -> void:
+	_shots.reset_focus()
 	_move_input = Vector2.ZERO
 	velocity = Vector2.ZERO
 	_knockback_velocity = Vector2.ZERO

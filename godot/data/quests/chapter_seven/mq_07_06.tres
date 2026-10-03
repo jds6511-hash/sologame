@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "MQ-07-06"
+title = "강철의 값"
+offer_text = "산맥의 조사 기록과 보급 협력을 두르간에 모아 조약을 마무리하세요."
+prerequisite = "MQ-07-05"
+npc_id = "durgan_foreman"
+accept_npc_id = "hafna_courier"
+reward_exp = 172896
+reward_gold = 36480
+reward_reputation = 260
+objective_kinds = Array[String](["INTERACT", "INTERACT", "TALK"])
+objective_targets = Array[String](["karndurum_seal", "durgan_treaty", "durgan_foreman"])
+objective_sources = Array[String](["karndurum_seal_site", "durgan_treaty_site", ""])
+objective_counts = Array[int]([1, 1, 1])
+objective_labels = Array[String](["기술 공유 문서 봉인 [F]", "상호 협력 조약 기록 [F]", "두르간 공방 감독에게 전달 [F]"])
+objective_location_hints = Array[String](["카른두름 교섭구역", "두르간 공방가", "두르간 공방가"])

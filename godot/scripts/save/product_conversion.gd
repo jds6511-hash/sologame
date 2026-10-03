@@ -9,10 +9,12 @@ const Territory = preload("res://scripts/territory/territory_model.gd")
 const Travel = preload("res://scripts/territory/territory_travel.gd")
 var legacy = Frozen.new()
 var expanded = Economy.new()
-var model = legacy.model
+var model = preload("res://scripts/economy/product_economy.gd").new()
 
 
 func _init() -> void:
+	expanded.model = model
+	expanded.expanded.registry = model.registry
 	expanded.expanded.quest_catalog = Catalog.new(expanded.expanded.registry)
 	expanded.expanded.regions = Content
 
@@ -24,6 +26,9 @@ func validate(data: Dictionary, account: Dictionary) -> String:
 	var revision: Variant = data.get("content_revision")
 	if not expanded.expanded.integer(revision, 1, Content.CURRENT_REVISION):
 		return "unsupported_content"
+	var content_error: String = model.registry.revision_error(data, int(revision))
+	if content_error != "":
+		return content_error
 	if not data.get("progress") is Dictionary:
 		return "progress_fields"
 	if not data.progress.get("quests") is Dictionary:

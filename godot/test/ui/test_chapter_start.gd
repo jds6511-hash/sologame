@@ -8,9 +8,9 @@ func test_chapter_preparation_is_separate_from_real_saves() -> void:
 	assert_true(bootstrap.has_method("start_options"), "시작 화면은 기본 저장과 준비 상태를 구분한다")
 	if bootstrap.has_method("start_options"):
 		var options: Array = bootstrap.start_options()
-		assert_eq(options.size(), 7)
+		assert_eq(options.size(), 8)
 		assert_eq(options[0].directory, "user://saves")
-		for index in range(1, 7):
+		for index in range(1, 8):
 			assert_eq(options[index].directory, "user://product_chapter_preview")
 			assert_eq(options[index].chapter, index)
 	bootstrap.free()
@@ -33,7 +33,7 @@ func test_preparation_does_not_turn_third_chapter_into_completed_content() -> vo
 
 func test_prepared_world_snapshots_follow_product_schema() -> void:
 	var bootstrap = Bootstrap.new()
-	for chapter in range(1, 7):
+	for chapter in range(1, 8):
 		var region: String = bootstrap.start_region(chapter)
 		var world = load("res://scripts/world/game_product.gd").instantiate_world(region)
 		world.set_meta("save_directory", "user://product_chapter_preview")

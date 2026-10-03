@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="SharpshooterSkillData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/player/sharpshooter_skill_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+skill_name = "호흡 정돈"
+skill_type = 3
+cooldown_sec = 14.0
+mp_cost_percent = 0.0
+fixed_mp_cost = 20
+damage_coefficient = 0.0
+hitbox_range_tiles = 0.0
+hitbox_angle_deg = 0.0
+startup_sec = 0.3
+active_sec = 0.0
+recovery_sec = 0.2
+buff_duration_sec = 6.0
+aim_move_speed_multiplier = 0.8
+grants_breathing = true
+focus_charge_cap = 0

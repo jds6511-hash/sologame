@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "SQ-07-007"
+title = "열을 식히는 물길"
+offer_text = "현장의 기록을 확인하고 룬 기술자에게 결과를 전하세요."
+prerequisite = "MQ-07-02"
+npc_id = "rune_artisan"
+accept_npc_id = "rune_artisan"
+reward_exp = 67584
+reward_gold = 15498
+reward_reputation = 54
+objective_kinds = Array[String](["INTERACT", "INTERACT"])
+objective_targets = Array[String](["karndurum_water", "karndurum_rune"])
+objective_sources = Array[String](["karndurum_water_site", "karndurum_rune_site"])
+objective_counts = Array[int]([1, 1])
+objective_labels = Array[String](["공방 냉각 수로 점검 [F]", "룬 장치의 균열 기록 [F]"])
+objective_location_hints = Array[String](["카른두름 교섭구역", "카른두름 교섭구역"])

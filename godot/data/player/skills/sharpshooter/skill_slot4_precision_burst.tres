@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="SharpshooterSkillData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/player/sharpshooter_skill_data.gd" id="1"]
+[ext_resource type="Resource" path="res://data/player/arrows/arrow_basic.tres" id="2"]
+
+[resource]
+script = ExtResource("1")
+skill_name = "연속 정밀사격"
+skill_type = 0
+cooldown_sec = 6.0
+mp_cost_percent = 0.0
+fixed_mp_cost = 18
+damage_coefficient = 0.8
+hitbox_range_tiles = 0.0
+hitbox_angle_deg = 0.0
+startup_sec = 0.2
+active_sec = 0.36
+recovery_sec = 0.25
+hitstop_preset = "중"
+arrow = ExtResource("2")
+projectile_count = 3
+projectile_interval_sec = 0.12
+focus_charge_cap = 10

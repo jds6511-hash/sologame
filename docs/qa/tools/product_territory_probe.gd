@@ -25,7 +25,7 @@ func _run() -> void:
 		quit(2)
 		return
 	if args.size() == 2:
-		if args[1] not in ["5", "6"]:
+		if args[1] not in ["5", "6", "7"]:
 			quit(2)
 			return
 		chapter = int(args[1])
@@ -145,11 +145,11 @@ func seed_session() -> void:
 				"counts": Array(journal.catalog.definitions[id].objective_counts)
 			}
 	check(journal.restore_state(states) == "", "이전 장 완료 준비 fixture")
-	world.get_node("Player/PlayerProgression").add_exp({4: 79291, 5: 283297, 6: 704457}[chapter])
+	world.get_node("Player/PlayerProgression").add_exp({4: 79291, 5: 283297, 6: 704457, 7: 1674227}[chapter])
 	world.get_node("Player/Inventory").add_gold(40000)
 	var ids := []
 	for id in journal.catalog.ordered_ids():
-		if RegionsM7.QUEST_REVISIONS[id] == chapter - 1:
+		if RegionsM7.QUEST_REVISIONS[id] == chapter - 1 and not id.begins_with("TR-"):
 			ids.append(id)
 	for id in ids:
 		journal = world.get_node("QuestController").journal
@@ -166,6 +166,8 @@ func seed_session() -> void:
 				var victims := world.get_node("MonsterSpawner").get_children()
 				var killed := 0
 				for monster in victims:
+					if killed >= definition.objective_counts[index]:
+						break
 					if (
 						monster.has_method("is_dead")
 						and not monster.is_dead()
@@ -177,7 +179,7 @@ func seed_session() -> void:
 				check(killed == definition.objective_counts[index], "생성 수와 실제 사망 신호")
 				await process_frame
 				await process_frame
-				if id in ["MQ-04-02", "MQ-05-03", "MQ-06-03"] and index == 0:
+				if id in ["MQ-04-02", "MQ-05-03", "MQ-06-03", "MQ-07-02"] and index == 0:
 					await save_snapshot(2, "middle.json")
 			elif RegionsM7.SITES.has(target):
 				var site: Array = RegionsM7.SITES[target]
@@ -223,7 +225,7 @@ func seed_session() -> void:
 	check(
 		(
 			world.get_node("QuestController").journal.reputation()
-			== {4: 1950, 5: 3100, 6: 4600}[chapter]
+			== {4: 1950, 5: 3100, 6: 4600, 7: 6700}[chapter]
 		),
 		"장 기준 공훈 합계"
 	)
@@ -287,7 +289,7 @@ func save_snapshot(slot: int, name: String) -> void:
 
 
 func territory_session() -> void:
-	await go_region({4: "brantel", 5: "arsel", 6: "misran"}[chapter])
+	await go_region({4: "brantel", 5: "arsel", 6: "misran", 7: "durgan"}[chapter])
 	world.get_node("Player").position = RegionsM7.WARP_ARRIVALS[world.map_id]
 	var session = world.get_node("SaveSession")
 	check(session.warp("novera").ok, "방문 도시 유료 워프")

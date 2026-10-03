@@ -14,8 +14,19 @@ FIELDS = ['objective_kinds', 'objective_targets', 'objective_sources', 'objectiv
 def load_manifest(root):
     files = sorted((root / 'godot/data/content').glob('*.json'))
     documents = [json.loads(path.read_text(encoding='utf-8-sig')) for path in files]
-    base = next(doc for doc in documents if 'chapter' not in doc)
-    return {'constants': copy.deepcopy(base['constants']), 'chapters': sorted((doc for doc in documents if 'chapter' in doc), key=lambda doc: doc['chapter'])}
+    base = next(doc for doc in documents if 'chapter' not in doc and 'extension_of' not in doc)
+    chapters = sorted((doc for doc in documents if 'chapter' in doc), key=lambda doc: doc['chapter'])
+    for extension in (doc for doc in documents if 'extension_of' in doc):
+        chapter = next((doc for doc in chapters if doc['chapter'] == extension['extension_of']), None)
+        if chapter is None or extension['content_revision'] != chapter.get('content_revision', chapter['chapter'] - 1):
+            raise ValueError('잘못된 장 확장/개정')
+        for name, values in extension['constants'].items():
+            target = chapter['constants'].setdefault(name, {})
+            if set(target) & set(values):
+                raise ValueError('중복 확장 콘텐츠: ' + name)
+            target.update(values)
+        chapter['quests'].extend(extension['quests'])
+    return {'constants': copy.deepcopy(base['constants']), 'chapters': chapters}
 
 
 def merged(data):
@@ -68,9 +79,12 @@ def budget_reference(root, chapter):
     number = lambda value: int(value.replace(',', ''))
     report = number(exp[2])
     side = int(report * 0.4 + 0.5)
-    return {'reward_exp': report, 'reward_gold': number(exp[5]),
+    # S7 확정 여유는 서브 풀을 늘리지 않고 필수 첫 보고에만 지급한다.
+    # 100-hour-exp-margin.md / second-job-chapter-seven.md 정본 계약.
+    extra_main = 500000 if chapter == 7 else 0
+    return {'reward_exp': report + extra_main, 'reward_gold': number(exp[5]),
             'reward_reputation': number(rep[6]) + number(rep[7]),
-            'main_exp': report - side, 'side_exp': side,
+            'main_exp': report - side + extra_main, 'side_exp': side,
             'main_reputation': number(rep[6]), 'side_reputation': number(rep[7]),
             'main_count': number(count[3]), 'side_count': number(count[4])}
 
@@ -114,6 +128,9 @@ def validate(data, root):
                     valid = c['MARKER_CONTENT_IDS'].get(source) == target
                 else:
                     valid = False
+            elif kind == 'INTERACT' and source in c.get('TRIAL_TARGETS', {}):
+                trial = c['TRIAL_TARGETS'][source]
+                valid = trial['target'] == target and trial['quest_id'] == id and trial['index'] == index and trial['region'] in c['SCENES']
             elif kind in ['REACH', 'INTERACT'] and target in c['SITES']:
                 valid = c['SITES'][target][1:3] == [source, kind]
             else:
@@ -123,6 +140,8 @@ def validate(data, root):
         for key in ['reward_exp', 'reward_gold', 'reward_reputation']:
             if type(q.get(key, 0)) is not int or q.get(key, 0) < 0:
                 raise ValueError('보상 형식: ' + id)
+        if id.startswith('TR-') and any(q.get(key, 0) != 0 for key in ['reward_exp', 'reward_gold', 'reward_reputation', 'reward_item_count']):
+            raise ValueError('시련 보상은 0: ' + id)
     for id in quests:
         seen = set()
         current = id

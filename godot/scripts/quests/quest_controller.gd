@@ -21,6 +21,15 @@ func is_reward_busy() -> bool:
 	return _reward_busy
 
 
+func accept(quest_id: String) -> String:
+	var required := {"TR-WAR-02": &"warrior", "TR-ARC-02": &"archer"}
+	if required.has(quest_id):
+		var transition := _player.get_node_or_null("PlayerJobTransition")
+		if transition == null or transition.current_job_id != required[quest_id]:
+			return "trial_job_required"
+	return journal.accept(quest_id)
+
+
 func report_from_journal(quest_id: String) -> String:
 	if not journal.catalog.has_method("allows_field_report"):
 		return "field_report_unavailable"

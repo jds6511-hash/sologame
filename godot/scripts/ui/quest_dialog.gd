@@ -89,10 +89,13 @@ func choose(action: String, quest_id: String = "") -> void:
 		"report":
 			error = controller.report(quest_id, _npc_id)
 		"accept":
-			error = controller.journal.accept(quest_id)
+			error = controller.accept(quest_id)
 		_:
 			return
 	if not error.is_empty():
+		if error == "trial_job_required":
+			_message.text = "현재 직업 계열에 맞는 시련을 선택하세요. 전사는 검투사 시련, 궁수는 명사수 시련을 받습니다."
+			return
 		_message.text = (
 			"가방을 비운 뒤 다시 보고해 주세요." if error == "inventory_full" else "진행할 수 없습니다: " + error
 		)

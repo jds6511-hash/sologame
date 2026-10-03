@@ -1,0 +1,1404 @@
+{
+  "chapter": 7,
+  "content_revision": 6,
+  "budget": {
+    "reward_exp": 2696494,
+    "reward_gold": 402960,
+    "reward_reputation": 2100,
+    "main_exp": 1817896,
+    "side_exp": 878598,
+    "main_reputation": 1400,
+    "side_reputation": 700
+  },
+  "constants": {
+    "BGM_CONTEXTS": {
+      "durgan": "res://scenes/world/novera_gate.tscn",
+      "iron_mine": "res://scenes/world/novera_gate.tscn",
+      "karndurum": "res://scenes/world/novera_gate.tscn",
+      "frost_pass": "res://scenes/world/novera_gate.tscn"
+    },
+    "SCENES": {
+      "durgan": "res://scenes/world/product_world.tscn",
+      "iron_mine": "res://scenes/world/product_world.tscn",
+      "karndurum": "res://scenes/world/product_world.tscn",
+      "frost_pass": "res://scenes/world/product_world.tscn"
+    },
+    "NAMES": {
+      "durgan": "두르간 공방가",
+      "iron_mine": "쇳골 갱도",
+      "karndurum": "카른두름 교섭구역",
+      "frost_pass": "서리재·하프나 보급로"
+    },
+    "BOUNDS": {
+      "durgan": {
+        "$rect": [
+          0,
+          0,
+          1920,
+          1280
+        ]
+      },
+      "iron_mine": {
+        "$rect": [
+          0,
+          0,
+          1920,
+          1280
+        ]
+      },
+      "karndurum": {
+        "$rect": [
+          0,
+          0,
+          1920,
+          1280
+        ]
+      },
+      "frost_pass": {
+        "$rect": [
+          0,
+          0,
+          1920,
+          1280
+        ]
+      }
+    },
+    "REGION_REQUIREMENTS": {
+      "durgan": "MQ-06-05",
+      "iron_mine": "MQ-07-01",
+      "karndurum": "MQ-07-02",
+      "frost_pass": "MQ-07-03"
+    },
+    "EDGES": {
+      "misran_to_durgan": [
+        "misran",
+        "durgan",
+        {
+          "$vector": [
+            1488,
+            512
+          ]
+        },
+        {
+          "$vector": [
+            176,
+            640
+          ]
+        },
+        "durgan_to_misran"
+      ],
+      "durgan_to_misran": [
+        "durgan",
+        "misran",
+        {
+          "$vector": [
+            96,
+            640
+          ]
+        },
+        {
+          "$vector": [
+            1408,
+            512
+          ]
+        },
+        "misran_to_durgan"
+      ],
+      "durgan_to_iron_mine": [
+        "durgan",
+        "iron_mine",
+        {
+          "$vector": [
+            1808,
+            640
+          ]
+        },
+        {
+          "$vector": [
+            176,
+            640
+          ]
+        },
+        "iron_mine_to_durgan"
+      ],
+      "iron_mine_to_durgan": [
+        "iron_mine",
+        "durgan",
+        {
+          "$vector": [
+            96,
+            640
+          ]
+        },
+        {
+          "$vector": [
+            1728,
+            640
+          ]
+        },
+        "durgan_to_iron_mine"
+      ],
+      "iron_mine_to_karndurum": [
+        "iron_mine",
+        "karndurum",
+        {
+          "$vector": [
+            1808,
+            640
+          ]
+        },
+        {
+          "$vector": [
+            176,
+            640
+          ]
+        },
+        "karndurum_to_iron_mine"
+      ],
+      "karndurum_to_iron_mine": [
+        "karndurum",
+        "iron_mine",
+        {
+          "$vector": [
+            96,
+            640
+          ]
+        },
+        {
+          "$vector": [
+            1728,
+            640
+          ]
+        },
+        "iron_mine_to_karndurum"
+      ],
+      "karndurum_to_frost_pass": [
+        "karndurum",
+        "frost_pass",
+        {
+          "$vector": [
+            1808,
+            640
+          ]
+        },
+        {
+          "$vector": [
+            176,
+            640
+          ]
+        },
+        "frost_pass_to_karndurum"
+      ],
+      "frost_pass_to_karndurum": [
+        "frost_pass",
+        "karndurum",
+        {
+          "$vector": [
+            96,
+            640
+          ]
+        },
+        {
+          "$vector": [
+            1728,
+            640
+          ]
+        },
+        "karndurum_to_frost_pass"
+      ]
+    },
+    "NPCS": {
+      "durgan_foreman": [
+        "durgan",
+        {
+          "$vector": [
+            448,
+            592
+          ]
+        },
+        "두르간 공방 감독"
+      ],
+      "durgan_clerk": [
+        "durgan",
+        {
+          "$vector": [
+            1248,
+            704
+          ]
+        },
+        "두르간 물자 서기"
+      ],
+      "mine_surveyor": [
+        "iron_mine",
+        {
+          "$vector": [
+            448,
+            592
+          ]
+        },
+        "쇳골 측량사"
+      ],
+      "mine_worker": [
+        "iron_mine",
+        {
+          "$vector": [
+            1248,
+            704
+          ]
+        },
+        "쇳골 광부"
+      ],
+      "karndurum_envoy": [
+        "karndurum",
+        {
+          "$vector": [
+            448,
+            592
+          ]
+        },
+        "카른두름 교섭관"
+      ],
+      "rune_artisan": [
+        "karndurum",
+        {
+          "$vector": [
+            1248,
+            704
+          ]
+        },
+        "룬 기술자"
+      ],
+      "frost_quartermaster": [
+        "frost_pass",
+        {
+          "$vector": [
+            448,
+            592
+          ]
+        },
+        "서리재 보급관"
+      ],
+      "hafna_courier": [
+        "frost_pass",
+        {
+          "$vector": [
+            1248,
+            704
+          ]
+        },
+        "하프나 연락원"
+      ]
+    },
+    "SITES": {
+      "durgan_arrival": [
+        {
+          "$vector": [
+            256,
+            640
+          ]
+        },
+        "durgan_arrival_site",
+        "REACH",
+        "두르간 조사단 도착",
+        "durgan"
+      ],
+      "durgan_brief": [
+        {
+          "$vector": [
+            832,
+            352
+          ]
+        },
+        "durgan_brief_site",
+        "INTERACT",
+        "광산 조사 요청 대조",
+        "durgan"
+      ],
+      "durgan_manifest": [
+        {
+          "$vector": [
+            1152,
+            352
+          ]
+        },
+        "durgan_manifest_site",
+        "INTERACT",
+        "공방 물자 명세 확인",
+        "durgan"
+      ],
+      "durgan_tools": [
+        {
+          "$vector": [
+            1152,
+            864
+          ]
+        },
+        "durgan_tools_site",
+        "INTERACT",
+        "광부 연장 묶음 인수",
+        "durgan"
+      ],
+      "mine_support": [
+        {
+          "$vector": [
+            800,
+            352
+          ]
+        },
+        "mine_support_site",
+        "INTERACT",
+        "무너진 지지대 점검",
+        "iron_mine"
+      ],
+      "mine_route": [
+        {
+          "$vector": [
+            1440,
+            352
+          ]
+        },
+        "mine_route_site",
+        "REACH",
+        "우회 갱도 출구 탐사",
+        "iron_mine"
+      ],
+      "mine_ore": [
+        {
+          "$vector": [
+            1440,
+            928
+          ]
+        },
+        "mine_ore_site",
+        "INTERACT",
+        "광맥 표본 대조",
+        "iron_mine"
+      ],
+      "mine_lamp": [
+        {
+          "$vector": [
+            800,
+            928
+          ]
+        },
+        "mine_lamp_site",
+        "INTERACT",
+        "갱도 표지등 복구",
+        "iron_mine"
+      ],
+      "karndurum_terms": [
+        {
+          "$vector": [
+            832,
+            352
+          ]
+        },
+        "karndurum_terms_site",
+        "INTERACT",
+        "광산 공동 이용 조건 대조",
+        "karndurum"
+      ],
+      "karndurum_rune": [
+        {
+          "$vector": [
+            1440,
+            352
+          ]
+        },
+        "karndurum_rune_site",
+        "INTERACT",
+        "룬 장치의 균열 기록",
+        "karndurum"
+      ],
+      "karndurum_water": [
+        {
+          "$vector": [
+            832,
+            928
+          ]
+        },
+        "karndurum_water_site",
+        "INTERACT",
+        "공방 냉각 수로 점검",
+        "karndurum"
+      ],
+      "karndurum_seal": [
+        {
+          "$vector": [
+            1440,
+            928
+          ]
+        },
+        "karndurum_seal_site",
+        "INTERACT",
+        "기술 공유 문서 봉인",
+        "karndurum"
+      ],
+      "frost_cache": [
+        {
+          "$vector": [
+            800,
+            352
+          ]
+        },
+        "frost_cache_site",
+        "INTERACT",
+        "눈에 묻힌 보급함 확인",
+        "frost_pass"
+      ],
+      "frost_beacon": [
+        {
+          "$vector": [
+            1440,
+            352
+          ]
+        },
+        "frost_beacon_site",
+        "INTERACT",
+        "서리재 신호대 복구",
+        "frost_pass"
+      ],
+      "frost_arrival": [
+        {
+          "$vector": [
+            1440,
+            928
+          ]
+        },
+        "frost_arrival_site",
+        "REACH",
+        "하프나 연락 거점 도착",
+        "frost_pass"
+      ],
+      "frost_dispatch": [
+        {
+          "$vector": [
+            800,
+            928
+          ]
+        },
+        "frost_dispatch_site",
+        "INTERACT",
+        "보급로 재개 전령 기록",
+        "frost_pass"
+      ],
+      "durgan_treaty": [
+        {
+          "$vector": [
+            1440,
+            928
+          ]
+        },
+        "durgan_treaty_site",
+        "INTERACT",
+        "상호 협력 조약 기록",
+        "durgan"
+      ]
+    },
+    "SITE_NOTICES": {
+      "mine_support": "지지대가 내려앉아 수레길이 막혔다. 측량사는 동쪽의 오래된 갱도를 우회로로 제시한다.",
+      "karndurum_terms": "교섭관은 광석의 일방 반출 대신 공구와 식량의 정기 공급을 요구한다. 공동 조사 기록을 바탕으로 조건을 맞춘다.",
+      "frost_beacon": "눈보라에 끊겼던 신호가 하프나 쪽 봉우리에서 응답한다. 보급대가 움직일 길이 다시 이어졌다.",
+      "durgan_treaty": "광산 안전 조사와 룬 기술 교류, 서리재 보급 협력을 하나의 조약에 남긴다."
+    },
+    "HABITATS": {
+      "mine_bats": [
+        "iron_mine",
+        [
+          {
+            "$vector": [
+              1024,
+              464
+            ]
+          },
+          {
+            "$vector": [
+              1136,
+              464
+            ]
+          },
+          {
+            "$vector": [
+              1248,
+              464
+            ]
+          }
+        ],
+        "forest_spider",
+        "cave_bat"
+      ],
+      "mine_kobolds": [
+        "iron_mine",
+        [
+          {
+            "$vector": [
+              1024,
+              800
+            ]
+          },
+          {
+            "$vector": [
+              1136,
+              800
+            ]
+          },
+          {
+            "$vector": [
+              1248,
+              800
+            ]
+          }
+        ],
+        "outlaw",
+        "kobold_miner"
+      ],
+      "rune_golems": [
+        "karndurum",
+        [
+          {
+            "$vector": [
+              1024,
+              464
+            ]
+          },
+          {
+            "$vector": [
+              1136,
+              464
+            ]
+          },
+          {
+            "$vector": [
+              1248,
+              464
+            ]
+          }
+        ],
+        "wolf",
+        "rock_golem"
+      ],
+      "pass_wolves": [
+        "frost_pass",
+        [
+          {
+            "$vector": [
+              1024,
+              800
+            ]
+          },
+          {
+            "$vector": [
+              1136,
+              800
+            ]
+          },
+          {
+            "$vector": [
+              1248,
+              800
+            ]
+          }
+        ],
+        "wolf",
+        "frost_wolf"
+      ],
+      "pass_spirits": [
+        "frost_pass",
+        [
+          {
+            "$vector": [
+              1024,
+              464
+            ]
+          },
+          {
+            "$vector": [
+              1136,
+              464
+            ]
+          },
+          {
+            "$vector": [
+              1248,
+              464
+            ]
+          }
+        ],
+        "rift_slime",
+        "ice_spirit"
+      ]
+    },
+    "MONSTER_VARIANTS": {
+      "cave_bat": {
+        "title": "동굴 박쥐",
+        "scene": "forest_spider",
+        "stats": "res://data/monsters/chapter_seven/cave_bat.tres",
+        "level": 40
+      },
+      "kobold_miner": {
+        "title": "코볼트 광부",
+        "scene": "outlaw",
+        "stats": "res://data/monsters/chapter_seven/kobold_miner.tres",
+        "level": 42
+      },
+      "rock_golem": {
+        "title": "바위 골렘",
+        "scene": "wolf",
+        "stats": "res://data/monsters/chapter_seven/rock_golem.tres",
+        "level": 44
+      },
+      "frost_wolf": {
+        "title": "서리 늑대",
+        "scene": "wolf",
+        "stats": "res://data/monsters/chapter_seven/frost_wolf.tres",
+        "level": 46
+      },
+      "ice_spirit": {
+        "title": "얼음 정령",
+        "scene": "rift_slime",
+        "stats": "res://data/monsters/chapter_seven/ice_spirit.tres",
+        "level": 48
+      }
+    },
+    "MERCHANTS": {
+      "durgan": [
+        {
+          "$vector": [
+            672,
+            704
+          ]
+        }
+      ]
+    },
+    "WARP_ARRIVALS": {
+      "durgan": {
+        "$vector": [
+          176,
+          640
+        ]
+      }
+    }
+  },
+  "quests": [
+    {
+      "quest_id": "MQ-07-01",
+      "path": "res://data/quests/chapter_seven/mq_07_01.tres",
+      "title": "강철산맥의 첫 보고",
+      "offer_text": "두르간에 도착해 광산 조사 요청을 대조하고 감독에게 첫 현황을 보고하세요.",
+      "prerequisite": "MQ-06-05",
+      "npc_id": "durgan_foreman",
+      "accept_npc_id": "misran_envoy",
+      "reward_exp": 1000000,
+      "reward_gold": 30000,
+      "reward_reputation": 200,
+      "objective_kinds": [
+        "REACH",
+        "INTERACT",
+        "TALK"
+      ],
+      "objective_targets": [
+        "durgan_arrival",
+        "durgan_brief",
+        "durgan_foreman"
+      ],
+      "objective_sources": [
+        "durgan_arrival_site",
+        "durgan_brief_site",
+        ""
+      ],
+      "objective_counts": [
+        1,
+        1,
+        1
+      ],
+      "objective_labels": [
+        "두르간 조사단 도착",
+        "광산 조사 요청 대조 [F]",
+        "두르간 공방 감독에게 전달 [F]"
+      ],
+      "objective_location_hints": [
+        "두르간 공방가",
+        "두르간 공방가",
+        "두르간 공방가"
+      ]
+    },
+    {
+      "quest_id": "MQ-07-02",
+      "path": "res://data/quests/chapter_seven/mq_07_02.tres",
+      "title": "무너진 갱도의 우회로",
+      "offer_text": "지지대를 조사하고 코볼트가 점거한 통로를 확보해 우회 출구를 측량사에게 전하세요.",
+      "prerequisite": "MQ-07-01",
+      "npc_id": "mine_surveyor",
+      "accept_npc_id": "durgan_foreman",
+      "reward_exp": 150000,
+      "reward_gold": 32000,
+      "reward_reputation": 220,
+      "objective_kinds": [
+        "INTERACT",
+        "KILL",
+        "REACH"
+      ],
+      "objective_targets": [
+        "mine_support",
+        "kobold_miner",
+        "mine_route"
+      ],
+      "objective_sources": [
+        "mine_support_site",
+        "mine_kobolds",
+        "mine_route_site"
+      ],
+      "objective_counts": [
+        1,
+        2,
+        1
+      ],
+      "objective_labels": [
+        "무너진 지지대 점검 [F]",
+        "코볼트 광부 처치",
+        "우회 갱도 출구 탐사"
+      ],
+      "objective_location_hints": [
+        "쇳골 갱도",
+        "쇳골 갱도",
+        "쇳골 갱도"
+      ]
+    },
+    {
+      "quest_id": "MQ-07-03",
+      "path": "res://data/quests/chapter_seven/mq_07_03.tres",
+      "title": "돌과 룬의 협상",
+      "offer_text": "광석 표본과 공동 이용 조건을 대조하고 룬 기술자의 증언을 교섭관에게 전하세요.",
+      "prerequisite": "MQ-07-02",
+      "npc_id": "karndurum_envoy",
+      "accept_npc_id": "mine_surveyor",
+      "reward_exp": 160000,
+      "reward_gold": 34000,
+      "reward_reputation": 230,
+      "objective_kinds": [
+        "INTERACT",
+        "INTERACT",
+        "TALK"
+      ],
+      "objective_targets": [
+        "mine_ore",
+        "karndurum_terms",
+        "rune_artisan"
+      ],
+      "objective_sources": [
+        "mine_ore_site",
+        "karndurum_terms_site",
+        ""
+      ],
+      "objective_counts": [
+        1,
+        1,
+        1
+      ],
+      "objective_labels": [
+        "광맥 표본 대조 [F]",
+        "광산 공동 이용 조건 대조 [F]",
+        "룬 기술자에게 전달 [F]"
+      ],
+      "objective_location_hints": [
+        "쇳골 갱도",
+        "카른두름 교섭구역",
+        "카른두름 교섭구역"
+      ]
+    },
+    {
+      "quest_id": "MQ-07-04",
+      "path": "res://data/quests/chapter_seven/mq_07_04.tres",
+      "title": "서리재에서 끊긴 신호",
+      "offer_text": "교섭관의 보급 약속을 들고 눈에 묻힌 보급함과 신호대를 확인하세요.",
+      "prerequisite": "MQ-07-03",
+      "npc_id": "frost_quartermaster",
+      "accept_npc_id": "karndurum_envoy",
+      "reward_exp": 165000,
+      "reward_gold": 34000,
+      "reward_reputation": 240,
+      "objective_kinds": [
+        "INTERACT",
+        "INTERACT",
+        "TALK"
+      ],
+      "objective_targets": [
+        "frost_cache",
+        "frost_beacon",
+        "hafna_courier"
+      ],
+      "objective_sources": [
+        "frost_cache_site",
+        "frost_beacon_site",
+        ""
+      ],
+      "objective_counts": [
+        1,
+        1,
+        1
+      ],
+      "objective_labels": [
+        "눈에 묻힌 보급함 확인 [F]",
+        "서리재 신호대 복구 [F]",
+        "하프나 연락원에게 전달 [F]"
+      ],
+      "objective_location_hints": [
+        "서리재·하프나 보급로",
+        "서리재·하프나 보급로",
+        "서리재·하프나 보급로"
+      ]
+    },
+    {
+      "quest_id": "MQ-07-05",
+      "path": "res://data/quests/chapter_seven/mq_07_05.tres",
+      "title": "눈보라 너머의 답신",
+      "offer_text": "서리 늑대를 밀어내고 하프나 연락 거점에서 보급로 재개 기록을 받으세요.",
+      "prerequisite": "MQ-07-04",
+      "npc_id": "hafna_courier",
+      "accept_npc_id": "frost_quartermaster",
+      "reward_exp": 170000,
+      "reward_gold": 35000,
+      "reward_reputation": 250,
+      "objective_kinds": [
+        "KILL",
+        "REACH",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "frost_wolf",
+        "frost_arrival",
+        "frost_dispatch"
+      ],
+      "objective_sources": [
+        "pass_wolves",
+        "frost_arrival_site",
+        "frost_dispatch_site"
+      ],
+      "objective_counts": [
+        2,
+        1,
+        1
+      ],
+      "objective_labels": [
+        "서리 늑대 처치",
+        "하프나 연락 거점 도착",
+        "보급로 재개 전령 기록 [F]"
+      ],
+      "objective_location_hints": [
+        "서리재·하프나 보급로",
+        "서리재·하프나 보급로",
+        "서리재·하프나 보급로"
+      ]
+    },
+    {
+      "quest_id": "MQ-07-06",
+      "path": "res://data/quests/chapter_seven/mq_07_06.tres",
+      "title": "강철의 값",
+      "offer_text": "산맥의 조사 기록과 보급 협력을 두르간에 모아 조약을 마무리하세요.",
+      "prerequisite": "MQ-07-05",
+      "npc_id": "durgan_foreman",
+      "accept_npc_id": "hafna_courier",
+      "reward_exp": 172896,
+      "reward_gold": 36480,
+      "reward_reputation": 260,
+      "objective_kinds": [
+        "INTERACT",
+        "INTERACT",
+        "TALK"
+      ],
+      "objective_targets": [
+        "karndurum_seal",
+        "durgan_treaty",
+        "durgan_foreman"
+      ],
+      "objective_sources": [
+        "karndurum_seal_site",
+        "durgan_treaty_site",
+        ""
+      ],
+      "objective_counts": [
+        1,
+        1,
+        1
+      ],
+      "objective_labels": [
+        "기술 공유 문서 봉인 [F]",
+        "상호 협력 조약 기록 [F]",
+        "두르간 공방 감독에게 전달 [F]"
+      ],
+      "objective_location_hints": [
+        "카른두름 교섭구역",
+        "두르간 공방가",
+        "두르간 공방가"
+      ]
+    },
+    {
+      "quest_id": "SQ-07-001",
+      "path": "res://data/quests/chapter_seven/sq_07_001.tres",
+      "title": "공방의 부족한 물자",
+      "offer_text": "현장의 기록을 확인하고 두르간 공방 감독에게 결과를 전하세요.",
+      "prerequisite": "MQ-07-01",
+      "npc_id": "durgan_foreman",
+      "accept_npc_id": "durgan_clerk",
+      "reward_exp": 67585,
+      "reward_gold": 15499,
+      "reward_reputation": 54,
+      "objective_kinds": [
+        "INTERACT",
+        "TALK"
+      ],
+      "objective_targets": [
+        "durgan_manifest",
+        "durgan_foreman"
+      ],
+      "objective_sources": [
+        "durgan_manifest_site",
+        ""
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "공방 물자 명세 확인 [F]",
+        "두르간 공방 감독에게 전달 [F]"
+      ],
+      "objective_location_hints": [
+        "두르간 공방가",
+        "두르간 공방가"
+      ]
+    },
+    {
+      "quest_id": "SQ-07-002",
+      "path": "res://data/quests/chapter_seven/sq_07_002.tres",
+      "title": "광부에게 보낼 연장",
+      "offer_text": "현장의 기록을 확인하고 쇳골 광부에게 결과를 전하세요.",
+      "prerequisite": "MQ-07-01",
+      "npc_id": "mine_worker",
+      "accept_npc_id": "durgan_clerk",
+      "reward_exp": 67585,
+      "reward_gold": 15499,
+      "reward_reputation": 54,
+      "objective_kinds": [
+        "INTERACT",
+        "TALK"
+      ],
+      "objective_targets": [
+        "durgan_tools",
+        "mine_worker"
+      ],
+      "objective_sources": [
+        "durgan_tools_site",
+        ""
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "광부 연장 묶음 인수 [F]",
+        "쇳골 광부에게 전달 [F]"
+      ],
+      "objective_location_hints": [
+        "두르간 공방가",
+        "쇳골 갱도"
+      ]
+    },
+    {
+      "quest_id": "SQ-07-003",
+      "path": "res://data/quests/chapter_seven/sq_07_003.tres",
+      "title": "갱도의 날갯소리",
+      "offer_text": "현장의 기록을 확인하고 쇳골 측량사에게 결과를 전하세요.",
+      "prerequisite": "MQ-07-01",
+      "npc_id": "mine_surveyor",
+      "accept_npc_id": "mine_worker",
+      "reward_exp": 67585,
+      "reward_gold": 15499,
+      "reward_reputation": 54,
+      "objective_kinds": [
+        "KILL",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "cave_bat",
+        "mine_lamp"
+      ],
+      "objective_sources": [
+        "mine_bats",
+        "mine_lamp_site"
+      ],
+      "objective_counts": [
+        2,
+        1
+      ],
+      "objective_labels": [
+        "동굴 박쥐 처치",
+        "갱도 표지등 복구 [F]"
+      ],
+      "objective_location_hints": [
+        "쇳골 갱도",
+        "쇳골 갱도"
+      ]
+    },
+    {
+      "quest_id": "SQ-07-004",
+      "path": "res://data/quests/chapter_seven/sq_07_004.tres",
+      "title": "다시 켜는 표지등",
+      "offer_text": "현장의 기록을 확인하고 쇳골 광부에게 결과를 전하세요.",
+      "prerequisite": "MQ-07-01",
+      "npc_id": "mine_worker",
+      "accept_npc_id": "mine_surveyor",
+      "reward_exp": 67585,
+      "reward_gold": 15499,
+      "reward_reputation": 54,
+      "objective_kinds": [
+        "REACH",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "mine_route",
+        "mine_lamp"
+      ],
+      "objective_sources": [
+        "mine_route_site",
+        "mine_lamp_site"
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "우회 갱도 출구 탐사",
+        "갱도 표지등 복구 [F]"
+      ],
+      "objective_location_hints": [
+        "쇳골 갱도",
+        "쇳골 갱도"
+      ]
+    },
+    {
+      "quest_id": "SQ-07-005",
+      "path": "res://data/quests/chapter_seven/sq_07_005.tres",
+      "title": "광석 견본의 행선지",
+      "offer_text": "현장의 기록을 확인하고 룬 기술자에게 결과를 전하세요.",
+      "prerequisite": "MQ-07-02",
+      "npc_id": "rune_artisan",
+      "accept_npc_id": "mine_worker",
+      "reward_exp": 67585,
+      "reward_gold": 15499,
+      "reward_reputation": 54,
+      "objective_kinds": [
+        "INTERACT",
+        "TALK"
+      ],
+      "objective_targets": [
+        "mine_ore",
+        "rune_artisan"
+      ],
+      "objective_sources": [
+        "mine_ore_site",
+        ""
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "광맥 표본 대조 [F]",
+        "룬 기술자에게 전달 [F]"
+      ],
+      "objective_location_hints": [
+        "쇳골 갱도",
+        "카른두름 교섭구역"
+      ]
+    },
+    {
+      "quest_id": "SQ-07-006",
+      "path": "res://data/quests/chapter_seven/sq_07_006.tres",
+      "title": "공방 앞의 움직이는 바위",
+      "offer_text": "현장의 기록을 확인하고 카른두름 교섭관에게 결과를 전하세요.",
+      "prerequisite": "MQ-07-02",
+      "npc_id": "karndurum_envoy",
+      "accept_npc_id": "rune_artisan",
+      "reward_exp": 67585,
+      "reward_gold": 15499,
+      "reward_reputation": 54,
+      "objective_kinds": [
+        "KILL",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "rock_golem",
+        "karndurum_rune"
+      ],
+      "objective_sources": [
+        "rune_golems",
+        "karndurum_rune_site"
+      ],
+      "objective_counts": [
+        2,
+        1
+      ],
+      "objective_labels": [
+        "바위 골렘 처치",
+        "룬 장치의 균열 기록 [F]"
+      ],
+      "objective_location_hints": [
+        "카른두름 교섭구역",
+        "카른두름 교섭구역"
+      ]
+    },
+    {
+      "quest_id": "SQ-07-007",
+      "path": "res://data/quests/chapter_seven/sq_07_007.tres",
+      "title": "열을 식히는 물길",
+      "offer_text": "현장의 기록을 확인하고 룬 기술자에게 결과를 전하세요.",
+      "prerequisite": "MQ-07-02",
+      "npc_id": "rune_artisan",
+      "accept_npc_id": "rune_artisan",
+      "reward_exp": 67584,
+      "reward_gold": 15498,
+      "reward_reputation": 54,
+      "objective_kinds": [
+        "INTERACT",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "karndurum_water",
+        "karndurum_rune"
+      ],
+      "objective_sources": [
+        "karndurum_water_site",
+        "karndurum_rune_site"
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "공방 냉각 수로 점검 [F]",
+        "룬 장치의 균열 기록 [F]"
+      ],
+      "objective_location_hints": [
+        "카른두름 교섭구역",
+        "카른두름 교섭구역"
+      ]
+    },
+    {
+      "quest_id": "SQ-07-008",
+      "path": "res://data/quests/chapter_seven/sq_07_008.tres",
+      "title": "서로의 기술을 적는 법",
+      "offer_text": "현장의 기록을 확인하고 룬 기술자에게 결과를 전하세요.",
+      "prerequisite": "MQ-07-02",
+      "npc_id": "rune_artisan",
+      "accept_npc_id": "karndurum_envoy",
+      "reward_exp": 67584,
+      "reward_gold": 15498,
+      "reward_reputation": 54,
+      "objective_kinds": [
+        "INTERACT",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "karndurum_terms",
+        "karndurum_seal"
+      ],
+      "objective_sources": [
+        "karndurum_terms_site",
+        "karndurum_seal_site"
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "광산 공동 이용 조건 대조 [F]",
+        "기술 공유 문서 봉인 [F]"
+      ],
+      "objective_location_hints": [
+        "카른두름 교섭구역",
+        "카른두름 교섭구역"
+      ]
+    },
+    {
+      "quest_id": "SQ-07-009",
+      "path": "res://data/quests/chapter_seven/sq_07_009.tres",
+      "title": "서리재로 보내는 약속",
+      "offer_text": "현장의 기록을 확인하고 서리재 보급관에게 결과를 전하세요.",
+      "prerequisite": "MQ-07-03",
+      "npc_id": "frost_quartermaster",
+      "accept_npc_id": "karndurum_envoy",
+      "reward_exp": 67584,
+      "reward_gold": 15498,
+      "reward_reputation": 54,
+      "objective_kinds": [
+        "INTERACT",
+        "TALK"
+      ],
+      "objective_targets": [
+        "karndurum_seal",
+        "frost_quartermaster"
+      ],
+      "objective_sources": [
+        "karndurum_seal_site",
+        ""
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "기술 공유 문서 봉인 [F]",
+        "서리재 보급관에게 전달 [F]"
+      ],
+      "objective_location_hints": [
+        "카른두름 교섭구역",
+        "서리재·하프나 보급로"
+      ]
+    },
+    {
+      "quest_id": "SQ-07-010",
+      "path": "res://data/quests/chapter_seven/sq_07_010.tres",
+      "title": "얼어붙은 보급함",
+      "offer_text": "현장의 기록을 확인하고 하프나 연락원에게 결과를 전하세요.",
+      "prerequisite": "MQ-07-03",
+      "npc_id": "hafna_courier",
+      "accept_npc_id": "frost_quartermaster",
+      "reward_exp": 67584,
+      "reward_gold": 15498,
+      "reward_reputation": 54,
+      "objective_kinds": [
+        "KILL",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "ice_spirit",
+        "frost_cache"
+      ],
+      "objective_sources": [
+        "pass_spirits",
+        "frost_cache_site"
+      ],
+      "objective_counts": [
+        2,
+        1
+      ],
+      "objective_labels": [
+        "얼음 정령 처치",
+        "눈에 묻힌 보급함 확인 [F]"
+      ],
+      "objective_location_hints": [
+        "서리재·하프나 보급로",
+        "서리재·하프나 보급로"
+      ]
+    },
+    {
+      "quest_id": "SQ-07-011",
+      "path": "res://data/quests/chapter_seven/sq_07_011.tres",
+      "title": "눈길의 늑대 발자국",
+      "offer_text": "현장의 기록을 확인하고 서리재 보급관에게 결과를 전하세요.",
+      "prerequisite": "MQ-07-03",
+      "npc_id": "frost_quartermaster",
+      "accept_npc_id": "hafna_courier",
+      "reward_exp": 67584,
+      "reward_gold": 15498,
+      "reward_reputation": 54,
+      "objective_kinds": [
+        "KILL",
+        "REACH"
+      ],
+      "objective_targets": [
+        "frost_wolf",
+        "frost_arrival"
+      ],
+      "objective_sources": [
+        "pass_wolves",
+        "frost_arrival_site"
+      ],
+      "objective_counts": [
+        2,
+        1
+      ],
+      "objective_labels": [
+        "서리 늑대 처치",
+        "하프나 연락 거점 도착"
+      ],
+      "objective_location_hints": [
+        "서리재·하프나 보급로",
+        "서리재·하프나 보급로"
+      ]
+    },
+    {
+      "quest_id": "SQ-07-012",
+      "path": "res://data/quests/chapter_seven/sq_07_012.tres",
+      "title": "연락원의 신호",
+      "offer_text": "현장의 기록을 확인하고 하프나 연락원에게 결과를 전하세요.",
+      "prerequisite": "MQ-07-03",
+      "npc_id": "hafna_courier",
+      "accept_npc_id": "frost_quartermaster",
+      "reward_exp": 67584,
+      "reward_gold": 15498,
+      "reward_reputation": 53,
+      "objective_kinds": [
+        "INTERACT",
+        "TALK"
+      ],
+      "objective_targets": [
+        "frost_beacon",
+        "hafna_courier"
+      ],
+      "objective_sources": [
+        "frost_beacon_site",
+        ""
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "서리재 신호대 복구 [F]",
+        "하프나 연락원에게 전달 [F]"
+      ],
+      "objective_location_hints": [
+        "서리재·하프나 보급로",
+        "서리재·하프나 보급로"
+      ]
+    },
+    {
+      "quest_id": "SQ-07-013",
+      "path": "res://data/quests/chapter_seven/sq_07_013.tres",
+      "title": "보급대의 출발 기록",
+      "offer_text": "현장의 기록을 확인하고 서리재 보급관에게 결과를 전하세요.",
+      "prerequisite": "MQ-07-04",
+      "npc_id": "frost_quartermaster",
+      "accept_npc_id": "hafna_courier",
+      "reward_exp": 67584,
+      "reward_gold": 15498,
+      "reward_reputation": 53,
+      "objective_kinds": [
+        "INTERACT",
+        "INTERACT"
+      ],
+      "objective_targets": [
+        "frost_dispatch",
+        "frost_cache"
+      ],
+      "objective_sources": [
+        "frost_dispatch_site",
+        "frost_cache_site"
+      ],
+      "objective_counts": [
+        1,
+        1
+      ],
+      "objective_labels": [
+        "보급로 재개 전령 기록 [F]",
+        "눈에 묻힌 보급함 확인 [F]"
+      ],
+      "objective_location_hints": [
+        "서리재·하프나 보급로",
+        "서리재·하프나 보급로"
+      ]
+    }
+  ]
+}

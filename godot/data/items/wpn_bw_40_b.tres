@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/items/item_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+item_id = "WPN-BW-40-B"
+item_name = "명사수의 합성궁"
+item_type = 0
+grade = 1
+level_limit = 40
+equip_slot = 1
+main_stat_type = 1
+main_stat_value = 72.0
+price = 91080
+acquisition = "2차 전직(명사수) 지급 · B급 공격력 8+1.6×40 · 정가 180×round(2×40^1.5)"

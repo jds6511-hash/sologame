@@ -59,7 +59,8 @@ func test_gladiator_definition_declares_tier2_chain() -> void:
 func test_tier2_registered_separately_from_first_job_list() -> void:
 	## 1차 직업 선택 화면은 available_jobs로 카드를 만든다 — 상위 계통이 섞이면 안 된다.
 	assert_eq(_trans.available_jobs.size(), 2, "1차 선택지는 전사·궁수 둘")
-	assert_eq(_trans.tier2_jobs, [GLADIATOR_DEF] as Array[JobDefinition], "검투사는 상위 계통 목록")
+	assert_eq(_trans.tier2_jobs.size(), 2, "2차 계열은 검투사·명사수")
+	assert_has(_trans.tier2_jobs, GLADIATOR_DEF, "검투사는 상위 계통 목록")
 
 
 func test_no_second_transition_flag_before_first() -> void:
@@ -167,7 +168,8 @@ func test_archer_cannot_transition_to_gladiator() -> void:
 	_level_up_to(10)
 	assert_true(_trans.perform_transition(&"archer"))
 	_level_up_to(SECOND_TRANSITION_LEVEL)
-	assert_false(_trans.transition_available, "궁수에게는 등록된 상위 계통이 없다")
+	assert_true(_trans.transition_available, "궁수는 Lv40에 명사수 계열이 열린다")
+	assert_false(_trans.can_transition(&"gladiator"), "궁수는 검투사로 바뀌지 않는다")
 	assert_false(_trans.can_transition(&"gladiator"), "궁수 → 검투사 불가(계통 불일치)")
 	assert_false(_trans.perform_transition(&"gladiator"))
 	assert_eq(_trans.current_job_id, &"archer", "거부 시 직업 불변")

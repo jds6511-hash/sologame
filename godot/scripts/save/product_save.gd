@@ -12,7 +12,7 @@ class Schema:
 	var conversion = ProductConversion.new()
 
 	func _init() -> void:
-		registry.items = conversion.model.items
+		registry = conversion.model.registry
 		quest_catalog = ProductCatalog.new(registry)
 		regions = ProductContent
 
@@ -81,6 +81,7 @@ class Codec:
 		if error != "":
 			return error
 		var runtime := ProductRuntime.new()
+		runtime.model = schema.conversion.model
 		runtime.name = "Economy"
 		player.add_child(runtime)
 		runtime.install(player, false)

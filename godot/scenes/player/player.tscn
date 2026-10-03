@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=3]
+[gd_scene load_steps=33 format=3]
 
 [ext_resource type="Script" path="res://scripts/player/player_controller.gd" id="1"]
 [ext_resource type="Resource" path="res://data/player/player_movement.tres" id="2"]
@@ -28,6 +28,7 @@
 [ext_resource type="Resource" path="res://data/jobs/job_def_warrior.tres" id="35"]
 [ext_resource type="Resource" path="res://data/jobs/job_def_archer.tres" id="36"]
 [ext_resource type="Resource" path="res://data/jobs/job_def_gladiator.tres" id="37"]
+[ext_resource type="Resource" path="res://data/jobs/job_def_sharpshooter.tres" id="42"]
 [ext_resource type="Script" path="res://scripts/player/player_death_sequence.gd" id="39"]
 [ext_resource type="Resource" path="res://data/player/player_death_rules.tres" id="40"]
 [ext_resource type="Script" path="res://scripts/player/player_melee_swing_vfx.gd" id="41"]
@@ -83,7 +84,7 @@ rule = ExtResource("33")
 [node name="PlayerJobTransition" type="Node" parent="."]
 script = ExtResource("34")
 available_jobs = [ExtResource("35"), ExtResource("36")]
-tier2_jobs = [ExtResource("37")]
+tier2_jobs = [ExtResource("37"), ExtResource("42")]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, -9)

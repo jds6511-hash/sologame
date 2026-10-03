@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "SQ-07-003"
+title = "갱도의 날갯소리"
+offer_text = "현장의 기록을 확인하고 쇳골 측량사에게 결과를 전하세요."
+prerequisite = "MQ-07-01"
+npc_id = "mine_surveyor"
+accept_npc_id = "mine_worker"
+reward_exp = 67585
+reward_gold = 15499
+reward_reputation = 54
+objective_kinds = Array[String](["KILL", "INTERACT"])
+objective_targets = Array[String](["cave_bat", "mine_lamp"])
+objective_sources = Array[String](["mine_bats", "mine_lamp_site"])
+objective_counts = Array[int]([2, 1])
+objective_labels = Array[String](["동굴 박쥐 처치", "갱도 표지등 복구 [F]"])
+objective_location_hints = Array[String](["쇳골 갱도", "쇳골 갱도"])

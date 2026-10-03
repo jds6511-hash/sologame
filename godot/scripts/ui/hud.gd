@@ -69,6 +69,11 @@ func bind_player(player: PlayerController, stats: PlayerStatsComponent) -> void:
 	_status_panel.set_mp(stats.current_mp, stats.stats.max_mp)
 	## 분노 게이지(M3 C-1)는 검투사 로드아웃일 때만 스스로 나타난다 — 여기서는 연결만 한다.
 	_rage_gauge.bind_player(player)
+	if not has_node("FocusGauge"):
+		var focus = preload("res://scripts/ui/focus_gauge.gd").new()
+		focus.name = "FocusGauge"
+		focus.player = player
+		add_child(focus)
 	## 직업명 표시가 전직 노드의 JobDefinition을 참조하므로 진행도보다 먼저 잡아 둔다.
 	_job_transition = player.get_node_or_null("PlayerJobTransition") as PlayerJobTransition
 	_bind_progression(player)

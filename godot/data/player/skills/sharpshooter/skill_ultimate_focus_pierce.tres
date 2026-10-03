@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="SharpshooterSkillData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/player/sharpshooter_skill_data.gd" id="1"]
+[ext_resource type="Resource" path="res://data/player/arrows/arrow_focus_pierce.tres" id="2"]
+
+[resource]
+script = ExtResource("1")
+skill_name = "집중 관통탄"
+skill_type = 4
+cooldown_sec = 12.0
+mp_cost_percent = 0.0
+fixed_mp_cost = 28
+damage_coefficient = 2.5
+hitbox_range_tiles = 0.0
+hitbox_angle_deg = 0.0
+startup_sec = 0.6
+active_sec = 0.1
+recovery_sec = 0.5
+hitstop_preset = "강"
+arrow = ExtResource("2")
+projectile_count = 1
+focus_charge_cap = 0
+focus_cost = 50

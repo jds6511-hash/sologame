@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "SQ-07-013"
+title = "보급대의 출발 기록"
+offer_text = "현장의 기록을 확인하고 서리재 보급관에게 결과를 전하세요."
+prerequisite = "MQ-07-04"
+npc_id = "frost_quartermaster"
+accept_npc_id = "hafna_courier"
+reward_exp = 67584
+reward_gold = 15498
+reward_reputation = 53
+objective_kinds = Array[String](["INTERACT", "INTERACT"])
+objective_targets = Array[String](["frost_dispatch", "frost_cache"])
+objective_sources = Array[String](["frost_dispatch_site", "frost_cache_site"])
+objective_counts = Array[int]([1, 1])
+objective_labels = Array[String](["보급로 재개 전령 기록 [F]", "눈에 묻힌 보급함 확인 [F]"])
+objective_location_hints = Array[String](["서리재·하프나 보급로", "서리재·하프나 보급로"])

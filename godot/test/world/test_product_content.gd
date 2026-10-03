@@ -11,7 +11,7 @@ func after_each() -> void:
 
 func test_manifest_catalog_and_reciprocal_edges() -> void:
 	var catalog = Catalog.new()
-	assert_eq(catalog.ordered_ids().size(), 57)
+	assert_eq(catalog.ordered_ids().size(), 78)
 	assert_eq(catalog.definition_errors(), {})
 	for id in Content.EDGES:
 		var edge: Array = Content.EDGES[id]
@@ -52,7 +52,7 @@ func test_every_region_boots_with_content_interactions() -> void:
 		assert_eq(world.get_meta("save_boot_error", ""), "", region)
 		assert_eq(world.get_node("SaveSession").codec.character_version(), 7)
 		assert_true(world.has_node("EconomyPanel"))
-		assert_eq(world.get_node("QuestController").journal.catalog.ordered_ids().size(), 57)
+		assert_eq(world.get_node("QuestController").journal.catalog.ordered_ids().size(), 78)
 		for monster in world.get_node("MonsterSpawner").get_children():
 			if monster is MonsterBase and region in ["novera_outskirts", "novera_rift"]:
 				var source := String(monster.get_meta("spawn_source_id", ""))

@@ -1,0 +1,44 @@
+{
+  "extension_of": 7,
+  "content_revision": 6,
+  "constants": {
+    "BGM_CONTEXTS": {"durgan_training": "res://scenes/world/novera_gate.tscn"},
+    "SCENES": {"durgan_training": "res://scenes/world/product_world.tscn"},
+    "NAMES": {"durgan_training": "두르간 훈련장"},
+    "BOUNDS": {"durgan_training": {"$rect": [0, 0, 640, 480]}},
+    "REGION_REQUIREMENTS": {"durgan_training": "MQ-07-01"},
+    "EDGES": {
+      "durgan_to_training": ["durgan", "durgan_training", {"$vector": [640, 352]}, {"$vector": [144, 384]}, "training_to_durgan"],
+      "training_to_durgan": ["durgan_training", "durgan", {"$vector": [64, 384]}, {"$vector": [640, 432]}, "durgan_to_training"]
+    },
+    "NPCS": {"durgan_trainer": ["durgan_training", {"$vector": [160, 320]}, "두르간 훈련 담당"]},
+    "LAYOUTS": {"durgan_training": {"floor": {"$vectori": [2, 2]}, "spawn": {"$vector": [144, 384]}, "patches": []}},
+    "TRIAL_TARGETS": {
+      "trial_war_heavy": {"quest_id": "TR-WAR-02", "index": 0, "target": "trial_target", "region": "durgan_training"},
+      "trial_war_guard": {"quest_id": "TR-WAR-02", "index": 1, "target": "trial_target", "region": "durgan_training"},
+      "trial_arc_near": {"quest_id": "TR-ARC-02", "index": 0, "target": "trial_target", "region": "durgan_training"},
+      "trial_arc_far": {"quest_id": "TR-ARC-02", "index": 1, "target": "trial_target", "region": "durgan_training"},
+      "trial_arc_moving": {"quest_id": "TR-ARC-02", "index": 2, "target": "trial_target", "region": "durgan_training"}
+    }
+  },
+  "quests": [
+    {
+      "quest_id": "TR-WAR-02", "path": "res://data/quests/job_trials/tr_war_02.tres",
+      "title": "검투사의 자격", "offer_text": "훈련 시작 표식에서 재개하세요. 예고를 피하며 두 훈련병을 우클릭 차지 강타 등 강 등급 타격으로 마무리한 뒤 돌진 훈련병을 처치하세요. 실패해도 완료한 수는 남습니다. 보고 뒤 Lv40 전사는 V에서 승급할 수 있습니다.",
+      "prerequisite": "MQ-07-01", "npc_id": "durgan_trainer",
+      "objective_kinds": ["INTERACT", "INTERACT"], "objective_targets": ["trial_target", "trial_target"],
+      "objective_sources": ["trial_war_heavy", "trial_war_guard"], "objective_counts": [2, 1],
+      "objective_labels": ["강 등급 마무리 2회", "돌진 훈련병 처치"], "objective_location_hints": ["두르간 훈련장", "두르간 훈련장"],
+      "reward_exp": 0, "reward_gold": 0, "reward_reputation": 0
+    },
+    {
+      "quest_id": "TR-ARC-02", "path": "res://data/quests/job_trials/tr_arc_02.tres",
+      "title": "명사수의 자격", "offer_text": "훈련 시작 표식에서 재개하세요. 발사 순간 가까운 표적(4칸 이내) 2개와 먼 표적(8칸 이상) 2개를 화살로 맞힌 뒤 이동 훈련병을 처치하세요. 보고 뒤 Lv40 궁수는 V에서 승급할 수 있습니다.",
+      "prerequisite": "MQ-07-01", "npc_id": "durgan_trainer",
+      "objective_kinds": ["INTERACT", "INTERACT", "INTERACT"], "objective_targets": ["trial_target", "trial_target", "trial_target"],
+      "objective_sources": ["trial_arc_near", "trial_arc_far", "trial_arc_moving"], "objective_counts": [2, 2, 1],
+      "objective_labels": ["4칸 이내 실제 화살 명중 2회", "8칸 이상 실제 화살 명중 2회", "이동 훈련병 처치"], "objective_location_hints": ["두르간 훈련장", "두르간 훈련장", "두르간 훈련장"],
+      "reward_exp": 0, "reward_gold": 0, "reward_reputation": 0
+    }
+  ]
+}

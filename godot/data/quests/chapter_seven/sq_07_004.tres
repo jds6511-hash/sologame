@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "SQ-07-004"
+title = "다시 켜는 표지등"
+offer_text = "현장의 기록을 확인하고 쇳골 광부에게 결과를 전하세요."
+prerequisite = "MQ-07-01"
+npc_id = "mine_worker"
+accept_npc_id = "mine_surveyor"
+reward_exp = 67585
+reward_gold = 15499
+reward_reputation = 54
+objective_kinds = Array[String](["REACH", "INTERACT"])
+objective_targets = Array[String](["mine_route", "mine_lamp"])
+objective_sources = Array[String](["mine_route_site", "mine_lamp_site"])
+objective_counts = Array[int]([1, 1])
+objective_labels = Array[String](["우회 갱도 출구 탐사", "갱도 표지등 복구 [F]"])
+objective_location_hints = Array[String](["쇳골 갱도", "쇳골 갱도"])

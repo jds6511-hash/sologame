@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "MQ-07-04"
+title = "서리재에서 끊긴 신호"
+offer_text = "교섭관의 보급 약속을 들고 눈에 묻힌 보급함과 신호대를 확인하세요."
+prerequisite = "MQ-07-03"
+npc_id = "frost_quartermaster"
+accept_npc_id = "karndurum_envoy"
+reward_exp = 165000
+reward_gold = 34000
+reward_reputation = 240
+objective_kinds = Array[String](["INTERACT", "INTERACT", "TALK"])
+objective_targets = Array[String](["frost_cache", "frost_beacon", "hafna_courier"])
+objective_sources = Array[String](["frost_cache_site", "frost_beacon_site", ""])
+objective_counts = Array[int]([1, 1, 1])
+objective_labels = Array[String](["눈에 묻힌 보급함 확인 [F]", "서리재 신호대 복구 [F]", "하프나 연락원에게 전달 [F]"])
+objective_location_hints = Array[String](["서리재·하프나 보급로", "서리재·하프나 보급로", "서리재·하프나 보급로"])

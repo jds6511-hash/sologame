@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "SQ-07-011"
+title = "눈길의 늑대 발자국"
+offer_text = "현장의 기록을 확인하고 서리재 보급관에게 결과를 전하세요."
+prerequisite = "MQ-07-03"
+npc_id = "frost_quartermaster"
+accept_npc_id = "hafna_courier"
+reward_exp = 67584
+reward_gold = 15498
+reward_reputation = 54
+objective_kinds = Array[String](["KILL", "REACH"])
+objective_targets = Array[String](["frost_wolf", "frost_arrival"])
+objective_sources = Array[String](["pass_wolves", "frost_arrival_site"])
+objective_counts = Array[int]([2, 1])
+objective_labels = Array[String](["서리 늑대 처치", "하프나 연락 거점 도착"])
+objective_location_hints = Array[String](["서리재·하프나 보급로", "서리재·하프나 보급로"])

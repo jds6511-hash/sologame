@@ -28,6 +28,8 @@ extends Area2D
 ## 화살이 대상에 명중했을 때 발신. action은 판정 주체 리소스(ArcherAttackStep 또는
 ## ArcherSkillData)로, PlayerController가 그대로 attack_hit에 실어 리졸버로 넘긴다.
 signal arrow_hit_landed(action: Resource, body: Node)
+## 사거리·충돌·필드 제거 등 모든 수명 종료 경로에서 정확히 한 번 발신한다.
+signal flight_ended
 
 var _velocity := Vector2.ZERO
 var _remaining_distance: float = 0.0
@@ -38,6 +40,9 @@ var _action: Resource = null
 var _pierce_remaining: int = 0
 ## 이미 명중한 대상 — 관통 중 같은 몸에 중복 판정이 나지 않게 한다(6-2장 명중 판정 상세).
 var _hit_bodies: Array[Node] = []
+var _flight_finished := false
+var _tile_size_px := 16.0
+var _trial_launch_distances: Dictionary = {}
 
 @onready var _sprite: Sprite2D = get_node_or_null("Sprite")
 @onready var _shape_node: CollisionShape2D = get_node_or_null("CollisionShape2D")
@@ -48,10 +53,27 @@ func _ready() -> void:
 	body_entered.connect(_on_body_entered)
 
 
+func _exit_tree() -> void:
+	_finish_flight()
+
+
+func _finish_flight() -> void:
+	if _flight_finished:
+		return
+	_flight_finished = true
+	flight_ended.emit()
+
+
+func _expire() -> void:
+	_finish_flight()
+	queue_free()
+
+
 ## 스폰 직후(launch 전)에 호출해 판정 주체·투사체 규격을 주입한다(RiftSlimeProjectile.configure와
 ## 동일 패턴). 히트박스 폭과 placeholder 색도 규격에서 적용한다.
 func configure(action: Resource, spec: ArrowSpec, tile_size_px: float) -> void:
 	_action = action
+	_tile_size_px = tile_size_px
 	if spec == null:
 		return
 	_pierce_remaining = spec.pierce_count
@@ -63,13 +85,34 @@ func configure(action: Resource, spec: ArrowSpec, tile_size_px: float) -> void:
 ## direction 방향으로 range_px 만큼 등속 직선 이동한다. 사거리를 다 쓰면 명중이 없어도 소멸한다
 ## (6-2장 델타 ⑤). 방향이 0이거나 오염된 값이면 발사하지 않고 즉시 정리한다.
 func launch(direction: Vector2, range_px: float) -> void:
-	if not direction.is_finite() or direction.length_squared() <= 0.0001 or range_px <= 0.0:
-		queue_free()
+	if (
+		not direction.is_finite()
+		or direction.length_squared() <= 0.0001
+		or not is_finite(range_px)
+		or range_px <= 0.0
+	):
+		_expire()
 		return
 	var unit := direction.normalized()
 	_velocity = unit * _speed_px
 	_remaining_distance = range_px
 	rotation = unit.angle()
+	_snapshot_trial_distances()
+
+
+## 시련은 도착 시 거리가 아닌 발사 순간의 충돌 중심 거리를 판정한다.
+func _snapshot_trial_distances() -> void:
+	_trial_launch_distances.clear()
+	if not is_inside_tree() or _tile_size_px <= 0.0:
+		return
+	for target in get_tree().get_nodes_in_group("monsters"):
+		if not target is Node2D or not target.has_method("begin_trial_arrow"):
+			continue
+		var center := target.get_node_or_null("CollisionShape2D") as Node2D
+		var point: Vector2 = center.global_position if center != null else target.global_position
+		_trial_launch_distances[target.get_instance_id()] = (
+			global_position.distance_to(point) / _tile_size_px
+		)
 
 
 func _physics_process(delta: float) -> void:
@@ -79,20 +122,25 @@ func _physics_process(delta: float) -> void:
 	global_position += step
 	_remaining_distance -= step.length()
 	if _remaining_distance <= 0.0:
-		queue_free()
+		_expire()
 
 
 func _on_body_entered(body: Node) -> void:
-	if body in _hit_bodies:
+	if _flight_finished or is_queued_for_deletion() or body in _hit_bodies:
 		return  ## 관통 중 같은 대상 재타격 방지
 	_hit_bodies.append(body)
+	var is_trial := _trial_launch_distances.has(body.get_instance_id())
+	if is_trial:
+		body.begin_trial_arrow(float(_trial_launch_distances[body.get_instance_id()]))
 	arrow_hit_landed.emit(_action, body)
+	if is_trial and is_instance_valid(body):
+		body.end_trial_arrow()
 	if _pierce_remaining < 0:
 		return  ## 무제한 관통 — 사거리 만료로만 소멸(관통 폭사)
 	## pierce_count 0(비관통)과 1은 모두 "1체 명중 후 소멸"이다.
 	_pierce_remaining = maxi(_pierce_remaining - 1, 0)
 	if _pierce_remaining <= 0:
-		queue_free()
+		_expire()
 
 
 ## 화살 폭(타일→px)을 원형 히트박스 반지름으로 반영한다. 씬의 공용 sub_resource를 그대로

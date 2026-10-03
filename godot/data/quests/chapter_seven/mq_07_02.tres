@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "MQ-07-02"
+title = "무너진 갱도의 우회로"
+offer_text = "지지대를 조사하고 코볼트가 점거한 통로를 확보해 우회 출구를 측량사에게 전하세요."
+prerequisite = "MQ-07-01"
+npc_id = "mine_surveyor"
+accept_npc_id = "durgan_foreman"
+reward_exp = 150000
+reward_gold = 32000
+reward_reputation = 220
+objective_kinds = Array[String](["INTERACT", "KILL", "REACH"])
+objective_targets = Array[String](["mine_support", "kobold_miner", "mine_route"])
+objective_sources = Array[String](["mine_support_site", "mine_kobolds", "mine_route_site"])
+objective_counts = Array[int]([1, 2, 1])
+objective_labels = Array[String](["무너진 지지대 점검 [F]", "코볼트 광부 처치", "우회 갱도 출구 탐사"])
+objective_location_hints = Array[String](["쇳골 갱도", "쇳골 갱도", "쇳골 갱도"])

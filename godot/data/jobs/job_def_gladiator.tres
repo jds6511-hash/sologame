@@ -11,10 +11,9 @@
 ;
 ; growth = 전사 배분 그대로다. jobs.md는 2차 전직의 스탯 배분 변화를 규정하지 않았으므로
 ; 임의 수치를 만들지 않고 1차 배분을 승계한다(결과 보고의 기획 확인 항목).
-; granted_weapon = null: jobs.md 6장은 2차 전직 지급 무기를 "B급"으로 규정하지만 Lv40 대검
-; 아이템이 경제 데이터에 아직 없다(현재 최고 WPN-GS-30-B) — 경제 담당 확정 후 배선한다.
+; granted_weapon = WPN-GS-40-B: 경제 정본으로 발행된 Lv40 B급 대검을 전직 때 1회 지급한다.
 ; basic_combo = 대검 유지(2차 전직으로 무기 계열이 바뀌지 않는다).
-[gd_resource type="Resource" script_class="JobDefinition" load_steps=13 format=3]
+[gd_resource type="Resource" script_class="JobDefinition" load_steps=14 format=3]
 
 [ext_resource type="Script" path="res://scripts/progression/job_definition.gd" id="1"]
 [ext_resource type="Resource" path="res://data/progression/job_growth_warrior.tres" id="2"]
@@ -28,6 +27,7 @@
 [ext_resource type="Resource" path="res://data/player/skills/skill_ultimate_earth_smash.tres" id="10"]
 [ext_resource type="Resource" path="res://data/player/skills/skill_secondary_charged_smash.tres" id="11"]
 [ext_resource type="Resource" path="res://data/player/skills/gladiator/skill_secondary_execution.tres" id="12"]
+[ext_resource type="Resource" path="res://data/items/wpn_gs_40_b.tres" id="13"]
 
 [resource]
 script = ExtResource("1")
@@ -37,7 +37,7 @@ growth = ExtResource("2")
 required_job_id = &"warrior"
 transition_level_override = 40
 basic_combo = ExtResource("3")
-granted_weapon = null
+granted_weapon = ExtResource("13")
 skill_slot_1 = ExtResource("4")
 skill_slot_2 = ExtResource("5")
 skill_slot_3 = ExtResource("6")

@@ -15,6 +15,12 @@ extends RefCounted
 
 ## 종 표시명 → 드랍 테이블. 신규 종을 추가할 때 이 표에만 한 줄 넣으면 드랍·EXP가 함께 붙는다.
 const TABLES := {
+	"동굴 박쥐": preload("res://data/drops/cave_bat_drop_table.tres"),
+	"코볼트 광부": preload("res://data/drops/kobold_miner_drop_table.tres"),
+	"바위 골렘": preload("res://data/drops/rock_golem_drop_table.tres"),
+	"서리 늑대": preload("res://data/drops/frost_wolf_drop_table.tres"),
+	"얼음 정령": preload("res://data/drops/ice_spirit_drop_table.tres"),
+
 	"가시덩굴": preload("res://data/drops/thorn_vine_drop_table.tres"),
 	"독버섯 마수": preload("res://data/drops/poison_mushroom_drop_table.tres"),
 	"수림 표범": preload("res://data/drops/forest_panther_drop_table.tres"),

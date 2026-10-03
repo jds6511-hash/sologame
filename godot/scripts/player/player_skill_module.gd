@@ -21,6 +21,7 @@ var _phase_timer: float = 0.0
 var _dash_direction := Vector2.ZERO
 var _cooldowns: Dictionary = {}  ## key: String(슬롯 이름) -> 남은 쿨다운(초)
 var _secondary_cooldown: float = 0.0
+var _pending_key := ""
 
 
 func save_block_reason() -> String:
@@ -74,6 +75,12 @@ func try_use(key: String, skill: WarriorSkillData) -> bool:
 	var stats := _player._stats
 	if stats and not stats.has_mp(cost):
 		return false
+	if skill is SharpshooterSkillData:
+		if skill.arrow != null and not _player._can_fire_arrows(skill):
+			return false
+		_pending_key = key
+		start(skill)
+		return true
 	if stats:
 		stats.spend_mp(cost)
 	_cooldowns[key] = skill.cooldown_sec
@@ -82,6 +89,8 @@ func try_use(key: String, skill: WarriorSkillData) -> bool:
 
 
 func mp_cost(skill: WarriorSkillData) -> float:
+	if skill is SharpshooterSkillData and skill.fixed_mp_cost >= 0.0:
+		return skill.fixed_mp_cost
 	var stats := _player._stats
 	if stats == null or stats.stats == null:
 		return 0.0
@@ -131,6 +140,10 @@ func process_state(delta: float) -> void:
 			else:
 				_player.velocity = Vector2.ZERO
 			if _phase_timer >= skill.get_active_duration_sec():
+				if skill is SharpshooterSkillData and skill.skill_type == WarriorSkillData.SkillType.DASH:
+					if not _commit_precision(skill):
+						cancel()
+						return
 				_player.skill_state = PlayerController.AttackState.RECOVERY
 				_phase_timer = 0.0
 				_player._disable_attack_hitbox()
@@ -143,6 +156,12 @@ func process_state(delta: float) -> void:
 ## 스킬 판정 발동. 궁수 스킬(arrow 보유)은 근접 히트박스 대신 화살을 발사한다 — 곡예 사격은
 ## 이동 방향(입력)과 사격 방향(조준)이 독립이므로 DASH 분기에서 둘을 함께 처리한다(4-2장).
 func _activate(skill: WarriorSkillData) -> void:
+	if skill is SharpshooterSkillData:
+		if skill.skill_type == WarriorSkillData.SkillType.DASH:
+			_dash_direction = _player._last_move_direction
+		elif not _commit_precision(skill):
+			cancel()
+		return
 	match skill.skill_type:
 		WarriorSkillData.SkillType.DASH:
 			_dash_direction = _player._last_move_direction
@@ -155,7 +174,24 @@ func _activate(skill: WarriorSkillData) -> void:
 				_player._enable_attack_hitbox(skill)
 
 
+func _commit_precision(skill: SharpshooterSkillData) -> bool:
+	var cost := mp_cost(skill)
+	if _player._stats and not _player._stats.has_mp(cost):
+		return false
+	if skill.arrow != null:
+		if not _player._try_fire_arrows(skill):
+			return false
+	else:
+		_player._apply_self_buff(skill)
+	if _player._stats:
+		_player._stats.spend_mp(cost)
+	_cooldowns[_pending_key] = skill.cooldown_sec
+	_pending_key = ""
+	return true
+
+
 func cancel() -> void:
+	_pending_key = ""
 	_player._disable_attack_hitbox()
 	_player._shots.cancel_burst()
 	_player.skill_state = PlayerController.AttackState.NONE

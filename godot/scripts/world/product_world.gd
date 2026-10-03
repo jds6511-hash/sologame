@@ -88,6 +88,7 @@ func _setup_quest_ui(quests: QuestController) -> void:
 			rally.setup(_player, quests, dialog, _hud)
 			rally.configure(defense)
 			selection.candidates.append(rally)
+	load("res://scripts/content/job_trial_install.gd").install(self)
 
 
 func _npc(id: String, point: Vector2, title: String) -> Node2D:
@@ -117,6 +118,7 @@ func _ready() -> void:
 		return
 	if not _player.has_meta("economy_candidate"):
 		var runtime := Runtime.new()
+		runtime.model = load("res://scripts/economy/product_economy.gd").new()
 		runtime.name = "Economy"
 		_player.add_child(runtime)
 		runtime.install(_player, true)

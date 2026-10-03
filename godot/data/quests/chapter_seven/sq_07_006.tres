@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "SQ-07-006"
+title = "공방 앞의 움직이는 바위"
+offer_text = "현장의 기록을 확인하고 카른두름 교섭관에게 결과를 전하세요."
+prerequisite = "MQ-07-02"
+npc_id = "karndurum_envoy"
+accept_npc_id = "rune_artisan"
+reward_exp = 67585
+reward_gold = 15499
+reward_reputation = 54
+objective_kinds = Array[String](["KILL", "INTERACT"])
+objective_targets = Array[String](["rock_golem", "karndurum_rune"])
+objective_sources = Array[String](["rune_golems", "karndurum_rune_site"])
+objective_counts = Array[int]([2, 1])
+objective_labels = Array[String](["바위 골렘 처치", "룬 장치의 균열 기록 [F]"])
+objective_location_hints = Array[String](["카른두름 교섭구역", "카른두름 교섭구역"])

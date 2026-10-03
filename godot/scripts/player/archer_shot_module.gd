@@ -17,6 +17,11 @@ extends RefCounted
 signal arrow_hit_landed(action: Resource, body: Node)
 
 const ARROW_SCENE := preload("res://scenes/player/arrow_projectile.tscn")
+const FOCUS_MODEL := preload("res://scripts/player/sharpshooter_focus.gd")
+const SHARPSHOOTER_SKILL := preload("res://scripts/player/sharpshooter_skill_data.gd")
+
+var focus := FOCUS_MODEL.new()
+var focus_enabled := false
 
 ## 우클릭 슬롯이 조준 스탠스인 경우 그 데이터, 아니면 null(전사 차지 강타 경로 유지).
 var aim_stance: ArcherSkillData = null
@@ -27,6 +32,11 @@ var crit_chance_bonus: float = 0.0
 var attack_range_bonus_tiles: float = 0.0
 var attack_speed_bonus: float = 0.0
 
+var _burst_cast_id := -1
+var _burst_count := 0
+var _burst_index := 0
+var _resolving_cast_id := -1
+var _resolving_projectile_index := -1
 var _buff_timer: float = 0.0
 var _burst_remaining: int = 0
 var _burst_timer: float = 0.0
@@ -42,7 +52,26 @@ var _tile_size_px: float = 16.0
 func save_block_reason() -> String:
 	if is_aiming or _burst_remaining > 0:
 		return "action_in_progress"
-	return "cooldown_or_buff" if _buff_timer > 0.0 else ""
+	return "cooldown_or_buff" if _buff_timer > 0.0 or focus.breathing_remaining > 0.0 else ""
+
+
+func set_focus_enabled(enabled: bool) -> void:
+	if enabled != focus_enabled:
+		reset_focus()
+	focus_enabled = enabled
+
+
+func reset_focus() -> void:
+	cancel_burst()
+	focus.reset()
+	_resolving_cast_id = -1
+	_resolving_projectile_index = -1
+
+
+## attack_hit의 동기 피해 판정 안에서 실제 HP 감소를 확인한 리졸버만 호출한다.
+func confirm_valid_damage() -> void:
+	if focus_enabled and _resolving_cast_id >= 0:
+		focus.landed(_resolving_cast_id, _resolving_projectile_index)
 
 
 func setup(shooter: Node2D, tile_size_px: float) -> void:
@@ -69,6 +98,8 @@ func update_stance() -> void:
 ## 조준 중 이동 속도 배율(×0.4). 조준 중이 아니면 1.0.
 func move_speed_multiplier() -> float:
 	if is_aiming and aim_stance != null:
+		if focus_enabled and focus.breathing_remaining > 0.0:
+			return 0.8
 		return aim_stance.aim_move_speed_multiplier
 	return 1.0
 
@@ -94,6 +125,10 @@ func attack_rate(base_cycle_sec: float) -> float:
 ## 궁수 전용 가산치를 주는 버프를 적용한다. mult는 스킬 강화 배율(+8%/레벨)이며,
 ## 궁수 버프가 아니면(다른 직업의 버프·힐) 아무것도 하지 않는다.
 func apply_buff(skill: ArcherSkillData, mult: float) -> void:
+	if skill is SHARPSHOOTER_SKILL and skill.grants_breathing:
+		if focus_enabled:
+			focus.start_breathing()
+		return
 	if skill == null or skill.buff_duration_sec <= 0.0:
 		return
 	_buff_timer = skill.buff_duration_sec * mult
@@ -123,7 +158,24 @@ func effective_range_tiles(spec: ArrowSpec) -> float:
 
 
 ## 발사를 시작한다 — 1발째는 즉시, 나머지는 연사 간격마다(속사 3발 0.08초 간격).
-func fire(action: Resource, spec: ArrowSpec, direction: Vector2) -> void:
+func can_fire(action: Resource, spec: ArrowSpec, direction: Vector2) -> bool:
+	if spec == null or not is_instance_valid(_shooter) or not _shooter.is_inside_tree():
+		return false
+	if not direction.is_finite() or direction.length_squared() <= 0.0001:
+		return false
+	var distance := effective_range_tiles(spec) * _tile_size_px
+	var speed := spec.speed_px_per_sec(_tile_size_px)
+	if not is_finite(distance) or distance <= 0.0 or not is_finite(speed) or speed <= 0.0:
+		return false
+	if action is SHARPSHOOTER_SKILL and action.focus_cost > 0:
+		return focus_enabled and focus.value >= float(action.focus_cost)
+	return true
+
+
+func fire(action: Resource, spec: ArrowSpec, direction: Vector2) -> bool:
+	if not can_fire(action, spec, direction):
+		return false
+	cancel_burst()
 	var count := 1
 	var interval := 0.0
 	var archer_skill := action as ArcherSkillData
@@ -134,14 +186,20 @@ func fire(action: Resource, spec: ArrowSpec, direction: Vector2) -> void:
 	_burst_spec = spec
 	_burst_direction = direction
 	_burst_remaining = count
+	_burst_count = count
+	_burst_index = 0
 	_burst_interval = interval
 	_burst_timer = 0.0
-	_fire_one()
+	return _fire_one()
 
 
 ## 매 프레임 호출 — 버프 지속시간과 연사 큐를 진행한다. 연사는 스킬 상태와 무관하게
 ## 큐가 남아 있으면 계속 쏘므로 후딜 진입 후에도 예정 발수가 보장된다(중단은 cancel_burst).
 func advance(delta: float) -> void:
+	if not is_finite(delta) or delta <= 0.0:
+		return
+	if focus_enabled:
+		focus.advance(delta)
 	if _buff_timer > 0.0:
 		_buff_timer = maxf(_buff_timer - delta, 0.0)
 		if _buff_timer <= 0.0:
@@ -157,35 +215,69 @@ func advance(delta: float) -> void:
 
 ## 남은 연사를 취소한다(피격 경직·전직 로드아웃 교체 시).
 func cancel_burst() -> void:
+	if _burst_cast_id >= 0:
+		focus.cancel_unspawned(_burst_cast_id, _burst_index)
 	_burst_remaining = 0
 	_burst_timer = 0.0
 	_burst_action = null
 	_burst_spec = null
+	_burst_cast_id = -1
 
 
-func _fire_one() -> void:
+func _fire_one() -> bool:
+	if not can_fire(_burst_action, _burst_spec, _burst_direction):
+		cancel_burst()
+		return false
+	var arrow := _spawn_arrow(_burst_action, _burst_spec, _burst_direction)
+	if arrow == null:
+		cancel_burst()
+		return false
+	if focus_enabled and _burst_index == 0:
+		var cap := 15
+		if _burst_action is SHARPSHOOTER_SKILL:
+			cap = _burst_action.focus_charge_cap
+			if _burst_action.focus_cost > 0 and not focus.spend():
+				arrow.queue_free()
+				cancel_burst()
+				return false
+		_burst_cast_id = focus.begin_cast(_burst_count, cap)
+	var cast_id := _burst_cast_id
+	var index := _burst_index
+	arrow.arrow_hit_landed.connect(_on_arrow_hit_landed.bind(cast_id, index))
+	if cast_id >= 0:
+		arrow.flight_ended.connect(focus.end.bind(cast_id, index))
+	arrow.launch(_burst_direction, effective_range_tiles(_burst_spec) * _tile_size_px)
 	_burst_remaining -= 1
+	_burst_index += 1
 	_burst_timer += _burst_interval
-	_spawn_arrow(_burst_action, _burst_spec, _burst_direction)
 	if _burst_remaining <= 0:
 		cancel_burst()
+	return true
 
 
-## 화살 1발을 월드에 스폰해 발사한다. 몬스터 투사체와 동일하게 씬 루트에 붙여(플레이어를
-## 따라 움직이지 않게) 독립적으로 날아가게 한다(scripts/ai/rift_slime_monster.gd 선례).
-func _spawn_arrow(action: Resource, spec: ArrowSpec, direction: Vector2) -> void:
+## 화살 1발을 플레이어와 같은 필드에 스폰한다. 플레이어 이동과 독립적이며
+## 필드가 제거되면 날아가는 화살도 함께 종료된다.
+func _spawn_arrow(action: Resource, spec: ArrowSpec, _direction: Vector2) -> ArrowProjectile:
 	if spec == null or _shooter == null or not _shooter.is_inside_tree():
-		return
+		return null
 	var arrow := ARROW_SCENE.instantiate() as ArrowProjectile
-	_shooter.get_tree().root.add_child(arrow)
+	# 플레이어와 같은 필드에 두어 필드 교체가 투사체 수명도 종료한다.
+	_shooter.get_parent().add_child(arrow)
 	arrow.global_position = shot_origin()
 	arrow.configure(action, spec, _tile_size_px)
-	arrow.arrow_hit_landed.connect(_on_arrow_hit_landed)
-	arrow.launch(direction, effective_range_tiles(spec) * _tile_size_px)
+	return arrow
 
 
-func _on_arrow_hit_landed(action: Resource, body: Node) -> void:
+func _on_arrow_hit_landed(
+	action: Resource, body: Node, cast_id: int = -1, projectile_index: int = -1
+) -> void:
+	var previous_cast := _resolving_cast_id
+	var previous_index := _resolving_projectile_index
+	_resolving_cast_id = cast_id
+	_resolving_projectile_index = projectile_index
 	arrow_hit_landed.emit(action, body)
+	_resolving_cast_id = previous_cast
+	_resolving_projectile_index = previous_index
 
 
 ## 발밑 대신 몸 중심에서 커서를 향한다. 근접 적의 발로 방향을 스냅하지 않는다.

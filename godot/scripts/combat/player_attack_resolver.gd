@@ -89,7 +89,12 @@ func _on_attack_hit(step, target: Node) -> void:
 		if not target.died.is_connected(on_died):
 			target.died.connect(on_died, CONNECT_ONE_SHOT)
 	if target.has_method("take_damage"):
+		var before: Variant = target.get("hp")
 		target.take_damage(damage, hit_grade, _player)
+		if before is float or before is int:
+			var after: Variant = target.get("hp")
+			if (after is float or after is int) and after < before:
+				_player._shots.confirm_valid_damage()
 
 	if step is WarriorSkillData:
 		HitFeedback.play_sfx(SKILL_HIT_SFX, target_position)

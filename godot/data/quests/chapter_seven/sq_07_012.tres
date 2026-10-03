@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "SQ-07-012"
+title = "연락원의 신호"
+offer_text = "현장의 기록을 확인하고 하프나 연락원에게 결과를 전하세요."
+prerequisite = "MQ-07-03"
+npc_id = "hafna_courier"
+accept_npc_id = "frost_quartermaster"
+reward_exp = 67584
+reward_gold = 15498
+reward_reputation = 53
+objective_kinds = Array[String](["INTERACT", "TALK"])
+objective_targets = Array[String](["frost_beacon", "hafna_courier"])
+objective_sources = Array[String](["frost_beacon_site", ""])
+objective_counts = Array[int]([1, 1])
+objective_labels = Array[String](["서리재 신호대 복구 [F]", "하프나 연락원에게 전달 [F]"])
+objective_location_hints = Array[String](["서리재·하프나 보급로", "서리재·하프나 보급로"])

@@ -1,7 +1,7 @@
 extends RefCounted
 # gdlint: disable=max-file-lines
 ## 자동 생성: tools/generate_chapter_content.py · 원본 godot/data/content/*.json
-const CURRENT_REVISION := 5
+const CURRENT_REVISION := 6
 const BGM_CONTEXTS := {
 	"eastern_frontier_start": "res://scenes/world/eastern_frontier_starting_area.tscn",
 	"novera_gate": "res://scenes/world/novera_gate.tscn",
@@ -21,6 +21,11 @@ const BGM_CONTEXTS := {
 	"forest_edge": "res://scenes/world/eastern_frontier_starting_area.tscn",
 	"mosswood": "res://scenes/world/eastern_frontier_starting_area.tscn",
 	"sylvien": "res://scenes/world/eastern_frontier_starting_area.tscn",
+	"durgan": "res://scenes/world/novera_gate.tscn",
+	"iron_mine": "res://scenes/world/novera_gate.tscn",
+	"karndurum": "res://scenes/world/novera_gate.tscn",
+	"frost_pass": "res://scenes/world/novera_gate.tscn",
+	"durgan_training": "res://scenes/world/novera_gate.tscn",
 }
 const SCENES := {
 	"eastern_frontier_start": "res://scenes/world/product_world.tscn",
@@ -41,6 +46,11 @@ const SCENES := {
 	"forest_edge": "res://scenes/world/product_world.tscn",
 	"mosswood": "res://scenes/world/product_world.tscn",
 	"sylvien": "res://scenes/world/product_world.tscn",
+	"durgan": "res://scenes/world/product_world.tscn",
+	"iron_mine": "res://scenes/world/product_world.tscn",
+	"karndurum": "res://scenes/world/product_world.tscn",
+	"frost_pass": "res://scenes/world/product_world.tscn",
+	"durgan_training": "res://scenes/world/product_world.tscn",
 }
 const NAMES := {
 	"eastern_frontier_start": "여울목",
@@ -61,6 +71,11 @@ const NAMES := {
 	"forest_edge": "숲가 마을길",
 	"mosswood": "이끼내 수림길",
 	"sylvien": "실비엔 조사구역",
+	"durgan": "두르간 공방가",
+	"iron_mine": "쇳골 갱도",
+	"karndurum": "카른두름 교섭구역",
+	"frost_pass": "서리재·하프나 보급로",
+	"durgan_training": "두르간 훈련장",
 }
 const BOUNDS := {
 	"eastern_frontier_start": Rect2(0, 0, 768, 576),
@@ -81,6 +96,11 @@ const BOUNDS := {
 	"forest_edge": Rect2(0, 0, 1792, 1152),
 	"mosswood": Rect2(0, 0, 2112, 1344),
 	"sylvien": Rect2(0, 0, 1920, 1280),
+	"durgan": Rect2(0, 0, 1920, 1280),
+	"iron_mine": Rect2(0, 0, 1920, 1280),
+	"karndurum": Rect2(0, 0, 1920, 1280),
+	"frost_pass": Rect2(0, 0, 1920, 1280),
+	"durgan_training": Rect2(0, 0, 640, 480),
 }
 const EDGES := {
 	"yeoulmok_gatewarden":
@@ -295,6 +315,62 @@ const EDGES := {
 	["mosswood", "sylvien", Vector2(2000, 672), Vector2(176, 640), "sylvien_to_mosswood"],
 	"sylvien_to_mosswood":
 	["sylvien", "mosswood", Vector2(96, 640), Vector2(1920, 672), "mosswood_to_sylvien"],
+	"misran_to_durgan":
+	["misran", "durgan", Vector2(1488, 512), Vector2(176, 640), "durgan_to_misran"],
+	"durgan_to_misran":
+	["durgan", "misran", Vector2(96, 640), Vector2(1408, 512), "misran_to_durgan"],
+	"durgan_to_iron_mine":
+	["durgan", "iron_mine", Vector2(1808, 640), Vector2(176, 640), "iron_mine_to_durgan"],
+	"iron_mine_to_durgan":
+	["iron_mine", "durgan", Vector2(96, 640), Vector2(1728, 640), "durgan_to_iron_mine"],
+	"iron_mine_to_karndurum":
+	[
+		"iron_mine",
+		"karndurum",
+		Vector2(1808, 640),
+		Vector2(176, 640),
+		"karndurum_to_iron_mine",
+	],
+	"karndurum_to_iron_mine":
+	[
+		"karndurum",
+		"iron_mine",
+		Vector2(96, 640),
+		Vector2(1728, 640),
+		"iron_mine_to_karndurum",
+	],
+	"karndurum_to_frost_pass":
+	[
+		"karndurum",
+		"frost_pass",
+		Vector2(1808, 640),
+		Vector2(176, 640),
+		"frost_pass_to_karndurum",
+	],
+	"frost_pass_to_karndurum":
+	[
+		"frost_pass",
+		"karndurum",
+		Vector2(96, 640),
+		Vector2(1728, 640),
+		"karndurum_to_frost_pass",
+	],
+	"durgan_to_training":
+	[
+		"durgan",
+		"durgan_training",
+		Vector2(640, 352),
+		Vector2(144, 384),
+		"training_to_durgan",
+	],
+	"training_to_durgan":
+	[
+		"durgan_training",
+		"durgan",
+		Vector2(64, 384),
+		Vector2(640, 432),
+		"durgan_to_training",
+	],
 }
 const QUESTS := {
 	"MQ-01-01": "res://data/quests/mq_01_01.tres",
@@ -354,6 +430,27 @@ const QUESTS := {
 	"SQ-06-008": "res://data/quests/chapter_six/sq_06_008.tres",
 	"SQ-06-009": "res://data/quests/chapter_six/sq_06_009.tres",
 	"SQ-06-010": "res://data/quests/chapter_six/sq_06_010.tres",
+	"MQ-07-01": "res://data/quests/chapter_seven/mq_07_01.tres",
+	"MQ-07-02": "res://data/quests/chapter_seven/mq_07_02.tres",
+	"MQ-07-03": "res://data/quests/chapter_seven/mq_07_03.tres",
+	"MQ-07-04": "res://data/quests/chapter_seven/mq_07_04.tres",
+	"MQ-07-05": "res://data/quests/chapter_seven/mq_07_05.tres",
+	"MQ-07-06": "res://data/quests/chapter_seven/mq_07_06.tres",
+	"SQ-07-001": "res://data/quests/chapter_seven/sq_07_001.tres",
+	"SQ-07-002": "res://data/quests/chapter_seven/sq_07_002.tres",
+	"SQ-07-003": "res://data/quests/chapter_seven/sq_07_003.tres",
+	"SQ-07-004": "res://data/quests/chapter_seven/sq_07_004.tres",
+	"SQ-07-005": "res://data/quests/chapter_seven/sq_07_005.tres",
+	"SQ-07-006": "res://data/quests/chapter_seven/sq_07_006.tres",
+	"SQ-07-007": "res://data/quests/chapter_seven/sq_07_007.tres",
+	"SQ-07-008": "res://data/quests/chapter_seven/sq_07_008.tres",
+	"SQ-07-009": "res://data/quests/chapter_seven/sq_07_009.tres",
+	"SQ-07-010": "res://data/quests/chapter_seven/sq_07_010.tres",
+	"SQ-07-011": "res://data/quests/chapter_seven/sq_07_011.tres",
+	"SQ-07-012": "res://data/quests/chapter_seven/sq_07_012.tres",
+	"SQ-07-013": "res://data/quests/chapter_seven/sq_07_013.tres",
+	"TR-WAR-02": "res://data/quests/job_trials/tr_war_02.tres",
+	"TR-ARC-02": "res://data/quests/job_trials/tr_arc_02.tres",
 }
 const NPCS := {
 	"yeoulmok_receptionist": ["eastern_frontier_start", Vector2(152, 440), "접수원"],
@@ -380,6 +477,15 @@ const NPCS := {
 	"mosswood_scout": ["mosswood", Vector2(448, 624), "이끼내 길잡이"],
 	"illien": ["sylvien", Vector2(704, 592), "일리엔"],
 	"sylvien_observer": ["sylvien", Vector2(1216, 704), "실비엔 조사원"],
+	"durgan_foreman": ["durgan", Vector2(448, 592), "두르간 공방 감독"],
+	"durgan_clerk": ["durgan", Vector2(1248, 704), "두르간 물자 서기"],
+	"mine_surveyor": ["iron_mine", Vector2(448, 592), "쇳골 측량사"],
+	"mine_worker": ["iron_mine", Vector2(1248, 704), "쇳골 광부"],
+	"karndurum_envoy": ["karndurum", Vector2(448, 592), "카른두름 교섭관"],
+	"rune_artisan": ["karndurum", Vector2(1248, 704), "룬 기술자"],
+	"frost_quartermaster": ["frost_pass", Vector2(448, 592), "서리재 보급관"],
+	"hafna_courier": ["frost_pass", Vector2(1248, 704), "하프나 연락원"],
+	"durgan_trainer": ["durgan_training", Vector2(160, 320), "두르간 훈련 담당"],
 }
 const MERCHANTS := {
 	"novera_gate": [Vector2(216, 440)],
@@ -390,6 +496,7 @@ const MERCHANTS := {
 	"saleno": [Vector2(480, 528)],
 	"arsel": [Vector2(448, 528)],
 	"misran": [Vector2(608, 592)],
+	"durgan": [Vector2(672, 704)],
 }
 const REGION_REQUIREMENTS := {
 	"novera_gate": "MQ-01-05",
@@ -409,6 +516,11 @@ const REGION_REQUIREMENTS := {
 	"forest_edge": "MQ-06-01",
 	"mosswood": "MQ-06-02",
 	"sylvien": "MQ-06-03",
+	"durgan": "MQ-06-05",
+	"iron_mine": "MQ-07-01",
+	"karndurum": "MQ-07-02",
+	"frost_pass": "MQ-07-03",
+	"durgan_training": "MQ-07-01",
 }
 const SITES := {
 	"yeoulmok_old_rift_entrance":
@@ -655,6 +767,39 @@ const SITES := {
 	[Vector2(1504, 928), "sylvien_boundary_site", "INTERACT", "조사 경계 점검", "sylvien"],
 	"sylvien_report":
 	[Vector2(960, 736), "sylvien_report_site", "INTERACT", "공동 조사 보고서", "sylvien"],
+	"durgan_arrival": [Vector2(256, 640), "durgan_arrival_site", "REACH", "두르간 조사단 도착", "durgan"],
+	"durgan_brief": [Vector2(832, 352), "durgan_brief_site", "INTERACT", "광산 조사 요청 대조", "durgan"],
+	"durgan_manifest":
+	[Vector2(1152, 352), "durgan_manifest_site", "INTERACT", "공방 물자 명세 확인", "durgan"],
+	"durgan_tools": [Vector2(1152, 864), "durgan_tools_site", "INTERACT", "광부 연장 묶음 인수", "durgan"],
+	"mine_support": [Vector2(800, 352), "mine_support_site", "INTERACT", "무너진 지지대 점검", "iron_mine"],
+	"mine_route": [Vector2(1440, 352), "mine_route_site", "REACH", "우회 갱도 출구 탐사", "iron_mine"],
+	"mine_ore": [Vector2(1440, 928), "mine_ore_site", "INTERACT", "광맥 표본 대조", "iron_mine"],
+	"mine_lamp": [Vector2(800, 928), "mine_lamp_site", "INTERACT", "갱도 표지등 복구", "iron_mine"],
+	"karndurum_terms":
+	[
+		Vector2(832, 352),
+		"karndurum_terms_site",
+		"INTERACT",
+		"광산 공동 이용 조건 대조",
+		"karndurum",
+	],
+	"karndurum_rune":
+	[Vector2(1440, 352), "karndurum_rune_site", "INTERACT", "룬 장치의 균열 기록", "karndurum"],
+	"karndurum_water":
+	[Vector2(832, 928), "karndurum_water_site", "INTERACT", "공방 냉각 수로 점검", "karndurum"],
+	"karndurum_seal":
+	[Vector2(1440, 928), "karndurum_seal_site", "INTERACT", "기술 공유 문서 봉인", "karndurum"],
+	"frost_cache":
+	[Vector2(800, 352), "frost_cache_site", "INTERACT", "눈에 묻힌 보급함 확인", "frost_pass"],
+	"frost_beacon":
+	[Vector2(1440, 352), "frost_beacon_site", "INTERACT", "서리재 신호대 복구", "frost_pass"],
+	"frost_arrival":
+	[Vector2(1440, 928), "frost_arrival_site", "REACH", "하프나 연락 거점 도착", "frost_pass"],
+	"frost_dispatch":
+	[Vector2(800, 928), "frost_dispatch_site", "INTERACT", "보급로 재개 전령 기록", "frost_pass"],
+	"durgan_treaty":
+	[Vector2(1440, 928), "durgan_treaty_site", "INTERACT", "상호 협력 조약 기록", "durgan"],
 }
 const MARKER_HABITATS := {
 	"yeoulmok_rabbit_habitat": ["eastern_frontier_start", "Markers/MonsterSpawns_뿔토끼"],
@@ -761,6 +906,41 @@ const HABITATS := {
 		"wolf",
 		"corrupted_treant",
 	],
+	"mine_bats":
+	[
+		"iron_mine",
+		[Vector2(1024, 464), Vector2(1136, 464), Vector2(1248, 464)],
+		"forest_spider",
+		"cave_bat",
+	],
+	"mine_kobolds":
+	[
+		"iron_mine",
+		[Vector2(1024, 800), Vector2(1136, 800), Vector2(1248, 800)],
+		"outlaw",
+		"kobold_miner",
+	],
+	"rune_golems":
+	[
+		"karndurum",
+		[Vector2(1024, 464), Vector2(1136, 464), Vector2(1248, 464)],
+		"wolf",
+		"rock_golem",
+	],
+	"pass_wolves":
+	[
+		"frost_pass",
+		[Vector2(1024, 800), Vector2(1136, 800), Vector2(1248, 800)],
+		"wolf",
+		"frost_wolf",
+	],
+	"pass_spirits":
+	[
+		"frost_pass",
+		[Vector2(1024, 464), Vector2(1136, 464), Vector2(1248, 464)],
+		"rift_slime",
+		"ice_spirit",
+	],
 }
 const MARKER_CONTENT_IDS := {
 	"yeoulmok_rabbit_habitat": "horned_rabbit",
@@ -815,6 +995,10 @@ const SITE_NOTICES := {
 	"sylvien_resonance": "일리엔이 감응을 읽는 동안 주변의 진동을 기록한다. 조사자는 같은 흔적이 이어지는 방향을 표시한다.",
 	"sylvien_seal": "일리엔은 마수 무리 뒤에 군인을 지닌 지성체의 개입이 있음을 확인한다. 확인된 관측만 공동 보고서에 남긴다.",
 	"sylvien_report": "일리엔은 앞으로도 감응 조사에 협력하기로 한다. 미스란과 실비엔은 확인된 관측을 함께 보관한다.",
+	"mine_support": "지지대가 내려앉아 수레길이 막혔다. 측량사는 동쪽의 오래된 갱도를 우회로로 제시한다.",
+	"karndurum_terms": "교섭관은 광석의 일방 반출 대신 공구와 식량의 정기 공급을 요구한다. 공동 조사 기록을 바탕으로 조건을 맞춘다.",
+	"frost_beacon": "눈보라에 끊겼던 신호가 하프나 쪽 봉우리에서 응답한다. 보급대가 움직일 길이 다시 이어졌다.",
+	"durgan_treaty": "광산 안전 조사와 룬 기술 교류, 서리재 보급 협력을 하나의 조약에 남긴다.",
 }
 const LAYOUTS := {
 	"yeoulmok_defense":
@@ -1183,6 +1367,12 @@ const LAYOUTS := {
 			},
 		],
 	},
+	"durgan_training":
+	{
+		"floor": Vector2i(2, 2),
+		"spawn": Vector2(144, 384),
+		"patches": [],
+	},
 }
 const QUEST_REQUIREMENTS := {
 	"MQ-03-01":
@@ -1277,6 +1467,41 @@ const MONSTER_VARIANTS := {
 		"stats": "res://data/monsters/chapter_six/corrupted_treant.tres",
 		"level": 38,
 	},
+	"cave_bat":
+	{
+		"title": "동굴 박쥐",
+		"scene": "forest_spider",
+		"stats": "res://data/monsters/chapter_seven/cave_bat.tres",
+		"level": 40,
+	},
+	"kobold_miner":
+	{
+		"title": "코볼트 광부",
+		"scene": "outlaw",
+		"stats": "res://data/monsters/chapter_seven/kobold_miner.tres",
+		"level": 42,
+	},
+	"rock_golem":
+	{
+		"title": "바위 골렘",
+		"scene": "wolf",
+		"stats": "res://data/monsters/chapter_seven/rock_golem.tres",
+		"level": 44,
+	},
+	"frost_wolf":
+	{
+		"title": "서리 늑대",
+		"scene": "wolf",
+		"stats": "res://data/monsters/chapter_seven/frost_wolf.tres",
+		"level": 46,
+	},
+	"ice_spirit":
+	{
+		"title": "얼음 정령",
+		"scene": "rift_slime",
+		"stats": "res://data/monsters/chapter_seven/ice_spirit.tres",
+		"level": 48,
+	},
 }
 const WARP_ARRIVALS := {
 	"novera_commons": Vector2(128, 384),
@@ -1286,6 +1511,44 @@ const WARP_ARRIVALS := {
 	"saleno": Vector2(176, 480),
 	"arsel": Vector2(176, 480),
 	"misran": Vector2(176, 512),
+	"durgan": Vector2(176, 640),
+}
+const TRIAL_TARGETS := {
+	"trial_war_heavy":
+	{
+		"quest_id": "TR-WAR-02",
+		"index": 0,
+		"target": "trial_target",
+		"region": "durgan_training",
+	},
+	"trial_war_guard":
+	{
+		"quest_id": "TR-WAR-02",
+		"index": 1,
+		"target": "trial_target",
+		"region": "durgan_training",
+	},
+	"trial_arc_near":
+	{
+		"quest_id": "TR-ARC-02",
+		"index": 0,
+		"target": "trial_target",
+		"region": "durgan_training",
+	},
+	"trial_arc_far":
+	{
+		"quest_id": "TR-ARC-02",
+		"index": 1,
+		"target": "trial_target",
+		"region": "durgan_training",
+	},
+	"trial_arc_moving":
+	{
+		"quest_id": "TR-ARC-02",
+		"index": 2,
+		"target": "trial_target",
+		"region": "durgan_training",
+	},
 }
 const QUEST_REVISIONS := {
 	"MQ-01-01": 1,
@@ -1345,6 +1608,27 @@ const QUEST_REVISIONS := {
 	"SQ-06-008": 5,
 	"SQ-06-009": 5,
 	"SQ-06-010": 5,
+	"MQ-07-01": 6,
+	"MQ-07-02": 6,
+	"MQ-07-03": 6,
+	"MQ-07-04": 6,
+	"MQ-07-05": 6,
+	"MQ-07-06": 6,
+	"SQ-07-001": 6,
+	"SQ-07-002": 6,
+	"SQ-07-003": 6,
+	"SQ-07-004": 6,
+	"SQ-07-005": 6,
+	"SQ-07-006": 6,
+	"SQ-07-007": 6,
+	"SQ-07-008": 6,
+	"SQ-07-009": 6,
+	"SQ-07-010": 6,
+	"SQ-07-011": 6,
+	"SQ-07-012": 6,
+	"SQ-07-013": 6,
+	"TR-WAR-02": 6,
+	"TR-ARC-02": 6,
 }
 const REGION_REVISIONS := {
 	"eastern_frontier_start": 1,
@@ -1365,6 +1649,11 @@ const REGION_REVISIONS := {
 	"forest_edge": 5,
 	"mosswood": 5,
 	"sylvien": 5,
+	"durgan": 6,
+	"iron_mine": 6,
+	"karndurum": 6,
+	"frost_pass": 6,
+	"durgan_training": 6,
 }
 
 
