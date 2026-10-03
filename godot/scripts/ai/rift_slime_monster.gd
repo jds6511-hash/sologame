@@ -1,4 +1,5 @@
 ## 균열 점액 (HitFeedback 강 대표) — m2-monster-spec.md 3-3장.
+## 2026-10-03: 인지 밖 피격 시 공격자를 추격해 사거리 안에서 기존 조준·발사를 사용한다.
 ##
 ## 상태 전이 (spec 3-3장 원문 그대로):
 ##   [배회] --(인지범위 4타일 진입)--> [조준](예고 0.7초, 바닥 착탄 지점 표시) --> [투사체 발사]
@@ -121,9 +122,14 @@ func _process_chase(delta: float) -> void:
 		velocity = Vector2.ZERO
 		return
 	# 이미 시작한 공격과 쿨다운을 끝낸 다음 새 조준을 시작한다.
-	if _aim.phase != AimFireBlock.Phase.IDLE:
+	if _aim.phase == AimFireBlock.Phase.AIMING:
+		velocity = Vector2.ZERO
+		_aim.update(delta)
+		return
+	if _aim.phase == AimFireBlock.Phase.COOLDOWN:
 		_aim.update(delta)
 		if state != State.CHASE:
+			velocity = Vector2.ZERO
 			return
 	if is_target_in_range_tiles(stats.projectile_range_tiles):
 		velocity = Vector2.ZERO

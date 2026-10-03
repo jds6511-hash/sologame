@@ -5,6 +5,9 @@ var player: PlayerController
 
 func before_each() -> void:
 	PlayerController.run_toggle_mode = false
+	Input.action_release("walk_toggle")
+	Input.action_release("move_right")
+	Input.action_release("skill_secondary")
 	player = load("res://scenes/player/player.tscn").instantiate()
 	add_child_autofree(player)
 	player.set_physics_process(false)
@@ -20,6 +23,9 @@ func after_each() -> void:
 func test_toggle_is_cleared_by_pause_and_death_without_accelerating_aim() -> void:
 	PlayerController.run_toggle_mode = true
 	Input.action_press("walk_toggle")
+	# action_press 직후가 아닌 다음 물리 프레임에서 제품의 입력 소비를 재현한다.
+	await get_tree().physics_frame
+	assert_true(Input.is_action_just_pressed("walk_toggle"), "새 물리 프레임의 누르기 이벤트")
 	player._update_run_input()
 	Input.action_release("walk_toggle")
 	var normal := player.movement_data.get_walk_speed_px_per_sec()
@@ -35,6 +41,7 @@ func test_toggle_is_cleared_by_pause_and_death_without_accelerating_aim() -> voi
 	player._notification(Node.NOTIFICATION_PAUSED)
 	assert_almost_eq(player._resolve_move_speed_px(false), normal, 0.001)
 	Input.action_press("walk_toggle")
+	await get_tree().physics_frame
 	player._update_run_input()
 	Input.action_release("walk_toggle")
 	player.is_input_locked = true

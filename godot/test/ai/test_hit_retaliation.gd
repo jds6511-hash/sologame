@@ -66,7 +66,16 @@ func test_environment_damage_does_not_invent_an_attacker() -> void:
 
 
 func test_existing_species_also_target_outside_perception_attacker() -> void:
-	for kind in ["wolf", "forest_spider", "shadow_forest_spider", "outlaw", "highwayman", "poacher", "imp", "imp_lord"]:
+	for kind in [
+		"wolf",
+		"forest_spider",
+		"shadow_forest_spider",
+		"outlaw",
+		"highwayman",
+		"poacher",
+		"imp",
+		"imp_lord"
+	]:
 		var monster := _spawn(kind)
 		var attacker := Node2D.new()
 		add_child_autofree(attacker)
@@ -117,3 +126,18 @@ func test_zero_damage_does_not_provoke_new_retaliators() -> void:
 		add_child_autofree(attacker)
 		monster.take_damage(0.0, "약", attacker)
 		assert_false(monster.get("_retaliating"), kind + " 실제 피해 없는 호출 제외")
+
+
+func test_slime_keeps_telegraph_stationary_when_attacker_leaves_range() -> void:
+	var slime := _spawn("rift_slime") as RiftSlimeMonster
+	slime.projectile_scene = null
+	var attacker := Node2D.new()
+	add_child_autofree(attacker)
+	attacker.position = Vector2(64, 0)
+	slime.take_damage(1.0, "약", attacker)
+	await wait_seconds(0.4)
+	slime._physics_process(0.016)
+	attacker.position = Vector2(160, 0)
+	slime._physics_process(0.016)
+	slime._physics_process(0.016)
+	assert_eq(slime.velocity, Vector2.ZERO, "이미 시작한 조준은 정지 상태로 마무리")
