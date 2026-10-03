@@ -3,7 +3,7 @@ extends Node
 signal changed
 const Model = preload("res://scripts/territory/territory_model.gd")
 const Travel = preload("res://scripts/territory/territory_travel.gd")
-const DESK := Vector2(320, 488)
+const DESK := Travel.TERRITORY_GATE
 var world: Node2D
 var player: Node2D
 var remainder_ms := 0.0

@@ -3,6 +3,8 @@ const Model = preload("res://scripts/territory/territory_model.gd")
 const Travel = preload("res://scripts/territory/territory_travel.gd")
 const Content = preload("res://scripts/content/game_content.gd")
 const ERRORS := {
+	"warp_departure": "도시 서쪽 입구의 워프 표식 또는 소유 영지 관리인 가까이에서 이용하세요.",
+	"ownership": "소유 영지가 없습니다.",
 	"onsite": "영지 관리인 가까이에서 이용하세요.",
 	"gold": "골드가 부족합니다.",
 	"gold_limit": "골드 보유 한도 때문에 처리할 수 없습니다.",
@@ -159,7 +161,7 @@ func _refresh() -> void:
 		)
 	else:
 		_label("영지 없음 · 여울목 방어와 문장원 심사 후 관리가 열립니다")
-	_label("개방한 도시로 워프 · 요금은 목적지와 공훈 인장 등급에 따라 계산합니다")
+	_label("유료 이동: 도시 서쪽 입구 워프 표식 / 소유 영지 관리인 근처에서 출발")
 	for city in Travel.CITIES:
 		var quote: Dictionary = Travel.quote(
 			runtime.travel_state(),
@@ -169,8 +171,11 @@ func _refresh() -> void:
 			runtime.world.get_node("QuestController").journal.reputation()
 		)
 		var title: String = Content.NAMES[Travel.CITIES[city].map_id]
+		var departure: String = Travel.departure_error(runtime.world.map_id, runtime.player.position, data)
+		if departure != "":
+			quote.error = departure
 		_button(
-			title + (" · %dG" % quote.cost if quote.error == "" else " · 미개방/현재 위치"),
+			title + (" · %dG" % quote.cost if quote.error == "" else (" · 게이트에서 출발" if quote.error == "warp_departure" else " · 미개방/현재 위치")),
 			_ask_warp.bind(city),
 			quote.error != ""
 		)
@@ -196,6 +201,10 @@ func _ask(action: String) -> void:
 
 
 func _ask_warp(city: String) -> void:
+	var departure: String = Travel.departure_error(runtime.world.map_id, runtime.player.position, runtime.state())
+	if departure != "":
+		message.text = ERRORS.get(departure, "이동 조건을 확인하세요.")
+		return
 	pending = "warp:" + city
 	var offer: Dictionary = Travel.quote(
 		runtime.travel_state(),

@@ -13,6 +13,8 @@ $status = 'running'
 $failure = ''
 $before = $null
 $after = $null
+$qaMutex = New-Object System.Threading.Mutex($false, 'Local\sologame_verify_all')
+$ownsQa = $false
 
 function Save-Manifest([string]$Directory) {
     $result = [ordered]@{}
@@ -186,5 +188,7 @@ try {
     } catch { $status='failed'; $failure += ' Cannot verify final actual-save hashes: ' + $_.Exception.Message }
     @{status=$status;error=$failure;format=7;content_revision=5;combat_requested=[bool]$Combat;actual_unchanged=($null -ne $before -and $null -ne $after -and ($before | ConvertTo-Json -Compress) -eq ($after | ConvertTo-Json -Compress));results=$records.ToArray()} | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $out 'result.json') -Encoding UTF8
 }
+if ($ownsQa) { $qaMutex.ReleaseMutex() }
+$qaMutex.Dispose()
 Write-Output ("VERIFY_ALL_{0} steps={1} result={2} {3}" -f $status.ToUpper(),$records.Count,(Join-Path $out 'result.json'),$failure)
 if ($status -ne 'pass') { exit 1 }

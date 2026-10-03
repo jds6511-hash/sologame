@@ -2,6 +2,8 @@
 # gdlint: disable=max-returns
 extends RefCounted
 const Model = preload("res://scripts/territory/territory_model.gd")
+const Content = preload("res://scripts/content/game_content.gd")
+const TERRITORY_GATE := Vector2(320, 488)
 const CITIES := {
 	"novera": {"map_id": "novera_commons", "level": 10, "index": 0},
 	"gransia": {"map_id": "gransia", "level": 18, "index": 1},
@@ -93,6 +95,15 @@ static func quote(
 			result.destination = "yeoulmok"
 			result.map_id = "eastern_frontier_start"
 		return result
+	if not is_city(source_map) and source_map != "eastern_frontier_start":
+		result.error = "warp_departure"
+		return result
+	if source_map == "eastern_frontier_start" and territory.get("representative", "") == "":
+		result.error = "ownership"
+		return result
+	if is_city(source_map) and SOURCES[source_map] not in travel.unlocked:
+		result.error = "locked"
+		return result
 	if not CITIES.has(destination) or destination not in travel.unlocked:
 		result.error = "locked"
 		return result
@@ -101,7 +112,7 @@ static func quote(
 		result.error = "same_destination"
 		return result
 	var distance := absi(int(CITIES[SOURCES[source_map]].index) - int(CITIES[destination].index))
-	var coefficient := 25 if distance <= 1 else 60
+	var coefficient := 25 if distance <= 1 else (40 if distance == 2 else 60)
 	var discount := 1.0
 	if reputation >= 7500:
 		discount = 0.0
@@ -112,6 +123,23 @@ static func quote(
 	var unit := roundi(2.0 * pow(float(CITIES[destination].level), 1.5))
 	result.cost = int(ceil(coefficient * unit * discount))
 	return result
+
+
+static func is_city(map_id: String) -> bool:
+	for city in CITIES.values():
+		if city.map_id == map_id:
+			return true
+	return false
+
+
+static func departure_error(map_id: String, position: Vector2, territory: Dictionary) -> String:
+	if map_id == "eastern_frontier_start":
+		if territory.get("representative", "") == "":
+			return "ownership"
+		return "" if position.distance_to(TERRITORY_GATE) <= 40.0 else "warp_departure"
+	if not is_city(map_id):
+		return "warp_departure"
+	return "" if position.distance_to(Content.WARP_ARRIVALS[map_id]) <= 40.0 else "warp_departure"
 
 
 static func commit(travel: Dictionary, economy: Dictionary, offer: Dictionary) -> String:

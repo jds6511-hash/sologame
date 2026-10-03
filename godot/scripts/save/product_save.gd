@@ -175,6 +175,12 @@ class Session:
 		var actor := world.get_node("Player")
 		var snapshot: Dictionary = codec.capture(actor, account.account_id, character)
 		var travel_model = load("res://scripts/territory/territory_travel.gd")
+		if not returning:
+			var departure: String = travel_model.departure_error(
+				world.map_id, actor.position, snapshot.progress.territory
+			)
+			if departure != "":
+				return _failure(departure)
 		var offer: Dictionary = travel_model.quote(
 			snapshot.progress.travel,
 			snapshot.progress.territory,

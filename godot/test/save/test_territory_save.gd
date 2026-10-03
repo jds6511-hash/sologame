@@ -154,6 +154,7 @@ func test_failed_world_change_does_not_charge_gold_or_start_return_cooldown() ->
 	var journal: QuestJournal = world.get_node("QuestController").journal
 	assert_eq(journal.restore_state(old.progress.quests), "")
 	var actor: Node2D = world.get_node("Player")
+	actor.position = Vector2(320, 488)
 	actor.get_node("Inventory").gold = 20000
 	var travel: Dictionary = world.get_meta("travel_state")
 	if "novera" not in travel.unlocked:
@@ -175,6 +176,29 @@ func test_failed_world_change_does_not_charge_gold_or_start_return_cooldown() ->
 	assert_eq(session.warp("", true).code, "injected_world_failure")
 	assert_eq(session.offered.progress.travel.return_ms, 900000)
 	assert_eq(world.get_meta("travel_state"), before_travel)
+	world.free()
+	BgmManager.reset()
+	await get_tree().process_frame
+
+
+func test_session_rechecks_paid_departure_before_charging() -> void:
+	var world = load("res://scripts/world/game_product.gd").instantiate_world()
+	world.set_meta("save_directory", "user://product_territory_probe")
+	add_child(world)
+	world.process_mode = Node.PROCESS_MODE_DISABLED
+	var old := old_snapshot()
+	completed(old)
+	assert_eq(world.get_node("QuestController").journal.restore_state(old.progress.quests), "")
+	var actor: Node2D = world.get_node("Player")
+	actor.get_node("Inventory").gold = 20000
+	var session = world.get_node("SaveSession")
+	var travel: Dictionary = world.get_meta("travel_state").duplicate(true)
+	for region in ["eastern_frontier_start", "novera_commons", "novera_rift", "yeoulmok_defense", "forest_edge"]:
+		world.map_id = region
+		actor.position = Vector2(600, 500)
+		assert_eq(session.warp("novera").code, "warp_departure")
+		assert_eq(actor.get_node("Inventory").gold, 20000)
+		assert_eq(world.get_meta("travel_state"), travel)
 	world.free()
 	BgmManager.reset()
 	await get_tree().process_frame

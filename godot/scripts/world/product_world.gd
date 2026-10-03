@@ -156,6 +156,13 @@ func _ready() -> void:
 		add_child(manager)
 		manager.configure(_player, territory_panel)
 		get_node("WorldInteraction").candidates.append(manager)
+	elif load("res://scripts/territory/territory_travel.gd").is_city(map_id):
+		var gate = load("res://scripts/territory/territory_manager.gd").new()
+		gate.name = "CityWarpGate"
+		gate.position = Content.WARP_ARRIVALS[map_id]
+		add_child(gate)
+		gate.configure(_player, territory_panel, true)
+		get_node("WorldInteraction").candidates.append(gate)
 
 
 func quest_targets() -> Array:

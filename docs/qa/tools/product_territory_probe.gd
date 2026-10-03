@@ -212,7 +212,10 @@ func seed_session() -> void:
 		check(controller.report(id, definition.npc_id) != "", "중복 보고 거부")
 		check(world.get_node("Player/Inventory").gold == gold + definition.reward_gold, "보상 단회 지급")
 	check(
-		world.get_node("QuestController").journal.reputation() == {4: 1950, 5: 3100, 6: 4600}[chapter],
+		(
+			world.get_node("QuestController").journal.reputation()
+			== {4: 1950, 5: 3100, 6: 4600}[chapter]
+		),
 		"장 기준 공훈 합계"
 	)
 	await territory_session()
@@ -275,6 +278,8 @@ func save_snapshot(slot: int, name: String) -> void:
 
 
 func territory_session() -> void:
+	await go_region({4: "brantel", 5: "arsel", 6: "misran"}[chapter])
+	world.get_node("Player").position = RegionsM7.WARP_ARRIVALS[world.map_id]
 	var session = world.get_node("SaveSession")
 	check(session.warp("novera").ok, "방문 도시 유료 워프")
 	await refresh()
