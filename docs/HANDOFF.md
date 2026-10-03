@@ -11,7 +11,7 @@
 ## 이어서 진행할 일
 
 1. 4장·영지·워프·V7의 최종 검증 기록과 통합 검토 요청서를 커밋한다. 검토 대기를 이유로 개발을 멈추지 않는다.
-2. 5장 메인5/서브7·5지역은 V7/개정4로 기본 반영했고 단일검증126/126·GUT1225/1225·실제저장6개불변이다. [증거](qa/chapter-five-evidence.md). 이어서 6장 초안 `docs/qa/screenshots/chapter6-draft/INTEGRATION.md`를 통합한다.
+2. 5장 메인5/서브7·5지역은 V7/개정4로 기본 반영했고 단일검증126/126·GUT1225/1225·실제저장6개불변이다. [증거](qa/chapter-five-evidence.md), [검토 요청](qa/chapter-five-review-request.md) 대상 `5be9ed4`, 결과 `docs/qa/reviews/5be9ed4.md`. 이어서 6장 초안 `docs/qa/screenshots/chapter6-draft/INTEGRATION.md`를 통합한다.
 3. 6장 종료 때 영지 투자의 가치·성장·난이도를 한 번에 판정한다. 4장이나 기존 1막 재완주를 디렉터에게 요구하지 않는다. 2차 전직 새 시스템은 승인된 순서대로 상세 설계를 거친다.
 
 ## 주의 사항
