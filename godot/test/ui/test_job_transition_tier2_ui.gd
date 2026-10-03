@@ -102,13 +102,13 @@ func test_screen_texts_switch_to_second_tier() -> void:
 	assert_true(guide.text.contains("Lv.40"), "안내문의 임계 레벨은 직업 정의에서 읽는다")
 
 
-## jobs.md 6장: 검투사 지급 무기(WPN-GS-40-B)는 미발행이라 "없음 (준비 중)"이 정상 동작이다.
-func test_gladiator_card_shows_pending_weapon_as_normal() -> void:
+## 제품 개정6부터 검투사 Lv40 B급 지급 무기를 카드에도 명시한다.
+func test_gladiator_card_shows_issued_weapon() -> void:
 	_reach_tier2_as_warrior()
 	_screen().open()
 
 	var weapon_label: Label = _cards().get_child(GLADIATOR_INDEX).get_child(0).get_child(3)
-	assert_eq(weapon_label.text, "지급 무기: 없음 (준비 중)")
+	assert_eq(weapon_label.text, "지급 무기: 왕국군 제식 대검")
 
 
 func test_tier1_screen_does_not_include_gladiator() -> void:
